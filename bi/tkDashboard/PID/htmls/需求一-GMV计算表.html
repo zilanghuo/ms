@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>需求一：PID 维度 GMV 计算表 — Demo</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item .fuzzy { color: var(--muted); font-size: 0.75rem; }
+    .query-item input, .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
+    .query-item input { min-width: 130px; }
+    .query-item select { min-width: 160px; cursor: pointer; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 900px; }
+    th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
+    th { background: #f9fafb; color: var(--muted); font-weight: 500; white-space: nowrap; }
+    tr:hover td { background: #f9fafb; }
+    td { color: var(--text); }
+    .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .pagination { padding: 0.6rem 1rem; border-top: 1px solid var(--border); background: #f9fafb; display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; font-size: 0.85rem; }
+    .pagination .info { color: var(--muted); margin-right: auto; }
+    .pagination .btn { padding: 0.35rem 0.65rem; min-width: 60px; }
+    .pagination .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">PID 维度 GMV 计算表</h1>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <span class="label">日期</span>
+          <input type="date" id="qDate" />
+        </div>
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select id="qStore">
+            <option value="">全部</option>
+            <option value="1店">美区跨境1店</option>
+            <option value="2店">美区跨境2店</option>
+            <option value="3店">美区跨境3店</option>
+            <option value="GB">英国直邮店:GB</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">PID</span><span class="fuzzy">（支持模糊搜索）</span>
+          <input type="text" id="qPid" placeholder="请输入" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="export-tip">
+        导出字段有：日期、PID、辅助列、营业总额、商家折扣、运费、总GMV、单量、补贴、每单补贴、店铺、实付总价（折扣价-补贴+运费）、客单价（实付总价/单量）
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>日期</th>
+              <th>PID</th>
+              <th>辅助列</th>
+              <th>营业总额</th>
+              <th>商家折扣</th>
+              <th>运费</th>
+              <th>总GMV</th>
+              <th>单量</th>
+              <th>补贴</th>
+              <th>每单补贴</th>
+              <th>店铺</th>
+              <th>实付总价</th>
+              <th>客单价</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="13" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="paginationBar" class="pagination" style="display: none;">
+        <span class="info" id="pageInfo">共 0 条</span>
+        <button type="button" class="btn btn-secondary pagination-btn" id="btnPrev">上一页</button>
+        <button type="button" class="btn btn-secondary pagination-btn" id="btnNext">下一页</button>
+      </div>
+    </div>
+
+    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+  </div>
+  <script>
+    (function() {
+      var mock = [
+        { date: '2026-02-23', pid: '1729773126172578149', aux: '2026/2/231729773126172578149', revenue: '11298.87', discount: '4909.31', shipping: '352.47', gmv: '6742.03', qty: '113', subsidy: '527.80', subsidyPer: '4.67', store: '1店', paid: '5861.76', atv: '51.87' },
+        { date: '2026-02-23', pid: '1729439482671567205', aux: '2026/2/231729439482671567205', revenue: '4299.57', discount: '1996.26', shipping: '58.28', gmv: '2361.59', qty: '43', subsidy: '119.75', subsidyPer: '2.78', store: '1店', paid: '2183.56', atv: '50.78' },
+        { date: '2026-02-23', pid: '1729416165725475173', aux: '2026/2/231729416165725475173', revenue: '1899.00', discount: '520.00', shipping: '32.00', gmv: '1411.00', qty: '28', subsidy: '84.00', subsidyPer: '3.00', store: '1店', paid: '1327.00', atv: '47.39' },
+        { date: '2026-02-24', pid: '1729380011223344556', aux: '2026/2/241729380011223344556', revenue: '5680.20', discount: '1200.00', shipping: '180.00', gmv: '4660.20', qty: '62', subsidy: '310.00', subsidyPer: '5.00', store: '1店', paid: '4350.20', atv: '70.16' },
+        { date: '2026-02-24', pid: '1729355500112233445', aux: '2026/2/241729355500112233445', revenue: '3200.00', discount: '600.00', shipping: '95.00', gmv: '2695.00', qty: '35', subsidy: '175.00', subsidyPer: '5.00', store: '2店', paid: '2520.00', atv: '72.00' },
+        { date: '2026-02-24', pid: '1729322000112233444', aux: '2026/2/241729322000112233444', revenue: '1890.50', discount: '380.00', shipping: '48.00', gmv: '1558.50', qty: '22', subsidy: '88.00', subsidyPer: '4.00', store: '2店', paid: '1470.50', atv: '66.84' }
+      ];
+      var currentRows = [];
+      var currentPage = 1;
+      var pageSize = 3;
+
+      var headers = ['日期','PID','辅助列','营业总额','商家折扣','运费','总GMV','单量','补贴','每单补贴','店铺','实付总价','客单价'];
+
+      function getFiltered() {
+        var date = document.getElementById('qDate').value;
+        var store = document.getElementById('qStore').value;
+        var pid = (document.getElementById('qPid').value || '').trim();
+        return mock.filter(function(r) {
+          if (date && r.date !== date) return false;
+          if (store && r.store !== store) return false;
+          if (pid && r.pid.indexOf(pid) === -1) return false;
+          return true;
+        });
+      }
+
+      function render(rows) {
+        currentRows = rows || [];
+        currentPage = 1;
+        renderPage();
+      }
+
+      function renderPage() {
+        var tbody = document.getElementById('resultBody');
+        var bar = document.getElementById('paginationBar');
+        var total = currentRows.length;
+        if (total === 0) {
+          tbody.innerHTML = '<tr><td colspan="13" class="empty-tip">暂无数据</td></tr>';
+          bar.style.display = 'none';
+          return;
+        }
+        var totalPages = Math.ceil(total / pageSize) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * pageSize;
+        var pageRows = currentRows.slice(start, start + pageSize);
+        tbody.innerHTML = pageRows.map(function(r) {
+          var showDate = r.date.replace(/-/g, '/');
+          return '<tr><td>' + showDate + '</td><td>' + r.pid + '</td><td>' + r.aux + '</td><td>' + r.revenue + '</td><td>' + r.discount + '</td><td>' + r.shipping + '</td><td>' + r.gmv + '</td><td>' + r.qty + '</td><td>' + r.subsidy + '</td><td>' + r.subsidyPer + '</td><td>' + r.store + '</td><td>' + r.paid + '</td><td>' + r.atv + '</td></tr>';
+        }).join('');
+        bar.style.display = 'flex';
+        document.getElementById('pageInfo').textContent = '共 ' + total + ' 条，第 ' + currentPage + ' / ' + totalPages + ' 页';
+        document.getElementById('btnPrev').disabled = currentPage <= 1;
+        document.getElementById('btnNext').disabled = currentPage >= totalPages;
+      }
+
+      function toCSV(rows) {
+        var showRows = (rows || currentRows).map(function(r) {
+          var d = r.date.replace(/-/g, '/');
+          return [d, r.pid, r.aux, r.revenue, r.discount, r.shipping, r.gmv, r.qty, r.subsidy, r.subsidyPer, r.store, r.paid, r.atv];
+        });
+        var lines = [headers.join(',')].concat(showRows.map(function(arr) {
+          return arr.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
+        }));
+        return '\uFEFF' + lines.join('\n');
+      }
+
+      function doExport() {
+        if (!currentRows.length) {
+          alert('当前无数据可导出，请先点击「查询」');
+          return;
+        }
+        var csv = toCSV(currentRows);
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'GMV计算表_' + (document.getElementById('qDate').value || '全部') + '.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      document.getElementById('btnQuery').onclick = function() {
+        render(getFiltered());
+      };
+      document.getElementById('btnReset').onclick = function() {
+        document.getElementById('qDate').value = '';
+        document.getElementById('qStore').value = '';
+        document.getElementById('qPid').value = '';
+        currentRows = [];
+        currentPage = 1;
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="13" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
+        document.getElementById('paginationBar').style.display = 'none';
+      };
+      document.getElementById('btnExport').onclick = doExport;
+      document.getElementById('btnPrev').onclick = function() {
+        if (currentPage > 1) { currentPage--; renderPage(); }
+      };
+      document.getElementById('btnNext').onclick = function() {
+        var totalPages = Math.ceil(currentRows.length / pageSize) || 1;
+        if (currentPage < totalPages) { currentPage++; renderPage(); }
+      };
+
+      document.getElementById('qDate').value = '2026-02-23';
+      render(getFiltered());
+    })();
+  </script>
+</body>
+</html>

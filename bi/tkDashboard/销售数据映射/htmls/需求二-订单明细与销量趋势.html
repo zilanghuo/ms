@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>需求二：订单明细与销量趋势 — Demo</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+    .shop-label { font-size: 1rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 200px; cursor: pointer; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 900px; }
+    th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
+    th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    tr:hover td { background: #f9fafb; }
+    td { color: var(--text); }
+    .spu-row td { background: #fef9c3; font-weight: 600; }
+    .spu-row:hover td { background: #fef08a; }
+    .diff-neg { color: #dc2626; font-weight: 500; }
+    .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .pagination { padding: 0.6rem 1rem; border-top: 1px solid var(--border); background: #f9fafb; display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; font-size: 0.85rem; }
+    .pagination .info { color: var(--muted); margin-right: auto; }
+    .pagination .btn { padding: 0.35rem 0.65rem; min-width: 60px; }
+    .pagination .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">订单明细与销量趋势</h1>
+    <p class="shop-label" id="shopLabel">请选择店铺后查询</p>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select id="qStore">
+            <option value="">请选择店铺</option>
+            <option value="1店">一店（美区跨境1店）</option>
+            <option value="2店">二店（美区跨境2店）</option>
+            <option value="3店">三店（美区跨境3店）</option>
+            <option value="英区">英区（英国直邮店）</option>
+          </select>
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="export-tip">
+        导出字段：店铺名、SPU(公式)、PID、7 天日期（计数项: SKU sold quantity in the order.）、近两天差异
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>店铺名</th>
+              <th>SPU(公式)</th>
+              <th>PID</th>
+              <th colspan="7">计数项: SKU sold quantity in the order.</th>
+              <th>近两天差异</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              <th></th>
+              <th>2026/2/21</th>
+              <th>2026/2/22</th>
+              <th>2026/2/23</th>
+              <th>2026/2/24</th>
+              <th>2026/2/25</th>
+              <th>2026/2/26</th>
+              <th>2026/2/27</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+  </div>
+  <script>
+    (function() {
+      var DAYS = ['2026/2/21', '2026/2/22', '2026/2/23', '2026/2/24', '2026/2/25', '2026/2/26', '2026/2/27'];
+
+      // 按店铺 -> SPU -> PIDs 的 mock 数据（7 天销量 + 近两天差异）
+      var byShop = {
+        '1店': [
+          { spu: 'AL-W0161', total: [122, 119, 98, 105, 88, 95, 82], diff: -13, pids: [
+            { pid: '1729439482671567205', days: [2, 81, 33, 3, 3, 8, 5], diff: -3 },
+            { pid: '1729773126172578149', days: [81, 20, 45, 70, 60, 55, 50], diff: -5 },
+            { pid: '1729416165725475173', days: [33, 15, 18, 28, 22, 28, 24], diff: -4 },
+            { pid: '1729380011223344556', days: [3, 3, 2, 2, 3, 2, 3], diff: 1 }
+          ]},
+          { spu: 'AL-W0180', total: [56, 62, 58, 70, 65, 72, 67], diff: -5, pids: [
+            { pid: '1731657241623302501', days: [40, 35, 30, 45, 40, 45, 42], diff: -3 },
+            { pid: '1731657241623302502', days: [16, 27, 28, 25, 25, 27, 25], diff: -2 }
+          ]},
+          { spu: 'AL-W0169', total: [88, 92, 85, 90, 88, 95, 57], diff: -38, pids: [
+            { pid: '1729355500112233445', days: [50, 52, 48, 50, 48, 52, 30], diff: -22 },
+            { pid: '1729322000112233444', days: [38, 40, 37, 40, 40, 43, 27], diff: -16 }
+          ]},
+          { spu: 'AL-W5558', total: [45, 48, 42, 50, 48, 52, 48], diff: -4, pids: [
+            { pid: '1729300000112233443', days: [45, 48, 42, 50, 48, 52, 48], diff: -4 }
+          ]}
+        ],
+        '2店': [
+          { spu: 'AL-W0161', total: [30, 32, 28, 35, 33, 36, 34], diff: -2, pids: [
+            { pid: '1729439482671567205', days: [18, 20, 16, 22, 20, 22, 21], diff: -1 },
+            { pid: '1729773126172578149', days: [12, 12, 12, 13, 13, 14, 13], diff: -1 }
+          ]}
+        ],
+        '3店': [
+          { spu: 'ALYMX-DROPSW', total: [20, 22, 19, 24, 21, 23, 20], diff: -3, pids: [
+            { pid: '1729416165725475173', days: [12, 14, 11, 15, 12, 14, 12], diff: -2 },
+            { pid: '1729380011223344556', days: [8, 8, 8, 9, 9, 9, 8], diff: -1 }
+          ]}
+        ],
+        '英区': [
+          { spu: 'AL-W0161', total: [15, 16, 14, 18, 16, 17, 16], diff: -1, pids: [
+            { pid: '1729439482671567205', days: [15, 16, 14, 18, 16, 17, 16], diff: -1 }
+          ]}
+        ]
+      };
+
+      var shopNames = { '1店': '一店', '2店': '二店', '3店': '三店', '英区': '英区' };
+
+      function getFiltered() {
+        var store = document.getElementById('qStore').value;
+        if (!store || !byShop[store]) return null;
+        return { store: store, name: shopNames[store], list: byShop[store] };
+      }
+
+      function render(data) {
+        var tbody = document.getElementById('resultBody');
+        var label = document.getElementById('shopLabel');
+        if (!data || !data.list.length) {
+          label.textContent = '请选择店铺后查询';
+          tbody.innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+          return;
+        }
+        label.textContent = data.name;
+
+        var totalRows = 0;
+        data.list.forEach(function(group) {
+          totalRows += 1 + group.pids.length;
+        });
+
+        var html = '';
+        var firstRow = true;
+        data.list.forEach(function(group) {
+          var rowspan = group.pids.length + 1;
+          html += '<tr class="spu-row">';
+          if (firstRow) {
+            html += '<td rowspan="' + totalRows + '">' + data.name + '</td>';
+            firstRow = false;
+          }
+          html += '<td rowspan="' + rowspan + '">' + group.spu + '</td>';
+          html += '<td>小计</td>';
+          group.total.forEach(function(v) { html += '<td>' + v + '</td>'; });
+          html += '<td class="' + (group.diff < 0 ? 'diff-neg' : '') + '">' + (group.diff >= 0 ? '+' : '') + group.diff + '</td>';
+          html += '</tr>';
+          group.pids.forEach(function(p) {
+            html += '<tr>';
+            html += '<td>' + p.pid + '</td>';
+            p.days.forEach(function(v) { html += '<td>' + v + '</td>'; });
+            html += '<td class="' + (p.diff < 0 ? 'diff-neg' : '') + '">' + (p.diff >= 0 ? '+' : '') + p.diff + '</td>';
+            html += '</tr>';
+          });
+        });
+        tbody.innerHTML = html;
+      }
+
+      function flattenForCSV(data) {
+        if (!data || !data.list) return [];
+        var rows = [];
+        data.list.forEach(function(group) {
+          rows.push([data.name, group.spu, '小计'].concat(group.total).concat([group.diff]));
+          group.pids.forEach(function(p) {
+            rows.push([data.name, group.spu, p.pid].concat(p.days).concat([p.diff]));
+          });
+        });
+        return rows;
+      }
+
+      function toCSV(data) {
+        var rows = flattenForCSV(data);
+        if (!rows.length) return '';
+        var headers = ['店铺名', 'SPU(公式)', 'PID'].concat(DAYS).concat(['近两天差异']);
+        var lines = [headers.map(escapeCell).join(',')].concat(rows.map(function(row) {
+          return row.map(escapeCell).join(',');
+        }));
+        return '\uFEFF' + lines.join('\n');
+      }
+
+      function escapeCell(v) {
+        var s = String(v);
+        if (s.indexOf('"') >= 0 || s.indexOf(',') >= 0 || s.indexOf('\n') >= 0) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      }
+
+      function doExport() {
+        var data = getFiltered();
+        if (!data || !data.list.length) {
+          alert('请先选择店铺并点击「查询」后再导出');
+          return;
+        }
+        var csv = toCSV(data);
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '销量趋势_' + data.name + '.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      document.getElementById('btnReset').onclick = function() {
+        document.getElementById('qStore').value = '';
+        document.getElementById('shopLabel').textContent = '请选择店铺后查询';
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+      };
+      document.getElementById('btnExport').onclick = doExport;
+
+      document.getElementById('qStore').value = '1店';
+      render(getFiltered());
+    })();
+  </script>
+</body>
+</html>

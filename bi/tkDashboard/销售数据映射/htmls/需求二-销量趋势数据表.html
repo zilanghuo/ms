@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>需求二：TK-独立站数据销量趋势数据表 — Demo</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 200px; cursor: pointer; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 1100px; }
+    th, td { padding: 0.5rem 0.65rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    tr:hover td { background: #f9fafb; }
+    td { color: var(--text); }
+    .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .pagination { padding: 0.6rem 1rem; border-top: 1px solid var(--border); background: #f9fafb; display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; font-size: 0.85rem; }
+    .pagination .info { color: var(--muted); margin-right: auto; }
+    .pagination .btn { padding: 0.35rem 0.65rem; min-width: 60px; }
+    .pagination .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">TK-独立站数据销量趋势数据表</h1>
+    <p style="color: var(--muted); font-size: 0.9rem; margin: 0 0 1rem;">数据表与 2.3 映射表目标字段一致，支持按「店铺」搜索/筛选</p>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select id="qStore">
+            <option value="">全部</option>
+            <option value="美区跨境1店:US">美区跨境1店:US</option>
+            <option value="美区跨境2店:US">美区跨境2店:US</option>
+            <option value="美区跨境3店:US">美区跨境3店:US</option>
+            <option value="英国直邮店:GB">英国直邮店:GB</option>
+          </select>
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="export-tip">
+        导出字段与下表一致：Paid Time、归属月份(公式)、店铺、order id、Platform SKU ID.、Seller sku、SKU sold quantity、Order total amount、PID、SPU(公式)
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-wrap">
+        <table id="resultTable">
+          <thead>
+            <tr>
+              <th>Paid Time</th>
+              <th>归属月份(公式)</th>
+              <th>店铺</th>
+              <th>order id</th>
+              <th>Platform SKU ID.</th>
+              <th>Seller sku input by the seller in the product system.</th>
+              <th>SKU sold quantity in the order.</th>
+              <th>Order total amount paid by the buyer.</th>
+              <th>PID</th>
+              <th>SPU(公式)</th>
+            </tr>
+          </thead>
+          <tbody id="resultBody">
+            <tr><td colspan="10" class="empty-tip">请选择店铺后点击「查询」</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="paginationBar" class="pagination" style="display: none;">
+        <span class="info" id="pageInfo">共 0 条</span>
+        <button type="button" class="btn btn-secondary pagination-btn" id="btnPrev">上一页</button>
+        <button type="button" class="btn btn-secondary pagination-btn" id="btnNext">下一页</button>
+      </div>
+    </div>
+
+    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+  </div>
+  <script>
+    (function() {
+      var COLS = 10;
+      var headers = ['Paid Time','归属月份(公式)','店铺','order id','Platform SKU ID.','Seller sku input by the seller in the product system.','SKU sold quantity in the order.','Order total amount paid by the buyer.','PID','SPU(公式)'];
+
+      var mock = [
+        ['2026-02-27 10:15', '202602', '美区跨境1店:US', 'ORD-20260227-001', '1729439482671567205', 'AL-W0161-DARKGRAY-XL', 2, '57.76', '1729439482671567205', 'AL-W0161'],
+        ['2026-02-27 11:22', '202602', '美区跨境1店:US', 'ORD-20260227-002', '1731657241623302501', 'AL-W0180-BLACK-L', 1, '29.99', '1731657241623302501', 'AL-W0180'],
+        ['2026-02-27 14:08', '202602', '美区跨境3店:US', 'ORD-20260227-003', '1729416165725475173', 'ALYMX-DROPSW-DARKGRAY-M', 1, '19.47', '1729416165725475173', 'ALYMX-DROPSW'],
+        ['2026-02-26 09:30', '202602', '英国直邮店:GB', 'ORD-20260226-004', '1729439482671567205', 'AL-W0161-DARKGRAY-S', 3, '89.97', '1729439482671567205', 'AL-W0161'],
+        ['2026-02-26 16:45', '202602', '美区跨境1店:US', 'ORD-20260226-005', '1729773126172578149', 'AL-W0162-NAVY-M', 1, '32.50', '1729773126172578149', 'AL-W0162'],
+        ['2026-02-27 09:00', '202602', '美区跨境1店:US', 'ORD-20260227-006', '1729380011223344556', 'ALYMX-DROPSW-BLACK-L', 2, '38.94', '1729380011223344556', 'ALYMX-DROPSW'],
+        ['2026-02-26 11:20', '202602', '美区跨境2店:US', 'ORD-20260226-007', '1729355500112233445', 'AL-W0169-BLACK-S', 1, '28.00', '1729355500112233445', 'AL-W0169'],
+        ['2026-02-27 15:30', '202602', '美区跨境1店:US', 'ORD-20260227-008', '1729439482671567205', 'AL-W0161-WHITE-M', 2, '59.98', '1729439482671567205', 'AL-W0161']
+      ];
+
+      var currentRows = [];
+      var currentPage = 1;
+      var pageSize = 5;
+
+      function getFiltered() {
+        var store = document.getElementById('qStore').value;
+        if (!store) return mock;
+        return mock.filter(function(row) { return row[2] === store; });
+      }
+
+      function render(rows) {
+        currentRows = rows || [];
+        currentPage = 1;
+        renderPage();
+      }
+
+      function escapeCell(v) {
+        var s = String(v);
+        if (s.indexOf('"') >= 0 || s.indexOf(',') >= 0 || s.indexOf('\n') >= 0) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
+      }
+
+      function renderPage() {
+        var tbody = document.getElementById('resultBody');
+        var bar = document.getElementById('paginationBar');
+        var total = currentRows.length;
+        if (total === 0) {
+          tbody.innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">暂无数据</td></tr>';
+          bar.style.display = 'none';
+          return;
+        }
+        var totalPages = Math.ceil(total / pageSize) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start = (currentPage - 1) * pageSize;
+        var pageRows = currentRows.slice(start, start + pageSize);
+        tbody.innerHTML = pageRows.map(function(row) {
+          return '<tr>' + row.map(function(cell) { return '<td>' + String(cell) + '</td>'; }).join('') + '</tr>';
+        }).join('');
+        bar.style.display = 'flex';
+        document.getElementById('pageInfo').textContent = '共 ' + total + ' 条，第 ' + currentPage + ' / ' + totalPages + ' 页';
+        document.getElementById('btnPrev').disabled = currentPage <= 1;
+        document.getElementById('btnNext').disabled = currentPage >= totalPages;
+      }
+
+      function toCSV(rows) {
+        var data = rows || currentRows;
+        if (!data.length) return '';
+        var lines = [headers.map(escapeCell).join(',')].concat(data.map(function(row) {
+          return row.map(escapeCell).join(',');
+        }));
+        return '\uFEFF' + lines.join('\n');
+      }
+
+      function doExport() {
+        if (!currentRows.length) {
+          alert('当前无数据可导出，请先点击「查询」');
+          return;
+        }
+        var csv = toCSV(currentRows);
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'TK-独立站数据销量趋势数据_' + (document.getElementById('qStore').value || '全部') + '.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      document.getElementById('btnReset').onclick = function() {
+        document.getElementById('qStore').value = '';
+        currentRows = [];
+        currentPage = 1;
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+        document.getElementById('paginationBar').style.display = 'none';
+      };
+      document.getElementById('btnExport').onclick = doExport;
+      document.getElementById('btnPrev').onclick = function() {
+        if (currentPage > 1) { currentPage--; renderPage(); }
+      };
+      document.getElementById('btnNext').onclick = function() {
+        var totalPages = Math.ceil(currentRows.length / pageSize) || 1;
+        if (currentPage < totalPages) { currentPage++; renderPage(); }
+      };
+
+      render(getFiltered());
+    })();
+  </script>
+</body>
+</html>

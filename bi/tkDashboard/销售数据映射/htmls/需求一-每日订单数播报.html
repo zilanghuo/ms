@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>需求一：每日订单数播报 — Demo</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 130px; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
+    th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); }
+    th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    tr:hover td { background: #f9fafb; }
+    tr.total td { font-weight: 600; background: #f0fdf4; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">每日订单数播报</h1>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <span class="label">日期</span>
+          <input type="date" id="qDate" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="export-tip">
+        导出字段：日期、店铺、订单数（与下表一致，用于播报到企微项目群）
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-wrap">
+        <table id="resultTable">
+        <thead>
+          <tr>
+            <th>日期</th>
+            <th>店铺</th>
+            <th>订单数</th>
+          </tr>
+        </thead>
+        <tbody id="resultBody">        </tbody>
+      </table>
+      </div>
+    </div>
+
+    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+  </div>
+  <script>
+    (function() {
+      var headers = ['日期', '店铺', '订单数'];
+      var mock = [
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '1店（美区跨境1店）', orders: 230 },
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '2店（美区跨境2店）', orders: 0 },
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '3店（美区跨境3店）', orders: 3 },
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '英区（英国直邮店）', orders: 12 },
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '独立站', orders: 0 },
+        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '合计', orders: 245, isTotal: true }
+      ];
+
+      function getFiltered() {
+        var date = document.getElementById('qDate').value;
+        if (!date) return mock;
+        return mock.filter(function(r) { return r.date === date; });
+      }
+
+      function render(rows) {
+        var tbody = document.getElementById('resultBody');
+        var list = rows || getFiltered();
+        if (!list.length) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#666;padding:2rem;">暂无数据，请选择日期后查询</td></tr>';
+          return;
+        }
+        tbody.innerHTML = list.map(function(r) {
+          var cls = r.isTotal ? ' class="total"' : '';
+          return '<tr' + cls + '><td>' + r.dateLabel + '</td><td>' + r.store + '</td><td>' + r.orders + '</td></tr>';
+        }).join('');
+      }
+
+      function toCSV(rows) {
+        var list = rows || getFiltered();
+        if (!list.length) return '';
+        var lines = [headers.join(',')].concat(list.map(function(r) {
+          return '"' + r.dateLabel.replace(/"/g, '""') + '","' + r.store.replace(/"/g, '""') + '",' + r.orders;
+        }));
+        return '\uFEFF' + lines.join('\n');
+      }
+
+      function doExport() {
+        var list = getFiltered();
+        if (!list.length) {
+          alert('当前无数据可导出');
+          return;
+        }
+        var csv = toCSV(list);
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = '每日订单数播报_' + (document.getElementById('qDate').value || '全部') + '.csv';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      document.getElementById('btnReset').onclick = function() {
+        document.getElementById('qDate').value = '';
+        render(getFiltered());
+      };
+      document.getElementById('btnExport').onclick = doExport;
+
+      document.getElementById('qDate').value = '2026-02-27';
+      render(getFiltered());
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tkDashboard — 需求 Demo</title>
+  <style>
+    :root {
+      --side-bg: #1e293b;
+      --side-text: #e2e8f0;
+      --side-hover: #334155;
+      --side-active: #0d9488;
+      --side-active-bg: rgba(13, 148, 136, 0.2);
+      --main-bg: #f1f5f9;
+      --header-bg: #fff;
+      --header-border: #e2e8f0;
+      --breadcrumb: #64748b;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; font-size: 14px; }
+    body { display: flex; flex-direction: column; overflow: hidden; }
+
+    .layout { display: flex; flex: 1; min-height: 0; }
+    .sidebar { width: 240px; min-width: 240px; background: var(--side-bg); color: var(--side-text); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-brand { padding: 1rem 1.25rem; font-weight: 600; font-size: 1rem; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+    .nav-group { margin-bottom: 0.25rem; }
+    .nav-group-title { padding: 0.5rem 1.25rem; font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .nav-item { display: block; padding: 0.5rem 1.25rem; color: var(--side-text); text-decoration: none; font-size: 0.9rem; transition: background 0.15s; }
+    .nav-item:hover { background: var(--side-hover); color: #fff; }
+    .nav-item.active { background: var(--side-active-bg); color: var(--side-active); font-weight: 500; }
+    .main-wrap { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--main-bg); }
+    .header { background: var(--header-bg); border-bottom: 1px solid var(--header-border); padding: 0.6rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .header-title { font-weight: 600; font-size: 1rem; color: #0f172a; }
+    .breadcrumb { font-size: 0.85rem; color: var(--breadcrumb); }
+    .breadcrumb span { margin: 0 0.25rem; }
+    .content-frame { flex: 1; border: none; width: 100%; min-height: 0; background: #fff; display: block; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">tkDashboard</div>
+      <nav class="sidebar-nav">
+        <div class="nav-group">
+          <div class="nav-group-title">PID</div>
+          <a class="nav-item active" href="#" data-src="PID/htmls/需求一-GMV计算表.html" data-breadcrumb="PID / 需求一：GMV 计算表">需求一：GMV 计算表</a>
+          <a class="nav-item" href="#" data-src="PID/htmls/需求二-数据看板.html" data-breadcrumb="PID / 需求二：数据看板">需求二：数据看板</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">销售数据映射</div>
+          <a class="nav-item" href="#" data-src="销售数据映射/htmls/需求一-每日订单数播报.html" data-breadcrumb="销售数据映射 / 需求一：每日订单数播报">需求一：每日订单数播报</a>
+          <a class="nav-item" href="#" data-src="销售数据映射/htmls/需求二-订单明细与销量趋势.html" data-breadcrumb="销售数据映射 / 需求二：订单明细与销量趋势">需求二：订单明细与销量趋势</a>
+          <a class="nav-item" href="#" data-src="销售数据映射/htmls/需求二-销量趋势数据表.html" data-breadcrumb="销售数据映射 / 需求二：销量趋势数据表">需求二：销量趋势数据表</a>
+        </div>
+      </nav>
+    </aside>
+    <main class="main-wrap">
+      <header class="header">
+        <div class="header-title" id="pageTitle">需求一：GMV 计算表</div>
+        <div class="breadcrumb" id="breadcrumb">tkDashboard / PID / 需求一：GMV 计算表</div>
+      </header>
+      <iframe class="content-frame" id="contentFrame" src="PID/htmls/需求一-GMV计算表.html" title="子需求内容"></iframe>
+    </main>
+  </div>
+  <script>
+    (function() {
+      var frame = document.getElementById('contentFrame');
+      var pageTitle = document.getElementById('pageTitle');
+      var breadcrumb = document.getElementById('breadcrumb');
+      var navItems = document.querySelectorAll('.sidebar .nav-item');
+
+      function setActive(item) {
+        navItems.forEach(function(el) { el.classList.remove('active'); });
+        item.classList.add('active');
+      }
+
+      document.querySelectorAll('.sidebar .nav-item').forEach(function(item) {
+        item.addEventListener('click', function(e) {
+          e.preventDefault();
+          var src = this.getAttribute('data-src');
+          var breadcrumbText = this.getAttribute('data-breadcrumb');
+          if (!src) return;
+          frame.src = src;
+          pageTitle.textContent = this.textContent.trim();
+          breadcrumb.textContent = 'tkDashboard / ' + breadcrumbText;
+          setActive(this);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
