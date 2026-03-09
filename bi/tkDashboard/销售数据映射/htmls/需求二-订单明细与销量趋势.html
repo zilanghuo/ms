@@ -43,6 +43,14 @@
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+    .btn-ai { display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; border: none; }
+    .btn-ai:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; }
+    .btn-ai svg { width: 1.1em; height: 1.1em; }
+    .ai-analysis-card { background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #c4b5fd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; display: none; }
+    .ai-analysis-card.visible { display: block; }
+    .ai-analysis-card h4 { font-size: 0.95rem; color: #5b21b6; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.35rem; }
+    .ai-analysis-card h4 svg { width: 1.1em; height: 1.1em; }
+    .ai-analysis-card .content { font-size: 0.9rem; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
   </style>
 </head>
 <body>
@@ -72,10 +80,19 @@
     <div class="action-bar">
       <div class="btns">
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+        <button type="button" class="btn btn-ai" id="btnAi" title="基于当前数据生成 AI 分析">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>
+          AI 分析
+        </button>
       </div>
       <div class="export-tip">
         导出字段：店铺名、SPU(公式)、PID、7 天日期（计数项: SKU sold quantity in the order.）、近两天差异
       </div>
+    </div>
+
+    <div class="ai-analysis-card" id="aiAnalysisCard">
+      <h4><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>基于数据的 AI 分析</h4>
+      <div class="content" id="aiAnalysisContent"></div>
     </div>
 
     <div class="table-card">
@@ -110,7 +127,7 @@
       </div>
     </div>
 
-    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+    <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
   </div>
   <script>
     (function() {
@@ -247,13 +264,63 @@
         URL.revokeObjectURL(a.href);
       }
 
+      function generateAiAnalysis() {
+        var data = getFiltered();
+        var card = document.getElementById('aiAnalysisCard');
+        var content = document.getElementById('aiAnalysisContent');
+        if (!data || !data.list.length) {
+          content.textContent = '请先选择店铺并点击「查询」，加载数据后再点击「AI 分析」。';
+          card.classList.add('visible');
+          return;
+        }
+        var list = data.list;
+        var totalLast7 = 0;
+        var totalPrev2 = 0;
+        var spuWithNeg = [];
+        var pidWithNeg = [];
+        list.forEach(function(group) {
+          var s7 = group.total[group.total.length - 1] || 0;
+          var s6 = group.total[group.total.length - 2] || 0;
+          totalLast7 += s7;
+          totalPrev2 += s6;
+          if (group.diff < 0) spuWithNeg.push({ spu: group.spu, diff: group.diff });
+          group.pids.forEach(function(p) {
+            if (p.diff < 0) pidWithNeg.push({ spu: group.spu, pid: p.pid, diff: p.diff });
+          });
+        });
+        var prev2Sum = list.reduce(function(sum, g) {
+          return sum + (g.total[g.total.length - 2] || 0);
+        }, 0);
+        var last2Sum = list.reduce(function(sum, g) {
+          return sum + (g.total[g.total.length - 1] || 0);
+        }, 0);
+        var trend = last2Sum >= prev2Sum ? '环比上升' : '环比下降';
+        var parts = [];
+        parts.push('【' + data.name + '】近 7 日销量趋势：2/26 合计 ' + prev2Sum + ' 件，2/27 合计 ' + last2Sum + ' 件，整体' + trend + '。');
+        parts.push('共 ' + list.length + ' 个 SPU、' + list.reduce(function(n, g) { return n + g.pids.length; }, 0) + ' 个 PID。');
+        if (spuWithNeg.length) {
+          var top3 = spuWithNeg.slice(0, 3).map(function(x) { return x.spu + '（' + x.diff + '）'; }).join('、');
+          parts.push('近两天差异为负的 SPU：' + top3 + (spuWithNeg.length > 3 ? ' 等 ' + spuWithNeg.length + ' 个' : '') + '，建议关注库存与推广。');
+        }
+        if (pidWithNeg.length && pidWithNeg.length <= 5) {
+          parts.push('差异为负的 PID：' + pidWithNeg.map(function(x) { return x.pid.slice(-8) + '（' + x.diff + '）'; }).join('、') + '。');
+        } else if (pidWithNeg.length > 5) {
+          parts.push('共 ' + pidWithNeg.length + ' 个 PID 近两天销量下滑，可结合商品卡/直播/短视频表现做异常归因。');
+        }
+        parts.push('以上为基于当前表格数据的结构化摘要，可配合业务动作做运营复盘与补货决策。');
+        content.textContent = parts.join('\n\n');
+        card.classList.add('visible');
+      }
+
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
       document.getElementById('btnReset').onclick = function() {
         document.getElementById('qStore').value = '';
         document.getElementById('shopLabel').textContent = '请选择店铺后查询';
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+        document.getElementById('aiAnalysisCard').classList.remove('visible');
       };
       document.getElementById('btnExport').onclick = doExport;
+      document.getElementById('btnAi').onclick = generateAiAnalysis;
 
       document.getElementById('qStore').value = '1店';
       render(getFiltered());

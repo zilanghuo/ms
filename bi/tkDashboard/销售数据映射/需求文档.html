@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>销售数据映射表 — 需求文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 500px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .doc img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; margin: 0.5rem 0; }
+    p { margin: 0.5rem 0 1rem; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    .req-metrics { display: inline-table; margin: 0.5rem 0 1rem; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .req-metrics th { background: #f1f5f9; padding: 0.35rem 0.75rem; width: 5em; text-align: left; }
+    .req-metrics td { padding: 0.35rem 0.75rem; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>销售数据映射表 — 需求文档</h1>
+    <hr />
+
+    <h2>一、需求一：每日订单数播报</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>—</td></tr>
+      <tr><th>价值</th><td>原先每天0.5小时人工处理，频次一个月30天，每个月可节省 15小时；系统化，可介入AI进行数据分析</td></tr>
+    </table>
+    <h3>1.1 需求描述</h3>
+    <ul>
+      <li><strong>数据范围</strong>：仅使用源数据表「全渠道销售订单表」。</li>
+      <li><strong>筛选规则</strong>：
+        <ul>
+          <li>买家实付金额不为零。</li>
+          <li><strong>美区</strong>：付款时间早于当日 <strong>夏令时 18:00 / 冬令时 17:00</strong>。</li>
+          <li><strong>欧洲</strong>：不限制时间，取全部符合「实付不为零」的数据。</li>
+        </ul>
+      </li>
+      <li><strong>统计与播报</strong>：按「店铺 + 平台订单编号」去重得到订单数，按店铺播报到企微项目群。</li>
+    </ul>
+    <h3>1.2 流程</h3>
+    <ol>
+      <li>从「全渠道销售订单表」按上述规则筛选数据。</li>
+      <li>按「店铺 + 订单号」去重，得到各店铺当日订单数。</li>
+      <li>将结果播报到企微项目群。</li>
+    </ol>
+    <h3>1.3 最终目标结果</h3>
+    <p>需求一达成的目标：<strong>按日、按店铺的订单数播报</strong>，在企微项目群中呈现如下形式。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>日期</th><th>店铺</th><th>订单数</th></tr></thead>
+        <tbody>
+          <tr><td>2月27日（美国时间）</td><td>1店（美区跨境1店）</td><td>230</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>2店（美区跨境2店）</td><td>0</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>3店（美区跨境3店）</td><td>3</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>英区（英国直邮店）</td><td>12</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>独立站</td><td>0</td></tr>
+          <tr><td>2月27日（美国时间）</td><td><strong>合计</strong></td><td><strong>245</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><em>企微发送文案示例：</em><br /><code>2月27日（美国时间）订单数：1店230 / 2店0 / 3店3 / 英区12 / 独立站0 @所有人</code></p>
+    <h3>1.4 映射</h3>
+    <p>本需求不涉及独立映射表，直接基于「全渠道销售订单表」的店铺、平台订单编号做去重统计。源数据取数方式见本文「三、源数据统一梳理」。</p>
+    <hr />
+
+    <h2>二、需求二：订单明细与销量趋势 + 近两天差异 + 异常播报</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>—</td></tr>
+      <tr><th>价值</th><td>原先每天0.5小时人工处理，频次一个月30天，每个月可节省 15小时；系统化，可介入AI进行数据分析</td></tr>
+    </table>
+    <h3>2.1 需求描述</h3>
+    <ul>
+      <li><strong>数据范围</strong>：仅使用「全渠道销售订单表」，筛选规则与需求一一致：
+        <ul>
+          <li>买家实付金额不为零。</li>
+          <li><strong>美区</strong>：付款时间早于当日 夏令时 18:00 / 冬令时 17:00。</li>
+          <li><strong>欧洲</strong>：不限制时间，全部数据。</li>
+        </ul>
+      </li>
+      <li><strong>目标</strong>：① 映射到「订单明细」（剔除支付金额为 0、支付时间为空）；② 分析近两天差异，基于近 7 天 SPU 下 PID 销量变化并播报；③ 用 AI 分析 PID 销量异常并做异常播报。</li>
+    </ul>
+    <h3>2.2 流程</h3>
+    <ol>
+      <li><strong>数据清洗与映射</strong>：按上述规则筛选「全渠道销售订单表」，并关联「全渠道商品表」补 PID/SPU，映射到「订单明细」及最终展示表（见 2.3 映射表）。</li>
+      <li><strong>近两天差异</strong>：基于近 7 天数据，计算 SPU 下 PID 销量变化，将结果播报到企微项目群。</li>
+      <li><strong>异常播报</strong>：基于上一步结果，用 AI 识别销量增减异常的 PID，做异常情况播报。</li>
+    </ol>
+    <p><strong>涉及店铺（先做标注）：</strong><br />美国TK独立站-shopify:Global / 美国TK-艾斯特尼-美区跨境1店（先做）/ 美区跨境2店 / 美区跨境3店（先做）/ 美国TK-艾斯特尼-英国直邮店:GB（先做）</p>
+    <h3>2.3 映射表</h3>
+    <ul>
+      <li><strong>最终数据表</strong>：<code>TK-独立站数据销量趋势数据</code></li>
+      <li><strong>源表</strong>：全渠道销售订单表（主）、全渠道商品表（按 <strong>asin</strong> 关联补 PID、SPU）</li>
+    </ul>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>条件/公式</th><th>关联字段</th><th>源数据表</th><th>源字段名称</th><th>最终数据表</th><th>目标字段</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>付款时间</td><td>TK-独立站数据销量趋势数据</td><td>Paid Time</td></tr>
+          <tr><td>提取付款时间的年月，格式 202502</td><td>—</td><td>全渠道销售订单表</td><td>（公式）</td><td>TK-独立站数据销量趋势数据</td><td>归属月份(公式)</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>店铺</td><td>TK-独立站数据销量趋势数据</td><td>店铺</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>平台订单编号</td><td>TK-独立站数据销量趋势数据</td><td>order id</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>asin</td><td>TK-独立站数据销量趋势数据</td><td>Platform SKU ID.</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>msku</td><td>TK-独立站数据销量趋势数据</td><td>Seller sku input by the seller in the product system.</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>订购数量</td><td>TK-独立站数据销量趋势数据</td><td>SKU sold quantity in the order.</td></tr>
+          <tr><td>—</td><td>—</td><td>全渠道销售订单表</td><td>买家实付金额</td><td>TK-独立站数据销量趋势数据</td><td>Order total amount paid by the buyer.</td></tr>
+          <tr><td>—</td><td>asin</td><td>全渠道商品表</td><td>父ASIN</td><td>TK-独立站数据销量趋势数据</td><td>PID</td></tr>
+          <tr><td>—</td><td>asin</td><td>全渠道商品表</td><td>SPU</td><td>TK-独立站数据销量趋势数据</td><td>SPU(公式)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>2.4 最终目标结果</h3>
+    <p>需求二达成的目标包含三类产出：</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>目标结果</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>①</td><td><strong>最终数据表展示（含店铺搜索）</strong></td><td>基于「TK-独立站数据销量趋势数据」等清洗后的数据，在界面上提供<strong>最终数据表展示</strong>，并支持<strong>按店铺搜索/筛选</strong>，便于按单店查看订单明细与销量趋势。</td></tr>
+          <tr><td>②</td><td><strong>销量趋势界面（参考下图效果）</strong></td><td>界面需达到与下图类似的展示效果：按<strong>店铺</strong>（如「一店」）为维度，以 <strong>SPU → PID</strong> 层级展示；按 <strong>Paid Time</strong> 日期的<strong>每日销量</strong>；含 <strong>近两天差异</strong> 列（负值可用红色等突出显示）；SPU 行可高亮/加粗以区分汇总与明细。支持按日期、PID 等筛选。</td></tr>
+          <tr><td>③</td><td><strong>异常播报</strong></td><td>基于上述差异数据，由 AI 识别销量增减异常的 PID，并将异常情况播报到企微项目群。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>结果① 列表 demo（最终数据表字段与示例行）</strong></p>
+    <p>数据表：<code>TK-独立站数据销量趋势数据</code>。列与 2.3 映射表中的目标字段一致，界面需支持按「店铺」搜索/筛选。</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Paid Time</th><th>归属月份(公式)</th><th>店铺</th><th>order id</th><th>Platform SKU ID.</th><th>Seller sku...</th><th>SKU sold quantity...</th><th>Order total amount...</th><th>PID</th><th>SPU(公式)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2026-02-27 10:15</td><td>202602</td><td>美区跨境1店:US</td><td>ORD-20260227-001</td><td>1729439482671567205</td><td>AL-W0161-DARKGRAY-XL</td><td>2</td><td>57.76</td><td>1729439482671567205</td><td>AL-W0161</td></tr>
+          <tr><td>2026-02-27 11:22</td><td>202602</td><td>美区跨境1店:US</td><td>ORD-20260227-002</td><td>1731657241623302501</td><td>AL-W0180-BLACK-L</td><td>1</td><td>29.99</td><td>1731657241623302501</td><td>AL-W0180</td></tr>
+          <tr><td>2026-02-27 14:08</td><td>202602</td><td>美区跨境3店:US</td><td>ORD-20260227-003</td><td>1729416165725475173</td><td>ALYMX-DROPSW-DARKGRAY-M</td><td>1</td><td>19.47</td><td>1729416165725475173</td><td>ALYMX-DROPSW</td></tr>
+          <tr><td>2026-02-26 09:30</td><td>202602</td><td>英国直邮店:GB</td><td>ORD-20260226-004</td><td>1729439482671567205</td><td>AL-W0161-DARKGRAY-S</td><td>3</td><td>89.97</td><td>1729439482671567205</td><td>AL-W0161</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>② 界面效果参考示意：</strong></p>
+    <p><img src="docs/需求二-销量趋势界面示意.png" alt="需求二-销量趋势界面示意" /></p>
+    <ul>
+      <li>顶部：当前所选店铺（如「一店」）。</li>
+      <li>列：SPU(公式)、PID、Paid Time（多列按日，如 2026/2/21～2/27）、<strong>近两天差异</strong>。</li>
+      <li>行：每个 SPU 一行汇总（高亮/加粗），其下为所属 PID 明细行；数量为当日订单内 SKU 销量。</li>
+      <li>近两天差异：可为正负值，负值建议红色等视觉区分。</li>
+    </ul>
+    <hr />
+
+    <h2>三、源数据统一梳理</h2>
+    <p>以下为两个源表的取数方式，需求一、需求二共用；来源均为 <strong>积加后台</strong>。</p>
+    <h3>3.1 全渠道销售订单表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源途径</td><td>积加后台</td></tr>
+        <tr><td>步骤 1</td><td>积加 → 销售 → 销售订单管理 → 筛选店铺 → 筛选付款时间</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 根据所选字段导出 → 导出全渠道销售订单表</td></tr>
+        <tr><td>店铺范围</td><td>美国TK独立站-shopify:Global<br />美国TK-艾斯特尼-美区跨境1店<br />美国TK-艾斯特尼-美区跨境2店<br />美国TK-艾斯特尼-美区跨境3店<br />美国TK-艾斯特尼-英国直邮店:GB</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/全渠道销售订单表-筛选与列表.png" alt="全渠道销售订单表-筛选与列表" /></p>
+    <p><img src="docs/全渠道销售订单表-自定义导出.png" alt="全渠道销售订单表-自定义导出" /></p>
+    <h3>3.2 全渠道商品表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源途径</td><td>积加后台</td></tr>
+        <tr><td>步骤 1</td><td>积加 → 销售 → 商品管理 → 全渠道商品 → 筛选店铺 → 筛选在售</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 根据所选字段导出 → 导出全渠道商品表</td></tr>
+        <tr><td>店铺范围</td><td>同上 5 个店铺</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/全渠道商品表-筛选与列表.png" alt="全渠道商品表-筛选与列表" /></p>
+    <p><img src="docs/全渠道商品表-自定义导出.png" alt="全渠道商品表-自定义导出" /></p>
+    <hr />
+
+    <h2>四、需求与数据对照小结</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>需求</th><th>核心动作</th><th>使用的源数据</th><th>时间与金额规则</th></tr></thead>
+        <tbody>
+          <tr><td>需求一</td><td>店铺+订单去重 → 订单数播报</td><td>全渠道销售订单表</td><td>实付≠0；美区 18:00/17:00 前，欧洲不卡时间</td></tr>
+          <tr><td>需求二</td><td>订单明细映射 → 近两天/7天 PID 销量差异 → AI 异常播报</td><td>全渠道销售订单表 + 全渠道商品表(asin)</td><td>同上</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="需求文档.md">需求文档.md（源文件）</a></p>
+  </div>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<mxfile host="app.diagrams.net" modified="2025-01-01T00:00:00.000Z" agent="Cursor" version="22.1.0" etag="dataflow" type="device">
+  <diagram name="数据流转图" id="dataflow-tkDashboard">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <!-- 数据源 -->
+        <mxCell id="s1" value="全部笔订单&#xa;(API)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="40" y="20" width="100" height="44" as="geometry"/>
+        </mxCell>
+        <mxCell id="s2" value="全渠道商品表&#xa;(积加)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="160" y="20" width="100" height="44" as="geometry"/>
+        </mxCell>
+        <mxCell id="s3" value="全渠道销售&#xa;订单表(积加)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="280" y="20" width="100" height="44" as="geometry"/>
+        </mxCell>
+        <mxCell id="s4" value="product_list&#xa;等(TK)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="90" height="44" as="geometry"/>
+        </mxCell>
+        <mxCell id="s5" value="产品阶段&#xa;tk账号(手动)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+          <mxGeometry x="510" y="20" width="100" height="44" as="geometry"/>
+        </mxCell>
+        <!-- PID 计算层 -->
+        <mxCell id="p1" value="GMV 计算&#xa;(映射+汇总)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="80" y="120" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <mxCell id="p2" value="数据看板&#xa;(关联+计算)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;" parent="1" vertex="1">
+          <mxGeometry x="280" y="120" width="120" height="50" as="geometry"/>
+        </mxCell>
+        <!-- 销售映射计算层 -->
+        <mxCell id="c1" value="订单数去重" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="80" y="220" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="c2" value="订单明细映射&#xa;补 PID/SPU" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="220" y="220" width="110" height="40" as="geometry"/>
+        </mxCell>
+        <mxCell id="c3" value="近两天差异&#xa;AI 异常" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="360" y="220" width="100" height="40" as="geometry"/>
+        </mxCell>
+        <!-- 产出 -->
+        <mxCell id="o1" value="GMV 计算表" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="60" y="320" width="100" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="o2" value="PID 数据看板" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="260" y="320" width="100" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="o3" value="订单数播报→企微" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="60" y="400" width="110" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="o4" value="销量趋势数据&#xa;与界面" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="220" y="400" width="100" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="o5" value="异常播报→企微" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" parent="1" vertex="1">
+          <mxGeometry x="360" y="400" width="110" height="36" as="geometry"/>
+        </mxCell>
+        <!-- 连线：数据源 -> GMV计算 -->
+        <mxCell id="e1" value="" edge="1" parent="1" source="s1" target="p1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e2" value="" edge="1" parent="1" source="s2" target="p1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e3" value="" edge="1" parent="1" source="s2" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e4" value="" edge="1" parent="1" source="p1" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e5" value="" edge="1" parent="1" source="s4" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e6" value="" edge="1" parent="1" source="s5" target="p2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e7" value="" edge="1" parent="1" source="s3" target="c1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e8" value="" edge="1" parent="1" source="s3" target="c2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e9" value="" edge="1" parent="1" source="s2" target="c2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e10" value="" edge="1" parent="1" source="c2" target="c3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e11" value="" edge="1" parent="1" source="p1" target="o1">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e12" value="" edge="1" parent="1" source="p2" target="o2">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e13" value="" edge="1" parent="1" source="c1" target="o3">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e14" value="" edge="1" parent="1" source="c2" target="o4">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="e15" value="" edge="1" parent="1" source="c3" target="o5">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <!-- 分组标签 -->
+        <mxCell id="g1" value="数据源" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="40" y="0" width="60" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="g2" value="PID 计算层" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="80" y="90" width="80" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="g3" value="销售映射计算层" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="80" y="190" width="120" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="g4" value="产出与出口" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;fontStyle=1" parent="1" vertex="1">
+          <mxGeometry x="60" y="290" width="90" height="20" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

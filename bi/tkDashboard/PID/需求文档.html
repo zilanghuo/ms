@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PID 销售趋势映射 — 需求文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    blockquote { margin: 1rem 0; padding: 0.5rem 0 0.5rem 1rem; border-left: 4px solid var(--accent); color: var(--muted); font-size: 0.95rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 600px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .doc img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; margin: 0.5rem 0; }
+    p { margin: 0.5rem 0 1rem; }
+    .req-metrics { display: inline-table; margin: 0.5rem 0 1rem; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .req-metrics th { background: #f1f5f9; padding: 0.35rem 0.75rem; width: 5em; text-align: left; }
+    .req-metrics td { padding: 0.35rem 0.75rem; }
+    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 320px; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>PID 销售趋势映射 — 需求文档（基础版）</h1>
+    <blockquote>以需求为一级维度；源数据取数方式在文末「源数据统一梳理」统一说明。参照 Excel：<code>docs/PID销售趋势映射表.xlsx</code>（需求 / 映射表 / 源数据路径）。</blockquote>
+    <hr />
+
+    <h2>一、需求一：PID 维度 GMV 计算表</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>—</td></tr>
+      <tr><th>价值</th><td>原先每天0.5小时人工处理，频次一个月30天，每个月可节省 15小时；系统化，可介入AI进行数据分析</td></tr>
+    </table>
+    <h3>1.1 需求描述</h3>
+    <ul>
+      <li><strong>输入</strong>：源数据统一梳理中的 5 张表（尤其全部笔订单、全渠道商品表）+ 映射表规则。</li>
+      <li><strong>参照</strong>：<code>1店PID维度的数据监测工具表-7天数据</code> 中的 <strong>GMV计算</strong> 结构与字段。</li>
+      <li><strong>目标</strong>：按店铺、按 PID 产出「GMV 计算」数据表，为数据看板提供客单价、补贴、总 GMV 等。</li>
+      <li><strong>店铺</strong>：同上。</li>
+    </ul>
+    <h3>1.2 流程</h3>
+    <ol>
+      <li>从「全部笔订单」提取 Paid Time 日期；通过 全部笔订单.Seller SKU 关联 全渠道商品表.父ASIN 得到 PID。</li>
+      <li>按映射表规则筛选（如 Cancelation/Return Type≠Cancel）、按 PID 汇总：营业总额、商家折扣、补贴、运费、单量、实付总价等。</li>
+      <li>计算：总GMV=营业总额-商家折扣+运费；每单补贴=补贴/单量；客单价=实付总价/单量（保留两位小数）。</li>
+      <li>店铺字段由导出店铺或人工设置。</li>
+      <li>产出：<strong>1店PID维度的数据监测工具表-7天数据-》GMV计算</strong>（或等价多店表），供数据看板使用。</li>
+    </ol>
+    <h3>1.3 映射表（GMV计算）</h3>
+    <ul>
+      <li><strong>最终数据表</strong>：<code>1店PID维度的数据监测工具表-7天数据-》GMV计算</code></li>
+      <li><strong>规则</strong>：<strong>关联字段为空</strong> → 该目标字段为<strong>计算</strong>，计算逻辑见 <strong>A 列</strong>（条件/需求公式）；<strong>关联字段有值</strong> → 为<strong>映射</strong>，按关联字段 + 源数据表 + 源字段取数。</li>
+      <li>底表：全渠道商品表</li>
+      <li>相关表：tk 订单表（sku 维度）</li>
+    </ul>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>类型</th>
+            <th>目标字段</th>
+            <th>计算逻辑（A列）</th>
+            <th>关联字段</th>
+            <th>源数据表</th>
+            <th>源字段名称</th>
+            <th>在源字段第几列</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取Paid Time的日期</td><td>—</td><td>—</td><td>Paid Time</td><td>28</td></tr>
+          <tr><td>映射</td><td>PID</td><td class="tbl-formula">全渠道商品表.父ASIN</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全渠道商品表</td><td>父ASIN</td><td>—</td></tr>
+          <tr><td>映射</td><td>营业总额</td><td class="tbl-formula">全部笔订单.Cancelation/Return Type、SKU Subtotal Before Discount（=SUMIFS(订单完整!$Q:$Q,订单完整!A:A,D11)-SUMIFS(订单完整!$Q:$Q,订单完整!A:A,D11,订单完整!$H:$H,"Cancel")） ---- 备注：剔除掉取消的订单</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、SKU Subtotal Before Discount</td><td>4,13</td></tr>
+          <tr><td>映射</td><td>商家折扣</td><td class="tbl-formula">全部笔订单.Cancelation/Return Type、SKU Seller Discount（=SUMIFS(订单完整!$S:$S,订单完整!A:A,D11)-SUMIFS(订单完整!$S:$S,订单完整!A:A,D11,订单完整!$H:$H,"Cancel")）---- 剔除掉取消的订单</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、SKU Seller Discount</td><td>4,15</td></tr>
+          <tr><td>映射</td><td>运费</td><td class="tbl-formula">全部笔订单.（Original Shipping Fee（正常运费）- Shipping Fee Seller Discount（卖家补贴））    ---- 剔除掉取消的订单</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、Original Shipping Fee、Shipping Fee Seller Discount</td><td>4,18,19</td></tr>
+          <tr><td>计算</td><td>总GMV</td><td class="tbl-formula">总GMV=营业总额-商家折扣+运费（=E13-F13+G13）</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>单量</td><td class="tbl-formula">全部笔订单.Cancelation/Return Type、Quantity、Order Amount（=SUMIFS(订单完整!$N:$N,订单完整!A:A,D13)-SUMIFS(订单完整!$N:$N,订单完整!A:A,D13,订单完整!$H:$H,"Cancel")-SUMIFS(订单完整!$N:$N,订单完整!A:A,D13,订单完整!AC:AC,"0")） 备注：剔除掉取消的订单，以及订单金额为0的订单，去重</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、Quantity、Order Amount</td><td>4,10,25</td></tr>
+          <tr><td>映射</td><td>补贴</td><td class="tbl-formula">全部笔订单.Cancelation/Return Type、SKU Platform Discount（=SUMIFS(订单完整!$R:$R,订单完整!A:A,D13)-SUMIFS(订单完整!$R:$R,订单完整!A:A,D13,订单完整!$H:$H,"Cancel")）---- 备注：剔除掉取消的订单</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、SKU Platform Discount</td><td>4,14</td></tr>
+          <tr><td>映射</td><td>每单补贴</td><td class="tbl-formula">每单补贴=补贴/单量（=J13/I13）</td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、Original Shipping Fee、Shipping Fee Seller Discount</td><td>4,18,19</td></tr>
+          <tr><td>计算</td><td>店铺</td><td class="tbl-formula">店铺=导出的店铺，需要人工设置（根据导入的文件进行适配）</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>实付总价（折扣价-补贴+运费）</td><td class="tbl-formula">全部笔订单.Cancelation/Return Type、SKU Subtotal After Discount、Shipping Fee After Discount（=SUMIFS(订单完整!D:D,订单完整!A:A,D7)-SUMIFS(订单完整!D:D,订单完整!A:A,D7,订单完整!$H:$H,"Cancel")） 备注：SKU Subtotal After Discount（折扣后金额 商品售价） + Shipping Fee After Discount（补贴后客户支付运费） </td><td>全部笔订单（Seller SKU）与 全渠道商品表（父ASIN）</td><td>全部笔订单</td><td>Cancelation/Return Type、SKU Subtotal After Discount、Shipping Fee After Discount</td><td>4,16,17</td></tr>
+          <tr><td>计算</td><td>客单价（实付总价/单量）</td><td class="tbl-formula">客单价=实付总价（折扣价-补贴+运费）/单量，取小数点两位数（=M6/I6）</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>1.4 最终目标结果</h3>
+    <p>需求一达成的目标：<strong>PID 维度 GMV 计算表</strong>，字段与「1店PID维度的数据监测工具表-7天数据-》GMV计算」一致，供数据看板及后续分析使用。</p>
+    <p><strong>GMV 计算表最终呈现示意</strong></p>
+    <p>下图为需求一 GMV 计算表的目标呈现效果：按日期、按 PID（及辅助列）展示营业总额、商家折扣、运费、总GMV、单量、补贴、每单补贴、店铺、实付总价（折扣价-补贴+运费）、客单价（实付总价/单量）等字段，与映射表「GMV计算」一致，供数据看板取数。</p>
+    <p><img src="docs/pictures/需求二-GMV计算呈现示意.png" alt="需求二-GMV计算呈现示意" /></p>
+    <hr />
+
+    <h2>二、需求二：PID 维度数据看板</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>—</td></tr>
+      <tr><th>价值</th><td>原先每天0.5小时人工处理，频次一个月30天，每个月可节省 15小时；系统化，可介入AI进行数据分析</td></tr>
+    </table>
+    <h3>2.1 需求描述</h3>
+    <ul>
+      <li><strong>输入</strong>：源数据统一梳理中的 5 张表（见本文「三、源数据统一梳理」）+ 映射表规则。</li>
+      <li><strong>参照</strong>：<code>1店PID维度的数据监测工具表-7天数据</code> 中的 <strong>数据看板</strong> 结构与字段。</li>
+      <li><strong>目标</strong>：按店铺、按 PID 维度做出「数据看板」，支持按日期、店铺、PID 等筛选查看。</li>
+      <li><strong>店铺</strong>：美国TK-艾斯特尼-美区跨境1店（先做）、美区跨境2店、美区跨境3店（先做）、美国TK-艾斯特尼-英国直邮店:GB（先做）。</li>
+    </ul>
+    <h3>2.2 流程</h3>
+    <ol>
+      <li>使用源数据统一梳理中的 5 张表，按映射表关联（product_list-ID、全渠道商品表-父ASIN、GMV计算表等）。</li>
+      <li>按「数据看板」目标字段与公式，计算日期、PID、主推SPU、产品阶段、客单价、财务GMV、商品卡/直播/短视频 GMV 及占比、曝光/浏览/点击率/转化率、挂车量、广告消耗与 ACOAS 等。</li>
+      <li>产出并展示：<strong>1店PID维度的数据监测工具表-7天数据-》数据看板</strong>（或等价多店数据看板）。</li>
+    </ol>
+    <h3>2.3 映射表（数据看板）</h3>
+    <ul>
+      <li><strong>最终数据表</strong>：<code>1店PID维度的数据监测工具表-7天数据-》数据看板</code></li>
+      <li><strong>规则</strong>：<strong>关联字段为空</strong> → 该目标字段为<strong>计算</strong>，计算逻辑见 <strong>A 列</strong>；<strong>关联字段有值</strong> → 为<strong>映射</strong>，按关联字段 + 源数据表 + 源字段取数。</li>
+      <li>底表：product_list（sku的明细）</li>
+      <li>相关表：全渠道商品表、产品阶段表、产品活动数据（Product campaign data）、tk订单表</li>
+    </ul>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>类型</th><th>目标字段</th><th>计算逻辑（A列）</th><th>关联字段</th><th>源数据表</th><th>源字段名称</th><th>在源字段第几列</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取表格右上角的日期</td><td>—</td><td>product_list</td><td>（表头/图片）</td><td>—</td></tr>
+          <tr><td>计算</td><td>PID</td><td class="tbl-formula">直接取源表：product_list.ID</td><td>—</td><td>product_list</td><td>ID</td><td>—</td></tr>
+          <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>SPU</td><td>—</td></tr>
+          <tr><td>映射</td><td>产品阶段</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》产品阶段.商品层级</td><td>product_list（ID）与 产品阶段（SPU）</td><td>产品阶段</td><td>商品层级</td><td>—</td></tr>
+          <tr><td>映射</td><td>客单价</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.客单价（实付总价/单量）</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>客单价（实付总价/单量）</td><td>—</td></tr>
+          <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.每单补贴</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>每单补贴</td><td>—</td></tr>
+          <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.总GMV</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>总GMV</td><td>—</td></tr>
+          <tr><td>映射</td><td>商品交易总额4</td><td class="tbl-formula">product_list.GMV</td><td>—</td><td>product_list</td><td>GMV</td><td>4</td></tr>
+          <tr><td>映射</td><td>成交件数5</td><td class="tbl-formula">product_list.成交件数</td><td>—</td><td>product_list</td><td>成交件数</td><td>5</td></tr>
+          <tr><td>映射</td><td>订单数6</td><td class="tbl-formula">product_list.订单数</td><td>—</td><td>product_list</td><td>订单数</td><td>6</td></tr>
+          <tr><td>映射</td><td>商品卡GMV31</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>商品卡 GMV</td><td>32</td></tr>
+          <tr><td>映射</td><td>直播GMV15</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>直播 GMV</td><td>16</td></tr>
+          <tr><td>映射</td><td>短视频GMV23</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>视频 GMV</td><td>24</td></tr>
+          <tr><td>计算</td><td>商品卡GMV占比</td><td class="tbl-formula">商品卡GMV占比=商品卡 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>直播GMV占比</td><td class="tbl-formula">直播GMV占比=直播 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>短视频GMV占比</td><td class="tbl-formula">短视频GMV占比=视频 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>商品卡商品交易总额33</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>商品卡 GMV</td><td>32</td></tr>
+          <tr><td>映射</td><td>商品卡成交件数32</td><td class="tbl-formula">product_list.商品卡片商品成交件数</td><td>—</td><td>product_list</td><td>商品卡片商品成交件数</td><td>33</td></tr>
+          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=商品卡 GMV/商品卡片商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>曝光33</td><td class="tbl-formula">product_list.商品卡曝光次数</td><td>—</td><td>product_list</td><td>商品卡曝光次数</td><td>34</td></tr>
+          <tr><td>映射</td><td>商品卡片的页面浏览次数36</td><td class="tbl-formula">product_list.商品卡的页面浏览次数</td><td>—</td><td>product_list</td><td>商品卡的页面浏览次数</td><td>35</td></tr>
+          <tr><td>映射</td><td>去重浏览35</td><td class="tbl-formula">product_list.商品卡的去重页面浏览次数</td><td>—</td><td>product_list</td><td>商品卡的去重页面浏览次数</td><td>36</td></tr>
+          <tr><td>映射</td><td>去重客户36</td><td class="tbl-formula">product_list.商品卡去重客户数</td><td>—</td><td>product_list</td><td>商品卡去重客户数</td><td>37</td></tr>
+          <tr><td>映射</td><td>商品卡点击37</td><td class="tbl-formula">product_list.商品卡点击率</td><td>—</td><td>product_list</td><td>商品卡点击率</td><td>38</td></tr>
+          <tr><td>映射</td><td>商品卡转化38</td><td class="tbl-formula">product_list.商品卡转化率</td><td>—</td><td>product_list</td><td>商品卡转化率</td><td>39</td></tr>
+          <tr><td>映射</td><td>直播商品交易总额17</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>直播 GMV</td><td>16</td></tr>
+          <tr><td>映射</td><td>直播成交件数16</td><td class="tbl-formula">product_list.直播商品成交件数</td><td>—</td><td>product_list</td><td>直播商品成交件数</td><td>17</td></tr>
+          <tr><td>计算</td><td>直播成交客单</td><td class="tbl-formula">直播成交客单=直播 GMV/直播商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>曝光次数19</td><td class="tbl-formula">product_list.直播曝光次数</td><td>—</td><td>product_list</td><td>直播曝光次数</td><td>18</td></tr>
+          <tr><td>映射</td><td>来自视频的页面浏览次数</td><td class="tbl-formula">product_list.直播的页面浏览次数</td><td>—</td><td>product_list</td><td>直播的页面浏览次数</td><td>19</td></tr>
+          <tr><td>映射</td><td>直播的去重页面浏览次数21</td><td class="tbl-formula">product_list.直播的去重页面浏览次数</td><td>—</td><td>product_list</td><td>直播的去重页面浏览次数</td><td>20</td></tr>
+          <tr><td>映射</td><td>去重商品客户数22</td><td class="tbl-formula">product_list.直播去重商品客户数</td><td>—</td><td>product_list</td><td>直播去重商品客户数</td><td>21</td></tr>
+          <tr><td>映射</td><td>直播点击率21</td><td class="tbl-formula">product_list.直播点击率</td><td>—</td><td>product_list</td><td>直播点击率</td><td>22</td></tr>
+          <tr><td>映射</td><td>直播转化率22</td><td class="tbl-formula">product_list.直播转化率</td><td>—</td><td>product_list</td><td>直播转化率</td><td>23</td></tr>
+          <tr><td>映射</td><td>商品卡短视频商品交易总额25</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>视频 GMV</td><td>24</td></tr>
+          <tr><td>映射</td><td>短视频成交件数24</td><td class="tbl-formula">product_list.视频商品成交件数</td><td>—</td><td>product_list</td><td>视频商品成交件数</td><td>25</td></tr>
+          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=视频 GMV/视频商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>视频曝光次数25</td><td class="tbl-formula">product_list.视频曝光次数</td><td>—</td><td>product_list</td><td>视频曝光次数</td><td>26</td></tr>
+          <tr><td>映射</td><td>来自视频的页面浏览次数28</td><td class="tbl-formula">product_list.来自视频的页面浏览次数</td><td>—</td><td>product_list</td><td>来自视频的页面浏览次数</td><td>27</td></tr>
+          <tr><td>映射</td><td>来自视频的去重页面浏览次数27</td><td class="tbl-formula">product_list.来自视频的去重页面浏览次数</td><td>—</td><td>product_list</td><td>来自视频的去重页面浏览次数</td><td>28</td></tr>
+          <tr><td>映射</td><td>视频去重商品客户数28</td><td class="tbl-formula">product_list.视频去重商品客户数</td><td>—</td><td>product_list</td><td>视频去重商品客户数</td><td>29</td></tr>
+          <tr><td>映射</td><td>视频点击率29</td><td class="tbl-formula">product_list.视频点击率</td><td>—</td><td>product_list</td><td>视频点击率</td><td>30</td></tr>
+          <tr><td>映射</td><td>视频转化率30</td><td class="tbl-formula">product_list.视频转化率</td><td>—</td><td>product_list</td><td>视频转化率</td><td>31</td></tr>
+          <tr><td>映射</td><td>商务挂车量（合计的挂车量 - 剪辑的挂车量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题</td><td>商品=全渠道商品的商品标题</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
+          <tr><td>映射</td><td>剪辑挂车量（同一个商品，处于达人列表的数据量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题，达人列表的id处于该明细算剪辑</td><td>商品=全渠道商品的商品标题 + 达人列表id</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
+          <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>GMVMAX消耗</td><td class="tbl-formula">Product campaign data.成本；PID=广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>PID=提取Product campaign data广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>Product campaign data</td><td>成本</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告订单数</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>SKU 订单数</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告GMV</td><td class="tbl-formula">Product campaign data.总收入</td><td>同上</td><td>Product campaign data</td><td>总收入</td><td>—</td></tr>
+          <tr><td>计算</td><td>总ACOAS</td><td class="tbl-formula">总ACOAS=财务GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>2.4 最终目标结果</h3>
+    <p>需求二达成的目标：<strong>PID 维度数据看板</strong>，支持按日期、店铺、PID 筛选，展示上述 GMV、渠道占比、商品卡/直播/短视频指标及广告挂车、ACOAS 等，与「1店PID维度的数据监测工具表-7天数据-》数据看板」结构一致或等价。</p>
+    <p><strong>数据看板最终呈现示意</strong></p>
+    <p>下图为需求二数据看板的目标呈现效果：按店铺（如 2 店）、按日期展示 PID、产品名称、一级/二级/三级分类、品牌，以及销售（销量、日销量、日销售额、环比/同环比）、销售额、7 日/30 日销售额趋势、复购（复购人数、复购率、复购客单价）、活跃度等指标。</p>
+    <p><img src="docs/pictures/需求一-数据看板呈现示意.png" alt="需求一-数据看板呈现示意" /></p>
+    <hr />
+
+    <h2>三、源数据统一梳理</h2>
+    <p>以下包含<strong>产品阶段</strong>、<strong>tk 账号信息表</strong>（手动导入）及 <strong>5 张表</strong>，为各需求共用源数据；5 张表需按约定时间（如每日 16:00 后）在 TK 后台或积加后台下载，产品阶段与 tk 账号信息由手动维护/导入，供数据看板与 GMV 计算使用。</p>
+    <h3>3.1 产品阶段</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>手动表格</td></tr>
+        <tr><td>说明</td><td>按 SPU 维护产品阶段（商品层级），供需求二数据看板「产品阶段」字段映射使用；与全渠道商品表通过 SPU 关联。</td></tr>
+      </table>
+    </div>
+    <p><strong>表示例（SPU / 产品名称 / 商品层级）</strong></p>
+    <p><img src="docs/pictures/产品阶段-示例数据.png" alt="产品阶段-示例数据" /></p>
+    <h3>3.2 tk 账号信息表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>手动导入</td></tr>
+        <tr><td>说明</td><td>维护 TK 达人/账号信息，列包括 Username、昵称、TikTok uid 等，供视频/直播数据与账号维度关联使用；需人工导入或更新。</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/tk账号信息表-示例数据.png" alt="tk账号信息表-示例数据" /></p>
+    <h3>3.3 product_list</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>TK 后台</td></tr>
+        <tr><td>步骤 1</td><td>店铺后台 → 数据分析 → 商品数据分析；店铺：美区跨境1/2/3店、英国直邮店:GB</td></tr>
+        <tr><td>步骤 2</td><td>商品数据分析 → 在售 → 筛选日期（最新日期）→ 导出 product_list 表</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/product_list-商品管理.png" alt="product_list-商品管理" /></p>
+    <p><img src="docs/pictures/product_list-商品数据分析.png" alt="product_list-商品数据分析" /></p>
+    <p><img src="docs/pictures/product_list-示例数据.png" alt="product_list-示例数据" /></p>
+    <h3>3.4 Product campaign data</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>TK 后台</td></tr>
+        <tr><td>步骤 1</td><td>店铺后台 → 广告营销 → 店铺广告；店铺：美区跨境1店、美区跨境3店、英国直邮店:GB；时间：最新时间</td></tr>
+        <tr><td>步骤 2</td><td>筛选前一天日期 → 导出 → 实时推广系列数据导出 → 导出 Product campaign data 表</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/product_campaign-广告营销入口.png" alt="product_campaign-广告营销入口" /></p>
+    <p><img src="docs/pictures/product_campaign-实时推广系列数据导出.png" alt="product_campaign-实时推广系列数据导出" /></p>
+    <p><img src="docs/pictures/product_campaign-示例数据.png" alt="product_campaign-示例数据" /></p>
+    <h3>3.5 Video Performance List</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>积加（或 TK 后台，以实际为准）</td></tr>
+        <tr><td>步骤 1</td><td>积加 → 数据分析 → 直播和视频数据分析 → 视频-详细信息 → 筛选最新时间；店铺：美区跨境1/2/3店、英国直邮店:GB</td></tr>
+        <tr><td>步骤 2</td><td>导出数据 → 等待加载完成后下载 → 导出 Video Performance List 表</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/video_performance-直播和视频详细信息.png" alt="video_performance-直播和视频详细信息" /></p>
+    <p><img src="docs/pictures/video_performance-导出数据下载.png" alt="video_performance-导出数据下载" /></p>
+    <p><img src="docs/pictures/video_performance-示例数据.png" alt="video_performance-示例数据" /></p>
+    <h3>3.6 全渠道商品表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>积加后台</td></tr>
+        <tr><td>步骤 1</td><td>积加 → 销售 → 商品管理 → 全渠道商品 → 筛选店铺 → 筛选在售；店铺：美区跨境1/2/3店、英国直邮店:GB</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 根据所选字段导出 → 导出全渠道商品表</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/全渠道商品-筛选与列表.png" alt="全渠道商品-筛选与列表" /></p>
+    <p><img src="docs/pictures/全渠道商品-自定义导出.png" alt="全渠道商品-自定义导出" /></p>
+    <p><img src="docs/pictures/全渠道商品-示例数据.png" alt="全渠道商品-示例数据" /></p>
+    <h3>3.7 全部笔订单</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th></tr>
+        <tr><td>来源</td><td>API 接口</td></tr>
+        <tr><td>步骤 1</td><td>调用订单相关 API 接口，按店铺（美区跨境1/2/3店、英国直邮店:GB）、订单付款时间（如最新日期的前一天）等条件请求数据</td></tr>
+        <tr><td>步骤 2</td><td>对接返回的订单明细，按需落表或入仓，供 GMV 计算与数据看板使用</td></tr>
+      </table>
+    </div>
+    <p><img src="docs/pictures/全部笔订单-筛选与列表.png" alt="全部笔订单-筛选与列表" /></p>
+    <p><img src="docs/pictures/全部笔订单-导出与下载.png" alt="全部笔订单-导出与下载" /></p>
+    <p><img src="docs/pictures/全部笔订单-示例数据.png" alt="全部笔订单-示例数据" /></p>
+    <hr />
+
+    <h2>四、需求与数据对照小结</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>需求</th><th>核心动作</th><th>使用的源数据</th><th>产出</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>需求一</td><td>按映射表做 GMV 计算表</td><td>全部笔订单 + 全渠道商品表</td><td>GMV计算表（PID 维度，供看板使用）</td></tr>
+          <tr><td>需求二</td><td>按映射表做数据看板</td><td>源数据统一梳理 5 张表 + 产品阶段 + GMV计算</td><td>数据看板（PID 维度，GMV/渠道/广告指标）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><em>详细映射行（含公式、列号）见 <code>docs/PID销售趋势映射表.xlsx</code> 的「映射表」sheet。</em></p>
+
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="需求文档.md">需求文档.md（源文件）</a></p>
+  </div>
+</body>
+</html>

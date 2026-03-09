@@ -48,6 +48,28 @@
     .back a:hover { text-decoration: underline; }
     .trend-up { color: #dc2626; }
     .trend-down { color: #16a34a; }
+    /* 冻结列：日期 + 商品基础信息（PID、主推SPU、产品阶段） */
+    .col-sticky-1 { position: sticky; left: 0; z-index: 3; background: #fff; min-width: 90px; }
+    .col-sticky-2 { position: sticky; left: 90px; z-index: 2; background: #fff; min-width: 180px; }
+    .col-sticky-3 { position: sticky; left: 270px; z-index: 2; background: #fff; min-width: 100px; }
+    .col-sticky-4 { position: sticky; left: 370px; z-index: 2; background: #fff; min-width: 80px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    thead .col-sticky-1 { background: #cce5ff !important; }
+    thead .col-sticky-2,
+    thead .col-sticky-3,
+    thead .col-sticky-4 { background: #fff3cd !important; }
+    thead tr:last-child .col-sticky-1,
+    thead tr:last-child .col-sticky-2,
+    thead tr:last-child .col-sticky-3,
+    thead tr:last-child .col-sticky-4 { background: #f9fafb !important; }
+    tr:hover .col-sticky-1,
+    tr:hover .col-sticky-2,
+    tr:hover .col-sticky-3,
+    tr:hover .col-sticky-4 { background: #f9fafb !important; }
+    thead tr:first-child th.col-sticky-234 { position: sticky; left: 90px; z-index: 10; min-width: 360px; width: 360px; background: #fff3cd !important; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    thead th.col-sticky-1,
+    thead th.col-sticky-2,
+    thead th.col-sticky-3,
+    thead th.col-sticky-4 { z-index: 10; }
   </style>
 </head>
 <body>
@@ -93,21 +115,20 @@
         <table id="resultTable">
           <thead>
             <tr>
-              <th class="th-module bg-blue" colspan="1">日期</th>
-              <th class="th-module bg-yellow" colspan="3">商品基础信息</th>
+              <th class="th-module bg-blue col-sticky-1" colspan="1">日期</th>
+              <th class="th-module bg-yellow col-sticky-234" colspan="3">商品基础信息</th>
               <th class="th-module bg-blue" colspan="12">GMV情况</th>
               <th class="th-module bg-yellow" colspan="9">商品卡</th>
               <th class="th-module bg-blue" colspan="9">短视频</th>
               <th class="th-module bg-yellow" colspan="3">挂车情况</th>
               <th class="th-module bg-blue" colspan="7">广告情况</th>
               <th class="th-module bg-yellow" colspan="7">GMVMAX辅助列</th>
-              <th class="th-module bg-blue" colspan="1">运营复盘</th>
             </tr>
             <tr>
-              <th class="th-col">日期</th>
-              <th class="th-col">PID</th>
-              <th class="th-col">主推SPU</th>
-              <th class="th-col">产品阶段</th>
+              <th class="th-col col-sticky-1">日期</th>
+              <th class="th-col col-sticky-2">PID</th>
+              <th class="th-col col-sticky-3">主推SPU</th>
+              <th class="th-col col-sticky-4">产品阶段</th>
               <th class="th-col">客单价</th>
               <th class="th-col">平均补贴/单</th>
               <th class="th-col">财务GMV</th>
@@ -155,11 +176,10 @@
               <th class="th-col">日期+ID</th>
               <th class="th-col">辅助列</th>
               <th class="th-col">运营动作</th>
-              <th class="th-col">运营复盘</th>
             </tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="52" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
@@ -170,12 +190,12 @@
       </div>
     </div>
 
-    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="../需求文档.md">← 返回需求文档</a></p>
+    <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
   </div>
   <script>
     (function() {
-      var COLS = 52;
-      var headers = ['日期','PID','主推SPU','产品阶段','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','vas消耗','GMVMAX消耗','广告订单数','广告GMV','总GMV','总ACOAS','总消耗','商务辅助列','剪辑辅助列','VAS辅助列','GMVMAX辅助列','日期+ID','辅助列','运营动作','运营复盘'];
+      var COLS = 51;
+      var headers = ['日期','PID','主推SPU','产品阶段','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','vas消耗','GMVMAX消耗','广告订单数','广告GMV','总GMV','总ACOAS','总消耗','商务辅助列','剪辑辅助列','VAS辅助列','GMVMAX辅助列','日期+ID','辅助列','运营动作'];
 
       function fillRow(date, pid, spu, stage) {
         var atv = 58 + Math.floor(Math.random() * 20);
@@ -200,7 +220,7 @@
           (800 + Math.random() * 500).toFixed(2), (200 + Math.random() * 300).toFixed(2),
           Math.floor(orders * 0.15), Math.floor(gmv * 0.12), gmv + Math.floor(Math.random() * 2000),
           (2 + Math.random() * 1.5).toFixed(2), (1200 + Math.random() * 800).toFixed(2),
-          '', '', '', '', date + '_' + pid, '', '', ''
+          '', '', '', '', date + '_' + pid, '', ''
         ];
       }
 
@@ -254,7 +274,10 @@
         var start = (currentPage - 1) * pageSize;
         var pageRows = currentRows.slice(start, start + pageSize);
         tbody.innerHTML = pageRows.map(function(row) {
-          return '<tr>' + row.map(function(cell) { return '<td>' + String(cell) + '</td>'; }).join('') + '</tr>';
+          return '<tr>' + row.map(function(cell, i) {
+            var cls = (i < 4) ? ' class="col-sticky-' + (i + 1) + '"' : '';
+            return '<td' + cls + '>' + String(cell) + '</td>';
+          }).join('') + '</tr>';
         }).join('');
         bar.style.display = 'flex';
         document.getElementById('pageInfo').textContent = '共 ' + total + ' 条，第 ' + currentPage + ' / ' + totalPages + ' 页';
