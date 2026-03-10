@@ -16,6 +16,7 @@
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
     .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
     .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 200px; cursor: pointer; }
+    .query-item input[type="date"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -43,14 +44,19 @@
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
-    .btn-ai { display: inline-flex; align-items: center; gap: 0.4rem; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; border: none; }
-    .btn-ai:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: #fff; }
-    .btn-ai svg { width: 1.1em; height: 1.1em; }
-    .ai-analysis-card { background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%); border: 1px solid #c4b5fd; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; display: none; }
-    .ai-analysis-card.visible { display: block; }
-    .ai-analysis-card h4 { font-size: 0.95rem; color: #5b21b6; margin: 0 0 0.5rem; display: flex; align-items: center; gap: 0.35rem; }
-    .ai-analysis-card h4 svg { width: 1.1em; height: 1.1em; }
-    .ai-analysis-card .content { font-size: 0.9rem; line-height: 1.65; color: var(--text); white-space: pre-wrap; }
+    .spu-cell { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .btn-ai-spu { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: none; border-radius: 6px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; cursor: pointer; flex-shrink: 0; }
+    .btn-ai-spu:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+    .btn-ai-spu svg { width: 14px; height: 14px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1.5rem; }
+    .modal-overlay.visible { display: flex; }
+    .modal-box { background: #fff; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); max-width: 480px; width: 100%; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%); }
+    .modal-header .title { font-weight: 600; color: #5b21b6; font-size: 0.95rem; display: flex; align-items: center; gap: 0.35rem; }
+    .modal-header .title svg { width: 1.1em; height: 1.1em; }
+    .modal-close { width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px; background: #e9e5ff; color: #5b21b6; cursor: pointer; font-size: 1.1rem; line-height: 1; }
+    .modal-close:hover { background: #ddd6fe; }
+    .modal-body { padding: 1rem 1.25rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.65; white-space: pre-wrap; color: var(--text); }
   </style>
 </head>
 <body>
@@ -70,6 +76,10 @@
             <option value="英区">英区（英国直邮店）</option>
           </select>
         </div>
+        <div class="query-item">
+          <span class="label">到日期</span>
+          <input type="date" id="qEndDate" title="表格右侧最后一列为该日" />
+        </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
           <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
@@ -80,19 +90,10 @@
     <div class="action-bar">
       <div class="btns">
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
-        <button type="button" class="btn btn-ai" id="btnAi" title="基于当前数据生成 AI 分析">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>
-          AI 分析
-        </button>
       </div>
       <div class="export-tip">
-        导出字段：店铺名、SPU(公式)、PID、7 天日期（计数项: SKU sold quantity in the order.）、近两天差异
+        导出字段：店铺名、SPU(公式)、PID、7 天日期（计数项: SKU sold quantity in the order.）、近两天差异。每个 SPU 行可点击「AI」进行该 SPU 维度的分析。
       </div>
-    </div>
-
-    <div class="ai-analysis-card" id="aiAnalysisCard">
-      <h4><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>基于数据的 AI 分析</h4>
-      <div class="content" id="aiAnalysisContent"></div>
     </div>
 
     <div class="table-card">
@@ -110,13 +111,13 @@
               <th></th>
               <th></th>
               <th></th>
-              <th>2026/2/21</th>
-              <th>2026/2/22</th>
-              <th>2026/2/23</th>
-              <th>2026/2/24</th>
-              <th>2026/2/25</th>
-              <th>2026/2/26</th>
-              <th>2026/2/27</th>
+              <th id="thDay0">2026/2/21</th>
+              <th id="thDay1">2026/2/22</th>
+              <th id="thDay2">2026/2/23</th>
+              <th id="thDay3">2026/2/24</th>
+              <th id="thDay4">2026/2/25</th>
+              <th id="thDay5">2026/2/26</th>
+              <th id="thDay6">2026/2/27</th>
               <th></th>
             </tr>
           </thead>
@@ -129,9 +130,32 @@
 
     <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
   </div>
+
+  <div class="modal-overlay" id="aiModal" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
+    <div class="modal-box" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="title" id="aiModalTitle"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>AI 分析</span>
+        <button type="button" class="modal-close" id="aiModalClose" aria-label="关闭">&times;</button>
+      </div>
+      <div class="modal-body" id="aiModalBody"></div>
+    </div>
+  </div>
   <script>
     (function() {
-      var DAYS = ['2026/2/21', '2026/2/22', '2026/2/23', '2026/2/24', '2026/2/25', '2026/2/26', '2026/2/27'];
+      var DEFAULT_DAYS = ['2026/2/21', '2026/2/22', '2026/2/23', '2026/2/24', '2026/2/25', '2026/2/26', '2026/2/27'];
+
+      function getDays() {
+        var endVal = document.getElementById('qEndDate').value;
+        if (!endVal) return DEFAULT_DAYS.slice();
+        var d = new Date(endVal + 'T12:00:00');
+        var out = [];
+        for (var i = 6; i >= 0; i--) {
+          var x = new Date(d);
+          x.setDate(x.getDate() - i);
+          out.push(x.getFullYear() + '/' + (x.getMonth() + 1) + '/' + x.getDate());
+        }
+        return out;
+      }
 
       // 按店铺 -> SPU -> PIDs 的 mock 数据（7 天销量 + 近两天差异）
       var byShop = {
@@ -191,6 +215,12 @@
         }
         label.textContent = data.name;
 
+        var DAYS = getDays();
+        for (var i = 0; i < 7; i++) {
+          var th = document.getElementById('thDay' + i);
+          if (th) th.textContent = DAYS[i];
+        }
+
         var totalRows = 0;
         data.list.forEach(function(group) {
           totalRows += 1 + group.pids.length;
@@ -198,14 +228,14 @@
 
         var html = '';
         var firstRow = true;
-        data.list.forEach(function(group) {
-          var rowspan = group.pids.length + 1;
+        data.list.forEach(function(group, gidx) {
+          var rowspan = 1 + group.pids.length;
           html += '<tr class="spu-row">';
           if (firstRow) {
             html += '<td rowspan="' + totalRows + '">' + data.name + '</td>';
             firstRow = false;
           }
-          html += '<td rowspan="' + rowspan + '">' + group.spu + '</td>';
+          html += '<td rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
           html += '<td>小计</td>';
           group.total.forEach(function(v) { html += '<td>' + v + '</td>'; });
           html += '<td class="' + (group.diff < 0 ? 'diff-neg' : '') + '">' + (group.diff >= 0 ? '+' : '') + group.diff + '</td>';
@@ -219,6 +249,45 @@
           });
         });
         tbody.innerHTML = html;
+
+        var modal = document.getElementById('aiModal');
+        var modalBody = document.getElementById('aiModalBody');
+        function closeModal() { modal.classList.remove('visible'); }
+        document.getElementById('aiModalClose').onclick = closeModal;
+        modal.onclick = closeModal;
+
+        tbody.querySelectorAll('.btn-ai-spu').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var gidx = parseInt(btn.getAttribute('data-gidx'), 10);
+            var data = getFiltered();
+            if (data && data.list[gidx]) {
+              modalBody.textContent = generateAiAnalysisForSpu(data.list[gidx], data.name, getDays());
+              document.getElementById('aiModalTitle').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>AI 分析 · ' + data.list[gidx].spu;
+              modal.classList.add('visible');
+            }
+          });
+        });
+      }
+
+      function generateAiAnalysisForSpu(group, shopName, days) {
+        days = days || DEFAULT_DAYS;
+        var s6 = group.total[group.total.length - 2] || 0;
+        var s7 = group.total[group.total.length - 1] || 0;
+        var trend = s7 >= s6 ? '环比上升' : '环比下降';
+        var d6 = days.length >= 2 ? days[days.length - 2] : '前日';
+        var d7 = days.length >= 1 ? days[days.length - 1] : '当日';
+        var parts = [];
+        parts.push('【' + shopName + ' · ' + group.spu + '】近两日：' + d6 + ' 合计 ' + s6 + ' 件，' + d7 + ' 合计 ' + s7 + ' 件，' + trend + '；近两天差异 ' + (group.diff >= 0 ? '+' : '') + group.diff + '。');
+        parts.push('共 ' + group.pids.length + ' 个 PID。');
+        var negPids = group.pids.filter(function(p) { return p.diff < 0; });
+        if (negPids.length) {
+          parts.push('差异为负的 PID：' + negPids.map(function(p) { return p.pid.slice(-10) + '（' + p.diff + '）'; }).join('、') + '，建议关注库存或推广。');
+        } else {
+          parts.push('各 PID 近两天差异均非负，趋势平稳。');
+        }
+        parts.push('以上为基于该 SPU 数据的结构化摘要，可配合运营做补货或复盘。');
+        return parts.join('\n\n');
       }
 
       function flattenForCSV(data) {
@@ -236,6 +305,7 @@
       function toCSV(data) {
         var rows = flattenForCSV(data);
         if (!rows.length) return '';
+        var DAYS = getDays();
         var headers = ['店铺名', 'SPU(公式)', 'PID'].concat(DAYS).concat(['近两天差异']);
         var lines = [headers.map(escapeCell).join(',')].concat(rows.map(function(row) {
           return row.map(escapeCell).join(',');
@@ -264,65 +334,21 @@
         URL.revokeObjectURL(a.href);
       }
 
-      function generateAiAnalysis() {
-        var data = getFiltered();
-        var card = document.getElementById('aiAnalysisCard');
-        var content = document.getElementById('aiAnalysisContent');
-        if (!data || !data.list.length) {
-          content.textContent = '请先选择店铺并点击「查询」，加载数据后再点击「AI 分析」。';
-          card.classList.add('visible');
-          return;
-        }
-        var list = data.list;
-        var totalLast7 = 0;
-        var totalPrev2 = 0;
-        var spuWithNeg = [];
-        var pidWithNeg = [];
-        list.forEach(function(group) {
-          var s7 = group.total[group.total.length - 1] || 0;
-          var s6 = group.total[group.total.length - 2] || 0;
-          totalLast7 += s7;
-          totalPrev2 += s6;
-          if (group.diff < 0) spuWithNeg.push({ spu: group.spu, diff: group.diff });
-          group.pids.forEach(function(p) {
-            if (p.diff < 0) pidWithNeg.push({ spu: group.spu, pid: p.pid, diff: p.diff });
-          });
-        });
-        var prev2Sum = list.reduce(function(sum, g) {
-          return sum + (g.total[g.total.length - 2] || 0);
-        }, 0);
-        var last2Sum = list.reduce(function(sum, g) {
-          return sum + (g.total[g.total.length - 1] || 0);
-        }, 0);
-        var trend = last2Sum >= prev2Sum ? '环比上升' : '环比下降';
-        var parts = [];
-        parts.push('【' + data.name + '】近 7 日销量趋势：2/26 合计 ' + prev2Sum + ' 件，2/27 合计 ' + last2Sum + ' 件，整体' + trend + '。');
-        parts.push('共 ' + list.length + ' 个 SPU、' + list.reduce(function(n, g) { return n + g.pids.length; }, 0) + ' 个 PID。');
-        if (spuWithNeg.length) {
-          var top3 = spuWithNeg.slice(0, 3).map(function(x) { return x.spu + '（' + x.diff + '）'; }).join('、');
-          parts.push('近两天差异为负的 SPU：' + top3 + (spuWithNeg.length > 3 ? ' 等 ' + spuWithNeg.length + ' 个' : '') + '，建议关注库存与推广。');
-        }
-        if (pidWithNeg.length && pidWithNeg.length <= 5) {
-          parts.push('差异为负的 PID：' + pidWithNeg.map(function(x) { return x.pid.slice(-8) + '（' + x.diff + '）'; }).join('、') + '。');
-        } else if (pidWithNeg.length > 5) {
-          parts.push('共 ' + pidWithNeg.length + ' 个 PID 近两天销量下滑，可结合商品卡/直播/短视频表现做异常归因。');
-        }
-        parts.push('以上为基于当前表格数据的结构化摘要，可配合业务动作做运营复盘与补货决策。');
-        content.textContent = parts.join('\n\n');
-        card.classList.add('visible');
-      }
-
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
       document.getElementById('btnReset').onclick = function() {
         document.getElementById('qStore').value = '';
+        document.getElementById('qEndDate').value = '2026-02-27';
         document.getElementById('shopLabel').textContent = '请选择店铺后查询';
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
-        document.getElementById('aiAnalysisCard').classList.remove('visible');
+        for (var i = 0; i < 7; i++) {
+          var th = document.getElementById('thDay' + i);
+          if (th) th.textContent = DEFAULT_DAYS[i];
+        }
       };
       document.getElementById('btnExport').onclick = doExport;
-      document.getElementById('btnAi').onclick = generateAiAnalysis;
 
       document.getElementById('qStore').value = '1店';
+      document.getElementById('qEndDate').value = '2026-02-27';
       render(getFiltered());
     })();
   </script>
