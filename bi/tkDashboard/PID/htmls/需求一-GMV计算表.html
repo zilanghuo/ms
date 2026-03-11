@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求一：PID 维度 GMV 计算表 — Demo</title>
+  <title>需求一：销售额统计 — Demo</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -19,6 +19,13 @@
     .query-item input { min-width: 130px; }
     .query-item select { min-width: 160px; cursor: pointer; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .tab-group { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab-group .tab { padding: 0.4rem 0.9rem; font-size: 0.9rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+    .date-gran-wrap { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+    .date-gran-wrap .hide { display: none !important; }
     .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
@@ -42,31 +49,69 @@
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; cursor: pointer; min-width: 160px; user-select: none; }
+    .cascade-trigger::after { content: ''; margin-left: auto; border: 4px solid transparent; border-top: 5px solid var(--muted); }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag { display: inline-flex; align-items: center; gap: 2px; background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 1px 6px; font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cascade-trigger .tag .tag-close { cursor: pointer; font-size: 0.7rem; margin-left: 2px; color: #0369a1; }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+
+    .cascade-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); min-width: 340px; }
+    .cascade-panel.open { display: flex; }
+    .cascade-left { width: 140px; border-right: 1px solid var(--border); max-height: 260px; overflow-y: auto; }
+    .cascade-right { flex: 1; max-height: 260px; overflow-y: auto; padding: 4px 0; }
+    .cascade-left .cl-item { display: flex; align-items: center; padding: 7px 10px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-left .cl-item:hover, .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn { display: none; margin-left: auto; font-size: 0.7rem; background: #2563eb; color: #fff; border: none; border-radius: 3px; padding: 1px 8px; cursor: pointer; white-space: nowrap; }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item { display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">PID 维度 GMV 计算表</h1>
+    <h1 class="page-title">销售额统计</h1>
 
     <div class="query-card">
       <div class="query-row">
         <div class="query-item">
-          <span class="label">日期</span>
-          <input type="date" id="qDate" />
+          <span class="label">站点</span>
+          <div class="cascade-wrap" id="cascadeWrap">
+            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
+            <div class="cascade-panel" id="cascadePanel">
+              <div class="cascade-left" id="cascadeLeft"></div>
+              <div class="cascade-right" id="cascadeRight"></div>
+            </div>
+          </div>
         </div>
         <div class="query-item">
           <span class="label">店铺</span>
           <select id="qStore">
             <option value="">全部</option>
-            <option value="1店">美区跨境1店</option>
-            <option value="2店">美区跨境2店</option>
-            <option value="3店">美区跨境3店</option>
-            <option value="GB">英国直邮店:GB</option>
           </select>
         </div>
+        <div class="query-item date-gran-wrap">
+          <span class="label" id="dateLabel">日期</span>
+          <span id="wrapDay" class=""><input type="date" id="qDate" /></span>
+          <span id="wrapWeek" class="hide"><input type="date" id="qStartDate" /><span style="color:var(--muted);padding:0 0.15rem;">~</span><input type="date" id="qEndDate" /></span>
+          <span id="wrapMonth" class="hide"><input type="month" id="qMonth" /></span>
+          <span id="wrapQuarter" class="hide"><input type="number" id="qYearQ" min="2020" max="2030" placeholder="年" style="width:70px;" /><select id="qQuarter"><option value="1">Q1(1-3月)</option><option value="2">Q2(4-6月)</option><option value="3">Q3(7-9月)</option><option value="4">Q4(10-12月)</option></select></span>
+          <span id="wrapYear" class="hide"><input type="number" id="qYear" min="2020" max="2030" placeholder="年份" style="width:90px;" /></span>
+        </div>
         <div class="query-item">
-          <span class="label">PID</span><span class="fuzzy">（支持模糊搜索）</span>
-          <input type="text" id="qPid" placeholder="请输入" />
+          <div class="tab-group" id="dateGranTabs">
+            <button type="button" class="tab active" data-gran="day">日</button>
+            <button type="button" class="tab" data-gran="week">周</button>
+            <button type="button" class="tab" data-gran="month">月</button>
+            <button type="button" class="tab" data-gran="quarter">季度</button>
+            <button type="button" class="tab" data-gran="year">年</button>
+          </div>
         </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
@@ -80,7 +125,7 @@
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
       </div>
       <div class="export-tip">
-        导出字段有：日期、PID、辅助列、营业总额、商家折扣、运费、总GMV、单量、补贴、每单补贴、店铺、实付总价（折扣价-补贴+运费）、客单价（实付总价/单量）
+        导出字段有：日期、店铺、总GMV、营业总额、实付总价（折扣价-补贴+运费）、客单价（实付总价/单量）、商家折扣、补贴、每单补贴、运费
       </div>
     </div>
 
@@ -90,22 +135,19 @@
           <thead>
             <tr>
               <th>日期</th>
-              <th>PID</th>
-              <th>辅助列</th>
-              <th>营业总额</th>
-              <th>商家折扣</th>
-              <th>运费</th>
-              <th>总GMV</th>
-              <th>单量</th>
-              <th>补贴</th>
-              <th>每单补贴</th>
               <th>店铺</th>
+              <th>总GMV</th>
+              <th>营业总额</th>
               <th>实付总价</th>
               <th>客单价</th>
+              <th>商家折扣</th>
+              <th>补贴</th>
+              <th>每单补贴</th>
+              <th>运费</th>
             </tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="13" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="10" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
@@ -120,34 +162,287 @@
   </div>
   <script>
     (function() {
+      var regionTree = [
+        { name: '欧洲', children: [
+          { label: '德国', code: 'DE' },
+          { label: '西班牙', code: 'ES' },
+          { label: '法国', code: 'FR' },
+          { label: '意大利', code: 'IT' }
+        ]},
+        { name: '北美洲', children: [
+          { label: '美国', code: 'US' }
+        ]},
+        { name: '其它', children: [
+          { label: 'Global', code: 'Global' }
+        ]}
+      ];
+
+      var codeToStores = {
+        'DE': ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        'ES': ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        'FR': ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        'IT': ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        'US': ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        'Global': ['美国TK独立站-shopify:Global']
+      };
+
+      var allStores = [];
+      Object.keys(codeToStores).forEach(function(k) { allStores = allStores.concat(codeToStores[k]); });
+
+      var cascadeSelection = { region: '', country: '', stores: [] };
+
+      function initCascade() {
+        var trigger = document.getElementById('cascadeTrigger');
+        var panel = document.getElementById('cascadePanel');
+        var left = document.getElementById('cascadeLeft');
+        var right = document.getElementById('cascadeRight');
+        var activeIdx = -1;
+
+        function renderLeft() {
+          left.innerHTML = regionTree.map(function(r, i) {
+            return '<div class="cl-item" data-idx="' + i + '">' +
+              '<span>' + r.name + '</span>' +
+              '<button type="button" class="only-btn" data-idx="' + i + '">仅选此项</button>' +
+              '<span class="arrow">›</span></div>';
+          }).join('');
+        }
+
+        function renderRight(idx) {
+          if (idx < 0 || idx >= regionTree.length) { right.innerHTML = ''; return; }
+          var children = regionTree[idx].children;
+          right.innerHTML = children.map(function(c) {
+            return '<div class="cr-item" data-code="' + c.code + '">' + c.label + '</div>';
+          }).join('');
+        }
+
+        function openPanel() { panel.classList.add('open'); trigger.classList.add('open'); }
+        function closePanel() { panel.classList.remove('open'); trigger.classList.remove('open'); activeIdx = -1; }
+
+        function setSelection(region, country, stores, label) {
+          cascadeSelection = { region: region, country: country, stores: stores };
+          if (label) {
+            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
+            document.getElementById('cascadeClear').addEventListener('click', function(e) {
+              e.stopPropagation();
+              clearCascade();
+            });
+          } else {
+            trigger.innerHTML = '<span class="placeholder">请选择</span>';
+          }
+          syncStoreOptions();
+          closePanel();
+        }
+
+        function clearCascade() {
+          setSelection('', '', [], '');
+        }
+
+        renderLeft();
+
+        left.addEventListener('mouseover', function(e) {
+          var item = e.target.closest('.cl-item');
+          if (!item) return;
+          var idx = parseInt(item.getAttribute('data-idx'), 10);
+          if (idx === activeIdx) return;
+          activeIdx = idx;
+          left.querySelectorAll('.cl-item').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+          renderRight(idx);
+        });
+
+        left.addEventListener('click', function(e) {
+          var btn = e.target.closest('.only-btn');
+          if (!btn) return;
+          e.stopPropagation();
+          var idx = parseInt(btn.getAttribute('data-idx'), 10);
+          var r = regionTree[idx];
+          var stores = [];
+          r.children.forEach(function(c) { stores = stores.concat(codeToStores[c.code] || []); });
+          setSelection(r.name, '', stores, r.name);
+        });
+
+        right.addEventListener('click', function(e) {
+          var item = e.target.closest('.cr-item');
+          if (!item) return;
+          var code = item.getAttribute('data-code');
+          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
+          var stores = codeToStores[code] || [];
+          setSelection(regionName, code, stores, regionName + ' / ' + item.textContent);
+        });
+
+        trigger.addEventListener('click', function(e) {
+          if (panel.classList.contains('open')) closePanel(); else openPanel();
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel();
+        });
+
+        window._clearCascade = clearCascade;
+      }
+
+      function syncStoreOptions() {
+        var sel = document.getElementById('qStore');
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">全部</option>';
+        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
+        list.forEach(function(s) {
+          sel.innerHTML += '<option value="' + s + '">' + s + '</option>';
+        });
+        if (list.indexOf(prev) !== -1) sel.value = prev; else sel.value = '';
+      }
+
+      initCascade();
+      syncStoreOptions();
+
       var mock = [
-        { date: '2026-02-23', pid: '1729773126172578149', aux: '2026/2/231729773126172578149', revenue: '11298.87', discount: '4909.31', shipping: '352.47', gmv: '6742.03', qty: '113', subsidy: '527.80', subsidyPer: '4.67', store: '1店', paid: '5861.76', atv: '51.87' },
-        { date: '2026-02-23', pid: '1729439482671567205', aux: '2026/2/231729439482671567205', revenue: '4299.57', discount: '1996.26', shipping: '58.28', gmv: '2361.59', qty: '43', subsidy: '119.75', subsidyPer: '2.78', store: '1店', paid: '2183.56', atv: '50.78' },
-        { date: '2026-02-23', pid: '1729416165725475173', aux: '2026/2/231729416165725475173', revenue: '1899.00', discount: '520.00', shipping: '32.00', gmv: '1411.00', qty: '28', subsidy: '84.00', subsidyPer: '3.00', store: '1店', paid: '1327.00', atv: '47.39' },
-        { date: '2026-02-24', pid: '1729380011223344556', aux: '2026/2/241729380011223344556', revenue: '5680.20', discount: '1200.00', shipping: '180.00', gmv: '4660.20', qty: '62', subsidy: '310.00', subsidyPer: '5.00', store: '1店', paid: '4350.20', atv: '70.16' },
-        { date: '2026-02-24', pid: '1729355500112233445', aux: '2026/2/241729355500112233445', revenue: '3200.00', discount: '600.00', shipping: '95.00', gmv: '2695.00', qty: '35', subsidy: '175.00', subsidyPer: '5.00', store: '2店', paid: '2520.00', atv: '72.00' },
-        { date: '2026-02-24', pid: '1729322000112233444', aux: '2026/2/241729322000112233444', revenue: '1890.50', discount: '380.00', shipping: '48.00', gmv: '1558.50', qty: '22', subsidy: '88.00', subsidyPer: '4.00', store: '2店', paid: '1470.50', atv: '66.84' }
+        { date: '2026-02-23', pid: '1729773126172578149', revenue: '11298.87', discount: '4909.31', shipping: '352.47', gmv: '6742.03', qty: '113', subsidy: '527.80', subsidyPer: '4.67', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '5861.76', atv: '51.87' },
+        { date: '2026-02-23', pid: '1729439482671567205', revenue: '4299.57', discount: '1996.26', shipping: '58.28', gmv: '2361.59', qty: '43', subsidy: '119.75', subsidyPer: '2.78', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '2183.56', atv: '50.78' },
+        { date: '2026-02-23', pid: '1729416165725475173', revenue: '1899.00', discount: '520.00', shipping: '32.00', gmv: '1411.00', qty: '28', subsidy: '84.00', subsidyPer: '3.00', store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', paid: '1327.00', atv: '47.39' },
+        { date: '2026-02-24', pid: '1729380011223344556', revenue: '5680.20', discount: '1200.00', shipping: '180.00', gmv: '4660.20', qty: '62', subsidy: '310.00', subsidyPer: '5.00', store: '美国 TK・艾斯特尼 - 美区特 2 店 US', paid: '4350.20', atv: '70.16' },
+        { date: '2026-02-24', pid: '1729355500112233445', revenue: '3200.00', discount: '600.00', shipping: '95.00', gmv: '2695.00', qty: '35', subsidy: '175.00', subsidyPer: '5.00', store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', paid: '2520.00', atv: '72.00' },
+        { date: '2026-02-24', pid: '1729322000112233444', revenue: '1890.50', discount: '380.00', shipping: '48.00', gmv: '1558.50', qty: '22', subsidy: '88.00', subsidyPer: '4.00', store: '美国TK独立站-shopify:Global', paid: '1470.50', atv: '66.84' },
+        { date: '2026-02-25', pid: '1729773126172578149', revenue: '5200.00', discount: '1200.00', shipping: '80.00', gmv: '4200.00', qty: '45', subsidy: '180.00', subsidyPer: '4.00', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '4080.00', atv: '90.67' },
+        { date: '2026-03-01', pid: '1729439482671567205', revenue: '6800.00', discount: '1500.00', shipping: '100.00', gmv: '5500.00', qty: '58', subsidy: '220.00', subsidyPer: '3.79', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '5380.00', atv: '92.76' },
+        { date: '2026-03-02', pid: '1729416165725475173', revenue: '2100.00', discount: '450.00', shipping: '35.00', gmv: '1685.00', qty: '32', subsidy: '95.00', subsidyPer: '2.97', store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', paid: '1590.00', atv: '49.69' },
+        { date: '2026-01-15', pid: '1729380011223344556', revenue: '4200.00', discount: '900.00', shipping: '75.00', gmv: '3375.00', qty: '48', subsidy: '160.00', subsidyPer: '3.33', store: '美国 TK・艾斯特尼 - 美区特 2 店 US', paid: '3215.00', atv: '66.98' },
+        { date: '2026-01-16', pid: '1729773126172578149', revenue: '3100.00', discount: '600.00', shipping: '45.00', gmv: '2555.00', qty: '38', subsidy: '120.00', subsidyPer: '3.16', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '2435.00', atv: '64.08' },
+        { date: '2026-02-15', pid: '1729439482671567205', revenue: '4800.00', discount: '1100.00', shipping: '70.00', gmv: '3780.00', qty: '52', subsidy: '195.00', subsidyPer: '3.75', store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', paid: '3590.00', atv: '69.04' },
+        { date: '2026-02-16', pid: '1729416165725475173', revenue: '2900.00', discount: '500.00', shipping: '40.00', gmv: '2410.00', qty: '35', subsidy: '105.00', subsidyPer: '3.00', store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', paid: '2305.00', atv: '65.86' },
+        { date: '2026-03-15', pid: '1729380011223344556', revenue: '5500.00', discount: '1300.00', shipping: '90.00', gmv: '4310.00', qty: '55', subsidy: '210.00', subsidyPer: '3.82', store: '美国 TK・艾斯特尼 - 美区特 2 店 US', paid: '4100.00', atv: '74.55' },
+        { date: '2026-03-16', pid: '1729355500112233445', revenue: '3600.00', discount: '700.00', shipping: '55.00', gmv: '2895.00', qty: '42', subsidy: '140.00', subsidyPer: '3.33', store: '美国 TK・艾斯特尼 - 欧洲直邮店 IT', paid: '2755.00', atv: '65.60' },
+        { date: '2026-04-15', pid: '1729322000112233444', revenue: '6200.00', discount: '1400.00', shipping: '95.00', gmv: '4905.00', qty: '62', subsidy: '248.00', subsidyPer: '4.00', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '4657.00', atv: '75.11' },
+        { date: '2026-04-16', pid: '1729773126172578149', revenue: '3900.00', discount: '800.00', shipping: '60.00', gmv: '3140.00', qty: '46', subsidy: '165.00', subsidyPer: '3.59', store: '美国TK独立站-shopify:Global', paid: '2975.00', atv: '64.67' },
+        { date: '2026-05-15', pid: '1729439482671567205', revenue: '5100.00', discount: '1150.00', shipping: '78.00', gmv: '4072.00', qty: '54', subsidy: '205.00', subsidyPer: '3.80', store: '美国 TK・艾斯特尼 - 美区特 2 店 US', paid: '3867.00', atv: '71.61' },
+        { date: '2026-05-16', pid: '1729416165725475173', revenue: '3300.00', discount: '650.00', shipping: '48.00', gmv: '2698.00', qty: '40', subsidy: '132.00', subsidyPer: '3.30', store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', paid: '2566.00', atv: '64.15' },
+        { date: '2026-06-15', pid: '1729380011223344556', revenue: '5800.00', discount: '1250.00', shipping: '88.00', gmv: '4662.00', qty: '59', subsidy: '224.00', subsidyPer: '3.80', store: '美国 TK・艾斯特尼 - 美区特 1 店 US', paid: '4438.00', atv: '75.22' },
+        { date: '2026-06-16', pid: '1729355500112233445', revenue: '2700.00', discount: '480.00', shipping: '42.00', gmv: '2238.00', qty: '33', subsidy: '99.00', subsidyPer: '3.00', store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', paid: '2139.00', atv: '64.82' }
       ];
       var currentRows = [];
       var currentPage = 1;
       var pageSize = 3;
 
-      var headers = ['日期','PID','辅助列','营业总额','商家折扣','运费','总GMV','单量','补贴','每单补贴','店铺','实付总价','客单价'];
+      var headers = ['日期','店铺','总GMV','营业总额','实付总价','客单价','商家折扣','补贴','每单补贴','运费'];
+      var curDateGran = 'day';
+
+      function getDateRange() {
+        var gran = curDateGran;
+        var startDate = '', endDate = '';
+        if (gran === 'day') {
+          startDate = endDate = document.getElementById('qDate').value;
+        } else if (gran === 'week') {
+          startDate = document.getElementById('qStartDate').value;
+          endDate = document.getElementById('qEndDate').value;
+        } else if (gran === 'month') {
+          var m = document.getElementById('qMonth').value;
+          if (m) {
+            startDate = m + '-01';
+            var y = parseInt(m.slice(0, 4), 10), mo = parseInt(m.slice(5, 7), 10);
+            var lastDay = new Date(y, mo, 0).getDate();
+            endDate = m + '-' + String(lastDay).padStart(2, '0');
+          }
+        } else if (gran === 'quarter') {
+          var y = parseInt(document.getElementById('qYearQ').value, 10);
+          var q = parseInt(document.getElementById('qQuarter').value, 10);
+          if (!isNaN(y) && q) {
+            var startM = (q - 1) * 3 + 1;
+            startDate = y + '-' + String(startM).padStart(2, '0') + '-01';
+            var endM = q * 3;
+            var lastD = new Date(y, endM, 0).getDate();
+            endDate = y + '-' + String(endM).padStart(2, '0') + '-' + String(lastD).padStart(2, '0');
+          }
+        } else if (gran === 'year') {
+          var yr = document.getElementById('qYear').value;
+          if (yr) {
+            startDate = yr + '-01-01';
+            endDate = yr + '-12-31';
+          }
+        }
+        return { start: startDate, end: endDate };
+      }
 
       function getFiltered() {
-        var date = document.getElementById('qDate').value;
+        var range = getDateRange();
+        var startDate = range.start, endDate = range.end;
         var store = document.getElementById('qStore').value;
-        var pid = (document.getElementById('qPid').value || '').trim();
+        var allowedStores = cascadeSelection.stores.length ? cascadeSelection.stores : null;
         return mock.filter(function(r) {
-          if (date && r.date !== date) return false;
+          if (startDate && r.date < startDate) return false;
+          if (endDate && r.date > endDate) return false;
+          if (allowedStores && allowedStores.indexOf(r.store) === -1) return false;
           if (store && r.store !== store) return false;
-          if (pid && r.pid.indexOf(pid) === -1) return false;
           return true;
         });
       }
 
+      function getPeriodKey(dateStr, gran) {
+        if (gran === 'week') {
+          var d = new Date(dateStr + 'T12:00:00');
+          var day = d.getDay();
+          var monOffset = day === 0 ? -6 : 1 - day;
+          var mon = new Date(d);
+          mon.setDate(d.getDate() + monOffset);
+          return mon.getFullYear() + '-' + String(mon.getMonth() + 1).padStart(2, '0') + '-' + String(mon.getDate()).padStart(2, '0');
+        }
+        if (gran === 'month') return dateStr.slice(0, 7);
+        if (gran === 'quarter') {
+          var m = parseInt(dateStr.slice(5, 7), 10);
+          var q = Math.ceil(m / 3);
+          return dateStr.slice(0, 4) + '-Q' + q;
+        }
+        if (gran === 'year') return dateStr.slice(0, 4);
+        return dateStr;
+      }
+
+      function getPeriodLabel(key, gran) {
+        if (gran === 'week') {
+          var d = new Date(key + 'T12:00:00');
+          var sun = new Date(d);
+          sun.setDate(d.getDate() + 6);
+          var fmt = function(x) { return String(x.getMonth() + 1).padStart(2, '0') + '/' + String(x.getDate()).padStart(2, '0'); };
+          return fmt(d) + '~' + fmt(sun);
+        }
+        if (gran === 'month') return key;
+        if (gran === 'quarter') return key;
+        if (gran === 'year') return key;
+        return key.replace(/-/g, '/');
+      }
+
+      function aggregateRows(rows) {
+        if (curDateGran === 'day' || !rows.length) return rows;
+        var gran = curDateGran;
+        var map = {};
+        rows.forEach(function(r) {
+          var pk = getPeriodKey(r.date, gran);
+          var gk = r.store + '\x01' + pk;
+          if (!map[gk]) {
+            map[gk] = { dateLabel: getPeriodLabel(pk, gran), store: r.store, revenue: 0, discount: 0, shipping: 0, gmv: 0, subsidy: 0, paid: 0, qty: 0 };
+          }
+          var g = map[gk];
+          g.revenue += parseFloat(r.revenue) || 0;
+          g.discount += parseFloat(r.discount) || 0;
+          g.shipping += parseFloat(r.shipping) || 0;
+          g.gmv += parseFloat(r.gmv) || 0;
+          g.subsidy += parseFloat(r.subsidy) || 0;
+          g.paid += parseFloat(r.paid) || 0;
+          g.qty += parseInt(r.qty, 10) || 0;
+        });
+        return Object.keys(map).map(function(k) {
+          var g = map[k];
+          var q = g.qty || 1;
+          g.atv = q ? (g.paid / q).toFixed(2) : '0';
+          g.subsidyPer = q ? (g.subsidy / q).toFixed(2) : '0';
+          g.revenue = g.revenue.toFixed(2);
+          g.discount = g.discount.toFixed(2);
+          g.shipping = g.shipping.toFixed(2);
+          g.gmv = g.gmv.toFixed(2);
+          g.subsidy = g.subsidy.toFixed(2);
+          g.paid = g.paid.toFixed(2);
+          return g;
+        });
+      }
+
       function render(rows) {
-        currentRows = rows || [];
+        currentRows = aggregateRows(rows || []);
         currentPage = 1;
         renderPage();
       }
@@ -157,7 +452,7 @@
         var bar = document.getElementById('paginationBar');
         var total = currentRows.length;
         if (total === 0) {
-          tbody.innerHTML = '<tr><td colspan="13" class="empty-tip">暂无数据</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="10" class="empty-tip">暂无数据</td></tr>';
           bar.style.display = 'none';
           return;
         }
@@ -166,8 +461,8 @@
         var start = (currentPage - 1) * pageSize;
         var pageRows = currentRows.slice(start, start + pageSize);
         tbody.innerHTML = pageRows.map(function(r) {
-          var showDate = r.date.replace(/-/g, '/');
-          return '<tr><td>' + showDate + '</td><td>' + r.pid + '</td><td>' + r.aux + '</td><td>' + r.revenue + '</td><td>' + r.discount + '</td><td>' + r.shipping + '</td><td>' + r.gmv + '</td><td>' + r.qty + '</td><td>' + r.subsidy + '</td><td>' + r.subsidyPer + '</td><td>' + r.store + '</td><td>' + r.paid + '</td><td>' + r.atv + '</td></tr>';
+          var showDate = (r.dateLabel != null) ? r.dateLabel : (r.date || '').replace(/-/g, '/');
+          return '<tr><td>' + showDate + '</td><td>' + r.store + '</td><td>' + r.gmv + '</td><td>' + r.revenue + '</td><td>' + r.paid + '</td><td>' + r.atv + '</td><td>' + r.discount + '</td><td>' + r.subsidy + '</td><td>' + r.subsidyPer + '</td><td>' + r.shipping + '</td></tr>';
         }).join('');
         bar.style.display = 'flex';
         document.getElementById('pageInfo').textContent = '共 ' + total + ' 条，第 ' + currentPage + ' / ' + totalPages + ' 页';
@@ -177,8 +472,8 @@
 
       function toCSV(rows) {
         var showRows = (rows || currentRows).map(function(r) {
-          var d = r.date.replace(/-/g, '/');
-          return [d, r.pid, r.aux, r.revenue, r.discount, r.shipping, r.gmv, r.qty, r.subsidy, r.subsidyPer, r.store, r.paid, r.atv];
+          var d = (r.dateLabel != null) ? r.dateLabel : (r.date || '').replace(/-/g, '/');
+          return [d, r.store, r.gmv, r.revenue, r.paid, r.atv, r.discount, r.subsidy, r.subsidyPer, r.shipping];
         });
         var lines = [headers.join(',')].concat(showRows.map(function(arr) {
           return arr.map(function(cell) { return '"' + String(cell).replace(/"/g, '""') + '"'; }).join(',');
@@ -195,21 +490,92 @@
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'GMV计算表_' + (document.getElementById('qDate').value || '全部') + '.csv';
+        var range = getDateRange();
+        a.download = '销售额统计_' + (range.start || '') + '_' + (range.end || '全部') + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       }
+
+      function syncDateGranUI() {
+        var gran = curDateGran;
+        ['Day', 'Week', 'Month', 'Quarter', 'Year'].forEach(function(name) {
+          var wrap = document.getElementById('wrap' + name);
+          wrap.classList.toggle('hide', name.toLowerCase() !== gran);
+        });
+        document.getElementById('dateLabel').textContent = gran === 'day' ? '日期' : gran === 'week' ? '日期范围' : gran === 'month' ? '月份' : gran === 'quarter' ? '季度' : '年份';
+      }
+
+      function syncDateValuesToGran() {
+        var gran = curDateGran;
+        var base = document.getElementById('qDate').value || document.getElementById('qStartDate').value;
+        if (!base) {
+          var ym = document.getElementById('qMonth').value;
+          var yq = document.getElementById('qYearQ').value;
+          var q = document.getElementById('qQuarter').value;
+          var yr = document.getElementById('qYear').value;
+          if (ym) base = ym + '-01';
+          else if (yq && q) base = yq + '-' + String((parseInt(q, 10) - 1) * 3 + 1).padStart(2, '0') + '-01';
+          else if (yr) base = yr + '-01-01';
+        }
+        if (!base) base = '2026-02-23';
+        var y = base.slice(0, 4), m = base.slice(5, 7), d = base.slice(8, 10);
+        if (gran === 'day') {
+          document.getElementById('qDate').value = base;
+        } else if (gran === 'week') {
+          var dt = new Date(base + 'T12:00:00');
+          var day = dt.getDay();
+          var monOffset = day === 0 ? -6 : 1 - day;
+          var mon = new Date(dt);
+          mon.setDate(dt.getDate() + monOffset);
+          var sun = new Date(mon);
+          sun.setDate(mon.getDate() + 6);
+          var fmt = function(x) {
+            return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+          };
+          document.getElementById('qStartDate').value = fmt(mon);
+          document.getElementById('qEndDate').value = fmt(sun);
+        } else if (gran === 'month') {
+          document.getElementById('qMonth').value = y + '-' + m;
+        } else if (gran === 'quarter') {
+          var q = Math.ceil(parseInt(m, 10) / 3);
+          document.getElementById('qYearQ').value = y;
+          document.getElementById('qQuarter').value = String(q);
+        } else if (gran === 'year') {
+          document.getElementById('qYear').value = y;
+        }
+      }
+
+      document.getElementById('dateGranTabs').querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          curDateGran = tab.getAttribute('data-gran');
+          syncDateGranUI();
+          syncDateValuesToGran();
+          render(getFiltered());
+        });
+      });
+      syncDateGranUI();
 
       document.getElementById('btnQuery').onclick = function() {
         render(getFiltered());
       };
       document.getElementById('btnReset').onclick = function() {
         document.getElementById('qDate').value = '';
+        document.getElementById('qStartDate').value = '';
+        document.getElementById('qEndDate').value = '';
+        document.getElementById('qMonth').value = '';
+        document.getElementById('qYearQ').value = '';
+        document.getElementById('qQuarter').value = '1';
+        document.getElementById('qYear').value = '';
+        curDateGran = 'day';
+        document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+        syncDateGranUI();
+        window._clearCascade();
         document.getElementById('qStore').value = '';
-        document.getElementById('qPid').value = '';
         currentRows = [];
         currentPage = 1;
-        document.getElementById('resultBody').innerHTML = '<tr><td colspan="13" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="10" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
         document.getElementById('paginationBar').style.display = 'none';
       };
       document.getElementById('btnExport').onclick = doExport;
@@ -222,6 +588,11 @@
       };
 
       document.getElementById('qDate').value = '2026-02-23';
+      document.getElementById('qStartDate').value = '2026-02-23';
+      document.getElementById('qEndDate').value = '2026-02-24';
+      document.getElementById('qMonth').value = '2026-02';
+      document.getElementById('qYearQ').value = '2026';
+      document.getElementById('qYear').value = '2026';
       render(getFiltered());
     })();
   </script>

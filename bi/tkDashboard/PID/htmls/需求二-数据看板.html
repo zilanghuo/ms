@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求二：PID 维度数据看板 — Demo</title>
+  <title>需求二：PID数据看板</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -29,7 +29,7 @@
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 3200px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 2700px; }
     th, td { padding: 0.4rem 0.5rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
     th { font-weight: 500; }
     .th-module { font-size: 0.8rem; font-weight: 600; text-align: center; }
@@ -48,51 +48,101 @@
     .back a:hover { text-decoration: underline; }
     .trend-up { color: #dc2626; }
     .trend-down { color: #16a34a; }
+    .th-col.col-num-right, td.col-num-right { text-align: right; font-variant-numeric: tabular-nums; }
     /* 冻结列：日期 + 商品基础信息（PID、主推SPU、产品阶段） */
     .col-sticky-1 { position: sticky; left: 0; z-index: 3; background: #fff; min-width: 90px; }
     .col-sticky-2 { position: sticky; left: 90px; z-index: 2; background: #fff; min-width: 180px; }
-    .col-sticky-3 { position: sticky; left: 270px; z-index: 2; background: #fff; min-width: 100px; }
-    .col-sticky-4 { position: sticky; left: 370px; z-index: 2; background: #fff; min-width: 80px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    .col-sticky-3 { position: sticky; left: 270px; z-index: 2; background: #fff; min-width: 100px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
     thead .col-sticky-1 { background: #cce5ff !important; }
     thead .col-sticky-2,
-    thead .col-sticky-3,
-    thead .col-sticky-4 { background: #fff3cd !important; }
+    thead .col-sticky-3 { background: #fff3cd !important; }
     thead tr:last-child .col-sticky-1,
     thead tr:last-child .col-sticky-2,
-    thead tr:last-child .col-sticky-3,
-    thead tr:last-child .col-sticky-4 { background: #f9fafb !important; }
+    thead tr:last-child .col-sticky-3 { background: #f9fafb !important; }
     tr:hover .col-sticky-1,
     tr:hover .col-sticky-2,
-    tr:hover .col-sticky-3,
-    tr:hover .col-sticky-4 { background: #f9fafb !important; }
-    thead tr:first-child th.col-sticky-234 { position: sticky; left: 90px; z-index: 10; min-width: 360px; width: 360px; background: #fff3cd !important; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    tr:hover .col-sticky-3 { background: #f9fafb !important; }
+    thead tr:first-child th.col-sticky-23 { position: sticky; left: 90px; z-index: 10; min-width: 280px; width: 280px; background: #fff3cd !important; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
     thead th.col-sticky-1,
     thead th.col-sticky-2,
-    thead th.col-sticky-3,
-    thead th.col-sticky-4 { z-index: 10; }
+    thead th.col-sticky-3 { z-index: 10; }
+
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; cursor: pointer; min-width: 160px; user-select: none; }
+    .cascade-trigger::after { content: ''; margin-left: auto; border: 4px solid transparent; border-top: 5px solid var(--muted); }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag { display: inline-flex; align-items: center; gap: 2px; background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 1px 6px; font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cascade-trigger .tag .tag-close { cursor: pointer; font-size: 0.7rem; margin-left: 2px; color: #0369a1; }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+    .cascade-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); min-width: 340px; }
+    .cascade-panel.open { display: flex; }
+    .cascade-left { width: 140px; border-right: 1px solid var(--border); max-height: 260px; overflow-y: auto; }
+    .cascade-right { flex: 1; max-height: 260px; overflow-y: auto; padding: 4px 0; }
+    .cascade-left .cl-item { display: flex; align-items: center; padding: 7px 10px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-left .cl-item:hover, .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn { display: none; margin-left: auto; font-size: 0.7rem; background: #2563eb; color: #fff; border: none; border-radius: 3px; padding: 1px 8px; cursor: pointer; white-space: nowrap; }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item { display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
+
+    .tab-group { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab-group .tab { padding: 0.4rem 0.9rem; font-size: 0.9rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+    .date-gran-wrap { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
+    .date-gran-wrap .hide { display: none !important; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">PID 维度数据看板</h1>
+    <h1 class="page-title">PID数据看板</h1>
 
     <div class="query-card">
       <div class="query-row">
         <div class="query-item">
-          <span class="label">日期</span>
-          <input type="date" id="qDate" />
+          <span class="label">站点</span>
+          <div class="cascade-wrap" id="cascadeWrap">
+            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
+            <div class="cascade-panel" id="cascadePanel">
+              <div class="cascade-left" id="cascadeLeft"></div>
+              <div class="cascade-right" id="cascadeRight"></div>
+            </div>
+          </div>
         </div>
         <div class="query-item">
           <span class="label">店铺</span>
           <select id="qStore">
             <option value="">全部</option>
-            <option value="1店">美区跨境1店</option>
-            <option value="2店">美区跨境2店</option>
           </select>
         </div>
         <div class="query-item">
-          <span class="label">PID</span><span class="fuzzy">（支持模糊搜索）</span>
-          <input type="text" id="qPid" placeholder="请输入" />
+          <select id="qSearchField" style="min-width:80px;">
+            <option value="pid">PID</option>
+            <option value="spu">SPU</option>
+          </select>
+          <input type="text" id="qSearchVal" placeholder="模糊搜索" title="留空显示全部" style="min-width:140px;" />
+        </div>
+        <div class="query-item date-gran-wrap">
+          <span class="label" id="dateLabel">日期</span>
+          <span id="wrapDay" class=""><input type="date" id="qDate" /></span>
+          <span id="wrapWeek" class="hide"><input type="date" id="qStartDate" /><span style="color:var(--muted);padding:0 0.15rem;">~</span><input type="date" id="qEndDate" /></span>
+          <span id="wrapMonth" class="hide"><input type="month" id="qMonth" /></span>
+          <span id="wrapQuarter" class="hide"><input type="number" id="qYearQ" min="2020" max="2030" placeholder="年" style="width:70px;" /><select id="qQuarter"><option value="1">Q1(1-3月)</option><option value="2">Q2(4-6月)</option><option value="3">Q3(7-9月)</option><option value="4">Q4(10-12月)</option></select></span>
+          <span id="wrapYear" class="hide"><input type="number" id="qYear" min="2020" max="2030" placeholder="年份" style="width:90px;" /></span>
+        </div>
+        <div class="query-item">
+          <div class="tab-group" id="dateGranTabs">
+            <button type="button" class="tab active" data-gran="day">日</button>
+            <button type="button" class="tab" data-gran="week">周</button>
+            <button type="button" class="tab" data-gran="month">月</button>
+            <button type="button" class="tab" data-gran="quarter">季度</button>
+            <button type="button" class="tab" data-gran="year">年</button>
+          </div>
         </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
@@ -106,7 +156,7 @@
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
       </div>
       <div class="export-tip">
-        导出字段与下表一致：日期；商品基础信息（PID、主推SPU、产品阶段）；GMV情况（客单价、平均补贴/单、财务GMV 等）；商品卡；短视频；挂车情况；广告情况；GMVMAX辅助列
+        导出字段与下表一致：日期；商品基础信息（PID、主推SPU、产品阶段）；GMV情况（客单价、平均补贴/单、财务GMV 等）；商品卡；短视频；商务剪辑情况（商务挂车量、剪辑挂车量、合计挂车量、商务开单视频、剪辑开单视频、开单视频合计）；广告情况（vas消耗、GMVMAX消耗、广告总消耗、广告单量、广告订单数、广告GMV、总GMV、总ACOAS、广告ROI（测算）、广告AcoAs、广告ROI设置数）
       </div>
     </div>
 
@@ -116,19 +166,17 @@
           <thead>
             <tr>
               <th class="th-module bg-blue col-sticky-1" colspan="1">日期</th>
-              <th class="th-module bg-yellow col-sticky-234" colspan="3">商品基础信息</th>
+              <th class="th-module bg-yellow col-sticky-23" colspan="2">商品基础信息</th>
               <th class="th-module bg-blue" colspan="12">GMV情况</th>
               <th class="th-module bg-yellow" colspan="9">商品卡</th>
               <th class="th-module bg-blue" colspan="9">短视频</th>
-              <th class="th-module bg-yellow" colspan="3">挂车情况</th>
-              <th class="th-module bg-blue" colspan="7">广告情况</th>
-              <th class="th-module bg-yellow" colspan="7">GMVMAX辅助列</th>
+              <th class="th-module bg-yellow" colspan="6">商务剪辑情况</th>
+              <th class="th-module bg-blue" colspan="11">广告情况</th>
             </tr>
             <tr>
               <th class="th-col col-sticky-1">日期</th>
               <th class="th-col col-sticky-2">PID</th>
               <th class="th-col col-sticky-3">主推SPU</th>
-              <th class="th-col col-sticky-4">产品阶段</th>
               <th class="th-col">客单价</th>
               <th class="th-col">平均补贴/单</th>
               <th class="th-col">财务GMV</th>
@@ -162,24 +210,24 @@
               <th class="th-col">商务挂车量</th>
               <th class="th-col">剪辑挂车量</th>
               <th class="th-col">合计挂车量</th>
-              <th class="th-col">vas消耗</th>
-              <th class="th-col">GMVMAX消耗</th>
-              <th class="th-col">广告订单数</th>
-              <th class="th-col">广告GMV</th>
-              <th class="th-col">总GMV</th>
-              <th class="th-col">总ACOAS</th>
-              <th class="th-col">总消耗</th>
-              <th class="th-col">商务辅助列</th>
-              <th class="th-col">剪辑辅助列</th>
-              <th class="th-col">VAS辅助列</th>
-              <th class="th-col">GMVMAX辅助列</th>
-              <th class="th-col">日期+ID</th>
-              <th class="th-col">辅助列</th>
-              <th class="th-col">运营动作</th>
+              <th class="th-col">商务开单视频</th>
+              <th class="th-col">剪辑开单视频</th>
+              <th class="th-col">开单视频合计</th>
+              <th class="th-col col-num-right">vas消耗</th>
+              <th class="th-col col-num-right">GMVMAX消耗</th>
+              <th class="th-col col-num-right">广告总消耗</th>
+              <th class="th-col col-num-right">广告单量</th>
+              <th class="th-col col-num-right">广告订单数</th>
+              <th class="th-col col-num-right">广告GMV</th>
+              <th class="th-col col-num-right">总GMV</th>
+              <th class="th-col col-num-right">总ACOAS</th>
+              <th class="th-col col-num-right">广告ROI（测算）</th>
+              <th class="th-col col-num-right">广告AcoAs</th>
+              <th class="th-col col-num-right">广告ROI设置数</th>
             </tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="43" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
@@ -194,10 +242,129 @@
   </div>
   <script>
     (function() {
-      var COLS = 51;
-      var headers = ['日期','PID','主推SPU','产品阶段','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','vas消耗','GMVMAX消耗','广告订单数','广告GMV','总GMV','总ACOAS','总消耗','商务辅助列','剪辑辅助列','VAS辅助列','GMVMAX辅助列','日期+ID','辅助列','运营动作'];
+      var COLS = 50;
+      var headers = ['日期','PID','主推SPU','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
 
-      function fillRow(date, pid, spu, stage) {
+      var regionTree = [
+        { name: '欧洲', children: [
+          { label: '德国', code: 'DE' },
+          { label: '西班牙', code: 'ES' },
+          { label: '法国', code: 'FR' },
+          { label: '意大利', code: 'IT' }
+        ]},
+        { name: '北美洲', children: [
+          { label: '美国', code: 'US' }
+        ]},
+        { name: '其它', children: [
+          { label: 'Global', code: 'Global' }
+        ]}
+      ];
+
+      var codeToStores = {
+        'DE': ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        'ES': ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        'FR': ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        'IT': ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        'US': ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        'Global': ['美国TK独立站-shopify:Global']
+      };
+
+      var allStores = [];
+      Object.keys(codeToStores).forEach(function(k) { allStores = allStores.concat(codeToStores[k]); });
+
+      var cascadeSelection = { region: '', country: '', stores: [] };
+
+      function initCascade() {
+        var trigger = document.getElementById('cascadeTrigger');
+        var panel = document.getElementById('cascadePanel');
+        var left = document.getElementById('cascadeLeft');
+        var right = document.getElementById('cascadeRight');
+        var activeIdx = -1;
+
+        function renderLeft() {
+          left.innerHTML = regionTree.map(function(r, i) {
+            return '<div class="cl-item" data-idx="' + i + '">' +
+              '<span>' + r.name + '</span>' +
+              '<button type="button" class="only-btn" data-idx="' + i + '">仅选此项</button>' +
+              '<span class="arrow">›</span></div>';
+          }).join('');
+        }
+        function renderRight(idx) {
+          if (idx < 0 || idx >= regionTree.length) { right.innerHTML = ''; return; }
+          var children = regionTree[idx].children;
+          right.innerHTML = children.map(function(c) {
+            return '<div class="cr-item" data-code="' + c.code + '">' + c.label + '</div>';
+          }).join('');
+        }
+        function openPanel() { panel.classList.add('open'); trigger.classList.add('open'); }
+        function closePanel() { panel.classList.remove('open'); trigger.classList.remove('open'); activeIdx = -1; }
+        function setSelection(region, country, stores, label) {
+          cascadeSelection = { region: region, country: country, stores: stores };
+          if (label) {
+            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
+            document.getElementById('cascadeClear').addEventListener('click', function(e) {
+              e.stopPropagation();
+              clearCascade();
+            });
+          } else {
+            trigger.innerHTML = '<span class="placeholder">请选择</span>';
+          }
+          syncStoreOptions();
+          closePanel();
+        }
+        function clearCascade() { setSelection('', '', [], ''); }
+        renderLeft();
+        left.addEventListener('mouseover', function(e) {
+          var item = e.target.closest('.cl-item');
+          if (!item) return;
+          var idx = parseInt(item.getAttribute('data-idx'), 10);
+          if (idx === activeIdx) return;
+          activeIdx = idx;
+          left.querySelectorAll('.cl-item').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+          renderRight(idx);
+        });
+        left.addEventListener('click', function(e) {
+          var btn = e.target.closest('.only-btn');
+          if (!btn) return;
+          e.stopPropagation();
+          var idx = parseInt(btn.getAttribute('data-idx'), 10);
+          var r = regionTree[idx];
+          var stores = [];
+          r.children.forEach(function(c) { stores = stores.concat(codeToStores[c.code] || []); });
+          setSelection(r.name, '', stores, r.name);
+        });
+        right.addEventListener('click', function(e) {
+          var item = e.target.closest('.cr-item');
+          if (!item) return;
+          var code = item.getAttribute('data-code');
+          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
+          var stores = codeToStores[code] || [];
+          setSelection(regionName, code, stores, regionName + ' / ' + item.textContent);
+        });
+        trigger.addEventListener('click', function(e) {
+          if (panel.classList.contains('open')) closePanel(); else openPanel();
+        });
+        document.addEventListener('click', function(e) {
+          if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel();
+        });
+        window._clearCascade = clearCascade;
+      }
+
+      function syncStoreOptions() {
+        var sel = document.getElementById('qStore');
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">全部</option>';
+        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
+        list.forEach(function(s) {
+          sel.innerHTML += '<option value="' + s + '">' + s + '</option>';
+        });
+        if (list.indexOf(prev) !== -1) sel.value = prev; else sel.value = '';
+      }
+
+      initCascade();
+      syncStoreOptions();
+
+      function fillRow(date, pid, spu, store) {
         var atv = 58 + Math.floor(Math.random() * 20);
         var gmv = 5000 + Math.floor(Math.random() * 50000);
         var cnt = Math.floor(gmv / atv);
@@ -205,51 +372,192 @@
         var cardGmv = Math.floor(gmv * 0.6);
         var liveGmv = Math.floor(gmv * 0.25);
         var videoGmv = gmv - cardGmv - liveGmv;
-        return [
-          date, pid, spu, stage, atv,
+        var gmvMaxConsume = 200 + Math.random() * 300;
+        var adQty = Math.floor(orders * 0.18);
+        var adOrders = Math.floor(orders * 0.15);
+        var adGmv = Math.floor(gmv * 0.12);
+        var totalGmv = gmv + Math.floor(Math.random() * 2000);
+        var vasConsume = 800 + Math.random() * 500;
+        var adTotalConsume = vasConsume + gmvMaxConsume;
+        var totalAcoas = adTotalConsume > 0 ? (adTotalConsume / gmv * 100).toFixed(2) + '%' : '—';
+        var adRoi = gmvMaxConsume > 0 ? (adGmv / gmvMaxConsume).toFixed(2) : '—';
+        var adAcoas = adGmv > 0 ? (gmvMaxConsume / adGmv * 100).toFixed(2) + '%' : '—';
+        var row = [
+          date, pid, spu, atv,
           (2.5 + Math.random() * 3).toFixed(2), gmv, gmv, cnt, orders,
           cardGmv, liveGmv, videoGmv,
           (60 + Math.random() * 20).toFixed(1) + '%', (20 + Math.random() * 15).toFixed(1) + '%', (10 + Math.random() * 10).toFixed(1) + '%',
           Math.floor(cardGmv * 1.02), Math.floor(cnt * 0.62),
           atv, 12000 + Math.floor(Math.random() * 8000), 8000 + Math.floor(Math.random() * 5000), 6500 + Math.floor(Math.random() * 4000),
-          (5 + Math.random() * 4).toFixed(2) + '%', (3 + Math.random() * 2).toFixed(2) + '%',
+          (5 + Math.random() * 4).toFixed(2) + '%', (3 + Math.random() * 2).toFixed(2) + '%', (1.5 + Math.random() * 2).toFixed(2) + '%',
           Math.floor(videoGmv * 0.95), Math.floor(cnt * 0.22),
           atv, 5000 + Math.floor(Math.random() * 5000), 3500 + Math.floor(Math.random() * 3000), 2800 + Math.floor(Math.random() * 2500),
           2200 + Math.floor(Math.random() * 2000), (4 + Math.random() * 3).toFixed(2) + '%', (2.5 + Math.random() * 2).toFixed(2) + '%',
           15 + Math.floor(Math.random() * 20), 8 + Math.floor(Math.random() * 12), 23 + Math.floor(Math.random() * 25),
-          (800 + Math.random() * 500).toFixed(2), (200 + Math.random() * 300).toFixed(2),
-          Math.floor(orders * 0.15), Math.floor(gmv * 0.12), gmv + Math.floor(Math.random() * 2000),
-          (2 + Math.random() * 1.5).toFixed(2), (1200 + Math.random() * 800).toFixed(2),
-          '', '', '', '', date + '_' + pid, '', ''
+          '—', '—', '—',
+          vasConsume.toFixed(2), gmvMaxConsume.toFixed(2), adTotalConsume.toFixed(2),
+          adQty, adOrders, adGmv, totalGmv,
+          totalAcoas, adRoi, adAcoas, '—'
         ];
+        row._store = store;
+        return row;
       }
 
       var mock = [
-        fillRow('2026-02-23', '1729773126172578149', 'SPU_001', '主推'),
-        fillRow('2026-02-23', '1729439482671567205', 'SPU_002', '测试'),
-        fillRow('2026-02-24', '1729416165725475173', 'SPU_003', '主推'),
-        fillRow('2026-02-24', '1729380011223344556', 'SPU_004', '常规'),
-        fillRow('2026-02-23', '1729355500112233445', 'SPU_005', '主推'),
-        fillRow('2026-02-24', '1729322000112233444', 'SPU_006', '测试')
+        fillRow('2026-02-23', '1729773126172578149', 'SPU_001', '美国 TK・艾斯特尼 - 美区特 1 店 US'),
+        fillRow('2026-02-23', '1729439482671567205', 'SPU_002', '美国 TK・艾斯特尼 - 美区特 2 店 US'),
+        fillRow('2026-02-24', '1729416165725475173', 'SPU_003', '美国 TK・艾斯特尼 - 欧洲直邮店 DE'),
+        fillRow('2026-02-24', '1729380011223344556', 'SPU_004', '美国 TK・艾斯特尼 - 欧洲直邮店 FR'),
+        fillRow('2026-02-23', '1729355500112233445', 'SPU_005', '美国 TK・艾斯特尼 - 欧洲直邮店 IT'),
+        fillRow('2026-02-24', '1729322000112233444', 'SPU_006', '美国TK独立站-shopify:Global'),
+        fillRow('2026-02-25', '1729773126172578149', 'SPU_001', '美国 TK・艾斯特尼 - 美区特 1 店 US'),
+        fillRow('2026-03-01', '1729439482671567205', 'SPU_002', '美国 TK・艾斯特尼 - 美区特 2 店 US'),
+        fillRow('2026-01-15', '1729416165725475173', 'SPU_003', '美国 TK・艾斯特尼 - 欧洲直邮店 DE'),
+        fillRow('2026-01-16', '1729380011223344556', 'SPU_004', '美国 TK・艾斯特尼 - 美区特 2 店 US'),
+        fillRow('2026-02-15', '1729355500112233445', 'SPU_005', '美国 TK・艾斯特尼 - 欧洲直邮店 DE'),
+        fillRow('2026-02-16', '1729322000112233444', 'SPU_006', '美国 TK・艾斯特尼 - 欧洲直邮店 FR'),
+        fillRow('2026-03-15', '1729773126172578149', 'SPU_001', '美国 TK・艾斯特尼 - 美区特 1 店 US'),
+        fillRow('2026-03-16', '1729439482671567205', 'SPU_002', '美国 TK・艾斯特尼 - 美区特 2 店 US'),
+        fillRow('2026-04-15', '1729416165725475173', 'SPU_003', '美国 TK・艾斯特尼 - 欧洲直邮店 IT'),
+        fillRow('2026-04-16', '1729380011223344556', 'SPU_004', '美国TK独立站-shopify:Global'),
+        fillRow('2026-05-15', '1729355500112233445', 'SPU_005', '美国 TK・艾斯特尼 - 美区特 1 店 US'),
+        fillRow('2026-05-16', '1729322000112233444', 'SPU_006', '美国 TK・艾斯特尼 - 美区特 2 店 US'),
+        fillRow('2026-06-15', '1729773126172578149', 'SPU_001', '美国 TK・艾斯特尼 - 欧洲直邮店 DE'),
+        fillRow('2026-06-16', '1729439482671567205', 'SPU_002', '美国 TK・艾斯特尼 - 欧洲直邮店 FR')
       ];
 
       var currentRows = [];
       var currentPage = 1;
       var pageSize = 5;
+      var curDateGran = 'day';
+
+      function getDateRange() {
+        var gran = curDateGran;
+        var startDate = '', endDate = '';
+        if (gran === 'day') {
+          startDate = endDate = document.getElementById('qDate').value;
+        } else if (gran === 'week') {
+          startDate = document.getElementById('qStartDate').value;
+          endDate = document.getElementById('qEndDate').value;
+        } else if (gran === 'month') {
+          var m = document.getElementById('qMonth').value;
+          if (m) {
+            startDate = m + '-01';
+            var y = parseInt(m.slice(0, 4), 10), mo = parseInt(m.slice(5, 7), 10);
+            var lastDay = new Date(y, mo, 0).getDate();
+            endDate = m + '-' + String(lastDay).padStart(2, '0');
+          }
+        } else if (gran === 'quarter') {
+          var y = parseInt(document.getElementById('qYearQ').value, 10);
+          var q = parseInt(document.getElementById('qQuarter').value, 10);
+          if (!isNaN(y) && q) {
+            var startM = (q - 1) * 3 + 1;
+            startDate = y + '-' + String(startM).padStart(2, '0') + '-01';
+            var endM = q * 3;
+            var lastD = new Date(y, endM, 0).getDate();
+            endDate = y + '-' + String(endM).padStart(2, '0') + '-' + String(lastD).padStart(2, '0');
+          }
+        } else if (gran === 'year') {
+          var yr = document.getElementById('qYear').value;
+          if (yr) {
+            startDate = yr + '-01-01';
+            endDate = yr + '-12-31';
+          }
+        }
+        return { start: startDate, end: endDate };
+      }
+
+      function getPeriodKey(dateStr, gran) {
+        if (gran === 'week') {
+          var d = new Date(dateStr + 'T12:00:00');
+          var day = d.getDay();
+          var monOffset = day === 0 ? -6 : 1 - day;
+          var mon = new Date(d);
+          mon.setDate(d.getDate() + monOffset);
+          return mon.getFullYear() + '-' + String(mon.getMonth() + 1).padStart(2, '0') + '-' + String(mon.getDate()).padStart(2, '0');
+        }
+        if (gran === 'month') return dateStr.slice(0, 7);
+        if (gran === 'quarter') {
+          var m = parseInt(dateStr.slice(5, 7), 10);
+          return dateStr.slice(0, 4) + '-Q' + Math.ceil(m / 3);
+        }
+        if (gran === 'year') return dateStr.slice(0, 4);
+        return dateStr;
+      }
+
+      function getPeriodLabel(key, gran) {
+        if (gran === 'week') {
+          var d = new Date(key + 'T12:00:00');
+          var sun = new Date(d);
+          sun.setDate(d.getDate() + 6);
+          var fmt = function(x) { return String(x.getMonth() + 1).padStart(2, '0') + '/' + String(x.getDate()).padStart(2, '0'); };
+          return fmt(d) + '~' + fmt(sun);
+        }
+        if (gran === 'month') return key;
+        if (gran === 'quarter') return key;
+        if (gran === 'year') return key;
+        return key.replace(/-/g, '/');
+      }
+
+      function aggregateRows(rows) {
+        if (curDateGran === 'day' || !rows.length) return rows;
+        var gran = curDateGran;
+        var map = {};
+        rows.forEach(function(row) {
+          var pk = getPeriodKey(row[0], gran);
+          var gk = pk + '\x01' + (row._store || '') + '\x01' + row[1] + '\x01' + row[2];
+          if (!map[gk]) {
+            map[gk] = { key: pk, store: row._store, pid: row[1], spu: row[2], sums: [], first: row };
+          }
+          var g = map[gk];
+          for (var i = 3; i < row.length; i++) {
+            var v = row[i];
+            var n = parseFloat(v);
+            if (!g.sums[i]) g.sums[i] = isNaN(n) ? 0 : n;
+            else if (!isNaN(n)) g.sums[i] += n;
+          }
+        });
+        return Object.keys(map).map(function(k) {
+          var g = map[k];
+          var out = [getPeriodLabel(g.key, gran), g.pid, g.spu];
+          for (var j = 3; j < COLS; j++) {
+            var orig = g.first[j];
+            var n = g.sums[j];
+            if (String(orig).indexOf('%') !== -1 || orig === '—') {
+              out.push(orig);
+            } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
+              out.push((Math.round(n * 100) / 100).toString());
+            } else {
+              out.push(orig !== undefined ? orig : '');
+            }
+          }
+          out._store = g.store;
+          return out;
+        });
+      }
 
       function getFiltered() {
-        var date = document.getElementById('qDate').value;
+        var range = getDateRange();
+        var startDate = range.start, endDate = range.end;
         var store = document.getElementById('qStore').value;
-        var pid = (document.getElementById('qPid').value || '').trim();
+        var field = document.getElementById('qSearchField').value;
+        var keyword = (document.getElementById('qSearchVal').value || '').trim().toLowerCase();
+        var allowedStores = cascadeSelection.stores.length ? cascadeSelection.stores : null;
         return mock.filter(function(row) {
-          if (date && row[0] !== date) return false;
-          if (pid && row[1].indexOf(pid) === -1) return false;
+          if (startDate && row[0] < startDate) return false;
+          if (endDate && row[0] > endDate) return false;
+          if (allowedStores && allowedStores.indexOf(row._store) === -1) return false;
+          if (store && row._store !== store) return false;
+          if (keyword) {
+            if (field === 'pid' && row[1].toLowerCase().indexOf(keyword) === -1) return false;
+            if (field === 'spu' && String(row[2]).toLowerCase().indexOf(keyword) === -1) return false;
+          }
           return true;
         });
       }
 
       function render(rows) {
-        currentRows = rows || [];
+        currentRows = aggregateRows(rows || []);
         currentPage = 1;
         renderPage();
       }
@@ -273,9 +581,12 @@
         if (currentPage > totalPages) currentPage = totalPages;
         var start = (currentPage - 1) * pageSize;
         var pageRows = currentRows.slice(start, start + pageSize);
+        var adColStart = 39;
+
         tbody.innerHTML = pageRows.map(function(row) {
           return '<tr>' + row.map(function(cell, i) {
-            var cls = (i < 4) ? ' class="col-sticky-' + (i + 1) + '"' : '';
+            var cls = (i < 3) ? ' class="col-sticky-' + (i + 1) + '"' : '';
+            if (i >= adColStart) cls = ' class="col-num-right"';
             return '<td' + cls + '>' + String(cell) + '</td>';
           }).join('') + '</tr>';
         }).join('');
@@ -303,16 +614,89 @@
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = '数据看板_' + (document.getElementById('qDate').value || '全部') + '.csv';
+        var range = getDateRange();
+        a.download = '数据看板_' + (range.start || '') + '_' + (range.end || '全部') + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       }
 
+      function syncDateGranUI() {
+        var gran = curDateGran;
+        ['Day', 'Week', 'Month', 'Quarter', 'Year'].forEach(function(name) {
+          var wrap = document.getElementById('wrap' + name);
+          wrap.classList.toggle('hide', name.toLowerCase() !== gran);
+        });
+        document.getElementById('dateLabel').textContent = gran === 'day' ? '日期' : gran === 'week' ? '日期范围' : gran === 'month' ? '月份' : gran === 'quarter' ? '季度' : '年份';
+      }
+
+      function syncDateValuesToGran() {
+        var gran = curDateGran;
+        var base = document.getElementById('qDate').value || document.getElementById('qStartDate').value;
+        if (!base) {
+          var ym = document.getElementById('qMonth').value;
+          var yq = document.getElementById('qYearQ').value;
+          var q = document.getElementById('qQuarter').value;
+          var yr = document.getElementById('qYear').value;
+          if (ym) base = ym + '-01';
+          else if (yq && q) base = yq + '-' + String((parseInt(q, 10) - 1) * 3 + 1).padStart(2, '0') + '-01';
+          else if (yr) base = yr + '-01-01';
+        }
+        if (!base) base = '2026-02-23';
+        var y = base.slice(0, 4), m = base.slice(5, 7);
+        if (gran === 'day') {
+          document.getElementById('qDate').value = base;
+        } else if (gran === 'week') {
+          var dt = new Date(base + 'T12:00:00');
+          var day = dt.getDay();
+          var monOffset = day === 0 ? -6 : 1 - day;
+          var mon = new Date(dt);
+          mon.setDate(dt.getDate() + monOffset);
+          var sun = new Date(mon);
+          sun.setDate(mon.getDate() + 6);
+          var fmt = function(x) {
+            return x.getFullYear() + '-' + String(x.getMonth() + 1).padStart(2, '0') + '-' + String(x.getDate()).padStart(2, '0');
+          };
+          document.getElementById('qStartDate').value = fmt(mon);
+          document.getElementById('qEndDate').value = fmt(sun);
+        } else if (gran === 'month') {
+          document.getElementById('qMonth').value = y + '-' + m;
+        } else if (gran === 'quarter') {
+          var q = Math.ceil(parseInt(m, 10) / 3);
+          document.getElementById('qYearQ').value = y;
+          document.getElementById('qQuarter').value = String(q);
+        } else if (gran === 'year') {
+          document.getElementById('qYear').value = y;
+        }
+      }
+
+      document.getElementById('dateGranTabs').querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          curDateGran = tab.getAttribute('data-gran');
+          syncDateGranUI();
+          syncDateValuesToGran();
+          render(getFiltered());
+        });
+      });
+      syncDateGranUI();
+
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
       document.getElementById('btnReset').onclick = function() {
         document.getElementById('qDate').value = '';
+        document.getElementById('qStartDate').value = '';
+        document.getElementById('qEndDate').value = '';
+        document.getElementById('qMonth').value = '';
+        document.getElementById('qYearQ').value = '';
+        document.getElementById('qQuarter').value = '1';
+        document.getElementById('qYear').value = '';
+        curDateGran = 'day';
+        document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+        syncDateGranUI();
+        if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
-        document.getElementById('qPid').value = '';
+        document.getElementById('qSearchField').value = 'pid';
+        document.getElementById('qSearchVal').value = '';
         currentRows = [];
         currentPage = 1;
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
@@ -328,6 +712,12 @@
       };
 
       document.getElementById('qDate').value = '2026-02-23';
+      document.getElementById('qStartDate').value = '2026-02-23';
+      document.getElementById('qEndDate').value = '2026-02-24';
+      document.getElementById('qMonth').value = '2026-02';
+      document.getElementById('qYearQ').value = '2026';
+      document.getElementById('qQuarter').value = '1';
+      document.getElementById('qYear').value = '2026';
       render(getFiltered());
     })();
   </script>

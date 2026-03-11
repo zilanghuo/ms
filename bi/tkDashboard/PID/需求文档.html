@@ -35,7 +35,7 @@
 </head>
 <body>
   <div class="doc">
-    <h1>PID 销售趋势映射 — 需求文档（基础版）</h1>
+    <h1>PID 销售趋势映射 — 需求文档</h1>
     <blockquote>以需求为一级维度；源数据取数方式在文末「源数据统一梳理」统一说明。参照 Excel：<code>docs/PID销售趋势映射表.xlsx</code>（需求 / 映射表 / 源数据路径）。</blockquote>
     <hr />
 
@@ -181,15 +181,21 @@
           <tr><td>映射</td><td>商务挂车量（合计的挂车量 - 剪辑的挂车量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题</td><td>商品=全渠道商品的商品标题</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
           <tr><td>映射</td><td>剪辑挂车量（同一个商品，处于达人列表的数据量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题，达人列表的id处于该明细算剪辑</td><td>商品=全渠道商品的商品标题 + 达人列表id</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
           <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>商务开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>剪辑开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td>映射</td><td>GMVMAX消耗</td><td class="tbl-formula">Product campaign data.成本；PID=广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>PID=提取Product campaign data广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>Product campaign data</td><td>成本</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告单量</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>SKU 订单数</td><td>—</td></tr>
           <tr><td>映射</td><td>广告订单数</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>SKU 订单数</td><td>—</td></tr>
           <tr><td>映射</td><td>广告GMV</td><td class="tbl-formula">Product campaign data.总收入</td><td>同上</td><td>Product campaign data</td><td>总收入</td><td>—</td></tr>
           <tr><td>计算</td><td>总ACOAS</td><td class="tbl-formula">总ACOAS=财务GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>广告ROI（测算）</td><td class="tbl-formula">广告ROI（测算）=广告GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>广告AcoAs</td><td class="tbl-formula">广告AcoAs=GMVMAX消耗/广告GMV</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>广告ROI设置数</td><td class="tbl-formula">暂无数据，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
         </tbody>
       </table>
     </div>
     <h3>2.4 最终目标结果</h3>
-    <p>需求二达成的目标：<strong>PID 维度数据看板</strong>，支持按日期、店铺、PID 筛选，展示上述 GMV、渠道占比、商品卡/直播/短视频指标及广告挂车、ACOAS 等，与「1店PID维度的数据监测工具表-7天数据-》数据看板」结构一致或等价。</p>
+    <p>需求二达成的目标：<strong>PID 维度数据看板</strong>，支持按日期、店铺、PID 筛选，展示上述 GMV、渠道占比、商品卡/直播/短视频指标及广告挂车、ACOAS、广告ROI（测算）、广告AcoAs 等，与「1店PID维度的数据监测工具表-7天数据-》数据看板」结构一致或等价。</p>
     <p><strong>数据看板最终呈现示意</strong></p>
     <p>下图为需求二数据看板的目标呈现效果：按店铺（如 2 店）、按日期展示 PID、产品名称、一级/二级/三级分类、品牌，以及销售（销量、日销量、日销售额、环比/同环比）、销售额、7 日/30 日销售额趋势、复购（复购人数、复购率、复购客单价）、活跃度等指标。</p>
     <p><img src="docs/pictures/需求一-数据看板呈现示意.png" alt="需求一-数据看板呈现示意" /></p>

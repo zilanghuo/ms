@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求二：订单明细与销量趋势 — Demo</title>
+  <title>需求二：商品统计 — Demo</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -12,38 +13,84 @@
     .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
     .shop-label { font-size: 1rem; font-weight: 600; color: var(--accent); margin-bottom: 1rem; }
     .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
     .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item .sep { color: var(--muted); padding: 0 0.15rem; }
     .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 200px; cursor: pointer; }
-    .query-item input[type="date"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
+    .query-item input[type="date"], .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
+    .query-item input[type="text"] { min-width: 160px; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
+
+    .tab-group { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab-group .tab { padding: 0.4rem 0.9rem; font-size: 0.9rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+
+    .filter-info { font-size: 0.8rem; color: var(--accent); }
+
     .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
     .action-bar .btns { display: flex; gap: 0.5rem; }
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 900px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
     th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    /* 冻结前 6 列：店铺名、SPU(公式)、PID、小计、平均值、环比；用纯色背景避免左滑时背后数据透出 */
+    #resultTable th.sticky-col-1, #resultTable td.sticky-col-1 { position: sticky; left: 0; width: 240px; min-width: 240px; max-width: 240px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-2, #resultTable td.sticky-col-2 { position: sticky; left: 240px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-3, #resultTable td.sticky-col-3 { position: sticky; left: 380px; width: 200px; min-width: 200px; max-width: 200px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 580px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 648px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-6, #resultTable td.sticky-col-6 { position: sticky; left: 716px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-1, #resultTable th.sticky-col-2, #resultTable th.sticky-col-3, #resultTable th.sticky-col-4, #resultTable th.sticky-col-5, #resultTable th.sticky-col-6 { z-index: 2; background: #f9fafb !important; }
+    #resultTable .spu-row td.sticky-col-1, #resultTable .spu-row td.sticky-col-2, #resultTable .spu-row td.sticky-col-3, #resultTable .spu-row td.sticky-col-4, #resultTable .spu-row td.sticky-col-5, #resultTable .spu-row td.sticky-col-6 { background: #fef9c3 !important; }
+    #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6 { background: #fef08a !important; }
+    #resultTable tr:hover td.sticky-col-1, #resultTable tr:hover td.sticky-col-2, #resultTable tr:hover td.sticky-col-3, #resultTable tr:hover td.sticky-col-4, #resultTable tr:hover td.sticky-col-5, #resultTable tr:hover td.sticky-col-6 { background: #f9fafb !important; }
+    #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6 { background: #fef08a !important; }
     tr:hover td { background: #f9fafb; }
     td { color: var(--text); }
     .spu-row td { background: #fef9c3; font-weight: 600; }
     .spu-row:hover td { background: #fef08a; }
     .diff-neg { color: #dc2626; font-weight: 500; }
     .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
-    .pagination { padding: 0.6rem 1rem; border-top: 1px solid var(--border); background: #f9fafb; display: flex; align-items: center; justify-content: flex-end; gap: 0.75rem; font-size: 0.85rem; }
-    .pagination .info { color: var(--muted); margin-right: auto; }
-    .pagination .btn { padding: 0.35rem 0.65rem; min-width: 60px; }
-    .pagination .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .help-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 600; cursor: help; position: relative; vertical-align: middle; margin-left: 0.4rem; }
+    .help-icon:hover .help-tip { display: block; }
+    .help-tip { display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%); background: #1e293b; color: #f1f5f9; font-size: 0.8rem; font-weight: 400; line-height: 1.6; padding: 0.6rem 0.85rem; border-radius: 6px; white-space: nowrap; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .help-tip::before { content: ''; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #1e293b; }
+
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; cursor: pointer; min-width: 160px; user-select: none; }
+    .cascade-trigger::after { content: ''; margin-left: auto; border: 4px solid transparent; border-top: 5px solid var(--muted); }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag { display: inline-flex; align-items: center; gap: 2px; background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 1px 6px; font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cascade-trigger .tag .tag-close { cursor: pointer; font-size: 0.7rem; margin-left: 2px; color: #0369a1; }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+    .cascade-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); min-width: 340px; }
+    .cascade-panel.open { display: flex; }
+    .cascade-left { width: 140px; border-right: 1px solid var(--border); max-height: 260px; overflow-y: auto; }
+    .cascade-right { flex: 1; max-height: 260px; overflow-y: auto; padding: 4px 0; }
+    .cascade-left .cl-item { display: flex; align-items: center; padding: 7px 10px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-left .cl-item:hover, .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn { display: none; margin-left: auto; font-size: 0.7rem; background: #2563eb; color: #fff; border: none; border-radius: 3px; padding: 1px 8px; cursor: pointer; white-space: nowrap; }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item { display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
     .spu-cell { display: inline-flex; align-items: center; gap: 0.35rem; }
     .btn-ai-spu { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; padding: 0; border: none; border-radius: 6px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; cursor: pointer; flex-shrink: 0; }
     .btn-ai-spu:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
@@ -61,65 +108,71 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">订单明细与销量趋势</h1>
-    <p class="shop-label" id="shopLabel">请选择店铺后查询</p>
+    <h1 class="page-title">商品统计<span class="help-icon">?<span class="help-tip">数据规则：<br/>① 买家实付金额不为零<br/>② 美区：付款时间早于当日夏令时 18:00 / 冬令时 17:00<br/>③ 欧洲：不限制时间，取全部符合「实付不为零」的数据</span></span></h1>
 
     <div class="query-card">
       <div class="query-row">
         <div class="query-item">
+          <span class="label">站点</span>
+          <div class="cascade-wrap" id="cascadeWrap">
+            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
+            <div class="cascade-panel" id="cascadePanel">
+              <div class="cascade-left" id="cascadeLeft"></div>
+              <div class="cascade-right" id="cascadeRight"></div>
+            </div>
+          </div>
+        </div>
+        <div class="query-item">
           <span class="label">店铺</span>
           <select id="qStore">
             <option value="">请选择店铺</option>
-            <option value="1店">一店（美区跨境1店）</option>
-            <option value="2店">二店（美区跨境2店）</option>
-            <option value="3店">三店（美区跨境3店）</option>
-            <option value="英区">英区（英国直邮店）</option>
           </select>
         </div>
         <div class="query-item">
-          <span class="label">到日期</span>
-          <input type="date" id="qEndDate" title="表格右侧最后一列为该日" />
+          <select id="qSearchField" style="min-width:80px;">
+            <option value="spu">SPU</option>
+            <option value="pid">PID</option>
+          </select>
+          <input type="text" id="qSearchVal" placeholder="模糊搜索" title="留空显示全部" style="min-width:160px;" />
+        </div>
+        <div class="query-item">
+          <input type="date" id="qStartDate" />
+          <span class="sep">~</span>
+          <input type="date" id="qEndDate" />
+        </div>
+        <div class="tab-group" id="granTabs">
+          <button type="button" class="tab active" data-gran="day">日</button>
+          <button type="button" class="tab" data-gran="week">周</button>
+          <button type="button" class="tab" data-gran="month">月</button>
+          <button type="button" class="tab" data-gran="quarter">季</button>
+          <button type="button" class="tab" data-gran="year">年</button>
         </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
           <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
         </div>
       </div>
+      <div style="margin-top:0.5rem;">
+        <span class="filter-info" id="filterInfo"></span>
+      </div>
     </div>
 
     <div class="action-bar">
       <div class="btns">
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+        <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
       </div>
       <div class="export-tip">
-        导出字段：店铺名、SPU(公式)、PID、7 天日期（计数项: SKU sold quantity in the order.）、近两天差异。每个 SPU 行可点击「AI」进行该 SPU 维度的分析。
+        导出字段：店铺名、SPU(公式)、PID、小计、平均值、环比、各期间日期（计数项: SKU sold quantity in the order.）。环比为百分比，日对比昨天、周对比上周、月对比上月、季对比上季、年对比去年。每个 SPU 行可点击「AI」进行该 SPU 维度的分析。
       </div>
     </div>
 
     <div class="table-card">
       <div class="table-wrap">
         <table id="resultTable">
-          <thead>
-            <tr>
-              <th>店铺名</th>
-              <th>SPU(公式)</th>
-              <th>PID</th>
-              <th colspan="7">计数项: SKU sold quantity in the order.</th>
-              <th>近两天差异</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th id="thDay0">2026/2/21</th>
-              <th id="thDay1">2026/2/22</th>
-              <th id="thDay2">2026/2/23</th>
-              <th id="thDay3">2026/2/24</th>
-              <th id="thDay4">2026/2/25</th>
-              <th id="thDay5">2026/2/26</th>
-              <th id="thDay6">2026/2/27</th>
-              <th></th>
-            </tr>
+          <thead id="resultHead">
+            <tr><th>店铺名</th><th>SPU(公式)</th><th>PID</th><th colspan="7">—</th><th>环比</th></tr>
+            <tr><th></th><th></th><th></th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th></th></tr>
           </thead>
           <tbody id="resultBody">
             <tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>
@@ -142,112 +195,313 @@
   </div>
   <script>
     (function() {
-      var DEFAULT_DAYS = ['2026/2/21', '2026/2/22', '2026/2/23', '2026/2/24', '2026/2/25', '2026/2/26', '2026/2/27'];
+      var curGran = 'day';
 
-      function getDays() {
-        var endVal = document.getElementById('qEndDate').value;
-        if (!endVal) return DEFAULT_DAYS.slice();
-        var d = new Date(endVal + 'T12:00:00');
-        var out = [];
-        for (var i = 6; i >= 0; i--) {
-          var x = new Date(d);
-          x.setDate(x.getDate() - i);
-          out.push(x.getFullYear() + '/' + (x.getMonth() + 1) + '/' + x.getDate());
+      var regionTree = [
+        { name: '欧洲', children: [
+          { label: '德国', code: 'DE' },
+          { label: '西班牙', code: 'ES' },
+          { label: '法国', code: 'FR' },
+          { label: '意大利', code: 'IT' }
+        ]},
+        { name: '北美洲', children: [
+          { label: '美国', code: 'US' }
+        ]},
+        { name: '其它', children: [
+          { label: 'Global', code: 'Global' }
+        ]}
+      ];
+
+      var codeToStores = {
+        'DE': ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        'ES': ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        'FR': ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        'IT': ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        'US': ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        'Global': ['美国TK独立站-shopify:Global']
+      };
+
+      var allStores = [];
+      Object.keys(codeToStores).forEach(function(k) { allStores = allStores.concat(codeToStores[k]); });
+
+      var cascadeSelection = { region: '', country: '', stores: [] };
+
+      function initCascade() {
+        var trigger = document.getElementById('cascadeTrigger');
+        var panel = document.getElementById('cascadePanel');
+        var left = document.getElementById('cascadeLeft');
+        var right = document.getElementById('cascadeRight');
+        var activeIdx = -1;
+        function renderLeft() {
+          left.innerHTML = regionTree.map(function(r, i) {
+            return '<div class="cl-item" data-idx="' + i + '"><span>' + r.name + '</span><button type="button" class="only-btn" data-idx="' + i + '">仅选此项</button><span class="arrow">›</span></div>';
+          }).join('');
         }
+        function renderRight(idx) {
+          if (idx < 0 || idx >= regionTree.length) { right.innerHTML = ''; return; }
+          right.innerHTML = regionTree[idx].children.map(function(c) {
+            return '<div class="cr-item" data-code="' + c.code + '">' + c.label + '</div>';
+          }).join('');
+        }
+        function openPanel() { panel.classList.add('open'); trigger.classList.add('open'); }
+        function closePanel() { panel.classList.remove('open'); trigger.classList.remove('open'); activeIdx = -1; }
+        function setSelection(region, country, st, label) {
+          cascadeSelection = { region: region, country: country, stores: st };
+          if (label) {
+            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
+            document.getElementById('cascadeClear').addEventListener('click', function(e) { e.stopPropagation(); clearCascade(); });
+          } else {
+            trigger.innerHTML = '<span class="placeholder">请选择</span>';
+          }
+          syncStoreOptions();
+          closePanel();
+        }
+        function clearCascade() { setSelection('', '', [], ''); }
+        renderLeft();
+        left.addEventListener('mouseover', function(e) {
+          var item = e.target.closest('.cl-item'); if (!item) return;
+          var idx = parseInt(item.getAttribute('data-idx'), 10);
+          if (idx === activeIdx) return; activeIdx = idx;
+          left.querySelectorAll('.cl-item').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+          renderRight(idx);
+        });
+        left.addEventListener('click', function(e) {
+          var btn = e.target.closest('.only-btn'); if (!btn) return; e.stopPropagation();
+          var idx = parseInt(btn.getAttribute('data-idx'), 10);
+          var r = regionTree[idx]; var st = [];
+          r.children.forEach(function(c) { st = st.concat(codeToStores[c.code] || []); });
+          setSelection(r.name, '', st, r.name);
+        });
+        right.addEventListener('click', function(e) {
+          var item = e.target.closest('.cr-item'); if (!item) return;
+          var code = item.getAttribute('data-code');
+          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
+          setSelection(regionName, code, codeToStores[code] || [], regionName + ' / ' + item.textContent);
+        });
+        trigger.addEventListener('click', function() { if (panel.classList.contains('open')) closePanel(); else openPanel(); });
+        document.addEventListener('click', function(e) { if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel(); });
+        window._clearCascade = clearCascade;
+      }
+
+      function syncStoreOptions() {
+        var sel = document.getElementById('qStore');
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">请选择店铺</option>';
+        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
+        list.forEach(function(s) { sel.innerHTML += '<option value="' + s + '">' + s + '</option>'; });
+        if (list.indexOf(prev) !== -1) sel.value = prev; else sel.value = '';
+      }
+
+      initCascade();
+      syncStoreOptions();
+
+      var spusByShop = {
+        '美国 TK・艾斯特尼 - 美区特 1 店 US': ['AL-W0161', 'AL-W0180', 'AL-W0169', 'AL-W5558'],
+        '美国 TK・艾斯特尼 - 美区特 2 店 US': ['AL-W0161'],
+        '美国 TK・艾斯特尼 - 美区特 3 店 US': ['ALYMX-DROPSW'],
+        '美国 TK・艾斯特尼 - 欧洲直邮店 DE': ['AL-W0161'],
+        '美国 TK・艾斯特尼 - 欧洲直邮店 ES': ['AL-W0161', 'AL-W0180'],
+        '美国 TK・艾斯特尼 - 欧洲直邮店 FR': ['AL-W0169'],
+        '美国 TK・艾斯特尼 - 欧洲直邮店 IT': ['AL-W0161'],
+        '美国TK独立站-shopify:Global': ['AL-W5558']
+      };
+      var pidsBySpu = {
+        'AL-W0161':    ['1729439482671567205', '1729773126172578149', '1729416165725475173', '1729380011223344556'],
+        'AL-W0180':    ['1731657241623302501', '1731657241623302502'],
+        'AL-W0169':    ['1729355500112233445', '1729322000112233444'],
+        'AL-W5558':    ['1729300000112233443'],
+        'ALYMX-DROPSW':['1729416165725475173', '1729380011223344556']
+      };
+
+      function hash(str) {
+        var h = 5381;
+        for (var i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
+        return Math.abs(h);
+      }
+      function mockPidQty(pid, dateStr) {
+        var h = hash(pid + dateStr);
+        if (pid.endsWith('556') || pid.endsWith('443')) return 1 + (h % 5);
+        if (pid.endsWith('502')) return 10 + (h % 20);
+        return 15 + (h % 60);
+      }
+
+      function fmtDate(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function fmtLabel(d) {
+        return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate();
+      }
+      function parseDate(s) { return new Date(s + 'T12:00:00'); }
+
+      function enumDays(start, end) {
+        var out = [], d = parseDate(start), last = parseDate(end);
+        while (d <= last) { out.push(fmtDate(d)); d.setDate(d.getDate() + 1); }
         return out;
       }
 
-      // 按店铺 -> SPU -> PIDs 的 mock 数据（7 天销量 + 近两天差异）
-      var byShop = {
-        '1店': [
-          { spu: 'AL-W0161', total: [122, 119, 98, 105, 88, 95, 82], diff: -13, pids: [
-            { pid: '1729439482671567205', days: [2, 81, 33, 3, 3, 8, 5], diff: -3 },
-            { pid: '1729773126172578149', days: [81, 20, 45, 70, 60, 55, 50], diff: -5 },
-            { pid: '1729416165725475173', days: [33, 15, 18, 28, 22, 28, 24], diff: -4 },
-            { pid: '1729380011223344556', days: [3, 3, 2, 2, 3, 2, 3], diff: 1 }
-          ]},
-          { spu: 'AL-W0180', total: [56, 62, 58, 70, 65, 72, 67], diff: -5, pids: [
-            { pid: '1731657241623302501', days: [40, 35, 30, 45, 40, 45, 42], diff: -3 },
-            { pid: '1731657241623302502', days: [16, 27, 28, 25, 25, 27, 25], diff: -2 }
-          ]},
-          { spu: 'AL-W0169', total: [88, 92, 85, 90, 88, 95, 57], diff: -38, pids: [
-            { pid: '1729355500112233445', days: [50, 52, 48, 50, 48, 52, 30], diff: -22 },
-            { pid: '1729322000112233444', days: [38, 40, 37, 40, 40, 43, 27], diff: -16 }
-          ]},
-          { spu: 'AL-W5558', total: [45, 48, 42, 50, 48, 52, 48], diff: -4, pids: [
-            { pid: '1729300000112233443', days: [45, 48, 42, 50, 48, 52, 48], diff: -4 }
-          ]}
-        ],
-        '2店': [
-          { spu: 'AL-W0161', total: [30, 32, 28, 35, 33, 36, 34], diff: -2, pids: [
-            { pid: '1729439482671567205', days: [18, 20, 16, 22, 20, 22, 21], diff: -1 },
-            { pid: '1729773126172578149', days: [12, 12, 12, 13, 13, 14, 13], diff: -1 }
-          ]}
-        ],
-        '3店': [
-          { spu: 'ALYMX-DROPSW', total: [20, 22, 19, 24, 21, 23, 20], diff: -3, pids: [
-            { pid: '1729416165725475173', days: [12, 14, 11, 15, 12, 14, 12], diff: -2 },
-            { pid: '1729380011223344556', days: [8, 8, 8, 9, 9, 9, 8], diff: -1 }
-          ]}
-        ],
-        '英区': [
-          { spu: 'AL-W0161', total: [15, 16, 14, 18, 16, 17, 16], diff: -1, pids: [
-            { pid: '1729439482671567205', days: [15, 16, 14, 18, 16, 17, 16], diff: -1 }
-          ]}
-        ]
-      };
+      function getISOWeek(d) {
+        var dt = new Date(d.getTime());
+        dt.setHours(0, 0, 0, 0);
+        dt.setDate(dt.getDate() + 3 - (dt.getDay() + 6) % 7);
+        var week1 = new Date(dt.getFullYear(), 0, 4);
+        var wn = 1 + Math.round(((dt.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        return dt.getFullYear() + '-W' + String(wn).padStart(2, '0');
+      }
 
-      var shopNames = { '1店': '一店', '2店': '二店', '3店': '三店', '英区': '英区' };
+      function shortMMDD(dateStr) {
+        var p = dateStr.split('-');
+        return p[1] + '/' + p[2];
+      }
+
+      function buildBuckets(days, gran) {
+        if (gran === 'day') return days.map(function(d) {
+          var dt = parseDate(d);
+          return { label: fmtLabel(dt), days: [d] };
+        });
+        var map = {}, order = [];
+        days.forEach(function(d) {
+          var key;
+          if (gran === 'week') key = getISOWeek(parseDate(d));
+          else if (gran === 'month') key = d.slice(0, 7);
+          else if (gran === 'quarter') key = d.slice(0, 4) + '-Q' + Math.ceil(parseInt(d.slice(5, 7), 10) / 3);
+          else if (gran === 'year') key = d.slice(0, 4);
+          else key = d.slice(0, 7);
+          if (!map[key]) { map[key] = []; order.push(key); }
+          map[key].push(d);
+        });
+        return order.map(function(k) {
+          var ds = map[k];
+          var label = (gran === 'week') ? (shortMMDD(ds[0]) + '~' + shortMMDD(ds[ds.length - 1])) : k;
+          return { label: label, days: ds };
+        });
+      }
+
+      function pidBucketQty(pid, bucket) {
+        var s = 0;
+        bucket.days.forEach(function(d) { s += mockPidQty(pid, d); });
+        return s;
+      }
+
+      /** 环比百分比：本期 vs 上期（日→昨天，周→上周，月→上月，季→上季，年→去年）。返回展示用字符串，如 +12.5% / -8.0% / — */
+      function fmtChainRatio(current, previous) {
+        if (previous === 0) return current === 0 ? '0%' : '—';
+        var pct = ((current - previous) / previous) * 100;
+        var sign = pct >= 0 ? '+' : '';
+        return sign + (Math.round(pct * 10) / 10) + '%';
+      }
+
+      function getDateRange() {
+        return { start: document.getElementById('qStartDate').value, end: document.getElementById('qEndDate').value };
+      }
 
       function getFiltered() {
         var store = document.getElementById('qStore').value;
-        if (!store || !byShop[store]) return null;
-        return { store: store, name: shopNames[store], list: byShop[store] };
+        if (!store || !spusByShop[store]) return null;
+        var spus = spusByShop[store];
+        var field = document.getElementById('qSearchField').value;
+        var keyword = (document.getElementById('qSearchVal').value || '').trim().toLowerCase();
+        if (keyword) {
+          if (field === 'spu') {
+            spus = spus.filter(function(s) { return s.toLowerCase().indexOf(keyword) !== -1; });
+          } else if (field === 'pid') {
+            spus = spus.filter(function(spu) {
+              var pids = pidsBySpu[spu] || [];
+              return pids.some(function(p) { return p.toLowerCase().indexOf(keyword) !== -1; });
+            });
+          }
+        }
+        return { store: store, name: store, spus: spus };
       }
 
-      function render(data) {
+      function render() {
+        var data = getFiltered();
         var tbody = document.getElementById('resultBody');
-        var label = document.getElementById('shopLabel');
-        if (!data || !data.list.length) {
-          label.textContent = '请选择店铺后查询';
+        var range = getDateRange();
+
+        if (!data || !data.spus.length || !range.start || !range.end || range.start > range.end) {
           tbody.innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
           return;
         }
-        label.textContent = data.name;
 
-        var DAYS = getDays();
-        for (var i = 0; i < 7; i++) {
-          var th = document.getElementById('thDay' + i);
-          if (th) th.textContent = DAYS[i];
-        }
+        var days = enumDays(range.start, range.end);
+        var buckets = buildBuckets(days, curGran).reverse();
+        var colCount = 3 + buckets.length + 1;
 
-        var totalRows = 0;
-        data.list.forEach(function(group) {
-          totalRows += 1 + group.pids.length;
+        var granLabel = curGran === 'day' ? '日' : curGran === 'week' ? '周' : curGran === 'month' ? '月' : curGran === 'quarter' ? '季' : '年';
+        var diffLabel = '环比';
+        document.getElementById('filterInfo').textContent =
+          '店铺：' + data.name + '　日期：' + range.start + ' 至 ' + range.end + '　日期类型：' + granLabel;
+
+        var bLen = buckets.length;
+        var thead = document.getElementById('resultHead');
+        thead.innerHTML =
+          '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th>' +
+          '<th class="sticky-col-4">小计</th><th class="sticky-col-5">平均值</th><th class="sticky-col-6">' + diffLabel + '</th>' +
+          '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
+          '</tr>' +
+          '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th>' +
+          buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
+          '</tr>';
+
+        function sumArr(arr) { return arr.reduce(function(a, b) { return a + b; }, 0); }
+        function avgArr(arr) { return arr.length ? Math.round(sumArr(arr) / arr.length) : 0; }
+
+        var groups = [];
+        data.spus.forEach(function(spu) {
+          var pids = pidsBySpu[spu] || [];
+          var pidRows = pids.map(function(pid) {
+            var vals = buckets.map(function(b) { return pidBucketQty(pid, b); });
+            var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
+            var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
+            var diffNum = s1 - s2;
+            var diffStr = fmtChainRatio(s1, s2);
+            var sub = sumArr(vals);
+            var avg = avgArr(vals);
+            return { pid: pid, vals: vals, diffNum: diffNum, diffStr: diffStr, sub: sub, avg: avg };
+          });
+          var totals = buckets.map(function(_, i) {
+            var s = 0; pidRows.forEach(function(pr) { s += pr.vals[i]; }); return s;
+          });
+          var t1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
+          var t2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
+          var totalDiffNum = t1 - t2;
+          var totalDiffStr = fmtChainRatio(t1, t2);
+          var totalSub = sumArr(totals);
+          var totalAvg = avgArr(totals);
+          groups.push({ spu: spu, totals: totals, totalDiffNum: totalDiffNum, totalDiffStr: totalDiffStr, totalSub: totalSub, totalAvg: totalAvg, pidRows: pidRows });
         });
 
-        var html = '';
-        var firstRow = true;
-        data.list.forEach(function(group, gidx) {
-          var rowspan = 1 + group.pids.length;
+        var totalRowCount = 0;
+        groups.forEach(function(g) { totalRowCount += 1 + g.pidRows.length; });
+
+        var html = '', firstRow = true;
+        groups.forEach(function(group, gidx) {
+          var rowspan = 1 + group.pidRows.length;
+
           html += '<tr class="spu-row">';
           if (firstRow) {
-            html += '<td rowspan="' + totalRows + '">' + data.name + '</td>';
+            html += '<td class="sticky-col-1" rowspan="' + totalRowCount + '">' + data.name + '</td>';
             firstRow = false;
           }
-          html += '<td rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
-          html += '<td>小计</td>';
-          group.total.forEach(function(v) { html += '<td>' + v + '</td>'; });
-          html += '<td class="' + (group.diff < 0 ? 'diff-neg' : '') + '">' + (group.diff >= 0 ? '+' : '') + group.diff + '</td>';
+          html += '<td class="sticky-col-2" rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
+          html += '<td class="sticky-col-3">合计</td>';
+          html += '<td class="sticky-col-4" style="font-weight:600;">' + group.totalSub + '</td>';
+          html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalAvg + '</td>';
+          html += '<td class="sticky-col-6 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
+          group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
           html += '</tr>';
-          group.pids.forEach(function(p) {
+
+          group.pidRows.forEach(function(pr) {
             html += '<tr>';
-            html += '<td>' + p.pid + '</td>';
-            p.days.forEach(function(v) { html += '<td>' + v + '</td>'; });
-            html += '<td class="' + (p.diff < 0 ? 'diff-neg' : '') + '">' + (p.diff >= 0 ? '+' : '') + p.diff + '</td>';
+            html += '<td class="sticky-col-3">' + pr.pid + '</td>';
+            html += '<td class="sticky-col-4">' + pr.sub + '</td>';
+            html += '<td class="sticky-col-5">' + pr.avg + '</td>';
+            html += '<td class="sticky-col-6 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
+            pr.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
             html += '</tr>';
           });
         });
+
         tbody.innerHTML = html;
 
         var modal = document.getElementById('aiModal');
@@ -260,57 +514,34 @@
           btn.addEventListener('click', function(e) {
             e.stopPropagation();
             var gidx = parseInt(btn.getAttribute('data-gidx'), 10);
-            var data = getFiltered();
-            if (data && data.list[gidx]) {
-              modalBody.textContent = generateAiAnalysisForSpu(data.list[gidx], data.name, getDays());
-              document.getElementById('aiModalTitle').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>AI 分析 · ' + data.list[gidx].spu;
-              modal.classList.add('visible');
-            }
+            var g = groups[gidx];
+            if (!g) return;
+            var bLabels = buckets.map(function(b) { return b.label; });
+            modalBody.textContent = generateAiAnalysis(g, data.name, bLabels);
+            document.getElementById('aiModalTitle').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>AI 分析 · ' + g.spu;
+            modal.classList.add('visible');
           });
         });
       }
 
-      function generateAiAnalysisForSpu(group, shopName, days) {
-        days = days || DEFAULT_DAYS;
-        var s6 = group.total[group.total.length - 2] || 0;
-        var s7 = group.total[group.total.length - 1] || 0;
-        var trend = s7 >= s6 ? '环比上升' : '环比下降';
-        var d6 = days.length >= 2 ? days[days.length - 2] : '前日';
-        var d7 = days.length >= 1 ? days[days.length - 1] : '当日';
+      function generateAiAnalysis(group, shopName, labels) {
+        var t = group.totals;
+        var s2 = t.length >= 2 ? t[t.length - 2] : 0;
+        var s1 = t.length >= 1 ? t[t.length - 1] : 0;
+        var trend = s1 >= s2 ? '环比上升' : '环比下降';
+        var l2 = labels.length >= 2 ? labels[labels.length - 2] : '上期';
+        var l1 = labels.length >= 1 ? labels[labels.length - 1] : '本期';
         var parts = [];
-        parts.push('【' + shopName + ' · ' + group.spu + '】近两日：' + d6 + ' 合计 ' + s6 + ' 件，' + d7 + ' 合计 ' + s7 + ' 件，' + trend + '；近两天差异 ' + (group.diff >= 0 ? '+' : '') + group.diff + '。');
-        parts.push('共 ' + group.pids.length + ' 个 PID。');
-        var negPids = group.pids.filter(function(p) { return p.diff < 0; });
+        parts.push('【' + shopName + ' · ' + group.spu + '】' + l2 + ' 合计 ' + s2 + ' 件，' + l1 + ' 合计 ' + s1 + ' 件，' + trend + '；环比 ' + group.totalDiffStr + '。');
+        parts.push('共 ' + group.pidRows.length + ' 个 PID。');
+        var negPids = group.pidRows.filter(function(p) { return p.diffNum < 0; });
         if (negPids.length) {
-          parts.push('差异为负的 PID：' + negPids.map(function(p) { return p.pid.slice(-10) + '（' + p.diff + '）'; }).join('、') + '，建议关注库存或推广。');
+          parts.push('环比为负的 PID：' + negPids.map(function(p) { return p.pid.slice(-10) + '（' + p.diffStr + '）'; }).join('、') + '，建议关注库存或推广。');
         } else {
-          parts.push('各 PID 近两天差异均非负，趋势平稳。');
+          parts.push('各 PID 环比均非负，趋势平稳。');
         }
         parts.push('以上为基于该 SPU 数据的结构化摘要，可配合运营做补货或复盘。');
         return parts.join('\n\n');
-      }
-
-      function flattenForCSV(data) {
-        if (!data || !data.list) return [];
-        var rows = [];
-        data.list.forEach(function(group) {
-          rows.push([data.name, group.spu, '小计'].concat(group.total).concat([group.diff]));
-          group.pids.forEach(function(p) {
-            rows.push([data.name, group.spu, p.pid].concat(p.days).concat([p.diff]));
-          });
-        });
-        return rows;
-      }
-
-      function toCSV(data) {
-        var rows = flattenForCSV(data);
-        if (!rows.length) return '';
-        var DAYS = getDays();
-        var headers = ['店铺名', 'SPU(公式)', 'PID'].concat(DAYS).concat(['近两天差异']);
-        var lines = [headers.map(escapeCell).join(',')].concat(rows.map(function(row) {
-          return row.map(escapeCell).join(',');
-        }));
-        return '\uFEFF' + lines.join('\n');
       }
 
       function escapeCell(v) {
@@ -321,35 +552,98 @@
 
       function doExport() {
         var data = getFiltered();
-        if (!data || !data.list.length) {
+        var range = getDateRange();
+        if (!data || !data.spus.length || !range.start || !range.end) {
           alert('请先选择店铺并点击「查询」后再导出');
           return;
         }
-        var csv = toCSV(data);
+        var days = enumDays(range.start, range.end);
+        var buckets = buildBuckets(days, curGran);
+        var csvHeaders = ['店铺名', 'SPU(公式)', 'PID'].concat(buckets.map(function(b) { return b.label; })).concat(['环比']);
+        var lines = [csvHeaders.map(escapeCell).join(',')];
+
+        data.spus.forEach(function(spu) {
+          var pids = pidsBySpu[spu] || [];
+          var pidRows = pids.map(function(pid) {
+            var vals = buckets.map(function(b) { return pidBucketQty(pid, b); });
+            var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
+            var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
+            var diffStr = fmtChainRatio(s1, s2);
+            return { pid: pid, vals: vals, diffStr: diffStr };
+          });
+          var totals = buckets.map(function(_, i) {
+            var s = 0; pidRows.forEach(function(pr) { s += pr.vals[i]; }); return s;
+          });
+          var t1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
+          var t2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
+          var totalDiffStr = fmtChainRatio(t1, t2);
+          lines.push([data.name, spu, '小计'].concat(totals).concat([totalDiffStr]).map(escapeCell).join(','));
+          pidRows.forEach(function(pr) {
+            lines.push([data.name, spu, pr.pid].concat(pr.vals).concat([pr.diffStr]).map(escapeCell).join(','));
+          });
+        });
+
+        var csv = '\uFEFF' + lines.join('\n');
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = '销量趋势_' + data.name + '.csv';
+        a.download = '销量趋势_' + data.name + '_' + range.start + '_' + range.end + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       }
 
-      document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      function bindTabs(groupId, setter) {
+        var group = document.getElementById(groupId);
+        group.querySelectorAll('.tab').forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            group.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            setter(tab);
+            render();
+          });
+        });
+      }
+      bindTabs('granTabs', function(tab) { curGran = tab.getAttribute('data-gran'); });
+
+      document.getElementById('btnQuery').onclick = render;
       document.getElementById('btnReset').onclick = function() {
+        if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
-        document.getElementById('qEndDate').value = '2026-02-27';
-        document.getElementById('shopLabel').textContent = '请选择店铺后查询';
+        document.getElementById('qStartDate').value = '2025-06-01';
+        document.getElementById('qEndDate').value = '2026-03-10';
+        document.getElementById('qSearchField').value = 'spu';
+        document.getElementById('qSearchVal').value = '';
+        curGran = 'day';
+        document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+        document.getElementById('filterInfo').textContent = '';
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
-        for (var i = 0; i < 7; i++) {
-          var th = document.getElementById('thDay' + i);
-          if (th) th.textContent = DEFAULT_DAYS[i];
-        }
       };
       document.getElementById('btnExport').onclick = doExport;
 
-      document.getElementById('qStore').value = '1店';
-      document.getElementById('qEndDate').value = '2026-02-27';
-      render(getFiltered());
+      document.getElementById('btnExportImg').onclick = function() {
+        var tableCard = document.querySelector('.table-card');
+        if (!tableCard) { alert('暂无表格内容'); return; }
+        var wrap = tableCard.querySelector('.table-wrap');
+        var origOverflow = wrap.style.overflow;
+        wrap.style.overflow = 'visible';
+        html2canvas(tableCard, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(function(canvas) {
+          wrap.style.overflow = origOverflow;
+          var a = document.createElement('a');
+          a.href = canvas.toDataURL('image/png');
+          var data = getFiltered();
+          var range = getDateRange();
+          a.download = '商品统计_' + (data ? data.name : '') + '_' + (range.start || '') + '_' + (range.end || '') + '.png';
+          a.click();
+        }).catch(function() {
+          wrap.style.overflow = origOverflow;
+          alert('导出图片失败，请重试');
+        });
+      };
+
+      document.getElementById('qStore').value = '美国 TK・艾斯特尼 - 美区特 1 店 US';
+      document.getElementById('qStartDate').value = '2025-06-01';
+      document.getElementById('qEndDate').value = '2026-03-10';
+      render();
     })();
   </script>
 </body>

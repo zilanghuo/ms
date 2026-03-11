@@ -3,53 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求一：每日订单数播报 — Demo</title>
+  <title>需求一：店铺统计 — Demo</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
     .container { max-width: 100%; margin: 0 auto; }
     .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+
     .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
     .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
-    .query-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 130px; }
+    .query-item input[type="date"], .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
+    .query-item select { min-width: 160px; cursor: pointer; }
+    .query-item .sep { color: var(--muted); padding: 0 0.15rem; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
+
+    .toolbar { display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; align-items: center; margin-bottom: 1rem; }
+
+    .tab-group { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab-group .tab { padding: 0.4rem 0.9rem; font-size: 0.9rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+
+    .filter-info { font-size: 0.8rem; color: var(--accent); }
+
     .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
     .action-bar .btns { display: flex; gap: 0.5rem; }
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
+
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 600px; }
-    th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); }
-    th { background: #f9fafb; color: var(--muted); font-weight: 500; }
-    tr:hover td { background: #f9fafb; }
-    tr.total td { font-weight: 600; background: #f0fdf4; }
+    table { width: max-content; min-width: 100%; border-collapse: collapse; font-size: 0.9rem; table-layout: auto; }
+    th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
+    th { background: #f9fafb; color: var(--muted); font-weight: 500; position: sticky; top: 0; z-index: 1; overflow: hidden; text-overflow: ellipsis; position: relative; }
+    th .col-resize { position: absolute; right: 0; top: 0; width: 5px; height: 100%; cursor: col-resize; user-select: none; }
+    th .col-resize:hover, th .col-resize.dragging { background: var(--accent); }
+    /* 冻结前 5 列：店铺、小计、占比、平均值、环比 */
+    #resultTable th.sticky-col-1, #resultTable td.sticky-col-1 { position: sticky; left: 0; width: 220px; min-width: 220px; max-width: 220px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-2, #resultTable td.sticky-col-2 { position: sticky; left: 220px; width: 80px; min-width: 80px; max-width: 80px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-3, #resultTable td.sticky-col-3 { position: sticky; left: 300px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 372px; width: 80px; min-width: 80px; max-width: 80px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 452px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-1, #resultTable th.sticky-col-2, #resultTable th.sticky-col-3, #resultTable th.sticky-col-4, #resultTable th.sticky-col-5 { z-index: 3; background: #f9fafb !important; }
+    #resultTable tr:hover td.sticky-col-1, #resultTable tr:hover td.sticky-col-2, #resultTable tr:hover td.sticky-col-3, #resultTable tr:hover td.sticky-col-4, #resultTable tr:hover td.sticky-col-5 { background: #f9fafb !important; }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    tr.row-total td { font-weight: 600; background: #f0fdf4; }
+    #resultTable tr.row-total td.sticky-col-1, #resultTable tr.row-total td.sticky-col-2, #resultTable tr.row-total td.sticky-col-3, #resultTable tr.row-total td.sticky-col-4, #resultTable tr.row-total td.sticky-col-5 { background: #f0fdf4 !important; }
+    #resultTable tr.row-total:hover td.sticky-col-1, #resultTable tr.row-total:hover td.sticky-col-2, #resultTable tr.row-total:hover td.sticky-col-3, #resultTable tr.row-total:hover td.sticky-col-4, #resultTable tr.row-total:hover td.sticky-col-5 { background: #dcfce7 !important; }
+
+    .help-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 600; cursor: help; position: relative; vertical-align: middle; margin-left: 0.4rem; }
+    .help-icon:hover .help-tip { display: block; }
+    .help-tip { display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%); background: #1e293b; color: #f1f5f9; font-size: 0.8rem; font-weight: 400; line-height: 1.6; padding: 0.6rem 0.85rem; border-radius: 6px; white-space: nowrap; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .help-tip::before { content: ''; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #1e293b; }
+
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; cursor: pointer; min-width: 160px; user-select: none; }
+    .cascade-trigger::after { content: ''; margin-left: auto; border: 4px solid transparent; border-top: 5px solid var(--muted); }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag { display: inline-flex; align-items: center; gap: 2px; background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 1px 6px; font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cascade-trigger .tag .tag-close { cursor: pointer; font-size: 0.7rem; margin-left: 2px; color: #0369a1; }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+    .cascade-panel { display: none; position: absolute; top: calc(100% + 4px); left: 0; z-index: 100; background: #fff; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); min-width: 340px; }
+    .cascade-panel.open { display: flex; }
+    .cascade-left { width: 140px; border-right: 1px solid var(--border); max-height: 260px; overflow-y: auto; }
+    .cascade-right { flex: 1; max-height: 260px; overflow-y: auto; padding: 4px 0; }
+    .cascade-left .cl-item { display: flex; align-items: center; padding: 7px 10px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-left .cl-item:hover, .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn { display: none; margin-left: auto; font-size: 0.7rem; background: #2563eb; color: #fff; border: none; border-radius: 3px; padding: 1px 8px; cursor: pointer; white-space: nowrap; }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item { display: flex; align-items: center; padding: 6px 12px; font-size: 0.85rem; cursor: pointer; color: var(--text); transition: background 0.1s; }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">每日订单数播报</h1>
+    <h1 class="page-title">店铺统计<span class="help-icon">?<span class="help-tip">数据规则：<br/>① 买家实付金额不为零<br/>② 美区：付款时间早于当日夏令时 18:00 / 冬令时 17:00<br/>③ 欧洲：不限制时间，取全部符合「实付不为零」的数据</span></span></h1>
 
     <div class="query-card">
       <div class="query-row">
+        <div class="tab-group" id="metricTabs">
+          <button type="button" class="tab active" data-metric="qty">销量</button>
+          <button type="button" class="tab" data-metric="amount">销售额</button>
+        </div>
+        <div class="query-item">
+          <span class="label">站点</span>
+          <div class="cascade-wrap" id="cascadeWrap">
+            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
+            <div class="cascade-panel" id="cascadePanel">
+              <div class="cascade-left" id="cascadeLeft"></div>
+              <div class="cascade-right" id="cascadeRight"></div>
+            </div>
+          </div>
+        </div>
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select id="qStore">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="query-item" id="amountFilterWrap" style="display:none;">
+          <span class="label">销售额 ≥</span>
+          <input type="number" id="qMinAmount" placeholder="输入最小值" style="width:120px;" min="0" step="0.01" />
+        </div>
         <div class="query-item">
           <span class="label">日期</span>
-          <input type="date" id="qDate" />
+          <input type="date" id="qStartDate" />
+          <span class="sep">~</span>
+          <input type="date" id="qEndDate" />
+        </div>
+        <div class="tab-group" id="granTabs">
+          <button type="button" class="tab active" data-gran="day">日</button>
+          <button type="button" class="tab" data-gran="week">周</button>
+          <button type="button" class="tab" data-gran="month">月</button>
+          <button type="button" class="tab" data-gran="quarter">季</button>
+          <button type="button" class="tab" data-gran="year">年</button>
         </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
           <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
         </div>
+      </div>
+      <div style="margin-top:0.5rem;">
+        <span class="filter-info" id="filterInfo"></span>
       </div>
     </div>
 
@@ -58,22 +149,18 @@
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
       </div>
       <div class="export-tip">
-        导出字段：日期、店铺、订单数（与下表一致，用于播报到企微项目群）
+        导出字段：店铺、小计、各期间明细（与下表一致，用于播报到企微项目群）<br/>
+        播报格式（单日）：一条文本消息，包含日期 + 各店铺的订单数与销售额，示例：<br/>
+        <code style="font-size:0.75rem;line-height:1.6;">3月10日（美国时间）订单播报：<br/>美国 TK・艾斯特尼 - 美区特 1 店 US：230单 / $9,180.50<br/>美国 TK・艾斯特尼 - 美区特 2 店 US：0单 / $0.00<br/>美国 TK・艾斯特尼 - 美区特 3 店 US：5单 / $197.35<br/>美国 TK・艾斯特尼 - 欧洲直邮店 DE：16单 / €520.30<br/>美国TK独立站-shopify:Global：0单 / $0.00</code>
       </div>
     </div>
 
     <div class="table-card">
       <div class="table-wrap">
         <table id="resultTable">
-        <thead>
-          <tr>
-            <th>日期</th>
-            <th>店铺</th>
-            <th>订单数</th>
-          </tr>
-        </thead>
-        <tbody id="resultBody">        </tbody>
-      </table>
+          <thead id="resultHead"><tr><th class="sticky-col-1">店铺</th><th class="sticky-col-2">小计</th><th class="sticky-col-3">占比</th><th class="sticky-col-4">平均值</th><th class="sticky-col-5">环比</th></tr></thead>
+          <tbody id="resultBody"></tbody>
+        </table>
       </div>
     </div>
 
@@ -81,68 +168,499 @@
   </div>
   <script>
     (function() {
-      var headers = ['日期', '店铺', '订单数'];
-      var mock = [
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '1店（美区跨境1店）', orders: 230 },
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '2店（美区跨境2店）', orders: 0 },
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '3店（美区跨境3店）', orders: 3 },
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '英区（英国直邮店）', orders: 12 },
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '独立站', orders: 0 },
-        { dateLabel: '2月27日（美国时间）', date: '2026-02-27', store: '合计', orders: 245, isTotal: true }
+      var regionTree = [
+        { name: '欧洲', children: [
+          { label: '德国', code: 'DE' },
+          { label: '西班牙', code: 'ES' },
+          { label: '法国', code: 'FR' },
+          { label: '意大利', code: 'IT' }
+        ]},
+        { name: '北美洲', children: [
+          { label: '美国', code: 'US' }
+        ]},
+        { name: '其它', children: [
+          { label: 'Global', code: 'Global' }
+        ]}
       ];
 
-      function getFiltered() {
-        var date = document.getElementById('qDate').value;
-        if (!date) return mock;
-        return mock.filter(function(r) { return r.date === date; });
-      }
+      var codeToStores = {
+        'DE': ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        'ES': ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        'FR': ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        'IT': ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        'US': ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        'Global': ['美国TK独立站-shopify:Global']
+      };
 
-      function render(rows) {
-        var tbody = document.getElementById('resultBody');
-        var list = rows || getFiltered();
-        if (!list.length) {
-          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#666;padding:2rem;">暂无数据，请选择日期后查询</td></tr>';
-          return;
+      var allStores = [];
+      Object.keys(codeToStores).forEach(function(k) { allStores = allStores.concat(codeToStores[k]); });
+      var stores = allStores.slice();
+
+      var cascadeSelection = { region: '', country: '', stores: [] };
+
+      var currencyMap = {
+        '美国 TK・艾斯特尼 - 欧洲直邮店 DE': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 ES': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 FR': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 IT': '€',
+        '美国 TK・艾斯特尼 - 美区特 1 店 US': '$',
+        '美国 TK・艾斯特尼 - 美区特 2 店 US': '$',
+        '美国 TK・艾斯特尼 - 美区特 3 店 US': '$',
+        '美国TK独立站-shopify:Global': '$'
+      };
+
+      function initCascade() {
+        var trigger = document.getElementById('cascadeTrigger');
+        var panel = document.getElementById('cascadePanel');
+        var left = document.getElementById('cascadeLeft');
+        var right = document.getElementById('cascadeRight');
+        var activeIdx = -1;
+        function renderLeft() {
+          left.innerHTML = regionTree.map(function(r, i) {
+            return '<div class="cl-item" data-idx="' + i + '"><span>' + r.name + '</span><button type="button" class="only-btn" data-idx="' + i + '">仅选此项</button><span class="arrow">›</span></div>';
+          }).join('');
         }
-        tbody.innerHTML = list.map(function(r) {
-          var cls = r.isTotal ? ' class="total"' : '';
-          return '<tr' + cls + '><td>' + r.dateLabel + '</td><td>' + r.store + '</td><td>' + r.orders + '</td></tr>';
-        }).join('');
+        function renderRight(idx) {
+          if (idx < 0 || idx >= regionTree.length) { right.innerHTML = ''; return; }
+          right.innerHTML = regionTree[idx].children.map(function(c) {
+            return '<div class="cr-item" data-code="' + c.code + '">' + c.label + '</div>';
+          }).join('');
+        }
+        function openPanel() { panel.classList.add('open'); trigger.classList.add('open'); }
+        function closePanel() { panel.classList.remove('open'); trigger.classList.remove('open'); activeIdx = -1; }
+        function setSelection(region, country, st, label) {
+          cascadeSelection = { region: region, country: country, stores: st };
+          if (label) {
+            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
+            document.getElementById('cascadeClear').addEventListener('click', function(e) { e.stopPropagation(); clearCascade(); });
+          } else {
+            trigger.innerHTML = '<span class="placeholder">请选择</span>';
+          }
+          syncStoreOptions();
+          closePanel();
+        }
+        function clearCascade() { setSelection('', '', [], ''); }
+        renderLeft();
+        left.addEventListener('mouseover', function(e) {
+          var item = e.target.closest('.cl-item'); if (!item) return;
+          var idx = parseInt(item.getAttribute('data-idx'), 10);
+          if (idx === activeIdx) return; activeIdx = idx;
+          left.querySelectorAll('.cl-item').forEach(function(el, i) { el.classList.toggle('active', i === idx); });
+          renderRight(idx);
+        });
+        left.addEventListener('click', function(e) {
+          var btn = e.target.closest('.only-btn'); if (!btn) return; e.stopPropagation();
+          var idx = parseInt(btn.getAttribute('data-idx'), 10);
+          var r = regionTree[idx]; var st = [];
+          r.children.forEach(function(c) { st = st.concat(codeToStores[c.code] || []); });
+          setSelection(r.name, '', st, r.name);
+        });
+        right.addEventListener('click', function(e) {
+          var item = e.target.closest('.cr-item'); if (!item) return;
+          var code = item.getAttribute('data-code');
+          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
+          setSelection(regionName, code, codeToStores[code] || [], regionName + ' / ' + item.textContent);
+        });
+        trigger.addEventListener('click', function() { if (panel.classList.contains('open')) closePanel(); else openPanel(); });
+        document.addEventListener('click', function(e) { if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel(); });
+        window._clearCascade = clearCascade;
       }
 
-      function toCSV(rows) {
-        var list = rows || getFiltered();
-        if (!list.length) return '';
-        var lines = [headers.join(',')].concat(list.map(function(r) {
-          return '"' + r.dateLabel.replace(/"/g, '""') + '","' + r.store.replace(/"/g, '""') + '",' + r.orders;
-        }));
-        return '\uFEFF' + lines.join('\n');
+      function syncStoreOptions() {
+        var sel = document.getElementById('qStore');
+        var prev = sel.value;
+        sel.innerHTML = '<option value="">全部</option>';
+        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
+        list.forEach(function(s) { sel.innerHTML += '<option value="' + s + '">' + s + '</option>'; });
+        if (list.indexOf(prev) !== -1) sel.value = prev; else sel.value = '';
+      }
+
+      initCascade();
+      syncStoreOptions();
+
+      var curMetric = 'qty';
+      var curGran = 'day';
+
+      function hash(str) {
+        var h = 5381;
+        for (var i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
+        return Math.abs(h);
+      }
+
+      function mockQty(store, dateStr) {
+        var h = hash(store + dateStr);
+        if (store.indexOf('美区特 2 店') >= 0) return h % 3 === 0 ? 1 : 0;
+        if (store.indexOf('shopify') >= 0) return 0;
+        if (store.indexOf('美区特 3 店') >= 0) return 2 + (h % 8);
+        if (store.indexOf('欧洲直邮店') >= 0) return 8 + (h % 15);
+        return 180 + (h % 80);
+      }
+
+      function mockAmount(store, dateStr) {
+        var q = mockQty(store, dateStr);
+        var h = hash(store + dateStr + 'amt');
+        var avgPrice = 25 + (h % 30);
+        return +(q * avgPrice + (h % 100) * 0.01).toFixed(2);
+      }
+
+      function fmtDate(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function parseDate(s) { return new Date(s + 'T12:00:00'); }
+
+      function getDateRange() {
+        return {
+          start: document.getElementById('qStartDate').value,
+          end: document.getElementById('qEndDate').value
+        };
+      }
+
+      function enumDays(start, end) {
+        var out = [];
+        var d = parseDate(start);
+        var last = parseDate(end);
+        while (d <= last) {
+          out.push(fmtDate(d));
+          d.setDate(d.getDate() + 1);
+        }
+        return out;
+      }
+
+      function getISOWeek(d) {
+        var dt = new Date(d.getTime());
+        dt.setHours(0, 0, 0, 0);
+        dt.setDate(dt.getDate() + 3 - (dt.getDay() + 6) % 7);
+        var week1 = new Date(dt.getFullYear(), 0, 4);
+        var wn = 1 + Math.round(((dt.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+        return dt.getFullYear() + '-W' + String(wn).padStart(2, '0');
+      }
+
+      function shortMMDD(dateStr) {
+        var p = dateStr.split('-');
+        return p[1] + '/' + p[2];
+      }
+
+      function buildBuckets(days, gran) {
+        if (gran === 'day') return days.map(function(d) { return { label: d, days: [d] }; });
+        var map = {};
+        var order = [];
+        days.forEach(function(d) {
+          var key;
+          if (gran === 'week') {
+            key = getISOWeek(parseDate(d));
+          } else if (gran === 'month') {
+            key = d.slice(0, 7);
+          } else if (gran === 'quarter') {
+            key = d.slice(0, 4) + '-Q' + Math.ceil(parseInt(d.slice(5, 7), 10) / 3);
+          } else if (gran === 'year') {
+            key = d.slice(0, 4);
+          } else {
+            key = d.slice(0, 7);
+          }
+          if (!map[key]) { map[key] = []; order.push(key); }
+          map[key].push(d);
+        });
+        return order.map(function(k) {
+          var ds = map[k];
+          var label;
+          if (gran === 'week') {
+            label = shortMMDD(ds[0]) + '~' + shortMMDD(ds[ds.length - 1]);
+          } else if (gran === 'quarter' || gran === 'year') {
+            label = k;
+          } else {
+            label = k;
+          }
+          return { label: label, days: ds };
+        });
+      }
+
+      function getValue(store, dateStr) {
+        return curMetric === 'qty' ? mockQty(store, dateStr) : mockAmount(store, dateStr);
+      }
+
+      function getComparisonDays(firstBucket, gran) {
+        if (!firstBucket || !firstBucket.days.length) return [];
+        var d = parseDate(firstBucket.days[0]);
+        if (gran === 'day') {
+          d.setDate(d.getDate() - 1);
+          return [fmtDate(d)];
+        }
+        if (gran === 'week') {
+          d.setFullYear(d.getFullYear() - 1);
+          var day = d.getDay();
+          var monOffset = day === 0 ? -6 : 1 - day;
+          var mon = new Date(d);
+          mon.setDate(d.getDate() + monOffset);
+          var out = [];
+          for (var i = 0; i < 7; i++) {
+            var x = new Date(mon);
+            x.setDate(mon.getDate() + i);
+            out.push(fmtDate(x));
+          }
+          return out;
+        }
+        if (gran === 'month') {
+          var y = d.getFullYear() - 1, m = d.getMonth();
+          var first = new Date(y, m, 1);
+          var last = new Date(y, m + 1, 0);
+          return enumDays(fmtDate(first), fmtDate(last));
+        }
+        if (gran === 'quarter') {
+          var q = Math.ceil((d.getMonth() + 1) / 3);
+          var y = d.getFullYear() - 1;
+          var startM = (q - 1) * 3;
+          var endM = q * 3 - 1;
+          return enumDays(fmtDate(new Date(y, startM, 1)), fmtDate(new Date(y, endM + 1, 0)));
+        }
+        if (gran === 'year') {
+          var y = d.getFullYear() - 1;
+          return enumDays(y + '-01-01', y + '-12-31');
+        }
+        return [];
+      }
+
+      function getComparisonValue(store, firstBucket, gran) {
+        var days = getComparisonDays(firstBucket, gran);
+        if (!days.length) return 0;
+        var sum = 0;
+        days.forEach(function(d) { sum += getValue(store, d); });
+        return curMetric === 'qty' ? sum : +sum.toFixed(2);
+      }
+
+      function fmtChainRatio(currentVal, compareVal) {
+        if (compareVal === 0) return currentVal === 0 ? '—' : '—';
+        var pct = ((currentVal - compareVal) / compareVal * 100);
+        var s = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+        return s;
+      }
+
+      function fmtNum(v) {
+        if (curMetric === 'qty') return v.toLocaleString();
+        return v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      function fmtVal(v, currency) {
+        var num = fmtNum(v);
+        if (curMetric === 'qty' || !currency) return num;
+        return currency + num;
+      }
+
+      function getFilteredStores() {
+        var sel = document.getElementById('qStore').value;
+        var base = cascadeSelection.stores.length ? cascadeSelection.stores : stores;
+        if (!sel) return base;
+        return base.filter(function(s) { return s === sel; });
+      }
+
+      function render() {
+        var range = getDateRange();
+        if (!range.start || !range.end || range.start > range.end) return;
+
+        var days = enumDays(range.start, range.end);
+        var buckets = buildBuckets(days, curGran).slice().reverse();
+        var filtered = getFilteredStores();
+
+        var granLabel = curGran === 'day' ? '日' : curGran === 'week' ? '周' : curGran === 'month' ? '月' : curGran === 'quarter' ? '季' : '年';
+        var metricLabel = curMetric === 'qty' ? '销量' : '销售额';
+        var storeLabel = document.getElementById('qStore').value || '全部';
+        document.getElementById('filterInfo').textContent =
+          '指标：' + metricLabel + '　店铺：' + storeLabel + '　开始结束日期：' + range.start + ' 至 ' + range.end + '　日期类型：' + granLabel;
+
+        var thead = document.getElementById('resultHead');
+        thead.innerHTML = '<tr><th class="sticky-col-1">店铺</th><th class="sticky-col-2">小计</th><th class="sticky-col-3">占比</th><th class="sticky-col-4">平均值</th><th class="sticky-col-5">环比</th>' +
+          buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') + '</tr>';
+
+        var storeData = [];
+        var firstBucket = buckets[0] || null;
+        filtered.forEach(function(store) {
+          var vals = buckets.map(function(b) {
+            var sum = 0;
+            b.days.forEach(function(d) { sum += getValue(store, d); });
+            return curMetric === 'qty' ? sum : +sum.toFixed(2);
+          });
+          var total = vals.reduce(function(a, b) { return a + b; }, 0);
+          if (curMetric !== 'qty') total = +total.toFixed(2);
+          var avg = vals.length ? total / vals.length : 0;
+          if (curMetric !== 'qty') avg = +avg.toFixed(2); else avg = Math.round(avg);
+          var compareVal = firstBucket ? getComparisonValue(store, firstBucket, curGran) : 0;
+          var currentVal = vals.length ? vals[0] : 0;
+          var chainRatio = firstBucket ? fmtChainRatio(currentVal, compareVal) : '—';
+          storeData.push({ store: store, vals: vals, total: total, avg: avg, chainRatio: chainRatio, compareVal: compareVal });
+        });
+
+        if (curMetric === 'amount') {
+          var minAmt = parseFloat(document.getElementById('qMinAmount').value);
+          if (!isNaN(minAmt)) {
+            storeData = storeData.filter(function(sd) { return sd.total >= minAmt; });
+          }
+        }
+
+        var totalVals = buckets.map(function(_, i) {
+          var s = 0;
+          storeData.forEach(function(sd) { s += sd.vals[i]; });
+          return curMetric === 'qty' ? s : +s.toFixed(2);
+        });
+        var grandTotal = totalVals.reduce(function(a, b) { return a + b; }, 0);
+        if (curMetric !== 'qty') grandTotal = +grandTotal.toFixed(2);
+        var grandAvg = totalVals.length ? grandTotal / totalVals.length : 0;
+        if (curMetric !== 'qty') grandAvg = +grandAvg.toFixed(2); else grandAvg = Math.round(grandAvg);
+
+        var tbody = document.getElementById('resultBody');
+        var html = '';
+        storeData.forEach(function(sd) {
+          var cur = currencyMap[sd.store] || '';
+          var ratio = grandTotal > 0 ? (sd.total / grandTotal * 100).toFixed(2) + '%' : '—';
+          html += '<tr><td class="sticky-col-1">' + sd.store + '</td><td class="num sticky-col-2">' + fmtVal(sd.total, cur) + '</td><td class="num sticky-col-3">' + ratio + '</td><td class="num sticky-col-4">' + fmtVal(sd.avg, cur) + '</td><td class="num sticky-col-5">' + sd.chainRatio + '</td>';
+          sd.vals.forEach(function(v) { html += '<td class="num">' + fmtVal(v, cur) + '</td>'; });
+          html += '</tr>';
+        });
+        if (curMetric === 'qty') {
+          var totalCompare = storeData.reduce(function(s, sd) { return s + (sd.compareVal || 0); }, 0);
+          var totalFirstVal = totalVals.length ? totalVals[0] : 0;
+          var grandChainRatio = firstBucket ? fmtChainRatio(totalFirstVal, totalCompare) : '—';
+          html += '<tr class="row-total"><td class="sticky-col-1">合计</td><td class="num sticky-col-2">' + fmtVal(grandTotal) + '</td><td class="num sticky-col-3">100%</td><td class="num sticky-col-4">' + fmtVal(grandAvg) + '</td><td class="num sticky-col-5">' + grandChainRatio + '</td>';
+          totalVals.forEach(function(v) { html += '<td class="num">' + fmtVal(v) + '</td>'; });
+          html += '</tr>';
+        }
+        tbody.innerHTML = html;
+      }
+
+      function escapeCell(v) {
+        var s = String(v);
+        if (s.indexOf('"') >= 0 || s.indexOf(',') >= 0 || s.indexOf('\n') >= 0) return '"' + s.replace(/"/g, '""') + '"';
+        return s;
       }
 
       function doExport() {
-        var list = getFiltered();
-        if (!list.length) {
-          alert('当前无数据可导出');
-          return;
-        }
-        var csv = toCSV(list);
+        var range = getDateRange();
+        if (!range.start || !range.end) { alert('请选择日期范围'); return; }
+        var days = enumDays(range.start, range.end);
+        var buckets = buildBuckets(days, curGran).slice().reverse();
+        var filtered = getFilteredStores();
+        var csvH = ['店铺', '小计', '占比', '平均值', '环比'].concat(buckets.map(function(b) { return b.label; }));
+        var lines = [csvH.map(escapeCell).join(',')];
+
+        var totalVals = buckets.map(function() { return 0; });
+        var grandTotal = 0;
+        var csvRows = [];
+        var firstBucket = buckets[0] || null;
+
+        filtered.forEach(function(store) {
+          var vals = buckets.map(function(b, i) {
+            var sum = 0;
+            b.days.forEach(function(d) { sum += getValue(store, d); });
+            if (curMetric !== 'qty') sum = +sum.toFixed(2);
+            totalVals[i] += sum;
+            return sum;
+          });
+          var total = vals.reduce(function(a, b) { return a + b; }, 0);
+          if (curMetric !== 'qty') total = +total.toFixed(2);
+          grandTotal += total;
+          var avg = vals.length ? total / vals.length : 0;
+          if (curMetric !== 'qty') avg = +avg.toFixed(2); else avg = Math.round(avg);
+          var compareVal = firstBucket ? getComparisonValue(store, firstBucket, curGran) : 0;
+          var currentVal = vals.length ? vals[0] : 0;
+          var chainRatio = firstBucket ? fmtChainRatio(currentVal, compareVal) : '—';
+          csvRows.push({ store: store, total: total, avg: avg, vals: vals, chainRatio: chainRatio, compareVal: compareVal });
+        });
+
+        if (curMetric !== 'qty') { totalVals = totalVals.map(function(v) { return +v.toFixed(2); }); grandTotal = +grandTotal.toFixed(2); }
+        csvRows.forEach(function(r) {
+          var ratio = grandTotal > 0 ? (r.total / grandTotal * 100).toFixed(2) + '%' : '—';
+          lines.push([r.store, r.total, ratio, r.avg, r.chainRatio].concat(r.vals).map(escapeCell).join(','));
+        });
+        var csvGrandAvg = totalVals.length ? grandTotal / totalVals.length : 0;
+        if (curMetric !== 'qty') csvGrandAvg = +csvGrandAvg.toFixed(2); else csvGrandAvg = Math.round(csvGrandAvg);
+        var totalCompare = csvRows.reduce(function(s, r) { return s + (r.compareVal || 0); }, 0);
+        var totalFirstVal = totalVals.length ? totalVals[0] : 0;
+        var grandChainRatio = firstBucket ? fmtChainRatio(totalFirstVal, totalCompare) : '—';
+        lines.push(['合计', grandTotal, '100%', csvGrandAvg, grandChainRatio].concat(totalVals).map(escapeCell).join(','));
+
+        var csv = '\uFEFF' + lines.join('\n');
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = '每日订单数播报_' + (document.getElementById('qDate').value || '全部') + '.csv';
+        var ml = curMetric === 'qty' ? '销量' : '销售额';
+        a.download = '店铺统计_' + ml + '_' + range.start + '_' + range.end + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       }
 
-      document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      function bindTabs(groupId, varSetter) {
+        var group = document.getElementById(groupId);
+        group.querySelectorAll('.tab').forEach(function(tab) {
+          tab.addEventListener('click', function() {
+            group.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            tab.classList.add('active');
+            varSetter(tab);
+            render();
+          });
+        });
+      }
+
+      bindTabs('metricTabs', function(tab) {
+        curMetric = tab.getAttribute('data-metric');
+        document.getElementById('amountFilterWrap').style.display = curMetric === 'amount' ? '' : 'none';
+        if (curMetric !== 'amount') document.getElementById('qMinAmount').value = '';
+      });
+      bindTabs('granTabs', function(tab) {
+        curGran = tab.getAttribute('data-gran');
+        render();
+      });
+
+      document.getElementById('btnQuery').onclick = render;
       document.getElementById('btnReset').onclick = function() {
-        document.getElementById('qDate').value = '';
-        render(getFiltered());
+        if (window._clearCascade) window._clearCascade();
+        document.getElementById('qStore').value = '';
+        document.getElementById('qMinAmount').value = '';
+        document.getElementById('amountFilterWrap').style.display = 'none';
+        document.getElementById('qStartDate').value = '2025-06-01';
+        document.getElementById('qEndDate').value = '2026-03-10';
+        curMetric = 'qty'; curGran = 'day';
+        document.querySelectorAll('#metricTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-metric') === 'qty'); });
+        document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+        render();
       };
       document.getElementById('btnExport').onclick = doExport;
 
-      document.getElementById('qDate').value = '2026-02-27';
-      render(getFiltered());
+      function initColResize() {
+        var table = document.getElementById('resultTable');
+        var ths = table.querySelectorAll('thead th');
+        ths.forEach(function(th) {
+          var old = th.querySelector('.col-resize');
+          if (old) old.remove();
+          var handle = document.createElement('div');
+          handle.className = 'col-resize';
+          th.appendChild(handle);
+          th.style.minWidth = th.offsetWidth + 'px';
+
+          var startX, startW;
+          handle.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            startX = e.pageX;
+            startW = th.offsetWidth;
+            handle.classList.add('dragging');
+            function onMove(ev) {
+              var w = startW + (ev.pageX - startX);
+              if (w > 30) th.style.minWidth = w + 'px';
+            }
+            function onUp() {
+              handle.classList.remove('dragging');
+              document.removeEventListener('mousemove', onMove);
+              document.removeEventListener('mouseup', onUp);
+            }
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          });
+        });
+      }
+
+      var _origRender = render;
+      render = function() { _origRender(); initColResize(); };
+
+      document.getElementById('qStartDate').value = '2025-06-01';
+      document.getElementById('qEndDate').value = '2026-03-10';
+      render();
     })();
   </script>
 </body>
