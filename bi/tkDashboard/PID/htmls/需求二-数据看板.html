@@ -10,16 +10,18 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
     .container { max-width: 100%; margin: 0 auto; }
     .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
-    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    .query-row { display: flex; flex-wrap: wrap; gap: 1rem 1.5rem; align-items: center; }
-    .query-item { display: flex; align-items: center; gap: 0.35rem; }
-    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
-    .query-item .fuzzy { color: var(--muted); font-size: 0.75rem; }
-    .query-item input, .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
-    .query-item input { min-width: 130px; }
-    .query-item select { min-width: 160px; cursor: pointer; }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
+    .query-item .label { color: var(--text); font-size: 0.8rem; white-space: nowrap; }
+    .query-item .fuzzy { color: var(--muted); font-size: 0.7rem; }
+    .query-item input, .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.28rem 0.4rem; font-size: 0.8rem; color: var(--text); background: #fff; }
+    .query-item input[type="date"], .query-item input[type="month"] { min-width: 0; width: 96px; }
+    .query-item input[type="number"] { min-width: 0; width: 52px; }
+    .query-item input[type="text"] { min-width: 0; width: 88px; }
+    .query-item select { min-width: 0; width: 90px; cursor: pointer; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
-    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
+    .btn { border-radius: 4px; padding: 0.3rem 0.65rem; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
@@ -29,8 +31,9 @@
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 2700px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.75rem; min-width: 2700px; table-layout: auto; }
     th, td { padding: 0.4rem 0.5rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
+    th.col-num-right, td.col-num-right { min-width: 4rem; }
     th { font-weight: 500; }
     .th-module { font-size: 0.8rem; font-weight: 600; text-align: center; }
     .th-module.bg-blue { background: #cce5ff; color: #004085; }
@@ -48,27 +51,37 @@
     .back a:hover { text-decoration: underline; }
     .trend-up { color: #dc2626; }
     .trend-down { color: #16a34a; }
+    td.cell-with-compare { white-space: normal; min-width: 6rem; }
+    .cell-with-compare { line-height: 1.4; vertical-align: top; }
+    .cell-with-compare .cell-main { font-weight: 500; }
+    .cell-with-compare .cell-compare { font-size: 0.85em; color: var(--muted); }
+    .cell-with-compare .cell-chain { font-size: 0.85em; }
     .th-col.col-num-right, td.col-num-right { text-align: right; font-variant-numeric: tabular-nums; }
     /* 冻结列：日期 + 商品基础信息（PID、主推SPU、产品阶段） */
     .col-sticky-1 { position: sticky; left: 0; z-index: 3; background: #fff; min-width: 90px; }
     .col-sticky-2 { position: sticky; left: 90px; z-index: 2; background: #fff; min-width: 180px; }
     .col-sticky-3 { position: sticky; left: 270px; z-index: 2; background: #fff; min-width: 100px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    .col-sticky-4 { position: sticky; left: 370px; z-index: 2; background: #fff; min-width: 56px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
     thead .col-sticky-1 { background: #cce5ff !important; }
     thead .col-sticky-2,
-    thead .col-sticky-3 { background: #fff3cd !important; }
+    thead .col-sticky-3,
+    thead .col-sticky-4 { background: #fff3cd !important; }
     thead tr:last-child .col-sticky-1,
     thead tr:last-child .col-sticky-2,
-    thead tr:last-child .col-sticky-3 { background: #f9fafb !important; }
+    thead tr:last-child .col-sticky-3,
+    thead tr:last-child .col-sticky-4 { background: #f9fafb !important; }
     tr:hover .col-sticky-1,
     tr:hover .col-sticky-2,
-    tr:hover .col-sticky-3 { background: #f9fafb !important; }
-    thead tr:first-child th.col-sticky-23 { position: sticky; left: 90px; z-index: 10; min-width: 280px; width: 280px; background: #fff3cd !important; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    tr:hover .col-sticky-3,
+    tr:hover .col-sticky-4 { background: #f9fafb !important; }
+    thead tr:first-child th.col-sticky-23 { position: sticky; left: 90px; z-index: 10; min-width: 336px; width: 336px; background: #fff3cd !important; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
     thead th.col-sticky-1,
     thead th.col-sticky-2,
-    thead th.col-sticky-3 { z-index: 10; }
+    thead th.col-sticky-3,
+    thead th.col-sticky-4 { z-index: 10; }
 
     .cascade-wrap { position: relative; display: inline-block; }
-    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.35rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; cursor: pointer; min-width: 160px; user-select: none; }
+    .cascade-trigger { display: inline-flex; align-items: center; gap: 0.25rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.28rem 0.4rem; font-size: 0.8rem; color: var(--text); background: #fff; cursor: pointer; min-width: 100px; max-width: 120px; user-select: none; }
     .cascade-trigger::after { content: ''; margin-left: auto; border: 4px solid transparent; border-top: 5px solid var(--muted); }
     .cascade-trigger.open { border-color: var(--accent); }
     .cascade-trigger .tag { display: inline-flex; align-items: center; gap: 2px; background: #e0f2fe; color: #0369a1; border-radius: 3px; padding: 1px 6px; font-size: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -90,12 +103,60 @@
     .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
 
     .tab-group { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
-    .tab-group .tab { padding: 0.4rem 0.9rem; font-size: 0.9rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab-group .tab { padding: 0.25rem 0.5rem; font-size: 0.8rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
     .tab-group .tab:last-child { border-right: none; }
     .tab-group .tab.active { background: var(--accent); color: #fff; }
     .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
     .date-gran-wrap { display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap; }
     .date-gran-wrap .hide { display: none !important; }
+
+    .pid-cell { white-space: nowrap; }
+    .pid-expand-btn { margin-left: 0.35rem; padding: 0.15rem 0.5rem; font-size: 0.7rem; cursor: pointer; background: var(--accent); color: #fff; border: none; border-radius: 4px; }
+    .pid-expand-btn:hover { background: var(--accent-hover); }
+    .spu-analysis-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.25rem; cursor: pointer; background: #e0f2fe; color: #0369a1; border: none; border-radius: 6px; }
+    .spu-analysis-btn:hover { background: #bae6fd; color: #0284c7; }
+    .spu-analysis-btn { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; cursor: pointer; }
+    .spu-analysis-btn:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
+    trtr.row-total td { font-weight: 600; background: #f0fdf4; }
+    tr.row-total:hover td { background: #dcfce7; }
+    tr.row-expand td { padding: 0; vertical-align: top; background: #f8fafc; border-left: 3px solid var(--accent); }
+    .expand-content { padding: 0.5rem 1rem 1rem; max-height: 320px; overflow: auto; }
+    .expand-content .expand-title { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.5rem; }
+    .expand-content table { width: 100%; border-collapse: collapse; font-size: 0.72rem; min-width: 2600px; }
+    .expand-content th, .expand-content td { padding: 0.3rem 0.4rem; border: 1px solid var(--border); white-space: nowrap; }
+    .expand-content th { background: #f1f5f9; color: var(--muted); font-weight: 500; }
+    .expand-content tr:hover td { background: #f1f5f9; }
+
+    .analysis-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.4); align-items: center; justify-content: center; }
+    .analysis-overlay.open { display: flex; }
+    body.iframe-detail-only .analysis-overlay { background: var(--card); align-items: stretch; justify-content: stretch; }
+    body.iframe-detail-only .analysis-overlay.open { display: flex; }
+    body.iframe-detail-only .analysis-modal { border-radius: 0; box-shadow: none; width: 100%; max-width: none; height: 100%; max-height: none; }
+    body.iframe-detail-only .container { display: none !important; }
+    body.iframe-detail-only .back { display: none !important; }
+    .analysis-modal { background: var(--card); border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); width: 98%; max-width: 1800px; height: 95vh; max-height: 95vh; display: flex; flex-direction: column; }
+    .analysis-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .analysis-title { font-size: 1.1rem; font-weight: 600; }
+    .analysis-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .analysis-toolbar .analysis-label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+    .analysis-toolbar input[type="date"] { border: 1px solid var(--border); border-radius: 4px; padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+    .analysis-toolbar .dim-tab { padding: 0.35rem 0.75rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px; background: #fff; cursor: pointer; color: var(--muted); }
+    .analysis-toolbar .dim-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .analysis-toolbar .gran-tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .analysis-toolbar .gran-tabs .tab { padding: 0.3rem 0.6rem; font-size: 0.8rem; border: none; border-right: 1px solid var(--border); background: #fff; cursor: pointer; }
+    .analysis-toolbar .gran-tabs .tab:last-child { border-right: none; }
+    .analysis-toolbar .gran-tabs .tab.active { background: #f1f5f9; font-weight: 500; }
+    .analysis-toolbar .icon-btn { padding: 0.35rem; border: none; background: transparent; cursor: pointer; color: var(--muted); border-radius: 4px; }
+    .analysis-toolbar .icon-btn:hover { background: #f1f5f9; color: var(--text); }
+    .analysis-body { overflow: auto; padding: 0 1rem 1rem; flex: 1; min-height: 0; }
+    .analysis-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 100%; }
+    .analysis-table th, .analysis-table td { padding: 0.45rem 0.5rem; border: 1px solid var(--border); text-align: left; }
+    .analysis-table th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    .analysis-table .col-num { text-align: right; font-variant-numeric: tabular-nums; }
+    .analysis-table tr.row-total td { font-weight: 600; background: #f0fdf4; }
+    .analysis-table tr.row-total:hover td { background: #dcfce7; }
+    .analysis-close { padding: 0.25rem; border: none; background: transparent; cursor: pointer; color: var(--muted); font-size: 1.25rem; line-height: 1; border-radius: 4px; }
+    .analysis-close:hover { background: #f1f5f9; color: var(--text); }
   </style>
 </head>
 <body>
@@ -121,19 +182,19 @@
           </select>
         </div>
         <div class="query-item">
-          <select id="qSearchField" style="min-width:80px;">
+          <select id="qSearchField">
             <option value="pid">PID</option>
             <option value="spu">SPU</option>
           </select>
-          <input type="text" id="qSearchVal" placeholder="模糊搜索" title="留空显示全部" style="min-width:140px;" />
+          <input type="text" id="qSearchVal" placeholder="搜索" title="留空显示全部" />
         </div>
         <div class="query-item date-gran-wrap">
-          <span class="label" id="dateLabel">日期</span>
-          <span id="wrapDay" class=""><input type="date" id="qDate" /></span>
-          <span id="wrapWeek" class="hide"><input type="date" id="qStartDate" /><span style="color:var(--muted);padding:0 0.15rem;">~</span><input type="date" id="qEndDate" /></span>
+          <span class="label" id="dateLabel">日期范围</span>
+          <span id="wrapDay" class="hide"></span>
+          <span id="wrapWeek" class=""><input type="date" id="qStartDate" /><span style="color:var(--muted);padding:0 0.15rem;">～</span><input type="date" id="qEndDate" /></span>
           <span id="wrapMonth" class="hide"><input type="month" id="qMonth" /></span>
-          <span id="wrapQuarter" class="hide"><input type="number" id="qYearQ" min="2020" max="2030" placeholder="年" style="width:70px;" /><select id="qQuarter"><option value="1">Q1(1-3月)</option><option value="2">Q2(4-6月)</option><option value="3">Q3(7-9月)</option><option value="4">Q4(10-12月)</option></select></span>
-          <span id="wrapYear" class="hide"><input type="number" id="qYear" min="2020" max="2030" placeholder="年份" style="width:90px;" /></span>
+          <span id="wrapQuarter" class="hide"><input type="number" id="qYearQ" min="2020" max="2030" placeholder="年" /><select id="qQuarter"><option value="1">Q1</option><option value="2">Q2</option><option value="3">Q3</option><option value="4">Q4</option></select></span>
+          <span id="wrapYear" class="hide"><input type="number" id="qYear" min="2020" max="2030" placeholder="年" /></span>
         </div>
         <div class="query-item">
           <div class="tab-group" id="dateGranTabs">
@@ -143,6 +204,18 @@
             <button type="button" class="tab" data-gran="quarter">季度</button>
             <button type="button" class="tab" data-gran="year">年</button>
           </div>
+        </div>
+        <div class="query-item">
+          <label class="compare-check" style="cursor:pointer;display:inline-flex;align-items:center;gap:0.2rem;font-size:0.8rem;">
+            <input type="checkbox" id="qCompareEnable" style="margin:0;" />
+            <span class="label">对比</span>
+          </label>
+        </div>
+        <div class="query-item" id="compareWrap" style="display:none;">
+          <span class="label">对比时间</span>
+          <input type="date" id="qCompareStart" title="与结束日期同时填写则显示对比与环比" />
+          <span style="color:var(--muted);padding:0 0.1rem;font-size:0.8rem;">～</span>
+          <input type="date" id="qCompareEnd" title="选填" />
         </div>
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
@@ -155,6 +228,7 @@
       <div class="btns">
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
       </div>
+      <div class="filter-summary" id="filterSummary" style="font-size:0.85rem;color:var(--muted);"></div>
       <div class="export-tip">
         导出字段与下表一致：日期；商品基础信息（PID、主推SPU、产品阶段）；GMV情况（客单价、平均补贴/单、财务GMV 等）；商品卡；短视频；商务剪辑情况（商务挂车量、剪辑挂车量、合计挂车量、商务开单视频、剪辑开单视频、开单视频合计）；广告情况（vas消耗、GMVMAX消耗、广告总消耗、广告单量、广告订单数、广告GMV、总GMV、总ACOAS、广告ROI（测算）、广告AcoAs、广告ROI设置数）
       </div>
@@ -166,7 +240,7 @@
           <thead>
             <tr>
               <th class="th-module bg-blue col-sticky-1" colspan="1">日期</th>
-              <th class="th-module bg-yellow col-sticky-23" colspan="2">商品基础信息</th>
+              <th class="th-module bg-yellow col-sticky-23" colspan="3">商品基础信息</th>
               <th class="th-module bg-blue" colspan="12">GMV情况</th>
               <th class="th-module bg-yellow" colspan="9">商品卡</th>
               <th class="th-module bg-blue" colspan="9">短视频</th>
@@ -177,6 +251,7 @@
               <th class="th-col col-sticky-1">日期</th>
               <th class="th-col col-sticky-2">PID</th>
               <th class="th-col col-sticky-3">主推SPU</th>
+              <th class="th-col col-sticky-4">分析</th>
               <th class="th-col">客单价</th>
               <th class="th-col">平均补贴/单</th>
               <th class="th-col">财务GMV</th>
@@ -227,23 +302,47 @@
             </tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="43" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
-      </div>
-      <div id="paginationBar" class="pagination" style="display: none;">
-        <span class="info" id="pageInfo">共 0 条</span>
-        <button type="button" class="btn btn-secondary pagination-btn" id="btnPrev">上一页</button>
-        <button type="button" class="btn btn-secondary pagination-btn" id="btnNext">下一页</button>
       </div>
     </div>
 
     <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
+
+    <div class="analysis-overlay" id="analysisOverlay">
+      <div class="analysis-modal">
+        <div class="analysis-header">
+          <span class="analysis-title">PID 明细</span>
+          <div class="analysis-toolbar">
+            <span class="analysis-label">时间范围</span>
+            <input type="date" id="analysisStartDate" />
+            <span style="color:var(--muted);padding:0 0.2rem;">～</span>
+            <input type="date" id="analysisEndDate" />
+            <button type="button" class="dim-tab active" data-dim="date">日期维度</button>
+            <div class="gran-tabs" id="analysisGranTabs">
+              <button type="button" class="tab active" data-gran="day">日</button>
+              <button type="button" class="tab" data-gran="week">周</button>
+              <button type="button" class="tab" data-gran="month">月</button>
+            </div>
+            <button type="button" class="analysis-close" id="analysisClose" title="关闭">×</button>
+          </div>
+        </div>
+        <div class="analysis-body">
+          <table class="analysis-table" id="analysisTable">
+            <thead id="analysisThead">
+              <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>分析</th><th colspan="47"></th></tr>
+            </thead>
+            <tbody id="analysisBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     (function() {
-      var COLS = 50;
-      var headers = ['日期','PID','主推SPU','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
+      var COLS = 51;
+      var headers = ['日期','PID','主推SPU','分析','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
 
       var regionTree = [
         { name: '欧洲', children: [
@@ -383,7 +482,7 @@
         var adRoi = gmvMaxConsume > 0 ? (adGmv / gmvMaxConsume).toFixed(2) : '—';
         var adAcoas = adGmv > 0 ? (gmvMaxConsume / adGmv * 100).toFixed(2) + '%' : '—';
         var row = [
-          date, pid, spu, atv,
+          date, pid, spu, '', atv,
           (2.5 + Math.random() * 3).toFixed(2), gmv, gmv, cnt, orders,
           cardGmv, liveGmv, videoGmv,
           (60 + Math.random() * 20).toFixed(1) + '%', (20 + Math.random() * 15).toFixed(1) + '%', (10 + Math.random() * 10).toFixed(1) + '%',
@@ -427,19 +526,25 @@
       ];
 
       var currentRows = [];
-      var currentPage = 1;
-      var pageSize = 5;
       var curDateGran = 'day';
+
+      function getTodayStr() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function getDefaultDayRange() {
+        var y = new Date().getFullYear();
+        return { start: y + '-02-20', end: getTodayStr() };
+      }
 
       function getDateRange() {
         var gran = curDateGran;
         var startDate = '', endDate = '';
-        if (gran === 'day') {
-          startDate = endDate = document.getElementById('qDate').value;
-        } else if (gran === 'week') {
+        if (gran === 'day' || gran === 'week') {
           startDate = document.getElementById('qStartDate').value;
           endDate = document.getElementById('qEndDate').value;
-        } else if (gran === 'month') {
+        }
+        if (gran === 'month') {
           var m = document.getElementById('qMonth').value;
           if (m) {
             startDate = m + '-01';
@@ -511,6 +616,7 @@
           }
           var g = map[gk];
           for (var i = 3; i < row.length; i++) {
+            if (i === 3) continue;
             var v = row[i];
             var n = parseFloat(v);
             if (!g.sums[i]) g.sums[i] = isNaN(n) ? 0 : n;
@@ -519,8 +625,8 @@
         });
         return Object.keys(map).map(function(k) {
           var g = map[k];
-          var out = [getPeriodLabel(g.key, gran), g.pid, g.spu];
-          for (var j = 3; j < COLS; j++) {
+          var out = [getPeriodLabel(g.key, gran), g.pid, g.spu, ''];
+          for (var j = 4; j < COLS; j++) {
             var orig = g.first[j];
             var n = g.sums[j];
             if (String(orig).indexOf('%') !== -1 || orig === '—') {
@@ -533,6 +639,175 @@
           }
           out._store = g.store;
           return out;
+        });
+      }
+
+      function getDailyRowsForPid(pid, store) {
+        var range = getDateRange();
+        if (!range.start || !range.end) return [];
+        return mock.filter(function(row) {
+          return row[1] === pid && row._store === store && row[0] >= range.start && row[0] <= range.end;
+        }).sort(function(a, b) { return a[0].localeCompare(b[0]); });
+      }
+
+      var analysisGran = 'day';
+      var currentAnalysisSpu = '';
+      var adColStart = 40;
+      function getAnalysisDateRange() {
+        var start = (document.getElementById('analysisStartDate') && document.getElementById('analysisStartDate').value) || '';
+        var end = (document.getElementById('analysisEndDate') && document.getElementById('analysisEndDate').value) || '';
+        return (start && end && start <= end) ? { start: start, end: end } : null;
+      }
+      function getAnalysisRowsMainFormat(spu, gran) {
+        var range = getAnalysisDateRange();
+        if (!range) return [];
+        var rows = mock.filter(function(row) { return row[2] === spu && row[0] >= range.start && row[0] <= range.end; });
+        if (!rows.length) return [];
+        if (gran === 'day') {
+          return rows.sort(function(a, b) { return a[0].localeCompare(b[0]); }).map(function(row) {
+            return row.slice(0, COLS);
+          });
+        }
+        var map = {};
+        rows.forEach(function(row) {
+          var pk = getPeriodKey(row[0], gran);
+          var gk = pk;
+          if (!map[gk]) {
+            map[gk] = { key: pk, sums: [], first: row };
+          }
+          var g = map[gk];
+          for (var j = 3; j < row.length; j++) {
+            if (j === 3) continue;
+            var v = row[j];
+            var n = parseFloat(v);
+            if (!g.sums[j]) g.sums[j] = isNaN(n) ? 0 : n;
+            else if (!isNaN(n)) g.sums[j] += n;
+          }
+        });
+        var labelFn = function(key) { return gran === 'day' ? key : getPeriodLabel(key, gran); };
+        return Object.keys(map).sort().map(function(k) {
+          var g = map[k];
+          var out = [labelFn(g.key), '—', spu, ''];
+          for (var j = 4; j < COLS; j++) {
+            var orig = g.first[j];
+            var n = g.sums[j];
+            if (String(orig).indexOf('%') !== -1 || orig === '—') {
+              out.push(orig);
+            } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
+              out.push((Math.round(n * 100) / 100).toString());
+            } else {
+              out.push(orig !== undefined ? orig : '');
+            }
+          }
+          return out;
+        });
+      }
+      function renderAnalysisTable(spu) {
+        var thead = document.getElementById('analysisThead');
+        thead.innerHTML =
+          '<tr><th class="th-module bg-blue">日期</th><th class="th-module bg-yellow" colspan="3">商品基础信息</th><th class="th-module bg-blue" colspan="12">GMV情况</th><th class="th-module bg-yellow" colspan="9">商品卡</th><th class="th-module bg-blue" colspan="9">短视频</th><th class="th-module bg-yellow" colspan="6">商务剪辑情况</th><th class="th-module bg-blue" colspan="11">广告情况</th></tr>' +
+          '<tr>' + headers.map(function(h, i) {
+            var cls = (i >= adColStart) ? ' class="th-col col-num-right"' : ' class="th-col"';
+            return '<th' + cls + '>' + String(h).replace(/</g, '&lt;') + '</th>';
+          }).join('') + '</tr>';
+        var tbody = document.getElementById('analysisBody');
+        var range = getAnalysisDateRange();
+        if (!range) {
+          tbody.innerHTML = '<tr><td colspan="' + COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">请选择时间范围（开始～结束）</td></tr>';
+          return;
+        }
+        var rows = getAnalysisRowsMainFormat(spu, analysisGran);
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="' + COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">该时间范围内无数据</td></tr>';
+          return;
+        }
+        var trs = rows.map(function(row) {
+          return '<tr>' + row.map(function(cell, i) {
+            var cls = (i >= adColStart) ? ' class="col-num-right"' : '';
+            return '<td' + cls + '>' + String(cell).replace(/</g, '&lt;') + '</td>';
+          }).join('') + '</tr>';
+        });
+        var totalCells = [];
+        for (var j = 0; j < COLS; j++) {
+          var cls = (j >= adColStart) ? ' class="col-num-right"' : '';
+          if (j === 0) {
+            totalCells.push('<td' + cls + '>合计</td>');
+            continue;
+          }
+          if (j === 1 || j === 2 || j === 3) {
+            totalCells.push('<td' + cls + '></td>');
+            continue;
+          }
+          var sample = rows[0][j];
+          var isPct = sample != null && (String(sample).indexOf('%') !== -1 || sample === '—');
+          if (isPct) {
+            totalCells.push('<td' + cls + '></td>');
+            continue;
+          }
+          var sum = 0;
+          var hasNum = false;
+          for (var r = 0; r < rows.length; r++) {
+            var v = rows[r][j];
+            var n = parseFloat(v);
+            if (!isNaN(n)) { sum += n; hasNum = true; }
+          }
+          var display = hasNum ? (Math.round(sum * 100) / 100).toString() : '';
+          totalCells.push('<td' + cls + '>' + display + '</td>');
+        }
+        tbody.innerHTML = trs.join('') + '<tr class="row-total">' + totalCells.join('') + '</tr>';
+      }
+
+      function getCompareRange() {
+        var cb = document.getElementById('qCompareEnable');
+        if (!cb || !cb.checked) return null;
+        var start = (document.getElementById('qCompareStart') && document.getElementById('qCompareStart').value) || '';
+        var end = (document.getElementById('qCompareEnd') && document.getElementById('qCompareEnd').value) || '';
+        return (start && end && start <= end) ? { start: start, end: end } : null;
+      }
+
+      function getComparisonMap() {
+        var range = getCompareRange();
+        if (!range) return {};
+        var store = document.getElementById('qStore').value;
+        var allowedStores = cascadeSelection.stores.length ? cascadeSelection.stores : null;
+        var rows = mock.filter(function(row) {
+          if (row[0] < range.start || row[0] > range.end) return false;
+          if (allowedStores && allowedStores.indexOf(row._store) === -1) return false;
+          if (store && row._store !== store) return false;
+          return true;
+        });
+        var map = {};
+        rows.forEach(function(row) {
+          var key = (row[1] || '') + '\x01' + (row._store || '');
+          if (!map[key]) {
+            map[key] = { sums: [], count: 0 };
+            for (var c = 0; c < COLS; c++) map[key].sums[c] = c < 4 ? (c === 0 ? '' : row[c]) : 0;
+          }
+          var g = map[key];
+          g.count++;
+          for (var j = 4; j < COLS; j++) {
+            var v = row[j];
+            var n = parseFloat(String(v).replace('%', ''));
+            if (!isNaN(n)) g.sums[j] += n;
+          }
+        });
+        return map;
+      }
+
+      function attachCompareToRows(compareMap) {
+        currentRows.forEach(function(row) {
+          var key = (row[1] || '') + '\x01' + (row._store || '');
+          var g = compareMap[key];
+          if (!g) { row._compare = null; return; }
+          var arr = [];
+          for (var j = 0; j < COLS; j++) {
+            if (j < 4) arr[j] = g.sums[j];
+            else {
+              var isPct = row[j] != null && String(row[j]).indexOf('%') !== -1;
+              arr[j] = isPct && g.count > 0 ? g.sums[j] / g.count : g.sums[j];
+            }
+          }
+          row._compare = arr;
         });
       }
 
@@ -558,7 +833,18 @@
 
       function render(rows) {
         currentRows = aggregateRows(rows || []);
-        currentPage = 1;
+        var compareMap = getComparisonMap();
+        attachCompareToRows(compareMap);
+        var range = getDateRange();
+        var summaryEl = document.getElementById('filterSummary');
+        if (range.start && range.end) {
+          var txt = '日期范围：' + range.start + '～' + range.end;
+          var comp = getCompareRange();
+          if (comp) txt += '　对比时间：' + comp.start + '～' + comp.end;
+          summaryEl.textContent = txt;
+        } else {
+          summaryEl.textContent = '';
+        }
         renderPage();
       }
 
@@ -568,32 +854,82 @@
         return s;
       }
 
+      function fmtChainCell(currentVal, compareVal, isPct) {
+        if (compareVal == null || compareVal === '' || (typeof compareVal === 'number' && isNaN(compareVal))) return '—';
+        var cur = parseFloat(String(currentVal).replace('%', ''));
+        var cmp = typeof compareVal === 'number' ? compareVal : parseFloat(String(compareVal).replace('%', ''));
+        if (isNaN(cur) || isNaN(cmp) || cmp === 0) return '—';
+        var pct = ((cur - cmp) / cmp * 100);
+        var arrow = pct > 0 ? '↑' : (pct < 0 ? '↓' : '');
+        var cls = pct > 0 ? 'trend-up' : (pct < 0 ? 'trend-down' : '');
+        var s = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%' + (arrow ? ' ' + arrow : '');
+        return cls ? '<span class="' + cls + '">' + s + '</span>' : s;
+      }
+
       function renderPage() {
         var tbody = document.getElementById('resultBody');
-        var bar = document.getElementById('paginationBar');
-        var total = currentRows.length;
-        if (total === 0) {
+        var adColStart = 40;
+        if (!currentRows.length) {
           tbody.innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">暂无数据</td></tr>';
-          bar.style.display = 'none';
           return;
         }
-        var totalPages = Math.ceil(total / pageSize) || 1;
-        if (currentPage > totalPages) currentPage = totalPages;
-        var start = (currentPage - 1) * pageSize;
-        var pageRows = currentRows.slice(start, start + pageSize);
-        var adColStart = 39;
 
-        tbody.innerHTML = pageRows.map(function(row) {
+        var dataHtml = currentRows.map(function(row) {
           return '<tr>' + row.map(function(cell, i) {
-            var cls = (i < 3) ? ' class="col-sticky-' + (i + 1) + '"' : '';
+            var cls = (i < 4) ? ' class="col-sticky-' + (i + 1) + '"' : '';
             if (i >= adColStart) cls = ' class="col-num-right"';
+            if (i === 1) {
+              cls += ' pid-cell';
+              var storeEsc = (row._store != null ? String(row._store) : '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+              var pidEsc = String(cell).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+              return '<td' + cls + '>' + String(cell) + ' <button type="button" class="pid-expand-btn" data-pid="' + pidEsc + '" data-store="' + storeEsc + '">每日</button></td>';
+            }
+            if (i === 3) {
+              var spuEsc = (row[2] != null ? String(row[2]) : '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+              return '<td' + cls + '><button type="button" class="spu-analysis-btn" title="SPU 分析" data-spu="' + spuEsc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
+            }
+            if (i >= 4 && row._compare && row._compare[i] != null && row._compare[i] !== '') {
+              var curStr = String(cell);
+              var isPct = curStr.indexOf('%') !== -1;
+              var compareNum = row._compare[i];
+              var compareStr = (typeof compareNum === 'number') ? (isPct ? (Math.round(compareNum * 100) / 100) + '%' : (Math.round(compareNum * 100) / 100).toString()) : String(compareNum);
+              var chainHtml = fmtChainCell(cell, compareNum, isPct);
+              cls += ' cell-with-compare';
+              return '<td' + cls + '><span class="cell-main">' + curStr.replace(/</g, '&lt;') + '</span><br><span class="cell-compare">' + compareStr.replace(/</g, '&lt;') + '</span><br><span class="cell-chain">' + chainHtml + '</span></td>';
+            }
             return '<td' + cls + '>' + String(cell) + '</td>';
           }).join('') + '</tr>';
         }).join('');
-        bar.style.display = 'flex';
-        document.getElementById('pageInfo').textContent = '共 ' + total + ' 条，第 ' + currentPage + ' / ' + totalPages + ' 页';
-        document.getElementById('btnPrev').disabled = currentPage <= 1;
-        document.getElementById('btnNext').disabled = currentPage >= totalPages;
+
+        var totalCells = [];
+        for (var j = 0; j < COLS; j++) {
+          var cls = (j < 4) ? ' class="col-sticky-' + (j + 1) + '"' : '';
+          if (j >= adColStart) cls = ' class="col-num-right"';
+          if (j === 0) {
+            totalCells.push('<td' + cls + '>合计</td>');
+            continue;
+          }
+          if (j === 1 || j === 2 || j === 3) {
+            totalCells.push('<td' + cls + '></td>');
+            continue;
+          }
+          var sample = currentRows[0][j];
+          var isPct = sample != null && (String(sample).indexOf('%') !== -1 || sample === '—');
+          if (isPct) {
+            totalCells.push('<td' + cls + '></td>');
+            continue;
+          }
+          var sum = 0;
+          var hasNum = false;
+          for (var r = 0; r < currentRows.length; r++) {
+            var v = currentRows[r][j];
+            var n = parseFloat(v);
+            if (!isNaN(n)) { sum += n; hasNum = true; }
+          }
+          var display = hasNum ? (Math.round(sum * 100) / 100).toString() : '';
+          totalCells.push('<td' + cls + '>' + display + '</td>');
+        }
+        tbody.innerHTML = dataHtml + '<tr class="row-total">' + totalCells.join('') + '</tr>';
       }
 
       function toCSV(rows) {
@@ -615,23 +951,24 @@
         var a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         var range = getDateRange();
-        a.download = '数据看板_' + (range.start || '') + '_' + (range.end || '全部') + '.csv';
+        a.download = '数据看板_' + (range.start || '') + '～' + (range.end || '全部') + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       }
 
       function syncDateGranUI() {
         var gran = curDateGran;
-        ['Day', 'Week', 'Month', 'Quarter', 'Year'].forEach(function(name) {
-          var wrap = document.getElementById('wrap' + name);
-          wrap.classList.toggle('hide', name.toLowerCase() !== gran);
-        });
-        document.getElementById('dateLabel').textContent = gran === 'day' ? '日期' : gran === 'week' ? '日期范围' : gran === 'month' ? '月份' : gran === 'quarter' ? '季度' : '年份';
+        document.getElementById('wrapDay').classList.add('hide');
+        document.getElementById('wrapWeek').classList.toggle('hide', gran !== 'day' && gran !== 'week');
+        document.getElementById('wrapMonth').classList.toggle('hide', gran !== 'month');
+        document.getElementById('wrapQuarter').classList.toggle('hide', gran !== 'quarter');
+        document.getElementById('wrapYear').classList.toggle('hide', gran !== 'year');
+        document.getElementById('dateLabel').textContent = gran === 'day' || gran === 'week' ? '日期范围' : gran === 'month' ? '月份' : gran === 'quarter' ? '季度' : '年份';
       }
 
       function syncDateValuesToGran() {
         var gran = curDateGran;
-        var base = document.getElementById('qDate').value || document.getElementById('qStartDate').value;
+        var base = document.getElementById('qStartDate').value;
         if (!base) {
           var ym = document.getElementById('qMonth').value;
           var yq = document.getElementById('qYearQ').value;
@@ -641,10 +978,12 @@
           else if (yq && q) base = yq + '-' + String((parseInt(q, 10) - 1) * 3 + 1).padStart(2, '0') + '-01';
           else if (yr) base = yr + '-01-01';
         }
-        if (!base) base = '2026-02-23';
+        if (!base) base = getTodayStr();
         var y = base.slice(0, 4), m = base.slice(5, 7);
         if (gran === 'day') {
-          document.getElementById('qDate').value = base;
+          var dr = getDefaultDayRange();
+          document.getElementById('qStartDate').value = dr.start;
+          document.getElementById('qEndDate').value = dr.end;
         } else if (gran === 'week') {
           var dt = new Date(base + 'T12:00:00');
           var day = dt.getDay();
@@ -682,43 +1021,131 @@
       syncDateGranUI();
 
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      document.getElementById('qCompareEnable').addEventListener('change', function() {
+        document.getElementById('compareWrap').style.display = this.checked ? '' : 'none';
+        render(getFiltered());
+      });
+      document.getElementById('qCompareStart').onchange = function() { render(getFiltered()); };
+      document.getElementById('qCompareEnd').onchange = function() { render(getFiltered()); };
       document.getElementById('btnReset').onclick = function() {
-        document.getElementById('qDate').value = '';
-        document.getElementById('qStartDate').value = '';
-        document.getElementById('qEndDate').value = '';
+        curDateGran = 'day';
+        document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+        syncDateGranUI();
+        var dr = getDefaultDayRange();
+        document.getElementById('qStartDate').value = dr.start;
+        document.getElementById('qEndDate').value = dr.end;
+        document.getElementById('qCompareEnable').checked = false;
+        document.getElementById('compareWrap').style.display = 'none';
+        document.getElementById('qCompareStart').value = '';
+        document.getElementById('qCompareEnd').value = '';
         document.getElementById('qMonth').value = '';
         document.getElementById('qYearQ').value = '';
         document.getElementById('qQuarter').value = '1';
         document.getElementById('qYear').value = '';
-        curDateGran = 'day';
-        document.querySelectorAll('#dateGranTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
-        syncDateGranUI();
         if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
         document.getElementById('qSearchField').value = 'pid';
         document.getElementById('qSearchVal').value = '';
         currentRows = [];
-        currentPage = 1;
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
-        document.getElementById('paginationBar').style.display = 'none';
+        document.getElementById('filterSummary').textContent = '';
       };
       document.getElementById('btnExport').onclick = doExport;
-      document.getElementById('btnPrev').onclick = function() {
-        if (currentPage > 1) { currentPage--; renderPage(); }
-      };
-      document.getElementById('btnNext').onclick = function() {
-        var totalPages = Math.ceil(currentRows.length / pageSize) || 1;
-        if (currentPage < totalPages) { currentPage++; renderPage(); }
-      };
 
-      document.getElementById('qDate').value = '2026-02-23';
-      document.getElementById('qStartDate').value = '2026-02-23';
-      document.getElementById('qEndDate').value = '2026-02-24';
+      document.getElementById('resultBody').addEventListener('click', function(e) {
+        var analysisBtn = e.target.closest('.spu-analysis-btn');
+        if (analysisBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          var spu = analysisBtn.getAttribute('data-spu') || '';
+          currentAnalysisSpu = spu;
+          document.getElementById('analysisStartDate').value = '2025-12-10';
+          document.getElementById('analysisEndDate').value = '2026-03-12';
+          document.getElementById('analysisOverlay').classList.add('open');
+          renderAnalysisTable(spu);
+          return;
+        }
+        var btn = e.target.closest('.pid-expand-btn');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        var pid = btn.getAttribute('data-pid');
+        var store = btn.getAttribute('data-store') || '';
+        if (!pid) return;
+        var tr = btn.closest('tr');
+        if (!tr) return;
+        var next = tr.nextElementSibling;
+        if (next && next.classList.contains('row-expand')) {
+          next.remove();
+          return;
+        }
+        var dailyRows = getDailyRowsForPid(pid, store);
+        var expandThead = '<thead><tr>' + headers.map(function(h) { return '<th>' + String(h).replace(/</g, '&lt;') + '</th>'; }).join('') + '</tr></thead>';
+        var title = dailyRows.length ? '该时间范围内共 ' + dailyRows.length + ' 天数据' : '该时间范围内无每日明细';
+        var expandAdCol = 40;
+        var expandTbody = '<tbody>' + dailyRows.map(function(row) {
+          return '<tr>' + row.map(function(c, i) {
+            var cls = (i >= expandAdCol) ? ' class="col-num-right"' : '';
+            return '<td' + cls + '>' + String(c) + '</td>';
+          }).join('') + '</tr>';
+        }).join('') + '</tbody>';
+        var expandHtml = '<tr class="row-expand"><td colspan="' + COLS + '"><div class="expand-content"><div class="expand-title">' + title + '</div><table>' + expandThead + expandTbody + '</table></div></td></tr>';
+        tr.insertAdjacentHTML('afterend', expandHtml);
+      });
+
+      document.getElementById('analysisClose').onclick = function() {
+        document.getElementById('analysisOverlay').classList.remove('open');
+      };
+      document.getElementById('analysisOverlay').addEventListener('click', function(e) {
+        if (e.target.id === 'analysisOverlay') document.getElementById('analysisOverlay').classList.remove('open');
+      });
+      document.getElementById('analysisOverlay').querySelector('.analysis-modal').addEventListener('click', function(e) { e.stopPropagation(); });
+      document.querySelectorAll('#analysisGranTabs .tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('#analysisGranTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          analysisGran = tab.getAttribute('data-gran');
+          if (currentAnalysisSpu) renderAnalysisTable(currentAnalysisSpu);
+        });
+      });
+      document.getElementById('analysisStartDate').onchange = function() { if (currentAnalysisSpu) renderAnalysisTable(currentAnalysisSpu); };
+      document.getElementById('analysisEndDate').onchange = function() { if (currentAnalysisSpu) renderAnalysisTable(currentAnalysisSpu); };
+
+      var dayDefault = getDefaultDayRange();
+      document.getElementById('qStartDate').value = dayDefault.start;
+      document.getElementById('qEndDate').value = dayDefault.end;
+      document.getElementById('qCompareStart').value = '2025-12-01';
+      document.getElementById('qCompareEnd').value = '2026-03-10';
       document.getElementById('qMonth').value = '2026-02';
       document.getElementById('qYearQ').value = '2026';
       document.getElementById('qQuarter').value = '1';
       document.getElementById('qYear').value = '2026';
       render(getFiltered());
+
+      (function tryOpenAnalysisFromUrl() {
+        var params = {};
+        (window.location.search || '').replace(/^\?/, '').split('&').forEach(function(p) {
+          var kv = p.split('=');
+          if (kv.length >= 2) params[decodeURIComponent(kv[0])] = decodeURIComponent(kv.slice(1).join('='));
+        });
+        if (params.openAnalysis !== '1' || !params.spu) return;
+        var spu = params.spu;
+        var store = params.store || '';
+        if (store) {
+          var sel = document.getElementById('qStore');
+          var opts = [].map.call(sel.options, function(o) { return o.value; });
+          if (opts.indexOf(store) !== -1) {
+            sel.value = store;
+            render(getFiltered());
+          }
+        }
+        document.getElementById('analysisStartDate').value = '2025-12-10';
+        document.getElementById('analysisEndDate').value = '2026-03-12';
+        currentAnalysisSpu = spu;
+        document.getElementById('analysisOverlay').classList.add('open');
+        renderAnalysisTable(spu);
+        if (window.self !== window.top) document.body.classList.add('iframe-detail-only');
+      })();
     })();
   </script>
 </body>

@@ -121,6 +121,18 @@
           <span class="label">销售额 ≥</span>
           <input type="number" id="qMinAmount" placeholder="输入最小值" style="width:120px;" min="0" step="0.01" />
         </div>
+        <div class="query-item" id="currencyFilterWrap" style="display:none;">
+          <span class="label">货币</span>
+          <select id="qCurrency" style="min-width:120px;">
+            <option value="">全部</option>
+            <option value="original">原币种</option>
+            <option value="CNY">CNY(本位币)</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="CAD">CAD</option>
+          </select>
+        </div>
         <div class="query-item">
           <span class="label">日期</span>
           <input type="date" id="qStartDate" />
@@ -208,6 +220,25 @@
         '美国 TK・艾斯特尼 - 美区特 3 店 US': '$',
         '美国TK独立站-shopify:Global': '$'
       };
+      var currencyCodeMap = {
+        '美国 TK・艾斯特尼 - 欧洲直邮店 DE': 'EUR',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 ES': 'EUR',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 FR': 'EUR',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 IT': 'EUR',
+        '美国 TK・艾斯特尼 - 美区特 1 店 US': 'USD',
+        '美国 TK・艾斯特尼 - 美区特 2 店 US': 'USD',
+        '美国 TK・艾斯特尼 - 美区特 3 店 US': 'USD',
+        '美国TK独立站-shopify:Global': 'USD'
+      };
+      var rateToUSD = { USD: 1, EUR: 1.08, CNY: 0.138, GBP: 1.27, CAD: 0.74 };
+      var currencySymbol = { USD: '$', EUR: '€', CNY: '¥', GBP: '£', CAD: 'C$' };
+      function convertAmount(amount, fromCode, toCode) {
+        if (!toCode || toCode === 'original') return amount;
+        if (fromCode === toCode) return amount;
+        var rFrom = rateToUSD[fromCode], rTo = rateToUSD[toCode];
+        if (!rFrom || !rTo) return amount;
+        return +(amount * rFrom / rTo).toFixed(2);
+      }
 
       function initCascade() {
         var trigger = document.getElementById('cascadeTrigger');
@@ -448,8 +479,8 @@
       function getFilteredStores() {
         var sel = document.getElementById('qStore').value;
         var base = cascadeSelection.stores.length ? cascadeSelection.stores : stores;
-        if (!sel) return base;
-        return base.filter(function(s) { return s === sel; });
+        if (sel) base = base.filter(function(s) { return s === sel; });
+        return base;
       }
 
       function render() {
@@ -488,10 +519,15 @@
           storeData.push({ store: store, vals: vals, total: total, avg: avg, chainRatio: chainRatio, compareVal: compareVal });
         });
 
+        var displayCurrency = document.getElementById('qCurrency').value;
         if (curMetric === 'amount') {
           var minAmt = parseFloat(document.getElementById('qMinAmount').value);
           if (!isNaN(minAmt)) {
-            storeData = storeData.filter(function(sd) { return sd.total >= minAmt; });
+            storeData = storeData.filter(function(sd) {
+              var storeCurr = currencyCodeMap[sd.store];
+              var totalToCompare = (displayCurrency && displayCurrency !== 'original') ? convertAmount(sd.total, storeCurr, displayCurrency) : sd.total;
+              return totalToCompare >= minAmt;
+            });
           }
         }
 
@@ -505,23 +541,61 @@
         var grandAvg = totalVals.length ? grandTotal / totalVals.length : 0;
         if (curMetric !== 'qty') grandAvg = +grandAvg.toFixed(2); else grandAvg = Math.round(grandAvg);
 
+        var multiCurrency = false;
+        var displaySymbol = '';
+        var totalValsConv = totalVals;
+        var grandTotalConv = grandTotal;
+        var grandAvgConv = grandAvg;
+        if (curMetric === 'amount' && storeData.length > 0) {
+          if (displayCurrency && displayCurrency !== 'original') {
+            totalValsConv = buckets.map(function(_, i) {
+              var s = 0;
+              storeData.forEach(function(sd) {
+                var storeCurr = currencyCodeMap[sd.store];
+                s += convertAmount(sd.vals[i], storeCurr, displayCurrency);
+              });
+              return +s.toFixed(2);
+            });
+            grandTotalConv = totalValsConv.reduce(function(a, b) { return a + b; }, 0);
+            grandAvgConv = totalValsConv.length ? +(grandTotalConv / totalValsConv.length).toFixed(2) : 0;
+            displaySymbol = currencySymbol[displayCurrency] || '';
+          } else {
+            var curs = {};
+            storeData.forEach(function(sd) { curs[currencyCodeMap[sd.store] || ''] = true; });
+            multiCurrency = Object.keys(curs).length > 1;
+          }
+        }
+
         var tbody = document.getElementById('resultBody');
         var html = '';
+        var ratioDenom = multiCurrency ? 0 : (displayCurrency && displayCurrency !== 'original' ? grandTotalConv : grandTotal);
         storeData.forEach(function(sd) {
-          var cur = currencyMap[sd.store] || '';
-          var ratio = grandTotal > 0 ? (sd.total / grandTotal * 100).toFixed(2) + '%' : '—';
-          html += '<tr><td class="sticky-col-1">' + sd.store + '</td><td class="num sticky-col-2">' + fmtVal(sd.total, cur) + '</td><td class="num sticky-col-3">' + ratio + '</td><td class="num sticky-col-4">' + fmtVal(sd.avg, cur) + '</td><td class="num sticky-col-5">' + sd.chainRatio + '</td>';
-          sd.vals.forEach(function(v) { html += '<td class="num">' + fmtVal(v, cur) + '</td>'; });
+          var storeCurr = currencyCodeMap[sd.store];
+          var totalD = (curMetric === 'amount' && displayCurrency && displayCurrency !== 'original') ? convertAmount(sd.total, storeCurr, displayCurrency) : sd.total;
+          var avgD = (curMetric === 'amount' && displayCurrency && displayCurrency !== 'original') ? convertAmount(sd.avg, storeCurr, displayCurrency) : sd.avg;
+          var cur = (curMetric === 'amount' && displayCurrency && displayCurrency !== 'original') ? displaySymbol : (currencyMap[sd.store] || '');
+          var ratio = ratioDenom > 0 ? (totalD / ratioDenom * 100).toFixed(2) + '%' : '—';
+          html += '<tr><td class="sticky-col-1">' + sd.store + '</td><td class="num sticky-col-2">' + fmtVal(totalD, cur) + '</td><td class="num sticky-col-3">' + ratio + '</td><td class="num sticky-col-4">' + fmtVal(avgD, cur) + '</td><td class="num sticky-col-5">' + sd.chainRatio + '</td>';
+          sd.vals.forEach(function(v, i) {
+            var vD = (curMetric === 'amount' && displayCurrency && displayCurrency !== 'original') ? convertAmount(v, storeCurr, displayCurrency) : v;
+            html += '<td class="num">' + fmtVal(vD, cur) + '</td>';
+          });
           html += '</tr>';
         });
-        if (curMetric === 'qty') {
-          var totalCompare = storeData.reduce(function(s, sd) { return s + (sd.compareVal || 0); }, 0);
-          var totalFirstVal = totalVals.length ? totalVals[0] : 0;
-          var grandChainRatio = firstBucket ? fmtChainRatio(totalFirstVal, totalCompare) : '—';
-          html += '<tr class="row-total"><td class="sticky-col-1">合计</td><td class="num sticky-col-2">' + fmtVal(grandTotal) + '</td><td class="num sticky-col-3">100%</td><td class="num sticky-col-4">' + fmtVal(grandAvg) + '</td><td class="num sticky-col-5">' + grandChainRatio + '</td>';
-          totalVals.forEach(function(v) { html += '<td class="num">' + fmtVal(v) + '</td>'; });
-          html += '</tr>';
+        var totalCompare = storeData.reduce(function(s, sd) { return s + (sd.compareVal || 0); }, 0);
+        if (curMetric === 'amount' && displayCurrency && displayCurrency !== 'original' && storeData.length > 0) {
+          totalCompare = storeData.reduce(function(s, sd) {
+            return s + convertAmount(sd.compareVal || 0, currencyCodeMap[sd.store], displayCurrency);
+          }, 0);
         }
+        var totalFirstVal = totalValsConv.length ? totalValsConv[0] : 0;
+        var grandChainRatio = firstBucket ? fmtChainRatio(totalFirstVal, totalCompare) : '—';
+        var totalSmall = multiCurrency ? '—' : fmtVal(grandTotalConv, displaySymbol);
+        var totalAvg = multiCurrency ? '—' : fmtVal(grandAvgConv, displaySymbol);
+        var totalChain = multiCurrency ? '—' : grandChainRatio;
+        html += '<tr class="row-total"><td class="sticky-col-1">合计</td><td class="num sticky-col-2">' + totalSmall + '</td><td class="num sticky-col-3">100%</td><td class="num sticky-col-4">' + totalAvg + '</td><td class="num sticky-col-5">' + totalChain + '</td>';
+        totalValsConv.forEach(function(v) { html += '<td class="num">' + (multiCurrency ? '—' : fmtVal(v, displaySymbol)) + '</td>'; });
+        html += '</tr>';
         tbody.innerHTML = html;
       }
 
@@ -565,16 +639,51 @@
         });
 
         if (curMetric !== 'qty') { totalVals = totalVals.map(function(v) { return +v.toFixed(2); }); grandTotal = +grandTotal.toFixed(2); }
+        var csvDisplayCurrency = document.getElementById('qCurrency').value;
+        var csvMultiCurrency = false;
+        var csvTotalValsOut = totalVals;
+        var csvGrandTotalOut = grandTotal;
+        var csvGrandAvgOut = totalVals.length ? grandTotal / totalVals.length : 0;
+        if (curMetric === 'qty') csvGrandAvgOut = Math.round(csvGrandAvgOut); else csvGrandAvgOut = +csvGrandAvgOut.toFixed(2);
+        if (curMetric === 'amount' && csvRows.length > 0) {
+          if (csvDisplayCurrency && csvDisplayCurrency !== 'original') {
+            csvTotalValsOut = buckets.map(function(_, i) {
+              var s = 0;
+              csvRows.forEach(function(r) {
+                s += convertAmount(r.vals[i], currencyCodeMap[r.store], csvDisplayCurrency);
+              });
+              return +s.toFixed(2);
+            });
+            csvGrandTotalOut = csvTotalValsOut.reduce(function(a, b) { return a + b; }, 0);
+            csvGrandAvgOut = csvTotalValsOut.length ? +(csvGrandTotalOut / csvTotalValsOut.length).toFixed(2) : 0;
+          } else {
+            var csvCurs = {};
+            csvRows.forEach(function(r) { csvCurs[currencyCodeMap[r.store] || ''] = true; });
+            csvMultiCurrency = Object.keys(csvCurs).length > 1;
+          }
+        }
+        var csvRatioDenom = csvMultiCurrency ? 0 : csvGrandTotalOut;
         csvRows.forEach(function(r) {
-          var ratio = grandTotal > 0 ? (r.total / grandTotal * 100).toFixed(2) + '%' : '—';
-          lines.push([r.store, r.total, ratio, r.avg, r.chainRatio].concat(r.vals).map(escapeCell).join(','));
+          var storeCurr = currencyCodeMap[r.store];
+          var totalOut = (curMetric === 'amount' && csvDisplayCurrency && csvDisplayCurrency !== 'original') ? convertAmount(r.total, storeCurr, csvDisplayCurrency) : r.total;
+          var avgOut = (curMetric === 'amount' && csvDisplayCurrency && csvDisplayCurrency !== 'original') ? convertAmount(r.avg, storeCurr, csvDisplayCurrency) : r.avg;
+          var valsOut = (curMetric === 'amount' && csvDisplayCurrency && csvDisplayCurrency !== 'original') ? r.vals.map(function(v, i) { return convertAmount(v, storeCurr, csvDisplayCurrency); }) : r.vals;
+          var ratio = csvRatioDenom > 0 ? (totalOut / csvRatioDenom * 100).toFixed(2) + '%' : '—';
+          lines.push([r.store, totalOut, ratio, avgOut, r.chainRatio].concat(valsOut).map(escapeCell).join(','));
         });
-        var csvGrandAvg = totalVals.length ? grandTotal / totalVals.length : 0;
-        if (curMetric !== 'qty') csvGrandAvg = +csvGrandAvg.toFixed(2); else csvGrandAvg = Math.round(csvGrandAvg);
         var totalCompare = csvRows.reduce(function(s, r) { return s + (r.compareVal || 0); }, 0);
-        var totalFirstVal = totalVals.length ? totalVals[0] : 0;
+        if (curMetric === 'amount' && csvDisplayCurrency && csvDisplayCurrency !== 'original' && csvRows.length > 0) {
+          totalCompare = csvRows.reduce(function(s, r) {
+            return s + convertAmount(r.compareVal || 0, currencyCodeMap[r.store], csvDisplayCurrency);
+          }, 0);
+        }
+        var totalFirstVal = csvTotalValsOut.length ? csvTotalValsOut[0] : 0;
         var grandChainRatio = firstBucket ? fmtChainRatio(totalFirstVal, totalCompare) : '—';
-        lines.push(['合计', grandTotal, '100%', csvGrandAvg, grandChainRatio].concat(totalVals).map(escapeCell).join(','));
+        var csvTotalSmall = csvMultiCurrency ? '—' : csvGrandTotalOut;
+        var csvTotalAvg = csvMultiCurrency ? '—' : csvGrandAvgOut;
+        var csvTotalChain = csvMultiCurrency ? '—' : grandChainRatio;
+        var csvTotalValsEsc = csvMultiCurrency ? csvTotalValsOut.map(function() { return '—'; }) : csvTotalValsOut;
+        lines.push(['合计', csvTotalSmall, '100%', csvTotalAvg, csvTotalChain].concat(csvTotalValsEsc).map(escapeCell).join(','));
 
         var csv = '\uFEFF' + lines.join('\n');
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -601,7 +710,11 @@
       bindTabs('metricTabs', function(tab) {
         curMetric = tab.getAttribute('data-metric');
         document.getElementById('amountFilterWrap').style.display = curMetric === 'amount' ? '' : 'none';
-        if (curMetric !== 'amount') document.getElementById('qMinAmount').value = '';
+        document.getElementById('currencyFilterWrap').style.display = curMetric === 'amount' ? '' : 'none';
+        if (curMetric !== 'amount') {
+          document.getElementById('qMinAmount').value = '';
+          document.getElementById('qCurrency').value = '';
+        }
       });
       bindTabs('granTabs', function(tab) {
         curGran = tab.getAttribute('data-gran');
@@ -609,11 +722,14 @@
       });
 
       document.getElementById('btnQuery').onclick = render;
+      document.getElementById('qCurrency').onchange = render;
       document.getElementById('btnReset').onclick = function() {
         if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
         document.getElementById('qMinAmount').value = '';
+        document.getElementById('qCurrency').value = '';
         document.getElementById('amountFilterWrap').style.display = 'none';
+        document.getElementById('currencyFilterWrap').style.display = 'none';
         document.getElementById('qStartDate').value = '2025-06-01';
         document.getElementById('qEndDate').value = '2026-03-10';
         curMetric = 'qty'; curGran = 'day';

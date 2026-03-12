@@ -43,19 +43,24 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
     th { background: #f9fafb; color: var(--muted); font-weight: 500; }
-    /* 冻结前 6 列：店铺名、SPU(公式)、PID、小计、平均值、环比；用纯色背景避免左滑时背后数据透出 */
+    /* 冻结前 7 列：店铺名、SPU(公式)、PID、分析、小计、平均值、环比 */
     #resultTable th.sticky-col-1, #resultTable td.sticky-col-1 { position: sticky; left: 0; width: 240px; min-width: 240px; max-width: 240px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
     #resultTable th.sticky-col-2, #resultTable td.sticky-col-2 { position: sticky; left: 240px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
     #resultTable th.sticky-col-3, #resultTable td.sticky-col-3 { position: sticky; left: 380px; width: 200px; min-width: 200px; max-width: 200px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 580px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 648px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-6, #resultTable td.sticky-col-6 { position: sticky; left: 716px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-1, #resultTable th.sticky-col-2, #resultTable th.sticky-col-3, #resultTable th.sticky-col-4, #resultTable th.sticky-col-5, #resultTable th.sticky-col-6 { z-index: 2; background: #f9fafb !important; }
-    #resultTable .spu-row td.sticky-col-1, #resultTable .spu-row td.sticky-col-2, #resultTable .spu-row td.sticky-col-3, #resultTable .spu-row td.sticky-col-4, #resultTable .spu-row td.sticky-col-5, #resultTable .spu-row td.sticky-col-6 { background: #fef9c3 !important; }
-    #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6 { background: #fef08a !important; }
-    #resultTable tr:hover td.sticky-col-1, #resultTable tr:hover td.sticky-col-2, #resultTable tr:hover td.sticky-col-3, #resultTable tr:hover td.sticky-col-4, #resultTable tr:hover td.sticky-col-5, #resultTable tr:hover td.sticky-col-6 { background: #f9fafb !important; }
-    #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6 { background: #fef08a !important; }
+    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 580px; width: 56px; min-width: 56px; max-width: 56px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 636px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-6, #resultTable td.sticky-col-6 { position: sticky; left: 704px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-7, #resultTable td.sticky-col-7 { position: sticky; left: 772px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-1, #resultTable th.sticky-col-2, #resultTable th.sticky-col-3, #resultTable th.sticky-col-4, #resultTable th.sticky-col-5, #resultTable th.sticky-col-6, #resultTable th.sticky-col-7 { z-index: 2; background: #f9fafb !important; }
+    #resultTable .spu-row td.sticky-col-1, #resultTable .spu-row td.sticky-col-2, #resultTable .spu-row td.sticky-col-3, #resultTable .spu-row td.sticky-col-4, #resultTable .spu-row td.sticky-col-5, #resultTable .spu-row td.sticky-col-6, #resultTable .spu-row td.sticky-col-7 { background: #fef9c3 !important; }
+    #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6, #resultTable .spu-row:hover td.sticky-col-7 { background: #fef08a !important; }
+    #resultTable tr:hover td.sticky-col-1, #resultTable tr:hover td.sticky-col-2, #resultTable tr:hover td.sticky-col-3, #resultTable tr:hover td.sticky-col-4, #resultTable tr:hover td.sticky-col-5, #resultTable tr:hover td.sticky-col-6, #resultTable tr:hover td.sticky-col-7 { background: #f9fafb !important; }
+    #resultTable .spu-row:hover td.sticky-col-4 { background: #fef08a !important; }
+    .btn-detail-analysis { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; cursor: pointer; }
+    .btn-detail-analysis:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
     tr:hover td { background: #f9fafb; }
+    #resultTable tr.row-store-total td { font-weight: 600; background: #dcfce7; }
+    #resultTable tr.row-store-total:hover td { background: #bbf7d0; }
     td { color: var(--text); }
     .spu-row td { background: #fef9c3; font-weight: 600; }
     .spu-row:hover td { background: #fef08a; }
@@ -104,6 +109,33 @@
     .modal-close { width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px; background: #e9e5ff; color: #5b21b6; cursor: pointer; font-size: 1.1rem; line-height: 1; }
     .modal-close:hover { background: #ddd6fe; }
     .modal-body { padding: 1rem 1.25rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.65; white-space: pre-wrap; color: var(--text); }
+    .detail-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: none; align-items: center; justify-content: center; padding: 0.5rem; }
+    .detail-modal-overlay.visible { display: flex; }
+    .detail-modal-box { background: #fff; border-radius: 8px; box-shadow: 0 12px 40px rgba(0,0,0,0.25); width: 98%; max-width: 1800px; height: 95vh; display: flex; flex-direction: column; overflow: hidden; }
+    .detail-modal-box .analysis-header { display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .detail-modal-box .analysis-title { font-size: 1.1rem; font-weight: 600; }
+    .detail-modal-box .analysis-toolbar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .detail-modal-box .analysis-toolbar .analysis-label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+    .detail-modal-box .analysis-toolbar input[type="date"] { border: 1px solid var(--border); border-radius: 4px; padding: 0.35rem 0.5rem; font-size: 0.85rem; }
+    .detail-modal-box .analysis-toolbar .dim-tab { padding: 0.35rem 0.75rem; font-size: 0.85rem; border: 1px solid var(--border); border-radius: 4px; background: #fff; cursor: pointer; color: var(--muted); }
+    .detail-modal-box .analysis-toolbar .dim-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .detail-modal-box .analysis-toolbar .gran-tabs { display: inline-flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+    .detail-modal-box .analysis-toolbar .gran-tabs .tab { padding: 0.3rem 0.6rem; font-size: 0.8rem; border: none; border-right: 1px solid var(--border); background: #fff; cursor: pointer; }
+    .detail-modal-box .analysis-toolbar .gran-tabs .tab:last-child { border-right: none; }
+    .detail-modal-box .analysis-toolbar .gran-tabs .tab.active { background: #f1f5f9; font-weight: 500; }
+    .detail-modal-box .analysis-close { padding: 0.25rem; border: none; background: transparent; cursor: pointer; color: var(--muted); font-size: 1.25rem; line-height: 1; border-radius: 4px; }
+    .detail-modal-box .analysis-close:hover { background: #f1f5f9; color: var(--text); }
+    .detail-modal-box .analysis-body { overflow: auto; padding: 0 1rem 1rem; flex: 1; min-height: 0; }
+    .detail-modal-box .analysis-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 100%; }
+    .detail-modal-box .analysis-table th, .detail-modal-box .analysis-table td { padding: 0.45rem 0.5rem; border: 1px solid var(--border); text-align: left; }
+    .detail-modal-box .analysis-table th { background: #f9fafb; color: var(--muted); font-weight: 500; }
+    .detail-modal-box .analysis-table .th-module { font-size: 0.8rem; font-weight: 600; text-align: center; }
+    .detail-modal-box .analysis-table .th-module.bg-blue { background: #cce5ff; color: #004085; }
+    .detail-modal-box .analysis-table .th-module.bg-yellow { background: #fff3cd; color: #856404; }
+    .detail-modal-box .analysis-table .th-col { background: #f9fafb; color: var(--muted); }
+    .detail-modal-box .analysis-table .col-num-right { text-align: right; font-variant-numeric: tabular-nums; }
+    .detail-modal-box .analysis-table tr.row-total td { font-weight: 600; background: #f0fdf4; }
+    .detail-modal-box .analysis-table tr.row-total:hover td { background: #dcfce7; }
   </style>
 </head>
 <body>
@@ -171,11 +203,11 @@
       <div class="table-wrap">
         <table id="resultTable">
           <thead id="resultHead">
-            <tr><th>店铺名</th><th>SPU(公式)</th><th>PID</th><th colspan="7">—</th><th>环比</th></tr>
-            <tr><th></th><th></th><th></th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th></th></tr>
+            <tr><th>店铺名</th><th>SPU(公式)</th><th>PID</th><th>分析</th><th colspan="7">—</th><th>环比</th></tr>
+            <tr><th></th><th></th><th></th><th></th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th>—</th><th></th></tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>
+            <tr><td colspan="12" class="empty-tip">请选择店铺后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
@@ -191,6 +223,32 @@
         <button type="button" class="modal-close" id="aiModalClose" aria-label="关闭">&times;</button>
       </div>
       <div class="modal-body" id="aiModalBody"></div>
+    </div>
+  </div>
+  <div class="detail-modal-overlay" id="detailModal" role="dialog" aria-modal="true" aria-label="PID 明细">
+    <div class="detail-modal-box" onclick="event.stopPropagation()">
+      <div class="analysis-header">
+        <span class="analysis-title">PID 明细</span>
+        <div class="analysis-toolbar">
+          <span class="analysis-label">时间范围</span>
+          <input type="date" id="detailStartDate" />
+          <span style="color:var(--muted);padding:0 0.2rem;">～</span>
+          <input type="date" id="detailEndDate" />
+          <button type="button" class="dim-tab active" data-dim="date">日期维度</button>
+          <div class="gran-tabs" id="detailGranTabs">
+            <button type="button" class="tab active" data-gran="day">日</button>
+            <button type="button" class="tab" data-gran="week">周</button>
+            <button type="button" class="tab" data-gran="month">月</button>
+          </div>
+          <button type="button" class="analysis-close" id="detailModalClose" title="关闭">×</button>
+        </div>
+      </div>
+      <div class="analysis-body">
+        <table class="analysis-table" id="detailAnalysisTable">
+          <thead id="detailAnalysisThead"></thead>
+          <tbody id="detailAnalysisBody"></tbody>
+        </table>
+      </div>
     </div>
   </div>
   <script>
@@ -435,11 +493,11 @@
         var bLen = buckets.length;
         var thead = document.getElementById('resultHead');
         thead.innerHTML =
-          '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th>' +
-          '<th class="sticky-col-4">小计</th><th class="sticky-col-5">平均值</th><th class="sticky-col-6">' + diffLabel + '</th>' +
+          '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th><th class="sticky-col-4">分析</th>' +
+          '<th class="sticky-col-5">小计</th><th class="sticky-col-6">平均值</th><th class="sticky-col-7">' + diffLabel + '</th>' +
           '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
           '</tr>' +
-          '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th>' +
+          '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th><th class="sticky-col-7"></th>' +
           buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
           '</tr>';
 
@@ -471,8 +529,22 @@
           groups.push({ spu: spu, totals: totals, totalDiffNum: totalDiffNum, totalDiffStr: totalDiffStr, totalSub: totalSub, totalAvg: totalAvg, pidRows: pidRows });
         });
 
+        groups.sort(function(a, b) { return (b.totalSub || 0) - (a.totalSub || 0); });
+
+        var storeTotals = buckets.map(function(_, i) {
+          var s = 0;
+          groups.forEach(function(g) { s += g.totals[i] || 0; });
+          return s;
+        });
+        var storeTotalSub = sumArr(storeTotals);
+        var storeTotalAvg = avgArr(storeTotals);
+        var storeT1 = storeTotals.length >= 1 ? storeTotals[storeTotals.length - 1] : 0;
+        var storeT2 = storeTotals.length >= 2 ? storeTotals[storeTotals.length - 2] : 0;
+        var storeDiffStr = fmtChainRatio(storeT1, storeT2);
+
         var totalRowCount = 0;
         groups.forEach(function(g) { totalRowCount += 1 + g.pidRows.length; });
+        totalRowCount += 1;
 
         var html = '', firstRow = true;
         groups.forEach(function(group, gidx) {
@@ -485,22 +557,36 @@
           }
           html += '<td class="sticky-col-2" rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
           html += '<td class="sticky-col-3">合计</td>';
-          html += '<td class="sticky-col-4" style="font-weight:600;">' + group.totalSub + '</td>';
-          html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalAvg + '</td>';
-          html += '<td class="sticky-col-6 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
+          html += '<td class="sticky-col-4">—</td>';
+          html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalSub + '</td>';
+          html += '<td class="sticky-col-6" style="font-weight:600;">' + group.totalAvg + '</td>';
+          html += '<td class="sticky-col-7 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
           group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
           html += '</tr>';
 
+          var spuEnc = encodeURIComponent(group.spu || '');
+          var storeEnc = encodeURIComponent(data.name || '');
           group.pidRows.forEach(function(pr) {
             html += '<tr>';
             html += '<td class="sticky-col-3">' + pr.pid + '</td>';
-            html += '<td class="sticky-col-4">' + pr.sub + '</td>';
-            html += '<td class="sticky-col-5">' + pr.avg + '</td>';
-            html += '<td class="sticky-col-6 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
+            html += '<td class="sticky-col-4"><button type="button" class="btn-detail-analysis" title="PID 明细" data-spu="' + spuEnc + '" data-store="' + storeEnc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
+            html += '<td class="sticky-col-5">' + pr.sub + '</td>';
+            html += '<td class="sticky-col-6">' + pr.avg + '</td>';
+            html += '<td class="sticky-col-7 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
             pr.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
             html += '</tr>';
           });
         });
+
+        html += '<tr class="row-store-total">';
+        html += '<td class="sticky-col-2">店铺小计合计</td>';
+        html += '<td class="sticky-col-3">—</td>';
+        html += '<td class="sticky-col-4">—</td>';
+        html += '<td class="sticky-col-5">' + storeTotalSub + '</td>';
+        html += '<td class="sticky-col-6">' + storeTotalAvg + '</td>';
+        html += '<td class="sticky-col-7">' + storeDiffStr + '</td>';
+        storeTotals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+        html += '</tr>';
 
         tbody.innerHTML = html;
 
@@ -520,6 +606,23 @@
             modalBody.textContent = generateAiAnalysis(g, data.name, bLabels);
             document.getElementById('aiModalTitle').innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg>AI 分析 · ' + g.spu;
             modal.classList.add('visible');
+          });
+        });
+        tbody.querySelectorAll('.btn-detail-analysis').forEach(function(btn) {
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var spu = decodeURIComponent(btn.getAttribute('data-spu') || '');
+            var store = decodeURIComponent(btn.getAttribute('data-store') || '');
+            window._detailAnalysisSpu = spu;
+            window._detailAnalysisStore = store;
+            var startEl = document.getElementById('detailStartDate');
+            var endEl = document.getElementById('detailEndDate');
+            if (startEl) startEl.value = '2025-12-10';
+            if (endEl) endEl.value = '2026-03-12';
+            document.querySelectorAll('#detailGranTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
+            window._detailAnalysisGran = 'day';
+            renderDetailAnalysisTable();
+            document.getElementById('detailModal').classList.add('visible');
           });
         });
       }
@@ -542,6 +645,80 @@
         }
         parts.push('以上为基于该 SPU 数据的结构化摘要，可配合运营做补货或复盘。');
         return parts.join('\n\n');
+      }
+
+      var DETAIL_COLS = 51;
+      var detailHeaders = ['日期','PID','主推SPU','分析','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
+      var detailAdColStart = 40;
+      var detailPctCols = { 13: true, 14: true, 15: true, 29: true, 30: true };
+      function detailMockCell(j, rowSeed) {
+        if (j <= 3) return '';
+        var s = rowSeed + j * 7;
+        var r = (Math.sin(s) * 0.5 + 0.5);
+        if (detailPctCols[j]) return (r * 25).toFixed(1) + '%';
+        if (j >= 4 && j <= 12) return Math.round(50 + r * 800);
+        if (j >= 16 && j <= 27) return Math.round(20 + r * 400);
+        if (j >= 31 && j <= 39) return Math.round(r * 50);
+        if (j >= 40) return Math.round(r * 2000);
+        return Math.round(10 + r * 100);
+      }
+      function renderDetailAnalysisTable() {
+        var thead = document.getElementById('detailAnalysisThead');
+        var tbody = document.getElementById('detailAnalysisBody');
+        if (!thead || !tbody) return;
+        thead.innerHTML =
+          '<tr><th class="th-module bg-blue">日期</th><th class="th-module bg-yellow" colspan="3">商品基础信息</th><th class="th-module bg-blue" colspan="12">GMV情况</th><th class="th-module bg-yellow" colspan="9">商品卡</th><th class="th-module bg-blue" colspan="9">短视频</th><th class="th-module bg-yellow" colspan="6">商务剪辑情况</th><th class="th-module bg-blue" colspan="11">广告情况</th></tr>' +
+          '<tr>' + detailHeaders.map(function(h, i) {
+            var cls = (i >= detailAdColStart) ? ' class="th-col col-num-right"' : ' class="th-col"';
+            return '<th' + cls + '>' + String(h).replace(/</g, '&lt;') + '</th>';
+          }).join('') + '</tr>';
+        var startVal = document.getElementById('detailStartDate') && document.getElementById('detailStartDate').value;
+        var endVal = document.getElementById('detailEndDate') && document.getElementById('detailEndDate').value;
+        if (!startVal || !endVal || startVal > endVal) {
+          tbody.innerHTML = '<tr><td colspan="' + DETAIL_COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">请选择时间范围（开始～结束）</td></tr>';
+          return;
+        }
+        var spu = window._detailAnalysisSpu || '—';
+        var gran = window._detailAnalysisGran || 'day';
+        var days = enumDays(startVal, endVal);
+        var buckets = buildBuckets(days, gran);
+        if (!buckets.length) {
+          tbody.innerHTML = '<tr><td colspan="' + DETAIL_COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">该时间范围内无数据</td></tr>';
+          return;
+        }
+        var fakePids = ['AL-W0161', 'AL-W0169', 'AL-W0180', 'AL-W5558'];
+        var rows = [];
+        var totals = [];
+        for (var j = 0; j < DETAIL_COLS; j++) totals[j] = (j <= 3 || detailPctCols[j]) ? null : 0;
+        buckets.forEach(function(b, bi) {
+          var pid = fakePids[bi % fakePids.length];
+          var row = [b.label, pid, spu, '—'];
+          for (var j = 4; j < DETAIL_COLS; j++) {
+            var v = detailMockCell(j, bi * 13 + 1);
+            row.push(v);
+            if (!detailPctCols[j] && totals[j] !== null) {
+              var n = parseFloat(String(v).replace('%', ''));
+              if (!isNaN(n)) totals[j] += n;
+            }
+          }
+          rows.push(row);
+        });
+        var trs = rows.map(function(row) {
+          return '<tr>' + row.map(function(cell, i) {
+            var cls = (i >= detailAdColStart) ? ' class="col-num-right"' : '';
+            return '<td' + cls + '>' + String(cell).replace(/</g, '&lt;') + '</td>';
+          }).join('') + '</tr>';
+        });
+        var totalCells = [];
+        for (var j = 0; j < DETAIL_COLS; j++) {
+          var cls = (j >= detailAdColStart) ? ' class="col-num-right"' : '';
+          if (j === 0) { totalCells.push('<td' + cls + '>合计</td>'); continue; }
+          if (j === 1 || j === 2 || j === 3) { totalCells.push('<td' + cls + '></td>'); continue; }
+          if (detailPctCols[j]) { totalCells.push('<td' + cls + '></td>'); continue; }
+          var val = totals[j] != null ? (Math.round(totals[j] * 100) / 100).toString() : '';
+          totalCells.push('<td' + cls + '>' + val + '</td>');
+        }
+        tbody.innerHTML = trs.join('') + '<tr class="row-total">' + totalCells.join('') + '</tr>';
       }
 
       function escapeCell(v) {
@@ -616,9 +793,27 @@
         curGran = 'day';
         document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
         document.getElementById('filterInfo').textContent = '';
-        document.getElementById('resultBody').innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="12" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
       };
       document.getElementById('btnExport').onclick = doExport;
+      (function() {
+        var dm = document.getElementById('detailModal');
+        var dmClose = document.getElementById('detailModalClose');
+        function closeDetailModal() { if (dm) dm.classList.remove('visible'); }
+        if (dmClose) dmClose.onclick = closeDetailModal;
+        if (dm) dm.onclick = function(e) { if (e.target === dm) closeDetailModal(); };
+        var granTabs = document.getElementById('detailGranTabs');
+        if (granTabs) granTabs.addEventListener('click', function(e) {
+          var tab = e.target.closest('.tab'); if (!tab) return;
+          granTabs.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          window._detailAnalysisGran = tab.getAttribute('data-gran');
+          if (typeof renderDetailAnalysisTable === 'function') renderDetailAnalysisTable();
+        });
+        ['detailStartDate', 'detailEndDate'].forEach(function(id) {
+          var el = document.getElementById(id); if (el) el.addEventListener('change', function() { if (typeof renderDetailAnalysisTable === 'function') renderDetailAnalysisTable(); });
+        });
+      })();
 
       document.getElementById('btnExportImg').onclick = function() {
         var tableCard = document.querySelector('.table-card');

@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>PID 销售趋势映射 — 需求文档</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
@@ -119,7 +122,7 @@
     <h3>2.2 流程</h3>
     <ol>
       <li>使用源数据统一梳理中的 5 张表，按映射表关联（product_list-ID、全渠道商品表-父ASIN、GMV计算表等）。</li>
-      <li>按「数据看板」目标字段与公式，计算日期、PID、主推SPU、产品阶段、客单价、财务GMV、商品卡/直播/短视频 GMV 及占比、曝光/浏览/点击率/转化率、挂车量、广告消耗与 ACOAS 等。</li>
+      <li>按「数据看板」目标字段与公式，计算日期、PID、主推SPU、客单价、财务GMV、商品卡/直播/短视频 GMV 及占比、曝光/浏览/点击率/转化率、挂车量、广告消耗与 ACOAS 等。</li>
       <li>产出并展示：<strong>1店PID维度的数据监测工具表-7天数据-》数据看板</strong>（或等价多店数据看板）。</li>
     </ol>
     <h3>2.3 映射表（数据看板）</h3>
@@ -127,7 +130,7 @@
       <li><strong>最终数据表</strong>：<code>1店PID维度的数据监测工具表-7天数据-》数据看板</code></li>
       <li><strong>规则</strong>：<strong>关联字段为空</strong> → 该目标字段为<strong>计算</strong>，计算逻辑见 <strong>A 列</strong>；<strong>关联字段有值</strong> → 为<strong>映射</strong>，按关联字段 + 源数据表 + 源字段取数。</li>
       <li>底表：product_list（sku的明细）</li>
-      <li>相关表：全渠道商品表、产品阶段表、产品活动数据（Product campaign data）、tk订单表</li>
+      <li>相关表：全渠道商品表、产品活动数据（Product campaign data）、tk订单表</li>
     </ul>
     <div class="table-wrap">
       <table>
@@ -138,7 +141,6 @@
           <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取表格右上角的日期</td><td>—</td><td>product_list</td><td>（表头/图片）</td><td>—</td></tr>
           <tr><td>计算</td><td>PID</td><td class="tbl-formula">直接取源表：product_list.ID</td><td>—</td><td>product_list</td><td>ID</td><td>—</td></tr>
           <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>SPU</td><td>—</td></tr>
-          <tr><td>映射</td><td>产品阶段</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》产品阶段.商品层级</td><td>product_list（ID）与 产品阶段（SPU）</td><td>产品阶段</td><td>商品层级</td><td>—</td></tr>
           <tr><td>映射</td><td>客单价</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.客单价（实付总价/单量）</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>客单价（实付总价/单量）</td><td>—</td></tr>
           <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.每单补贴</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>每单补贴</td><td>—</td></tr>
           <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.总GMV</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>总GMV</td><td>—</td></tr>
@@ -202,18 +204,13 @@
     <hr />
 
     <h2>三、源数据统一梳理</h2>
-    <p>以下包含<strong>产品阶段</strong>、<strong>tk 账号信息表</strong>（手动导入）及 <strong>5 张表</strong>，为各需求共用源数据；5 张表需按约定时间（如每日 16:00 后）在 TK 后台或积加后台下载，产品阶段与 tk 账号信息由手动维护/导入，供数据看板与 GMV 计算使用。</p>
-    <h3>3.1 产品阶段</h3>
-    <div class="table-wrap">
-      <table>
-        <tr><th>项目</th><th>说明</th></tr>
-        <tr><td>来源</td><td>手动表格</td></tr>
-        <tr><td>说明</td><td>按 SPU 维护产品阶段（商品层级），供需求二数据看板「产品阶段」字段映射使用；与全渠道商品表通过 SPU 关联。</td></tr>
-      </table>
-    </div>
-    <p><strong>表示例（SPU / 产品名称 / 商品层级）</strong></p>
-    <p><img src="docs/pictures/产品阶段-示例数据.png" alt="产品阶段-示例数据" /></p>
-    <h3>3.2 tk 账号信息表</h3>
+    <p>以下为各需求共用源数据，统一说明取数方式与用途：</p>
+    <ul>
+      <li><strong>tk 账号信息表</strong>：手动导入，供视频/直播数据与账号维度关联。</li>
+      <li><strong>5 张表</strong>：需按约定时间（如每日 16:00 后）在 TK 后台或积加后台下载，供数据看板与 GMV 计算使用。<br />
+        <strong>product_list</strong>（3.2）：商品数据分析导出。 &nbsp; <strong>Product campaign data</strong>（3.3）：广告营销 → 实时推广系列数据导出。 &nbsp; <strong>Video Performance List</strong>（3.4）：直播和视频数据分析 → 视频-详细信息导出。 &nbsp; <strong>全渠道商品表</strong>（3.5）：积加全渠道商品导出。 &nbsp; <strong>全部笔订单</strong>（3.6）：订单 API 或管理订单导出。</li>
+    </ul>
+    <h3>3.1 tk 账号信息表</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -222,7 +219,7 @@
       </table>
     </div>
     <p><img src="docs/pictures/tk账号信息表-示例数据.png" alt="tk账号信息表-示例数据" /></p>
-    <h3>3.3 product_list</h3>
+    <h3>3.2 product_list</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -234,7 +231,7 @@
     <p><img src="docs/pictures/product_list-商品管理.png" alt="product_list-商品管理" /></p>
     <p><img src="docs/pictures/product_list-商品数据分析.png" alt="product_list-商品数据分析" /></p>
     <p><img src="docs/pictures/product_list-示例数据.png" alt="product_list-示例数据" /></p>
-    <h3>3.4 Product campaign data</h3>
+    <h3>3.3 Product campaign data</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -246,7 +243,7 @@
     <p><img src="docs/pictures/product_campaign-广告营销入口.png" alt="product_campaign-广告营销入口" /></p>
     <p><img src="docs/pictures/product_campaign-实时推广系列数据导出.png" alt="product_campaign-实时推广系列数据导出" /></p>
     <p><img src="docs/pictures/product_campaign-示例数据.png" alt="product_campaign-示例数据" /></p>
-    <h3>3.5 Video Performance List</h3>
+    <h3>3.4 Video Performance List</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -258,7 +255,7 @@
     <p><img src="docs/pictures/video_performance-直播和视频详细信息.png" alt="video_performance-直播和视频详细信息" /></p>
     <p><img src="docs/pictures/video_performance-导出数据下载.png" alt="video_performance-导出数据下载" /></p>
     <p><img src="docs/pictures/video_performance-示例数据.png" alt="video_performance-示例数据" /></p>
-    <h3>3.6 全渠道商品表</h3>
+    <h3>3.5 全渠道商品表</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -270,7 +267,7 @@
     <p><img src="docs/pictures/全渠道商品-筛选与列表.png" alt="全渠道商品-筛选与列表" /></p>
     <p><img src="docs/pictures/全渠道商品-自定义导出.png" alt="全渠道商品-自定义导出" /></p>
     <p><img src="docs/pictures/全渠道商品-示例数据.png" alt="全渠道商品-示例数据" /></p>
-    <h3>3.7 全部笔订单</h3>
+    <h3>3.6 全部笔订单</h3>
     <div class="table-wrap">
       <table>
         <tr><th>项目</th><th>说明</th></tr>
@@ -292,7 +289,7 @@
         </thead>
         <tbody>
           <tr><td>需求一</td><td>按映射表做 GMV 计算表</td><td>全部笔订单 + 全渠道商品表</td><td>GMV计算表（PID 维度，供看板使用）</td></tr>
-          <tr><td>需求二</td><td>按映射表做数据看板</td><td>源数据统一梳理 5 张表 + 产品阶段 + GMV计算</td><td>数据看板（PID 维度，GMV/渠道/广告指标）</td></tr>
+          <tr><td>需求二</td><td>按映射表做数据看板</td><td>源数据统一梳理 5 张表 + GMV计算</td><td>数据看板（PID 维度，GMV/渠道/广告指标）</td></tr>
         </tbody>
       </table>
     </div>
