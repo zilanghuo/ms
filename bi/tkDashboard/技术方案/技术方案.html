@@ -54,10 +54,10 @@
     <h2>二、数据流转图</h2>
     <h3>2.1 tk 销售数据看板 — 数据流向图</h3>
     <p>数据来源（积加 API：全渠道商品表、全渠道销售订单表）→ BI server 定时数据抽取 → 数据仓库（ods → dwd → dws）→ 报表数据；报表数据 → tk 数据看板前端（店铺统计、商铺统计），并支撑企微播报；RPA 导出图片到企微。</p>
-    <p><img src="数据流向图-销售数据看板.png" alt="tk 销售数据看板 — 数据流向图" /></p>
+    <p><img src="images/数据流向图-销售数据看板.png" alt="tk 销售数据看板 — 数据流向图" /></p>
     <h3>2.2 tk PID 报表 — 数据流向图</h3>
     <p>数据来源：产品列表（product_list）、实时推广系列（product campaign data）、视频直播分析数据（video performance list）；tk 后台（API）— 全商品表；手动导入（飞书 API）— tk 达人列表。→ BI server（实时数据导入、分析数据提取、ad 分析、企微、报表数据）→ 数据仓库（ods）；报表数据 → tk 数据看板前端（pid 数据看板）；企微 → 外部支持（deepseek 接口、api 服务、job 服务）→ pid 数据看板。</p>
-    <p><img src="数据流向图-PID报表.png" alt="tk PID 报表 — 数据流向图" /></p>
+    <p><img src="images/数据流向图-PID报表.png" alt="tk PID 报表 — 数据流向图" /></p>
     <hr />
 
     <h2>三、技术要点</h2>
@@ -93,7 +93,7 @@
     <hr />
 
     <p><em>文档版本：基于当前两份需求文档整理，数据流转以附图为准，数据源与规则以需求文档为准。</em></p>
-    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="技术方案.md">技术方案.md（源文件）</a></p>
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="技术方案.md">技术方案.md（源文件）</a> &nbsp; <a href="表结构设计-Doris.html">表结构设计（Doris）</a></p>
   </div>
 </body>
 </html>
