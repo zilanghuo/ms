@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tkDashboard 接口文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 400px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .doc img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; margin: 0.5rem 0; }
+    p { margin: 0.5rem 0 1rem; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+    pre code { background: none; padding: 0; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>tkDashboard 接口文档</h1>
+    <p>基于三个前端页面的交互与弹框设计，约定后端接口格式。对应页面：<br />
+    <code>销售数据映射/htmls/店铺统计.html</code>、<code>销售数据映射/htmls/商品统计.html</code>、<code>PID/htmls/需求二-数据看板.html</code>。</p>
+    <hr />
+
+    <h2>通用约定</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Base URL</td><td>待定（如 <code>/api/bi/tk</code>）</td></tr>
+          <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code></td></tr>
+          <tr><td>响应格式</td><td><code>application/json</code>（导出为 <code>text/csv</code> 或文件流）</td></tr>
+          <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code></td></tr>
+          <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
+          <tr><td>鉴权</td><td>待定（Cookie / Token）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>统一响应结构</strong></p>
+    <pre><code>{
+  "code": 0,
+  "message": "",
+  "data": { }
+}</code></pre>
+    <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
+    <hr />
+
+    <h2>一、需求一：每日订单数播报（店铺统计）</h2>
+    <p>对应页面：<code>店铺统计.html</code>。无弹框。</p>
+    <h3>1.1 查询条件</h3>
+    <ul>
+      <li><strong>指标</strong>：销量（qty）/ 销售额（amount）</li>
+      <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
+      <li><strong>店铺</strong>：单选，空=全部</li>
+      <li><strong>日期范围</strong>：开始日期、结束日期</li>
+      <li><strong>日期类型</strong>：日 / 周 / 月 / 季 / 年（决定表头 bucket 与环比对比基准）</li>
+      <li><strong>销售额时</strong>：可选最低金额筛选、统一展示币种</li>
+    </ul>
+    <h3>1.2 主表接口：店铺统计列表</h3>
+    <pre><code>GET /api/bi/tk/sales/store-stats</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>metric</td><td>string</td><td>否</td><td><code>qty</code> 销量 / <code>amount</code> 销售额，默认 <code>qty</code></td></tr>
+          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部</td></tr>
+          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD</td></tr>
+          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
+          <tr><td>gran</td><td>string</td><td>否</td><td>日期类型：day / week / month / quarter / year，默认 day</td></tr>
+          <tr><td>minAmount</td><td>number</td><td>否</td><td>销售额模式下最低金额过滤</td></tr>
+          <tr><td>displayCurrency</td><td>string</td><td>否</td><td>销售额统一展示币种（如 USD、EUR），空为原始币种</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "storeName": "全部",
+  "startDate": "2026-02-01",
+  "endDate": "2026-02-28",
+  "gran": "day",
+  "metric": "qty",
+  "buckets": [
+    { "label": "2026/2/28" },
+    { "label": "2026/2/27" },
+    { "label": "2026/2/26" },
+    { "label": "2026/2/25" },
+    { "label": "2026/2/24" }
+  ],
+  "list": [
+    {
+      "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
+      "total": 1250,
+      "ratio": "45.20%",
+      "avg": 44,
+      "chainRatio": "+12.5%",
+      "vals": [38, 42, 45, 41, 44]
+    }
+  ],
+  "totalRow": {
+    "storeName": "合计",
+    "total": 2760,
+    "ratio": "100%",
+    "avg": 98,
+    "chainRatio": "+8.2%",
+    "vals": [90, 95, 92, 88, 98]
+  }
+}</code></pre>
+    <p><strong>data 字段说明（按层级）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>storeName</td><td>string</td><td>当前筛选的店铺范围：单选店铺时为该店铺名，未选时为「全部」</td></tr>
+          <tr><td>1</td><td>startDate</td><td>string</td><td>查询开始日期，格式 YYYY-MM-DD，与请求参数一致</td></tr>
+          <tr><td>1</td><td>endDate</td><td>string</td><td>查询结束日期，格式 YYYY-MM-DD，与请求参数一致</td></tr>
+          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度：day / week / month / quarter / year，决定表头列与环比对比基准</td></tr>
+          <tr><td>1</td><td>metric</td><td>string</td><td>指标类型：qty 销量 / amount 销售额</td></tr>
+          <tr><td>1</td><td>buckets</td><td>list</td><td>与表头列一致，按 gran 聚合后的时间 bucket 列表，顺序与前端表头一致</td></tr>
+          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>单个 bucket 的展示标签，如「2026/2/28」，用于表头展示</td></tr>
+          <tr><td>1</td><td>list</td><td>list</td><td>各店铺统计行，每行对应一个店铺，顺序与前端表格一致</td></tr>
+          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称</td></tr>
+          <tr><td>2</td><td>list[].total</td><td>number</td><td>该店铺在 startDate～endDate 内的汇总值（销量为整数，销售额为小数）</td></tr>
+          <tr><td>2</td><td>list[].ratio</td><td>string</td><td>该店铺小计占合计的百分比，如「45.20%」</td></tr>
+          <tr><td>2</td><td>list[].avg</td><td>number</td><td>各 bucket 值的算术平均（销量取整，销售额保留小数）</td></tr>
+          <tr><td>2</td><td>list[].chainRatio</td><td>string</td><td>环比：当前期（首 bucket）与上一周期对比的百分比，如「+12.5%」「-3.2%」</td></tr>
+          <tr><td>2</td><td>list[].vals</td><td>list</td><td>各 bucket 对应的值，与 buckets 顺序、长度一致；销量为 number，销售额为 number</td></tr>
+          <tr><td>1</td><td>totalRow</td><td>object</td><td>合计行，与 list 中每行结构一致，表示全表合计</td></tr>
+          <tr><td>2</td><td>totalRow.storeName</td><td>string</td><td>固定为「合计」</td></tr>
+          <tr><td>2</td><td>totalRow.total</td><td>number</td><td>所有店铺的汇总值</td></tr>
+          <tr><td>2</td><td>totalRow.ratio</td><td>string</td><td>固定为「100%」</td></tr>
+          <tr><td>2</td><td>totalRow.avg</td><td>number</td><td>合计行的平均值（按 bucket 数）</td></tr>
+          <tr><td>2</td><td>totalRow.chainRatio</td><td>string</td><td>合计行的环比百分比</td></tr>
+          <tr><td>2</td><td>totalRow.vals</td><td>list</td><td>各 bucket 的合计值，与 buckets 顺序、长度一致</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>1.3 导出</h3>
+    <pre><code>GET /api/bi/tk/sales/store-stats/export</code></pre>
+    <p>查询参数同 1.2，返回 CSV：店铺、小计、占比、平均值、环比、各 bucket 列。</p>
+    <hr />
+
+    <h2>二、需求二：订单明细与销量趋势（商品统计）</h2>
+    <p>对应页面：<code>商品统计.html</code>。含两个弹框：<strong>AI 分析</strong>、<strong>PID 明细</strong>。</p>
+    <h3>2.1 查询条件</h3>
+    <ul>
+      <li><strong>站点</strong>：级联 → 店铺列表</li>
+      <li><strong>店铺</strong>：必选</li>
+      <li><strong>搜索</strong>：字段（SPU / PID）+ 关键词，模糊</li>
+      <li><strong>日期范围</strong>：开始、结束</li>
+      <li><strong>日期类型</strong>：日 / 周 / 月 / 季 / 年</li>
+    </ul>
+    <h3>2.2 主表接口：商品统计列表</h3>
+    <pre><code>GET /api/bi/tk/sales/product-stats</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称</td></tr>
+          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD</td></tr>
+          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
+          <tr><td>gran</td><td>string</td><td>否</td><td>day / week / month / quarter / year，默认 day</td></tr>
+          <tr><td>searchField</td><td>string</td><td>否</td><td>spu / pid</td></tr>
+          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
+  "startDate": "2026-02-21",
+  "endDate": "2026-02-27",
+  "gran": "day",
+  "buckets": [
+    { "label": "2026/2/27" },
+    { "label": "2026/2/26" },
+    { "label": "2026/2/25" },
+    { "label": "2026/2/24" },
+    { "label": "2026/2/23" },
+    { "label": "2026/2/22" },
+    { "label": "2026/2/21" }
+  ],
+  "groups": [
+    {
+      "spu": "AL-W0161",
+      "totalSub": 520,
+      "totalAvg": 74,
+      "totalDiffNum": -13,
+      "totalDiffStr": "-13.5%",
+      "totals": [82, 95, 78, 88, 90, 87, 100],
+      "pidRows": [
+        {
+          "pid": "1729439482671567205",
+          "sub": 120,
+          "avg": 17,
+          "diffNum": -3,
+          "diffStr": "-2.4%",
+          "vals": [5, 8, 18, 12, 22, 25, 30]
+        }
+      ]
+    }
+  ],
+  "storeTotal": {
+    "totalSub": 2100,
+    "totalAvg": 300,
+    "storeDiffStr": "-5.2%",
+    "storeTotals": [310, 298, 305, 290, 302, 298, 297]
+  }
+}</code></pre>
+    <p><strong>data 字段说明（按层级）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>storeName</td><td>string</td><td>当前查询的店铺名称，与请求参数 storeName 一致</td></tr>
+          <tr><td>1</td><td>startDate</td><td>string</td><td>查询开始日期，格式 YYYY-MM-DD</td></tr>
+          <tr><td>1</td><td>endDate</td><td>string</td><td>查询结束日期，格式 YYYY-MM-DD</td></tr>
+          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度：day / week / month / quarter / year</td></tr>
+          <tr><td>1</td><td>buckets</td><td>list</td><td>与表头列一致，按 gran 聚合后的时间 bucket 列表</td></tr>
+          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>单个 bucket 的展示标签，如「2026/2/27」，用于表头展示</td></tr>
+          <tr><td>1</td><td>groups</td><td>list</td><td>按 SPU 分组，每组含该 SPU 汇总及下辖 PID 行；按 totalSub 降序</td></tr>
+          <tr><td>2</td><td>groups[].spu</td><td>string</td><td>SPU(公式)</td></tr>
+          <tr><td>2</td><td>groups[].totalSub</td><td>number</td><td>该 SPU 在 startDate～endDate 内的销量汇总</td></tr>
+          <tr><td>2</td><td>groups[].totalAvg</td><td>number</td><td>该 SPU 各 bucket 值的算术平均</td></tr>
+          <tr><td>2</td><td>groups[].totalDiffNum</td><td>number</td><td>环比差值（当前期与上一周期销量之差）</td></tr>
+          <tr><td>2</td><td>groups[].totalDiffStr</td><td>string</td><td>环比百分比，如「-13.5%」</td></tr>
+          <tr><td>2</td><td>groups[].totals</td><td>list</td><td>该 SPU 各 bucket 的合计销量，与 buckets 顺序、长度一致</td></tr>
+          <tr><td>2</td><td>groups[].pidRows</td><td>list</td><td>该 SPU 下各 PID 明细行</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].pid</td><td>string</td><td>PID</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].sub</td><td>number</td><td>该 PID 在区间内的销量小计</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].avg</td><td>number</td><td>该 PID 各 bucket 值的算术平均</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].diffNum</td><td>number</td><td>该 PID 环比差值</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].diffStr</td><td>string</td><td>该 PID 环比百分比，如「-2.4%」</td></tr>
+          <tr><td>3</td><td>groups[].pidRows[].vals</td><td>list</td><td>该 PID 各 bucket 销量，与 buckets 顺序、长度一致</td></tr>
+          <tr><td>1</td><td>storeTotal</td><td>object</td><td>店铺小计合计行，表示当前店铺下所有 SPU 的汇总</td></tr>
+          <tr><td>2</td><td>storeTotal.totalSub</td><td>number</td><td>全店销量汇总</td></tr>
+          <tr><td>2</td><td>storeTotal.totalAvg</td><td>number</td><td>全店各 bucket 值的算术平均</td></tr>
+          <tr><td>2</td><td>storeTotal.storeDiffStr</td><td>string</td><td>全店环比百分比，如「-5.2%」</td></tr>
+          <tr><td>2</td><td>storeTotal.storeTotals</td><td>list</td><td>全店各 bucket 的合计销量，与 buckets 顺序、长度一致</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>2.3 弹框接口：AI 分析（按 SPU）</h3>
+    <p>用于商品统计页「AI」按钮，弹框内展示该 SPU 的文本摘要。</p>
+    <pre><code>POST /api/bi/tk/sales/product-stats/ai-analysis</code></pre>
+    <p><strong>请求 Body</strong></p>
+    <pre><code>{
+  "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
+  "spu": "AL-W0161",
+  "startDate": "2026-02-21",
+  "endDate": "2026-02-27",
+  "gran": "day"
+}</code></pre>
+    <p><strong>响应 data</strong>：<code>spu</code>、<code>analysis</code>（文本摘要）。</p>
+    <h3>2.4 弹框接口：PID 明细（商品统计 / 数据看板共用）</h3>
+    <p>用于商品统计页「分析」、需求三数据看板「分析」按钮。弹框内<strong>固定主推 SPU</strong>（数据看板场景下为当前行的 SPU，对应行仅一个 PID 时可视为固定 PID），用户可在弹框内<strong>再筛选</strong>以刷新明细表。</p>
+    <p><strong>弹框界面要点</strong>（对应 <code>需求二-数据看板.html</code> 内 PID 明细弹框）：</p>
+    <ul>
+      <li><strong>标题</strong>：PID 明细</li>
+      <li><strong>筛选区</strong>：时间范围（开始日期、结束日期）、日期维度（日 / 周 / 月）；修改后前端带新参数重新请求本接口刷新表格</li>
+      <li><strong>表格</strong>：与主表一致的 51 列表头（日期、PID、主推SPU、分析、客单价、…、广告ROI设置数），支持合计行；按 <code>gran</code> 展示按日或按周/月聚合后的明细</li>
+    </ul>
+    <pre><code>GET /api/bi/tk/pid/detail</code></pre>
+    <p><strong>查询参数</strong>：<code>spu</code>（弹框固定，来自点击行）、<code>storeName</code>（弹框固定）、<code>startDate</code>、<code>endDate</code>（弹框内选择）、<code>gran</code>（day / week / month，弹框内切换后带新值请求）。</p>
+    <p><strong>响应 data</strong>：<code>spu</code>、<code>storeName</code>、<code>startDate</code>、<code>endDate</code>、<code>gran</code>、<code>headers</code>（51 列）、<code>rows</code>、<code>totalRow</code>。与需求文档「数据看板」映射一致。</p>
+    <h3>2.5 导出（商品统计）</h3>
+    <pre><code>GET /api/bi/tk/sales/product-stats/export</code></pre>
+    <p>查询参数同 2.2，返回 CSV：店铺名、SPU(公式)、PID、各 bucket 列、环比。</p>
+    <hr />
+
+    <h2>三、需求二：PID 数据看板</h2>
+    <p>对应页面：<code>需求二-数据看板.html</code>。主表支持对比期；弹框为 <strong>PID 明细</strong>（与 2.4 同一接口）。</p>
+    <h3>3.1 查询条件</h3>
+    <ul>
+      <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
+      <li><strong>店铺</strong>：单选，空=全部</li>
+      <li><strong>日期范围</strong>：开始日期、结束日期</li>
+      <li><strong>对比时间</strong>：可选，用于主表环比（当期 vs 对比期）；传 compareStart、compareEnd</li>
+      <li><strong>搜索</strong>：字段（PID / SPU）+ 关键词，模糊</li>
+    </ul>
+    <h3>3.2 主表接口：数据看板列表</h3>
+    <pre><code>GET /api/bi/tk/pid/dashboard</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>startDate</td><td>string</td><td>否</td><td>开始日期 YYYY-MM-DD</td></tr>
+          <tr><td>endDate</td><td>string</td><td>否</td><td>结束日期 YYYY-MM-DD</td></tr>
+          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部</td></tr>
+          <tr><td>searchField</td><td>string</td><td>否</td><td>pid / spu，搜索维度</td></tr>
+          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
+          <tr><td>compareStart</td><td>string</td><td>否</td><td>对比期开始日期（主表环比用）</td></tr>
+          <tr><td>compareEnd</td><td>string</td><td>否</td><td>对比期结束日期</td></tr>
+          <tr><td>page</td><td>int</td><td>否</td><td>页码，从 1 开始，默认 1</td></tr>
+          <tr><td>pageSize</td><td>int</td><td>否</td><td>每页条数，默认 20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "total": 100,
+  "page": 1,
+  "pageSize": 20,
+  "list": [
+    {
+      "date": "2026-02-23",
+      "pid": "1729773126172578149",
+      "spu": "AL-W0161",
+      "atv": 68,
+      "subsidyPer": 3.82,
+      "financialGmv": 28500,
+      "tradeAmount": 28500,
+      "dealQty": 419,
+      "orderQty": 377,
+      "cardGmv": 17100,
+      "liveGmv": 7125,
+      "videoGmv": 4275,
+      "cardGmvRatio": "60.0%",
+      "liveGmvRatio": "25.0%",
+      "videoGmvRatio": "15.0%",
+      "cardTradeAmount": 17442,
+      "cardDealQty": 259,
+      "bizHangerQty": 25,
+      "editHangerQty": 15,
+      "totalHangerQty": 40,
+      "gmvmaxConsume": 350,
+      "adOrderQty": 56,
+      "adGmv": 3420,
+      "totalGmv": 29800,
+      "totalAcoas": 81.43,
+      "_compare": [68, 3.80, 27200, "…"]
+    }
+  ]
+}</code></pre>
+    <p><strong>data 字段说明（按层级）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>total</td><td>number</td><td>符合查询条件的总条数，用于分页</td></tr>
+          <tr><td>1</td><td>page</td><td>number</td><td>当前页码，与请求参数一致</td></tr>
+          <tr><td>1</td><td>pageSize</td><td>number</td><td>每页条数，与请求参数一致</td></tr>
+          <tr><td>1</td><td>list</td><td>list</td><td>当前页的数据看板行，每行对应一个 PID 维度统计</td></tr>
+          <tr><td>2</td><td>list[].date</td><td>string</td><td>统计日期，格式 YYYY-MM-DD</td></tr>
+          <tr><td>2</td><td>list[].pid</td><td>string</td><td>PID</td></tr>
+          <tr><td>2</td><td>list[].spu</td><td>string</td><td>SPU(公式)</td></tr>
+          <tr><td>2</td><td>list[].atv</td><td>number</td><td>客单价</td></tr>
+          <tr><td>2</td><td>list[].subsidyPer</td><td>number</td><td>平均补贴/单</td></tr>
+          <tr><td>2</td><td>list[].financialGmv</td><td>number</td><td>财务 GMV</td></tr>
+          <tr><td>2</td><td>list[].tradeAmount</td><td>number</td><td>商品交易总额（与需求文档列名对应）</td></tr>
+          <tr><td>2</td><td>list[].dealQty</td><td>number</td><td>成交件数</td></tr>
+          <tr><td>2</td><td>list[].orderQty</td><td>number</td><td>订单数</td></tr>
+          <tr><td>2</td><td>list[].cardGmv</td><td>number</td><td>卡牌 GMV</td></tr>
+          <tr><td>2</td><td>list[].liveGmv</td><td>number</td><td>直播 GMV</td></tr>
+          <tr><td>2</td><td>list[].videoGmv</td><td>number</td><td>视频 GMV</td></tr>
+          <tr><td>2</td><td>list[].cardGmvRatio</td><td>string</td><td>卡牌 GMV 占比，如「60.0%」</td></tr>
+          <tr><td>2</td><td>list[].liveGmvRatio</td><td>string</td><td>直播 GMV 占比</td></tr>
+          <tr><td>2</td><td>list[].videoGmvRatio</td><td>string</td><td>视频 GMV 占比</td></tr>
+          <tr><td>2</td><td>list[].cardTradeAmount</td><td>number</td><td>卡牌交易额</td></tr>
+          <tr><td>2</td><td>list[].cardDealQty</td><td>number</td><td>卡牌成交件数</td></tr>
+          <tr><td>2</td><td>list[].bizHangerQty</td><td>number</td><td>业务挂载数</td></tr>
+          <tr><td>2</td><td>list[].editHangerQty</td><td>number</td><td>编辑挂载数</td></tr>
+          <tr><td>2</td><td>list[].totalHangerQty</td><td>number</td><td>挂载总数</td></tr>
+          <tr><td>2</td><td>list[].gmvmaxConsume</td><td>number</td><td>GMV 最大消耗</td></tr>
+          <tr><td>2</td><td>list[].adOrderQty</td><td>number</td><td>广告订单数</td></tr>
+          <tr><td>2</td><td>list[].adGmv</td><td>number</td><td>广告 GMV</td></tr>
+          <tr><td>2</td><td>list[].totalGmv</td><td>number</td><td>GMV 合计</td></tr>
+          <tr><td>2</td><td>list[].totalAcoas</td><td>number</td><td>总 ACoAS</td></tr>
+          <tr><td>2</td><td>list[]._compare</td><td>list</td><td>可选。对比期同序字段数组，与 list 项字段顺序对应，用于前端展示「当期 / 对比期 / 环比」</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>list[] 与前端表头 51 列对应</strong>（<code>需求二-数据看板.html</code> 表头顺序）</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>表头名称</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>日期</td><td>date</td><td>string</td><td>YYYY-MM-DD</td></tr>
+          <tr><td>2</td><td>PID</td><td>pid</td><td>string</td><td>—</td></tr>
+          <tr><td>3</td><td>主推SPU</td><td>spu</td><td>string</td><td>—</td></tr>
+          <tr><td>4</td><td>分析</td><td>—</td><td>—</td><td>前端操作列，接口可不返或返空</td></tr>
+          <tr><td>5</td><td>客单价</td><td>atv</td><td>number</td><td>GMV 情况-客单价</td></tr>
+          <tr><td>6</td><td>平均补贴/单</td><td>subsidyPer</td><td>number</td><td>—</td></tr>
+          <tr><td>7</td><td>财务GMV</td><td>financialGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>8</td><td>商品交易总额4</td><td>tradeAmount</td><td>number</td><td>—</td></tr>
+          <tr><td>9</td><td>成交件数5</td><td>dealQty</td><td>number</td><td>—</td></tr>
+          <tr><td>10</td><td>订单数6</td><td>orderQty</td><td>number</td><td>—</td></tr>
+          <tr><td>11</td><td>商品卡GMV31</td><td>cardGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>12</td><td>直播GMV15</td><td>liveGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>13</td><td>短视频GMV23</td><td>videoGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>14</td><td>商品卡GMV占比</td><td>cardGmvRatio</td><td>string</td><td>如 60.0%</td></tr>
+          <tr><td>15</td><td>直播GMV占比</td><td>liveGmvRatio</td><td>string</td><td>—</td></tr>
+          <tr><td>16</td><td>短视频GMV占比</td><td>videoGmvRatio</td><td>string</td><td>—</td></tr>
+          <tr><td>17</td><td>商品卡商品交易总额33</td><td>cardTradeAmount</td><td>number</td><td>—</td></tr>
+          <tr><td>18</td><td>商品卡成交件数32</td><td>cardDealQty</td><td>number</td><td>—</td></tr>
+          <tr><td>19</td><td>客单价</td><td>cardAtv</td><td>number</td><td>商品卡-客单价</td></tr>
+          <tr><td>20</td><td>曝光33</td><td>cardExposure</td><td>number</td><td>商品卡曝光</td></tr>
+          <tr><td>21</td><td>商品卡片的页面浏览次数36</td><td>cardPageView</td><td>number</td><td>—</td></tr>
+          <tr><td>22</td><td>去重浏览35</td><td>cardUvView</td><td>number</td><td>—</td></tr>
+          <tr><td>23</td><td>去重客户36</td><td>cardUvUser</td><td>number</td><td>—</td></tr>
+          <tr><td>24</td><td>商品卡点击37</td><td>cardClick</td><td>number</td><td>—</td></tr>
+          <tr><td>25</td><td>商品卡转化38</td><td>cardConvert</td><td>number</td><td>—</td></tr>
+          <tr><td>26</td><td>商品卡短视频商品交易总额25</td><td>cardVideoTradeAmount</td><td>number</td><td>—</td></tr>
+          <tr><td>27</td><td>短视频成交件数24</td><td>videoDealQty</td><td>number</td><td>—</td></tr>
+          <tr><td>28</td><td>客单价</td><td>videoAtv</td><td>number</td><td>短视频-客单价</td></tr>
+          <tr><td>29</td><td>视频曝光次数25</td><td>videoExposure</td><td>number</td><td>—</td></tr>
+          <tr><td>30</td><td>来自视频的页面浏览次数28</td><td>videoPageView</td><td>number</td><td>—</td></tr>
+          <tr><td>31</td><td>来自视频的去重页面浏览次数27</td><td>videoUvView</td><td>number</td><td>—</td></tr>
+          <tr><td>32</td><td>视频去重商品客户数28</td><td>videoUvUser</td><td>number</td><td>—</td></tr>
+          <tr><td>33</td><td>视频点击率29</td><td>videoClickRate</td><td>string</td><td>如 12.5%</td></tr>
+          <tr><td>34</td><td>视频转化率30</td><td>videoConvertRate</td><td>string</td><td>—</td></tr>
+          <tr><td>35</td><td>商务挂车量</td><td>bizHangerQty</td><td>number</td><td>—</td></tr>
+          <tr><td>36</td><td>剪辑挂车量</td><td>editHangerQty</td><td>number</td><td>—</td></tr>
+          <tr><td>37</td><td>合计挂车量</td><td>totalHangerQty</td><td>number</td><td>—</td></tr>
+          <tr><td>38</td><td>商务开单视频</td><td>bizOpenVideoQty</td><td>number</td><td>—</td></tr>
+          <tr><td>39</td><td>剪辑开单视频</td><td>editOpenVideoQty</td><td>number</td><td>—</td></tr>
+          <tr><td>40</td><td>开单视频合计</td><td>totalOpenVideoQty</td><td>number</td><td>—</td></tr>
+          <tr><td>41</td><td>vas消耗</td><td>vasConsume</td><td>number</td><td>—</td></tr>
+          <tr><td>42</td><td>GMVMAX消耗</td><td>gmvmaxConsume</td><td>number</td><td>—</td></tr>
+          <tr><td>43</td><td>广告总消耗</td><td>adTotalConsume</td><td>number</td><td>—</td></tr>
+          <tr><td>44</td><td>广告单量</td><td>adOrderCount</td><td>number</td><td>—</td></tr>
+          <tr><td>45</td><td>广告订单数</td><td>adOrderQty</td><td>number</td><td>—</td></tr>
+          <tr><td>46</td><td>广告GMV</td><td>adGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>47</td><td>总GMV</td><td>totalGmv</td><td>number</td><td>—</td></tr>
+          <tr><td>48</td><td>总ACOAS</td><td>totalAcoas</td><td>number</td><td>—</td></tr>
+          <tr><td>49</td><td>广告ROI（测算）</td><td>adRoi</td><td>number 或 string</td><td>—</td></tr>
+          <tr><td>50</td><td>广告AcoAs</td><td>adAcoas</td><td>number</td><td>—</td></tr>
+          <tr><td>51</td><td>广告ROI设置数</td><td>adRoiSettingCount</td><td>number</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>接口返回的 <code>list[].*</code> 字段名可与上表「建议字段名」一致，顺序与前端表头一致即可；若返回数组则按上表序号 1～51 顺序。</p>
+    <h3>3.3 每日明细接口（点击「每日」按钮）</h3>
+    <p>对应页面：<code>需求二-数据看板.html</code>。主表每行 PID 旁有「每日」按钮，点击后在该行下方展开该 PID 在<strong>当前查询日期范围内</strong>的按日明细表（表头与主表一致，每行一天）。</p>
+    <pre><code>GET /api/bi/tk/pid/dashboard/daily</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>pid</td><td>string</td><td>是</td><td>PID</td></tr>
+          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称</td></tr>
+          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD（与主表查询条件一致）</td></tr>
+          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <p>返回该 PID + 店铺在 startDate～endDate 内<strong>按日</strong>的明细列表，结构与 3.2 主表 <code>list[]</code> 单条一致（51 列字段），无分页；按日期正序。字段：<code>pid</code>、<code>storeName</code>、<code>startDate</code>、<code>endDate</code>、<code>list</code>（每项含 date、pid、spu 及与主表相同的 51 列字段，可不含 <code>_compare</code>）。前端用 <code>list</code> 在「每日」展开区域渲染与主表同表头的表格，一行一天。</p>
+    <h3>3.4 弹框：PID 明细</h3>
+    <p>与 <strong>2.4</strong> 相同，使用 <code>GET /api/bi/tk/pid/detail</code>。数据看板主表点击某行「分析」时，<strong>固定该行的 SPU（及店铺）</strong>，打开弹框后用户可在弹框内<strong>再筛选</strong>：选择时间范围（startDate、endDate）、日期维度（gran：日/周/月），每次变更后前端带当前弹框参数重新请求接口，刷新 51 列明细表与合计行。参数：<code>spu</code>、<code>storeName</code>（来自点击行）、<code>startDate</code>、<code>endDate</code>、<code>gran</code>（来自弹框内选择）。</p>
+    <h3>3.5 导出</h3>
+    <pre><code>GET /api/bi/tk/pid/dashboard/export</code></pre>
+    <p>查询参数同 3.2（不含 page、pageSize），返回 CSV，列与主表一致。</p>
+    <hr />
+
+    <h2>四、接口总览</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>页面</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>需求一 店铺统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats</code></td></tr>
+          <tr><td>2</td><td>需求一 店铺统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats/export</code></td></tr>
+          <tr><td>3</td><td>需求二 商品统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats</code></td></tr>
+          <tr><td>4</td><td>需求二 商品统计</td><td>弹框 AI 分析</td><td>POST</td><td><code>/api/bi/tk/sales/product-stats/ai-analysis</code></td></tr>
+          <tr><td>5</td><td>需求二 商品统计 / 需求三 数据看板</td><td>弹框 PID 明细</td><td>GET</td><td><code>/api/bi/tk/pid/detail</code></td></tr>
+          <tr><td>6</td><td>需求二 商品统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats/export</code></td></tr>
+          <tr><td>7</td><td>需求三 数据看板</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard</code></td></tr>
+          <tr><td>8</td><td>需求三 数据看板</td><td>每日明细</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/daily</code></td></tr>
+          <tr><td>9</td><td>需求三 数据看板</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/export</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <hr />
+    <p><em>文档版本：按 店铺统计、商品统计、需求二-数据看板 三个 HTML 及其中弹框整理，数据规则以需求文档为准。</em></p>
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="接口文档.md">接口文档.md（源文件）</a></p>
+  </div>
+</body>
+</html>

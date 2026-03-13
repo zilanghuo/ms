@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求一：店铺统计 — Demo</title>
+  <title>店铺统计</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -159,6 +159,7 @@
     <div class="action-bar">
       <div class="btns">
         <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+        <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
       </div>
       <div class="export-tip">
         导出字段：店铺、小计、各期间明细（与下表一致，用于播报到企微项目群）<br/>
@@ -178,6 +179,7 @@
 
     <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" crossorigin="anonymous"></script>
   <script>
     (function() {
       var regionTree = [
@@ -738,6 +740,36 @@
         render();
       };
       document.getElementById('btnExport').onclick = doExport;
+
+      function doExportImage() {
+        var tableCard = document.querySelector('.table-card');
+        var tbody = document.getElementById('resultBody');
+        if (!tbody || !tbody.querySelector('tr') || tbody.querySelector('tr').classList.contains('empty-tip')) {
+          alert('请先选择店铺并点击「查询」后再导出图片');
+          return;
+        }
+        if (typeof html2canvas !== 'undefined') {
+          html2canvas(tableCard, {
+            useCORS: true,
+            allowTaint: true,
+            scale: 2,
+            logging: false,
+            backgroundColor: '#ffffff'
+          }).then(function(canvas) {
+            var link = document.createElement('a');
+            var range = getDateRange();
+            var ml = curMetric === 'qty' ? '销量' : '销售额';
+            link.download = '店铺统计_' + ml + '_' + (range.start || '') + '_' + (range.end || '') + '.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+          }).catch(function(err) {
+            alert('导出图片失败：' + (err && err.message ? err.message : '未知错误'));
+          });
+        } else {
+          alert('导出图片功能依赖 html2canvas，请确保脚本已加载');
+        }
+      }
+      document.getElementById('btnExportImg').onclick = doExportImage;
 
       function initColResize() {
         var table = document.getElementById('resultTable');

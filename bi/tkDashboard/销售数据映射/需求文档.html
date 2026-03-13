@@ -67,16 +67,19 @@
       <table>
         <thead><tr><th>日期</th><th>店铺</th><th>订单数</th></tr></thead>
         <tbody>
-          <tr><td>2月27日（美国时间）</td><td>1店（美区跨境1店）</td><td>230</td></tr>
-          <tr><td>2月27日（美国时间）</td><td>2店（美区跨境2店）</td><td>0</td></tr>
-          <tr><td>2月27日（美国时间）</td><td>3店（美区跨境3店）</td><td>3</td></tr>
-          <tr><td>2月27日（美国时间）</td><td>英区（英国直邮店）</td><td>12</td></tr>
-          <tr><td>2月27日（美国时间）</td><td>独立站</td><td>0</td></tr>
-          <tr><td>2月27日（美国时间）</td><td><strong>合计</strong></td><td><strong>245</strong></td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 欧洲直邮店 IT</td><td>12</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 欧洲直邮店 FR</td><td>8</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 欧洲直邮店 ES</td><td>5</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 欧洲直邮店 DE</td><td>10</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 美区特 1 店 US</td><td>230</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 美区特 2 店 US</td><td>0</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国 TK・艾斯特尼 - 美区特 3 店 US</td><td>3</td></tr>
+          <tr><td>2月27日（美国时间）</td><td>美国TK独立站-shopify:Global</td><td>0</td></tr>
+          <tr><td>2月27日（美国时间）</td><td><strong>合计</strong></td><td><strong>268</strong></td></tr>
         </tbody>
       </table>
     </div>
-    <p><em>企微发送文案示例：</em><br /><code>2月27日（美国时间）订单数：1店230 / 2店0 / 3店3 / 英区12 / 独立站0 @所有人</code></p>
+    <p><em>企微发送文案示例：</em><br /><code>2月27日（美国时间）订单数：欧洲直邮店 IT 12 / FR 8 / ES 5 / DE 10 / 美区特1店 230 / 美区特2店 0 / 美区特3店 3 / 独立站 0 @所有人</code></p>
     <h3>1.4 映射</h3>
     <p>本需求不涉及独立映射表，直接基于「全渠道销售订单表」的店铺、平台订单编号做去重统计。源数据取数方式见本文「三、源数据统一梳理」。</p>
     <hr />
@@ -104,7 +107,7 @@
       <li><strong>近两天差异</strong>：基于近 7 天数据，计算 SPU 下 PID 销量变化，将结果播报到企微项目群。</li>
       <li><strong>异常播报</strong>：基于上一步结果，用 AI 识别销量增减异常的 PID，做异常情况播报。</li>
     </ol>
-    <p><strong>涉及店铺（先做标注）：</strong><br />美国TK独立站-shopify:Global / 美国TK-艾斯特尼-美区跨境1店（先做）/ 美区跨境2店 / 美区跨境3店（先做）/ 美国TK-艾斯特尼-英国直邮店:GB（先做）</p>
+    <p><strong>涉及店铺：</strong><br />美国 TK・艾斯特尼 - 欧洲直邮店 IT / 美国 TK・艾斯特尼 - 欧洲直邮店 FR / 美国 TK・艾斯特尼 - 欧洲直邮店 ES / 美国 TK・艾斯特尼 - 欧洲直邮店 DE / 美国 TK・艾斯特尼 - 美区特 1 店 US / 美国 TK・艾斯特尼 - 美区特 2 店 US / 美国 TK・艾斯特尼 - 美区特 3 店 US / 美国TK独立站-shopify:Global</p>
     <h3>2.3 映射表</h3>
     <ul>
       <li><strong>最终数据表</strong>：<code>TK-独立站数据销量趋势数据</code></li>
@@ -175,7 +178,7 @@
         <tr><td>来源途径</td><td>积加后台</td></tr>
         <tr><td>步骤 1</td><td>积加 → 销售 → 销售订单管理 → 筛选店铺 → 筛选付款时间</td></tr>
         <tr><td>步骤 2</td><td>导出 → 根据所选字段导出 → 导出全渠道销售订单表</td></tr>
-        <tr><td>店铺范围</td><td>美国TK独立站-shopify:Global<br />美国TK-艾斯特尼-美区跨境1店<br />美国TK-艾斯特尼-美区跨境2店<br />美国TK-艾斯特尼-美区跨境3店<br />美国TK-艾斯特尼-英国直邮店:GB</td></tr>
+        <tr><td>店铺范围</td><td>美国 TK・艾斯特尼 - 欧洲直邮店 IT<br />美国 TK・艾斯特尼 - 欧洲直邮店 FR<br />美国 TK・艾斯特尼 - 欧洲直邮店 ES<br />美国 TK・艾斯特尼 - 欧洲直邮店 DE<br />美国 TK・艾斯特尼 - 美区特 1 店 US<br />美国 TK・艾斯特尼 - 美区特 2 店 US<br />美国 TK・艾斯特尼 - 美区特 3 店 US<br />美国TK独立站-shopify:Global</td></tr>
       </table>
     </div>
     <p><img src="docs/全渠道销售订单表-筛选与列表.png" alt="全渠道销售订单表-筛选与列表" /></p>
@@ -187,7 +190,7 @@
         <tr><td>来源途径</td><td>积加后台</td></tr>
         <tr><td>步骤 1</td><td>积加 → 销售 → 商品管理 → 全渠道商品 → 筛选店铺 → 筛选在售</td></tr>
         <tr><td>步骤 2</td><td>导出 → 根据所选字段导出 → 导出全渠道商品表</td></tr>
-        <tr><td>店铺范围</td><td>同上 5 个店铺</td></tr>
+        <tr><td>店铺范围</td><td>同上 8 个店铺</td></tr>
       </table>
     </div>
     <p><img src="docs/全渠道商品表-筛选与列表.png" alt="全渠道商品表-筛选与列表" /></p>

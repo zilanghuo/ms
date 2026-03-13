@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tkDashboard — 需求 Demo</title>
+  <title>tkDashboard</title>
   <style>
     :root {
       --side-bg: #1e293b;
@@ -42,9 +42,17 @@
     <aside class="sidebar">
       <div class="sidebar-brand">tkDashboard</div>
       <nav class="sidebar-nav">
-        <a class="nav-item active" href="#" data-src="销售数据映射/htmls/需求一-每日订单数播报.html" data-breadcrumb="店铺统计">店铺统计</a>
-        <a class="nav-item" href="#" data-src="销售数据映射/htmls/需求二-订单明细与销量趋势.html" data-breadcrumb="商品统计">商品统计</a>
-        <a class="nav-item" href="#" data-src="PID/htmls/需求二-数据看板.html" data-breadcrumb="PID 数据看板">PID数据看板</a>
+        <div class="nav-group">
+          <div class="nav-group-title">需求 Demo</div>
+          <a class="nav-item active" href="#" data-src="销售数据映射/htmls/店铺统计.html" data-breadcrumb="店铺统计">店铺统计</a>
+          <a class="nav-item" href="#" data-src="销售数据映射/htmls/商品统计.html" data-breadcrumb="商品统计">商品统计</a>
+          <a class="nav-item" href="#" data-src="PID/htmls/需求二-数据看板.html" data-breadcrumb="PID 数据看板">PID数据看板</a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">文档</div>
+          <a class="nav-item" href="#" data-src="技术方案/技术方案.html" data-breadcrumb="设计方案">设计方案</a>
+          <a class="nav-item" href="#" data-src="接口设计文档/接口文档.html" data-breadcrumb="接口文档">接口文档</a>
+        </div>
       </nav>
     </aside>
     <main class="main-wrap">
@@ -52,7 +60,7 @@
         <div class="header-title" id="pageTitle">店铺统计</div>
         <div class="breadcrumb" id="breadcrumb">tkDashboard / 店铺统计</div>
       </header>
-      <iframe class="content-frame" id="contentFrame" src="销售数据映射/htmls/需求一-每日订单数播报.html" title="子需求内容"></iframe>
+      <iframe class="content-frame" id="contentFrame" src="销售数据映射/htmls/店铺统计.html" title="子需求内容"></iframe>
     </main>
   </div>
   <script>
