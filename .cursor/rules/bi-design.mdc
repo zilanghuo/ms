@@ -1,0 +1,16 @@
+---
+description: BI 看板文档体系 — bi 目录下需求文档、接口文档、技术方案、表结构、原型的编写约定（@bi-design 时应用）
+globs: bi/**/*
+alwaysApply: false
+---
+
+# bi-design：BI 看板文档体系
+
+本规则生效时，按 **bi 目录** 文档规范处理：原型、需求文档、接口文档、技术方案、表结构设计。
+
+- **文档形态**：HTML 单文件为主，统一样式（`.doc`、`.table-wrap`、`--accent` 等），参考 `bi/tkDashboard` 下任意文档的 `<style>`。
+- **路径约定**：入口 `index.html`；需求文档 `*/需求文档.html`；原型 `*/htmls/*.html`；接口文档 `接口设计文档/接口文档.html`；技术方案与表结构 `技术方案/*.html`。
+- **接口文档**：每个接口含「接口地址、请求体示例+参数表、响应结构、rows/childList 单条字段表、响应 data 示例、落库/导出字段备注」；第三方对接单独 h2，文末接口总览序号从 1 连续。
+- **需求文档**：按需求一/二分 h2，含优先级表、需求描述、流程、目标结果，链到 `htmls/` 原型。
+
+**完整约定**：见 `.cursor/skills/bi-design/SKILL.md`；目录与落库字段速查见 `.cursor/skills/bi-design/reference/structure.md`。修改 bi 下文档前可先阅读对应现有 HTML 保持风格一致。

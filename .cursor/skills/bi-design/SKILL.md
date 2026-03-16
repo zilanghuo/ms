@@ -1,5 +1,5 @@
 ---
-name: bi-dashboard-docs
+name: bi-design
 description: >-
   针对项目内 bi 目录（及 bi 下所有子目录）的文档与原型工作。指导编写与维护原型设计、需求文档、接口文档、技术方案、表结构设计。采用 HTML 单文件、统一样式与章节结构。当工作路径在 bi/ 下、或用户提到 bi 目录、BI 看板、tkDashboard、需求文档、接口文档、技术方案、表结构、落库字段时使用本 skill。
 ---
