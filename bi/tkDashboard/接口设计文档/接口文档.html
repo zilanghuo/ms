@@ -61,6 +61,122 @@
     <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
     <hr />
 
+    <h2>零、下拉选项接口（三个页面共用）</h2>
+    <p>店铺统计、商品统计、PID 数据看板三个页面均有「站点」级联选择与「店铺」下拉，店铺可根据站点（区域/国家）筛选。以下接口供前端初始化或切换时调用。</p>
+    <h3>0.1 站点级联选项</h3>
+    <p>用于「站点」级联选择器：左侧为区域（如欧洲、北美洲），右侧为区域下的国家/站点。前端根据此数据渲染级联面板，选择后用于筛选店铺列表。</p>
+    <pre><code>GET /api/bi/tk/options/sites</code></pre>
+    <p><strong>查询参数</strong>：无。</p>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "regions": [
+    {
+      "name": "欧洲",
+      "children": [
+        { "label": "德国", "code": "DE" },
+        { "label": "西班牙", "code": "ES" },
+        { "label": "法国", "code": "FR" },
+        { "label": "意大利", "code": "IT" }
+      ]
+    },
+    {
+      "name": "北美洲",
+      "children": [
+        { "label": "美国", "code": "US" }
+      ]
+    },
+    {
+      "name": "其它",
+      "children": [
+        { "label": "Global", "code": "Global" }
+      ]
+    }
+  ]
+}</code></pre>
+    <p><strong>字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>regions</td><td>list</td><td>区域列表，顺序与前端级联左侧一致</td></tr>
+          <tr><td>regions[].name</td><td>string</td><td>区域名称，如「欧洲」「北美洲」</td></tr>
+          <tr><td>regions[].children</td><td>list</td><td>该区域下的国家/站点选项</td></tr>
+          <tr><td>regions[].children[].label</td><td>string</td><td>展示名称，如「德国」「美国」</td></tr>
+          <tr><td>regions[].children[].code</td><td>string</td><td>国家/站点代码，用于请求店铺列表，如 DE、US、Global</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>0.2 店铺列表（按站点筛选）</h3>
+    <p>根据站点获取店铺列表。不传 <code>siteCode</code> 时返回全部店铺；传 <code>siteCode</code> 时返回该站点下的店铺。前端在用户选择站点（国家）后调用本接口刷新「店铺」下拉选项。</p>
+    <pre><code>GET /api/bi/tk/options/stores</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>siteCode</td><td>string</td><td>否</td><td>站点代码，来自 0.1 的 <code>children[].code</code>，如 DE、US、Global。不传或空=全部店铺；传站点代码=该站点下的店铺</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "stores": [
+    { "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US", "siteCode": "US" },
+    { "storeName": "美国 TK・艾斯特尼 - 美区特 2 店 US", "siteCode": "US" },
+    { "storeName": "美国 TK・艾斯特尼 - 美区特 3 店 US", "siteCode": "US" },
+    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 DE", "siteCode": "DE" },
+    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 ES", "siteCode": "ES" },
+    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 FR", "siteCode": "FR" },
+    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 IT", "siteCode": "IT" },
+    { "storeName": "美国TK独立站-shopify:Global", "siteCode": "Global" }
+  ]
+}</code></pre>
+    <p><strong>字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>stores</td><td>list</td><td>店铺列表，顺序与前端下拉一致</td></tr>
+          <tr><td>stores[].storeName</td><td>string</td><td>店铺名称，用于下拉展示及主表接口的 storeName 参数</td></tr>
+          <tr><td>stores[].siteCode</td><td>string</td><td>所属站点代码，与 0.1 的 code 对应</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>前端使用流程</strong></p>
+    <ul>
+      <li>页面加载：调用 0.1 获取站点级联数据；调用 0.2（不传 siteCode）获取全部店铺，初始化「店铺」下拉。</li>
+      <li>用户选择站点（国家）：调用 0.2，传 <code>siteCode</code>，刷新「店铺」下拉选项。</li>
+      <li>用户清空站点：调用 0.2（不传参数），恢复全部店铺。</li>
+    </ul>
+    <h3>0.3 货币选项（店铺统计-销售额模式）</h3>
+    <p>店铺统计页切换到「销售额」指标时，显示货币下拉，用于统一展示币种。前端在进入销售额模式时调用本接口初始化货币下拉选项。</p>
+    <pre><code>GET /api/bi/tk/options/currencies</code></pre>
+    <p><strong>查询参数</strong>：无。</p>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "currencies": [
+    { "code": "", "label": "全部" },
+    { "code": "original", "label": "原币种" },
+    { "code": "CNY", "label": "CNY(本位币)" },
+    { "code": "USD", "label": "USD" },
+    { "code": "EUR", "label": "EUR" },
+    { "code": "GBP", "label": "GBP" },
+    { "code": "CAD", "label": "CAD" }
+  ]
+}</code></pre>
+    <p><strong>字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>currencies</td><td>list</td><td>货币选项列表，顺序与前端下拉一致</td></tr>
+          <tr><td>currencies[].code</td><td>string</td><td>货币代码，用于主表接口的 displayCurrency 参数。空=全部；original=原币种；CNY/USD/EUR/GBP/CAD 等=统一换算展示</td></tr>
+          <tr><td>currencies[].label</td><td>string</td><td>下拉展示名称</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <hr />
+
     <h2>一、需求一：每日订单数播报（店铺统计）</h2>
     <p>对应页面：<code>店铺统计.html</code>。无弹框。</p>
     <h3>1.1 查询条件</h3>
@@ -314,7 +430,12 @@
         </tbody>
       </table>
     </div>
+    <p><strong>参与对比的字段</strong></p>
+    <p>除 date、pid、spu、分析 外的 <strong>47 个数据列</strong>统一以数组返回，结构一致：<code>[当前值, 对比值, 环比百分比]</code>。未开启对比（未传 compareStart/compareEnd）时，第二、第三项为空（<code>null</code> 或 <code>""</code>）；开启对比时，对比值、环比由后端计算并填入，环比格式如 <code>"+12.5%"</code>、<code>"-3.2%"</code>，无法计算时可返回 <code>null</code> 或 <code>"—"</code>。</p>
+    <p>参与对比的字段（序号 5～51）：atv, subsidyPer, financialGmv, tradeAmount, dealQty, orderQty, cardGmv, liveGmv, videoGmv, cardGmvRatio, liveGmvRatio, videoGmvRatio, cardTradeAmount, cardDealQty, cardAtv, cardExposure, cardPageView, cardUvView, cardUvUser, cardClick, cardConvert, cardVideoTradeAmount, videoDealQty, videoAtv, videoExposure, videoPageView, videoUvView, videoUvUser, videoClickRate, videoConvertRate, bizHangerQty, editHangerQty, totalHangerQty, bizOpenVideoQty, editOpenVideoQty, totalOpenVideoQty, vasConsume, gmvmaxConsume, adTotalConsume, adOrderCount, adOrderQty, adGmv, totalGmv, totalAcoas, adRoi, adAcoas, adRoiSettingCount。</p>
     <p><strong>响应 data</strong></p>
+    <p>上述 47 个字段始终为三元数组 <code>[当前值, 对比值, 环比百分比]</code>；未开启对比时对比值、环比为空。</p>
+    <p><em>示例一：未开启对比（第二、第三项为空）</em></p>
     <pre><code>{
   "total": 100,
   "page": 1,
@@ -324,29 +445,113 @@
       "date": "2026-02-23",
       "pid": "1729773126172578149",
       "spu": "AL-W0161",
-      "atv": 68,
-      "subsidyPer": 3.82,
-      "financialGmv": 28500,
-      "tradeAmount": 28500,
-      "dealQty": 419,
-      "orderQty": 377,
-      "cardGmv": 17100,
-      "liveGmv": 7125,
-      "videoGmv": 4275,
-      "cardGmvRatio": "60.0%",
-      "liveGmvRatio": "25.0%",
-      "videoGmvRatio": "15.0%",
-      "cardTradeAmount": 17442,
-      "cardDealQty": 259,
-      "bizHangerQty": 25,
-      "editHangerQty": 15,
-      "totalHangerQty": 40,
-      "gmvmaxConsume": 350,
-      "adOrderQty": 56,
-      "adGmv": 3420,
-      "totalGmv": 29800,
-      "totalAcoas": 81.43,
-      "_compare": [68, 3.80, 27200, "…"]
+      "atv": [68, null, null],
+      "subsidyPer": [3.82, null, null],
+      "financialGmv": [28500, null, null],
+      "tradeAmount": [28500, null, null],
+      "dealQty": [419, null, null],
+      "orderQty": [377, null, null],
+      "cardGmv": [17100, null, null],
+      "liveGmv": [7125, null, null],
+      "videoGmv": [4275, null, null],
+      "cardGmvRatio": ["60.0%", null, null],
+      "liveGmvRatio": ["25.0%", null, null],
+      "videoGmvRatio": ["15.0%", null, null],
+      "cardTradeAmount": [17442, null, null],
+      "cardDealQty": [259, null, null],
+      "cardAtv": [67, null, null],
+      "cardExposure": [12500, null, null],
+      "cardPageView": [8200, null, null],
+      "cardUvView": [6500, null, null],
+      "cardUvUser": [4200, null, null],
+      "cardClick": [520, null, null],
+      "cardConvert": [4.16, null, null],
+      "cardVideoTradeAmount": [5125, null, null],
+      "videoDealQty": [92, null, null],
+      "videoAtv": [56, null, null],
+      "videoExposure": [5800, null, null],
+      "videoPageView": [3500, null, null],
+      "videoUvView": [2800, null, null],
+      "videoUvUser": [1850, null, null],
+      "videoClickRate": ["4.2%", null, null],
+      "videoConvertRate": ["2.8%", null, null],
+      "bizHangerQty": [25, null, null],
+      "editHangerQty": [15, null, null],
+      "totalHangerQty": [40, null, null],
+      "bizOpenVideoQty": [12, null, null],
+      "editOpenVideoQty": [8, null, null],
+      "totalOpenVideoQty": [20, null, null],
+      "vasConsume": [800, null, null],
+      "gmvmaxConsume": [350, null, null],
+      "adTotalConsume": [1150, null, null],
+      "adOrderCount": [48, null, null],
+      "adOrderQty": [56, null, null],
+      "adGmv": [3420, null, null],
+      "totalGmv": [29800, null, null],
+      "totalAcoas": [81.43, null, null],
+      "adRoi": [9.77, null, null],
+      "adAcoas": ["10.23%", null, null],
+      "adRoiSettingCount": [2, null, null]
+    }
+  ]
+}</code></pre>
+    <p><em>示例二：开启对比（compareStart/compareEnd 有值）时，第二、第三项有值</em></p>
+    <pre><code>{
+  "total": 100,
+  "page": 1,
+  "pageSize": 20,
+  "list": [
+    {
+      "date": "2026-02-23",
+      "pid": "1729773126172578149",
+      "spu": "AL-W0161",
+      "atv": [68, 65, "+4.62%"],
+      "subsidyPer": [3.82, 3.80, "+0.53%"],
+      "financialGmv": [28500, 27200, "+4.78%"],
+      "tradeAmount": [28500, 27200, "+4.78%"],
+      "dealQty": [419, 398, "+5.28%"],
+      "orderQty": [377, 360, "+4.72%"],
+      "cardGmv": [17100, 16320, "+4.78%"],
+      "liveGmv": [7125, 6800, "+4.78%"],
+      "videoGmv": [4275, 4080, "+4.78%"],
+      "cardGmvRatio": ["60.0%", "60.0%", "0%"],
+      "liveGmvRatio": ["25.0%", "25.0%", "0%"],
+      "videoGmvRatio": ["15.0%", "15.0%", "0%"],
+      "cardTradeAmount": [17442, 16646, "+4.78%"],
+      "cardDealQty": [259, 247, "+4.86%"],
+      "cardAtv": [67, 64, "+4.69%"],
+      "cardExposure": [12500, 12000, "+4.17%"],
+      "cardPageView": [8200, 7900, "+3.80%"],
+      "cardUvView": [6500, 6200, "+4.84%"],
+      "cardUvUser": [4200, 4000, "+5.00%"],
+      "cardClick": [520, 495, "+5.05%"],
+      "cardConvert": [4.16, 3.96, "+5.05%"],
+      "cardVideoTradeAmount": [5125, 4890, "+4.81%"],
+      "videoDealQty": [92, 88, "+4.55%"],
+      "videoAtv": [56, 54, "+3.70%"],
+      "videoExposure": [5800, 5500, "+5.45%"],
+      "videoPageView": [3500, 3320, "+5.42%"],
+      "videoUvView": [2800, 2650, "+5.66%"],
+      "videoUvUser": [1850, 1750, "+5.71%"],
+      "videoClickRate": ["4.2%", "4.0%", "+5.00%"],
+      "videoConvertRate": ["2.8%", "2.7%", "+3.70%"],
+      "bizHangerQty": [25, 23, "+8.70%"],
+      "editHangerQty": [15, 14, "+7.14%"],
+      "totalHangerQty": [40, 37, "+8.11%"],
+      "bizOpenVideoQty": [12, 11, "+9.09%"],
+      "editOpenVideoQty": [8, 7, "+14.29%"],
+      "totalOpenVideoQty": [20, 18, "+11.11%"],
+      "vasConsume": [800, 750, "+6.67%"],
+      "gmvmaxConsume": [350, 330, "+6.06%"],
+      "adTotalConsume": [1150, 1080, "+6.48%"],
+      "adOrderCount": [48, 45, "+6.67%"],
+      "adOrderQty": [56, 52, "+7.69%"],
+      "adGmv": [3420, 3260, "+4.91%"],
+      "totalGmv": [29800, 28400, "+4.93%"],
+      "totalAcoas": [81.43, 80.0, "+1.79%"],
+      "adRoi": [9.77, 9.45, "+3.39%"],
+      "adAcoas": ["10.23%", "10.12%", "+1.09%"],
+      "adRoiSettingCount": [2, 2, "0%"]
     }
   ]
 }</code></pre>
@@ -384,7 +589,6 @@
           <tr><td>2</td><td>list[].adGmv</td><td>number</td><td>广告 GMV</td></tr>
           <tr><td>2</td><td>list[].totalGmv</td><td>number</td><td>GMV 合计</td></tr>
           <tr><td>2</td><td>list[].totalAcoas</td><td>number</td><td>总 ACoAS</td></tr>
-          <tr><td>2</td><td>list[]._compare</td><td>list</td><td>可选。对比期同序字段数组，与 list 项字段顺序对应，用于前端展示「当期 / 对比期 / 环比」</td></tr>
         </tbody>
       </table>
     </div>
@@ -447,7 +651,7 @@
         </tbody>
       </table>
     </div>
-    <p>接口返回的 <code>list[].*</code> 字段名可与上表「建议字段名」一致，顺序与前端表头一致即可；若返回数组则按上表序号 1～51 顺序。</p>
+    <p>接口返回的 <code>list[].*</code> 字段名与上表「建议字段名」一致，顺序与前端表头一致。序号 5～51 的字段均为三元数组 <code>[当前值, 对比值, 环比百分比]</code>，未开启对比时后两项为 <code>null</code>。</p>
     <h3>3.3 每日明细接口（点击「每日」按钮）</h3>
     <p>对应页面：<code>需求二-数据看板.html</code>。主表每行 PID 旁有「每日」按钮，点击后在该行下方展开该 PID 在<strong>当前查询日期范围内</strong>的按日明细表（表头与主表一致，每行一天）。</p>
     <pre><code>GET /api/bi/tk/pid/dashboard/daily</code></pre>
@@ -472,26 +676,524 @@
     <p>查询参数同 3.2（不含 page、pageSize），返回 CSV，列与主表一致。</p>
     <hr />
 
+    <h2>五、积加对接：全渠道商品接口</h2>
+    <p>对接积加（Jijia）全渠道商品接口，用于获取商品分组及 SKU 明细。以下为请求与响应格式约定。</p>
+    <p><strong>接口地址</strong></p>
+    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/parent-page</code></pre>
+    <h3>5.1 请求</h3>
+    <p><strong>请求体示例</strong></p>
+    <pre><code>{
+  "marketIds": ["1000017"],
+  "salesState": "AVAILABLE_FOR_SALE",
+  "vague": false,
+  "page": 1,
+  "pagesize": 20
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>marketIds</td><td>string[]</td><td>店铺/市场 ID 列表，如 ["1000017"]</td></tr>
+          <tr><td>salesState</td><td>string</td><td>销售状态筛选，如 AVAILABLE_FOR_SALE（在售）</td></tr>
+          <tr><td>vague</td><td>boolean</td><td>是否模糊查询</td></tr>
+          <tr><td>page</td><td>number</td><td>页码，从 1 开始</td></tr>
+          <tr><td>pagesize</td><td>number</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>5.2 响应结构</h3>
+    <p>根结构：<code>traceId</code>（string|null）、<code>code</code>（number）、<code>success</code>（number）、<code>data</code>（object）。<code>data</code> 内含：<code>total</code>（总条数）、<code>rows</code>（商品分组列表）、<code>condition</code>（回显的查询条件）、<code>from</code>、<code>page</code>、<code>pagesize</code>、<code>footer</code>（可为 null）。</p>
+    <p><code>data.rows[]</code> 每项为商品组，主要字段：<code>groupNum</code>、<code>groupKey</code>、<code>childIdList</code>（子项 ID 数组）、<code>childList</code>（子项明细数组）、<code>childSkuList</code>（SKU 编码数组）、<code>groupItemId</code>、<code>listingTagParam</code>、<code>mainImageUrl</code>、<code>marketId</code>、<code>marketName</code>、<code>platformCode</code>、<code>platformEnName</code>、<code>productManagerNames</code>、<code>selfDeliveryInventory</code>、<code>unfold</code> 等。</p>
+    <p><strong>childList 单条对象字段（data.rows[].childList[] 每一项）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
+          <tr><td>itemId</td><td>string</td><td>商品 itemId</td></tr>
+          <tr><td>itemIdUrl</td><td>string|null</td><td>商品链接</td></tr>
+          <tr><td>groupItemId</td><td>string</td><td>分组商品 ID</td></tr>
+          <tr><td>groupKey</td><td>string</td><td>分组键，如 marketId_itemId</td></tr>
+          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
+          <tr><td>platformEnName</td><td>string</td><td>平台英文名，如 Tiktok自运营</td></tr>
+          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
+          <tr><td>marketName</td><td>string</td><td>市场/店铺名称</td></tr>
+          <tr><td>sku</td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td>msku</td><td>string</td><td>MSKU（与 sku 一致或平台 SKU）</td></tr>
+          <tr><td>skuName</td><td>string</td><td>SKU 名称</td></tr>
+          <tr><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td>listingTitle</td><td>string</td><td>商品标题</td></tr>
+          <tr><td>mainImageUrl</td><td>string</td><td>主图 URL</td></tr>
+          <tr><td>adjustStandardPrice</td><td>number</td><td>调整后标准价</td></tr>
+          <tr><td>salePrice</td><td>number|null</td><td>售价</td></tr>
+          <tr><td>currency</td><td>string</td><td>币种，如 USD</td></tr>
+          <tr><td>currencySymbol</td><td>string</td><td>币种符号，如 $</td></tr>
+          <tr><td>b2bPrice</td><td>number|null</td><td>B2B 价格</td></tr>
+          <tr><td>b2bQuantityType</td><td>string|null</td><td>B2B 数量类型</td></tr>
+          <tr><td>category</td><td>string</td><td>类目编码，如 NW111</td></tr>
+          <tr><td>categoryTree</td><td>string</td><td>类目树，如 一级/二级/三级</td></tr>
+          <tr><td>firstLevelCategory</td><td>string</td><td>一级类目</td></tr>
+          <tr><td>secondLevelCategory</td><td>string</td><td>二级类目</td></tr>
+          <tr><td>thirdLevelCategory</td><td>string</td><td>三级类目</td></tr>
+          <tr><td>platformCategory</td><td>string</td><td>平台类目</td></tr>
+          <tr><td>brand</td><td>string</td><td>品牌</td></tr>
+          <tr><td>brandName</td><td>string|null</td><td>品牌名称</td></tr>
+          <tr><td>platformBrand</td><td>string</td><td>平台品牌</td></tr>
+          <tr><td>salesState</td><td>string</td><td>销售状态码，如 AVAILABLE_FOR_SALE</td></tr>
+          <tr><td>salesStateDesc</td><td>string</td><td>销售状态描述，如在售</td></tr>
+          <tr><td>salesStateDetail</td><td>string</td><td>销售状态明细描述</td></tr>
+          <tr><td>selfDeliveryInventory</td><td>number</td><td>自发货库存</td></tr>
+          <tr><td>fulfillment</td><td>string</td><td>履约方式</td></tr>
+          <tr><td>warehouseId</td><td>number|string|null</td><td>仓库 ID</td></tr>
+          <tr><td>warehouseName</td><td>string|null</td><td>仓库名称</td></tr>
+          <tr><td>firstSalesDate</td><td>string|null</td><td>首次销售日期</td></tr>
+          <tr><td>offerStartDate</td><td>string|null</td><td>促销开始日期</td></tr>
+          <tr><td>offerEndDate</td><td>string|null</td><td>促销结束日期</td></tr>
+          <tr><td>listingTime</td><td>string|null</td><td>上架时间</td></tr>
+          <tr><td>updateTime</td><td>string</td><td>更新时间，如 2026-03-16 12:59:05</td></tr>
+          <tr><td>operationLevel</td><td>string</td><td>运营层级</td></tr>
+          <tr><td>operationState</td><td>string</td><td>运营状态</td></tr>
+          <tr><td>productManagerName</td><td>string</td><td>产品经理姓名</td></tr>
+          <tr><td>listingManagerIdList</td><td>array|null</td><td>Listing 经理 ID 列表</td></tr>
+          <tr><td>listingManagerNames</td><td>array|null</td><td>Listing 经理姓名列表</td></tr>
+          <tr><td>listingTagParam</td><td>object</td><td>标签参数：bizId、bizKey、platformCode</td></tr>
+          <tr><td>listingTagVOList</td><td>array|null</td><td>标签 VO 列表</td></tr>
+          <tr><td>remarks</td><td>string</td><td>备注</td></tr>
+          <tr><td>single</td><td>boolean</td><td>是否单规格</td></tr>
+          <tr><td>sellingPartyId</td><td>number|string|null</td><td>销售方 ID</td></tr>
+          <tr><td>shopeeListingType</td><td>string|null</td><td>Shopee  listing 类型（跨平台字段）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>listingTagParam 结构</strong>：<code>bizId</code>（number）、<code>bizKey</code>（string）、<code>platformCode</code>（string）。</p>
+    <p><strong>响应 data 示例（结构摘要）</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "data": {
+    "total": 99,
+    "condition": { "page": 1, "rows": 20, "pagesize": 20, "sort": "seq", "order": "asc", "marketIds": [1000017], "skuList": null },
+    "from": 0,
+    "page": 1,
+    "pagesize": 20,
+    "footer": null,
+    "rows": [
+      {
+        "groupNum": 56,
+        "groupKey": "1000017_1729416165725475173",
+        "childIdList": [226854, 226853],
+        "childList": [
+          {
+            "id": 226854,
+            "itemId": "1732031340298539365",
+            "itemIdUrl": null,
+            "groupItemId": "1729416165725475173",
+            "groupKey": "1000017_1729416165725475173",
+            "platformCode": "TIKTOK",
+            "platformEnName": "Tiktok自运营",
+            "marketId": 1000017,
+            "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
+            "sku": "ALYMX-DROPSW-DARKGRAY-XL",
+            "msku": "ALYMX-DROPSW-DARKGRAY-XL",
+            "skuName": "N036露肚脐不帽绳-深灰-XL（需压缩）",
+            "spu": "ALYMX-DROPSW",
+            "spuName": "N039露肚脐不帽绳",
+            "listingTitle": "Hatant hoodies for women Hidden Cult Cropped V-Neck Sweatshirt -Vintage Style with Extra Long Sleeves sweatshirt ,True to Size and Flattering, Athletic Fit, Perfect for Women and Teens dealsforyoudays",
+            "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04d02b924fc74ae2b127667de3feccdc~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
+            "adjustStandardPrice": 49.99,
+            "salePrice": null,
+            "currency": "USD",
+            "currencySymbol": "$",
+            "b2bPrice": null,
+            "b2bQuantityType": null,
+            "category": "NW111",
+            "categoryTree": "AL-美亚项目/NvZhuang-女装/NW111-女式+卫衣（洗水）",
+            "firstLevelCategory": "AL-美亚项目",
+            "secondLevelCategory": "NvZhuang-女装",
+            "thirdLevelCategory": "NW111-女式+卫衣（洗水）",
+            "platformCategory": "",
+            "brand": "",
+            "brandName": null,
+            "platformBrand": "",
+            "salesState": "AVAILABLE_FOR_SALE",
+            "salesStateDesc": "在售",
+            "salesStateDetail": "在售",
+            "selfDeliveryInventory": 0,
+            "fulfillment": "",
+            "warehouseId": null,
+            "warehouseName": null,
+            "firstSalesDate": null,
+            "offerStartDate": null,
+            "offerEndDate": null,
+            "listingTime": null,
+            "updateTime": "2026-03-16 12:59:05",
+            "operationLevel": "",
+            "operationState": "",
+            "productManagerName": "李思唯",
+            "listingManagerIdList": null,
+            "listingManagerNames": null,
+            "listingTagParam": { "bizId": 108879, "bizKey": "TIKTOK_108879", "platformCode": "TIKTOK" },
+            "listingTagVOList": null,
+            "remarks": "",
+            "single": false,
+            "sellingPartyId": null,
+            "shopeeListingType": null
+          }
+        ],
+        "childSkuList": ["ALYMX-DROPSW-DARKGRAY-XL", "ALYMX-DROPSW-DARKGRAY-L"],
+        "groupItemId": "1729416165725475173",
+        "listingManagerIdList": null,
+        "listingManagerNames": null,
+        "listingTagParam": { "bizId": 108879, "bizKey": "TIKTOK_108879", "platformCode": "TIKTOK" },
+        "listingTagVOList": null,
+        "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04d02b924fc74ae2b127667de3feccdc~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
+        "marketId": 1000017,
+        "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "operationLevels": null,
+        "operationStates": null,
+        "platformCode": "TIKTOK",
+        "platformEnName": "Tiktok自运营",
+        "productManagerNames": "谢君堂,李思哈",
+        "selfDeliveryInventory": 5015,
+        "unfold": true
+      }
+    ]
+  }
+}</code></pre>
+    <p><strong>导出 Excel / 落库字段明细</strong></p>
+    <p>导出 Excel 及落库时，从 <code>childList</code> 单条对象中取以下字段：<code>groupItemId</code>（父 ASIN）、<code>itemId</code>（ASIN）、<code>marketId</code>、<code>marketName</code>、<code>sku</code>、<code>msku</code>、<code>skuName</code>、<code>spu</code>、<code>spuName</code>、<code>salePrice</code>、<code>adjustStandardPrice</code>、<code>currency</code>、<code>categoryTree</code>、<code>salesState</code>、<code>salesStateDesc</code>、<code>single</code>、<code>mainImageUrl</code>。</p>
+    <hr />
+
+    <h2>六、积加对接：全渠道订单数据</h2>
+    <p>对接积加全渠道订单列表接口，用于按店铺、购买日期等条件分页查询订单及明细。</p>
+    <p><strong>接口地址</strong></p>
+    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/orderListPage</code></pre>
+    <h3>6.1 请求</h3>
+    <p><strong>请求体示例</strong></p>
+    <pre><code>{
+  "marketIds": ["1000017"],
+  "purchaseStartDate": "2026-03-03",
+  "purchaseEndDate": "2026-03-03",
+  "timeType": "MARKET",
+  "sort": "purchaseDate",
+  "order": "desc",
+  "page": 1,
+  "pagesize": 20
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>marketIds</td><td>string[]</td><td>店铺/市场 ID 列表</td></tr>
+          <tr><td>purchaseStartDate</td><td>string</td><td>购买开始日期 YYYY-MM-DD</td></tr>
+          <tr><td>purchaseEndDate</td><td>string</td><td>购买结束日期 YYYY-MM-DD</td></tr>
+          <tr><td>timeType</td><td>string</td><td>时间类型，如 MARKET</td></tr>
+          <tr><td>sort</td><td>string</td><td>排序字段，如 purchaseDate</td></tr>
+          <tr><td>order</td><td>string</td><td>排序方向，asc / desc</td></tr>
+          <tr><td>page</td><td>number</td><td>页码，从 1 开始</td></tr>
+          <tr><td>pagesize</td><td>number</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>6.2 响应结构</h3>
+    <p>根结构：<code>traceId</code>、<code>code</code>、<code>success</code>、<code>data</code>、<code>extObj</code>、<code>messages</code>、<code>error</code>。<code>data</code> 内含 <code>total</code>（总条数）、<code>rows</code>（订单列表）、<code>condition</code>（回显查询条件）、<code>from</code>、<code>page</code>、<code>pagesize</code>、<code>order</code>、<code>footer</code>（可为 null）。<code>data.rows[]</code> 每项为一笔订单。</p>
+    <p><strong>data.rows[] 单条对象字段（订单行）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
+          <tr><td>orderId</td><td>string</td><td>订单号</td></tr>
+          <tr><td>platformId</td><td>string</td><td>平台订单 ID</td></tr>
+          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
+          <tr><td>platformName</td><td>string</td><td>平台名称，如 Tiktok自运营</td></tr>
+          <tr><td>platformOrderNumber</td><td>string</td><td>平台订单编号</td></tr>
+          <tr><td>platformOrderStatus</td><td>string</td><td>平台订单状态，如 已收货</td></tr>
+          <tr><td>platformMarketId</td><td>string</td><td>平台市场 ID</td></tr>
+          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
+          <tr><td>marketName</td><td>string</td><td>市场/店铺名称</td></tr>
+          <tr><td>orderStatus</td><td>number</td><td>订单状态码</td></tr>
+          <tr><td>orderStatusName</td><td>string</td><td>订单状态名，如 已发货</td></tr>
+          <tr><td>orderType</td><td>string</td><td>订单类型</td></tr>
+          <tr><td>orderTotal</td><td>number</td><td>订单总金额</td></tr>
+          <tr><td>currencyCode</td><td>string</td><td>币种代码，如 USD</td></tr>
+          <tr><td>currencySymbol</td><td>string</td><td>币种符号，如 $</td></tr>
+          <tr><td>purchaseDate</td><td>string</td><td>购买日期（市场时间）</td></tr>
+          <tr><td>purchaseDateUtc</td><td>string</td><td>购买日期 UTC</td></tr>
+          <tr><td>paymentTime</td><td>string</td><td>支付时间</td></tr>
+          <tr><td>paymentTimeUtc</td><td>string</td><td>支付时间 UTC</td></tr>
+          <tr><td>paymentMarketTime</td><td>string</td><td>支付时间（市场时间）</td></tr>
+          <tr><td>paymentMethod</td><td>string</td><td>支付方式，如 ApplePay</td></tr>
+          <tr><td>platformOrderDeliveryMarketTime</td><td>string</td><td>平台订单配送市场时间</td></tr>
+          <tr><td>buyerPayAmount</td><td>number</td><td>买家实付金额</td></tr>
+          <tr><td>pointPayAmount</td><td>number|null</td><td>积分支付金额</td></tr>
+          <tr><td>buyerAccountId</td><td>string</td><td>买家账号 ID</td></tr>
+          <tr><td>buyerAccountName</td><td>string</td><td>买家账号名</td></tr>
+          <tr><td>buyerAccountEmail</td><td>string</td><td>买家邮箱</td></tr>
+          <tr><td>buyerMessage</td><td>string|null</td><td>买家留言</td></tr>
+          <tr><td>buyerTaxNumber</td><td>string|null</td><td>买家税号</td></tr>
+          <tr><td>receiverName</td><td>string</td><td>收件人姓名</td></tr>
+          <tr><td>receiverPhone</td><td>string</td><td>收件人电话</td></tr>
+          <tr><td>receiverMobilePhone</td><td>string|null</td><td>收件人手机</td></tr>
+          <tr><td>receiverAddressCountryCode</td><td>string</td><td>国家代码</td></tr>
+          <tr><td>receiverAddressCountry</td><td>string</td><td>国家</td></tr>
+          <tr><td>receiverAddressState</td><td>string</td><td>州/省</td></tr>
+          <tr><td>receiverAddressCity</td><td>string</td><td>城市</td></tr>
+          <tr><td>receiverAddressArea</td><td>string</td><td>区/县</td></tr>
+          <tr><td>receiverAddressStreet</td><td>string|null</td><td>街道</td></tr>
+          <tr><td>receiverAddressDetail1</td><td>string</td><td>地址详情 1</td></tr>
+          <tr><td>receiverAddressDetail2</td><td>string|null</td><td>地址详情 2</td></tr>
+          <tr><td>receiverAddressDetail3</td><td>string|null</td><td>地址详情 3</td></tr>
+          <tr><td>receiverAddressHouseNumber</td><td>string|null</td><td>门牌号</td></tr>
+          <tr><td>receiverAddressPostCode</td><td>string</td><td>邮编</td></tr>
+          <tr><td>earliestShip</td><td>string|null</td><td>最迟发货时间</td></tr>
+          <tr><td>earliestShipUtc</td><td>string|null</td><td>最迟发货时间 UTC</td></tr>
+          <tr><td>lastShip</td><td>string</td><td>最晚发货时间</td></tr>
+          <tr><td>lastShipUtc</td><td>string</td><td>最晚发货时间 UTC</td></tr>
+          <tr><td>earliestDelivery</td><td>string|null</td><td>最早妥投时间</td></tr>
+          <tr><td>earliestDeliveryUtc</td><td>string|null</td><td>最早妥投时间 UTC</td></tr>
+          <tr><td>lastDelivery</td><td>string|null</td><td>最晚妥投时间</td></tr>
+          <tr><td>lastDeliveryUtc</td><td>string|null</td><td>最晚妥投时间 UTC</td></tr>
+          <tr><td>carrier</td><td>string</td><td>承运商</td></tr>
+          <tr><td>shipTrack</td><td>string</td><td>物流单号</td></tr>
+          <tr><td>shipFulfillment</td><td>string</td><td>发货履约方式</td></tr>
+          <tr><td>platformShipFulfillment</td><td>number</td><td>平台发货履约</td></tr>
+          <tr><td>shipNumber</td><td>number</td><td>发货数量</td></tr>
+          <tr><td>shipServiceLevel</td><td>string|null</td><td>物流服务等级</td></tr>
+          <tr><td>shipmentWarehouseId</td><td>number|string|null</td><td>发货仓库 ID</td></tr>
+          <tr><td>refund</td><td>number</td><td>退款标识/金额</td></tr>
+          <tr><td>refundTotalAmount</td><td>number|null</td><td>退款总金额</td></tr>
+          <tr><td>returns</td><td>object|null</td><td>退货信息</td></tr>
+          <tr><td>omsPushStatus</td><td>number</td><td>OMS 推送状态</td></tr>
+          <tr><td>omsPushMessage</td><td>string</td><td>OMS 推送消息</td></tr>
+          <tr><td>createTime</td><td>string</td><td>创建时间</td></tr>
+          <tr><td>createUserName</td><td>string</td><td>创建人</td></tr>
+          <tr><td>lastUpdateDate</td><td>string</td><td>最后更新时间</td></tr>
+          <tr><td>timeZone</td><td>string</td><td>时区，如 US/Pacific</td></tr>
+          <tr><td>bogusFlag</td><td>number</td><td>伪订单标记</td></tr>
+          <tr><td>blockPrivateInfo</td><td>object|null</td><td>脱敏信息</td></tr>
+          <tr><td>sellerOrderId</td><td>string|null</td><td>卖家订单 ID</td></tr>
+          <tr><td>remarks</td><td>string|null</td><td>备注</td></tr>
+          <tr><td>itemVoList</td><td>array</td><td>订单商品明细列表，每项结构见下表</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>data.rows[].itemVoList[] 单条对象字段（订单商品行）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
+          <tr><td>fid</td><td>number</td><td>订单主表 ID</td></tr>
+          <tr><td>itemId</td><td>string</td><td>商品 itemId</td></tr>
+          <tr><td>asin</td><td>string</td><td>ASIN</td></tr>
+          <tr><td>asinUrl</td><td>string|null</td><td>ASIN 链接</td></tr>
+          <tr><td>platformId</td><td>string</td><td>平台商品 ID</td></tr>
+          <tr><td>platformFid</td><td>string</td><td>平台订单 ID</td></tr>
+          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
+          <tr><td>platformMarketId</td><td>string</td><td>平台市场 ID</td></tr>
+          <tr><td>platformOrderStatus</td><td>string</td><td>平台订单状态，如 已收货</td></tr>
+          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
+          <tr><td>sku</td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td>msku</td><td>string</td><td>MSKU</td></tr>
+          <tr><td>productName</td><td>string</td><td>商品名称</td></tr>
+          <tr><td>listingTitle</td><td>string</td><td>Listing 标题</td></tr>
+          <tr><td>orderTitle</td><td>string</td><td>订单标题</td></tr>
+          <tr><td>category</td><td>string</td><td>类目编码，如 MW105</td></tr>
+          <tr><td>categoryName</td><td>string</td><td>类目名称</td></tr>
+          <tr><td>smallImageUrl</td><td>string</td><td>商品小图 URL</td></tr>
+          <tr><td>quantityOrdered</td><td>number</td><td>订购数量</td></tr>
+          <tr><td>quantityShipped</td><td>number|null</td><td>发货数量</td></tr>
+          <tr><td>sellingPrice</td><td>number</td><td>售价</td></tr>
+          <tr><td>itemPrice</td><td>number</td><td>商品单价</td></tr>
+          <tr><td>itemTax</td><td>number|null</td><td>商品税费</td></tr>
+          <tr><td>shippingPrice</td><td>number</td><td>运费</td></tr>
+          <tr><td>shippingTax</td><td>number|null</td><td>运费税</td></tr>
+          <tr><td>shippingDiscount</td><td>number|null</td><td>运费优惠</td></tr>
+          <tr><td>promotionDiscount</td><td>number</td><td>促销优惠</td></tr>
+          <tr><td>giftWrapPrice</td><td>number|null</td><td>礼品包装费</td></tr>
+          <tr><td>giftWrapTax</td><td>number|null</td><td>礼品包装税</td></tr>
+          <tr><td>refundTotal</td><td>number|null</td><td>退款金额</td></tr>
+          <tr><td>currencyCode</td><td>string</td><td>币种代码</td></tr>
+          <tr><td>currencySymbol</td><td>string</td><td>币种符号</td></tr>
+          <tr><td>orderStatus</td><td>number</td><td>订单状态码</td></tr>
+          <tr><td>orderStatusName</td><td>string</td><td>订单状态名</td></tr>
+          <tr><td>carrier</td><td>string</td><td>承运商</td></tr>
+          <tr><td>shipTrack</td><td>string</td><td>物流单号</td></tr>
+          <tr><td>shipFulfillment</td><td>string</td><td>发货履约方式</td></tr>
+          <tr><td>listingLevel</td><td>string|null</td><td>Listing 层级</td></tr>
+          <tr><td>listingManagerNames</td><td>string|null</td><td>Listing 经理姓名</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data 示例（结构摘要）</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "error": false,
+  "messages": [],
+  "extObj": null,
+  "data": {
+    "total": 219,
+    "condition": { "page": 1, "rows": 20, "pagesize": 20, "sort": "PURCHASE_DATE", "order": "desc", "marketIds": [1000017] },
+    "from": 0,
+    "page": 1,
+    "pagesize": 20,
+    "order": "desc",
+    "footer": null,
+    "rows": [
+      {
+        "id": 2964854,
+        "orderId": "576487217440920784",
+        "platformId": "2029103873761505281",
+        "platformCode": "TIKTOK",
+        "platformName": "Tiktok自运营",
+        "platformMarketId": "1759046833791422465",
+        "platformOrderNumber": "",
+        "platformOrderStatus": "已收货",
+        "marketId": 1000017,
+        "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "orderStatus": 3,
+        "orderStatusName": "已发货",
+        "orderType": "",
+        "orderTotal": 181.8,
+        "currencyCode": "USD",
+        "currencySymbol": "$",
+        "purchaseDate": "2026-03-03 23:55:32",
+        "purchaseDateUtc": "2026-03-04T07:55:32",
+        "paymentTime": "2026-03-04 07:55:36",
+        "paymentTimeUtc": "2026-03-04T07:55:36",
+        "paymentMarketTime": "2026-03-03 23:55:36",
+        "paymentMethod": "ApplePay",
+        "platformOrderDeliveryMarketTime": "2026-03-03 23:57:25",
+        "buyerPayAmount": 181.8,
+        "pointPayAmount": null,
+        "buyerAccountId": "7494214977714488528",
+        "buyerAccountName": "",
+        "buyerAccountEmail": "",
+        "buyerMessage": null,
+        "buyerTaxNumber": null,
+        "receiverName": "maxxie anyaegbunam ",
+        "receiverPhone": "(+1)2817263763",
+        "receiverMobilePhone": null,
+        "receiverAddressCountryCode": "US",
+        "receiverAddressCountry": "US",
+        "receiverAddressState": "Texas",
+        "receiverAddressCity": "Houston",
+        "receiverAddressArea": "Harris",
+        "receiverAddressStreet": null,
+        "receiverAddressDetail1": "3443 addicks clodine rd apt 6202",
+        "receiverAddressDetail2": null,
+        "receiverAddressDetail3": null,
+        "receiverAddressHouseNumber": null,
+        "receiverAddressPostCode": "77082",
+        "earliestShip": null,
+        "earliestShipUtc": null,
+        "lastShip": "2026-03-07 07:59:59",
+        "lastShipUtc": "2026-03-07T15:59:59",
+        "earliestDelivery": null,
+        "earliestDeliveryUtc": null,
+        "lastDelivery": null,
+        "lastDeliveryUtc": null,
+        "carrier": "",
+        "shipTrack": "JSECE0463567057YQ",
+        "shipFulfillment": "0",
+        "platformShipFulfillment": 1,
+        "shipNumber": 0,
+        "shipServiceLevel": null,
+        "shipmentWarehouseId": null,
+        "refund": 0,
+        "refundTotalAmount": null,
+        "returns": null,
+        "omsPushStatus": 2,
+        "omsPushMessage": "推送自发货成功",
+        "createTime": "2026-03-04 15:59:21",
+        "createUserName": "system",
+        "lastUpdateDate": "2026-03-16 10:17:52",
+        "timeZone": "US/Pacific",
+        "bogusFlag": 0,
+        "blockPrivateInfo": null,
+        "sellerOrderId": null,
+        "remarks": null,
+        "itemVoList": [
+          {
+            "id": 3364356,
+            "fid": 2964854,
+            "itemId": "576487217441051856",
+            "asin": "1731902466282525029",
+            "asinUrl": null,
+            "platformId": "2029103873761505282",
+            "platformFid": "2029103873761505281",
+            "platformCode": "TIKTOK",
+            "platformMarketId": "1759046833791422465",
+            "platformOrderStatus": "已收货",
+            "marketId": 1000017,
+            "sku": "AL-W0180-MLS-L",
+            "msku": "AL-W0180-MLS-L",
+            "productName": "半拉链炒洗卫衣-墨绿色142-L",
+            "listingTitle": "FAIABLE Oversized Hoodie for Women Vintage Acid Washed Heavyweight Fleece Half Zip Pullover with Kangaroo Pocket & Earbud Sleeve Pocket Casual Aesthetic Streetwear Style essential hoodies comfort hoodies zip hoodie",
+            "orderTitle": "FAIABLE Hoodies Vintage Acid Washed Heavyweight Fleece Half Zip Unisex Hoodie for Women with Kangaroo Pocket & Earbud Sleeve Pocket Casual Aesthetic Streetwear Style Essential Comfort Hoodies SpringStatements",
+            "category": "MW105",
+            "categoryName": "男式+卫衣（洗水）",
+            "smallImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f581c7ad4b6d4cfc8947a49ff560d457~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
+            "quantityOrdered": 1,
+            "quantityShipped": null,
+            "sellingPrice": 99.99,
+            "itemPrice": 99.99,
+            "itemTax": null,
+            "shippingPrice": 0,
+            "shippingTax": null,
+            "shippingDiscount": null,
+            "promotionDiscount": 44.01,
+            "giftWrapPrice": null,
+            "giftWrapTax": null,
+            "refundTotal": null,
+            "currencyCode": "USD",
+            "currencySymbol": "$",
+            "orderStatus": 3,
+            "orderStatusName": "已发货",
+            "carrier": "",
+            "shipTrack": "JSECE0463567057YQ",
+            "shipFulfillment": "0",
+            "listingLevel": null,
+            "listingManagerNames": null
+          }
+        ]
+      }
+    ]
+  }
+}</code></pre>
+    <p><strong>落库所需两份数据及字段</strong></p>
+    <p><strong>1. 订单数据</strong>（来自 <code>data.rows[]</code> 每行）：<code>orderId</code>、<code>platformId</code>、<code>platformMarketId</code>、<code>platformOrderStatus</code>、<code>marketId</code>、<code>marketName</code>、<code>orderStatusName</code>、<code>orderTotal</code>、<code>currencyCode</code>、<code>purchaseDate</code>、<code>paymentMarketTime</code>、<code>buyerPayAmount</code>、<code>refundTotalAmount</code>、<code>timeZone</code>。</p>
+    <p><strong>2. 订单商品明细</strong>（来自 <code>data.rows[].itemVoList[]</code> 每行）：<code>itemId</code>、<code>asin</code>、<code>platformId</code>、<code>platformFid</code>、<code>marketId</code>、<code>sku</code>、<code>msku</code>、<code>productName</code>、<code>orderTitle</code>、<code>categoryName</code>、<code>sellingPrice</code>、<code>itemPrice</code>、<code>orderStatusName</code>、<code>promotionDiscount</code>。</p>
+    <hr />
+
     <h2>四、接口总览</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>#</th><th>页面</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>需求一 店铺统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats</code></td></tr>
-          <tr><td>2</td><td>需求一 店铺统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats/export</code></td></tr>
-          <tr><td>3</td><td>需求二 商品统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats</code></td></tr>
-          <tr><td>4</td><td>需求二 商品统计</td><td>弹框 AI 分析</td><td>POST</td><td><code>/api/bi/tk/sales/product-stats/ai-analysis</code></td></tr>
-          <tr><td>5</td><td>需求二 商品统计 / 需求三 数据看板</td><td>弹框 PID 明细</td><td>GET</td><td><code>/api/bi/tk/pid/detail</code></td></tr>
-          <tr><td>6</td><td>需求二 商品统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats/export</code></td></tr>
-          <tr><td>7</td><td>需求三 数据看板</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard</code></td></tr>
-          <tr><td>8</td><td>需求三 数据看板</td><td>每日明细</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/daily</code></td></tr>
-          <tr><td>9</td><td>需求三 数据看板</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/export</code></td></tr>
+          <tr><td>1</td><td>三个页面共用</td><td>站点级联选项</td><td>GET</td><td><code>/api/bi/tk/options/sites</code></td></tr>
+          <tr><td>2</td><td>三个页面共用</td><td>店铺列表（按站点筛选）</td><td>GET</td><td><code>/api/bi/tk/options/stores</code></td></tr>
+          <tr><td>3</td><td>需求一 店铺统计</td><td>货币选项（销售额模式）</td><td>GET</td><td><code>/api/bi/tk/options/currencies</code></td></tr>
+          <tr><td>4</td><td>需求一 店铺统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats</code></td></tr>
+          <tr><td>5</td><td>需求一 店铺统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats/export</code></td></tr>
+          <tr><td>6</td><td>需求二 商品统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats</code></td></tr>
+          <tr><td>7</td><td>需求二 商品统计</td><td>弹框 AI 分析</td><td>POST</td><td><code>/api/bi/tk/sales/product-stats/ai-analysis</code></td></tr>
+          <tr><td>8</td><td>需求二 商品统计 / 需求三 数据看板</td><td>弹框 PID 明细</td><td>GET</td><td><code>/api/bi/tk/pid/detail</code></td></tr>
+          <tr><td>9</td><td>需求二 商品统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats/export</code></td></tr>
+          <tr><td>10</td><td>需求三 数据看板</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard</code></td></tr>
+          <tr><td>11</td><td>需求三 数据看板</td><td>每日明细</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/daily</code></td></tr>
+          <tr><td>12</td><td>需求三 数据看板</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/export</code></td></tr>
         </tbody>
       </table>
     </div>
     <hr />
     <p><em>文档版本：按 店铺统计、商品统计、需求二-数据看板 三个 HTML 及其中弹框整理，数据规则以需求文档为准。</em></p>
-    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="接口文档.md">接口文档.md（源文件）</a></p>
+    <p class="back"><a href="../index.html">← 返回首页</a></p>
   </div>
 </body>
 </html>
