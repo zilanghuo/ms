@@ -1,0 +1,75 @@
+---
+description: 数仓建设 — Doris 为主库、MySQL 通过 Catalog 连接、海豚调度；Catalog 与库表分层约定（@bi 数仓/表结构/技术方案时参考）
+globs: bi/**/*
+alwaysApply: false
+---
+
+# 数仓建设：Doris + MySQL Catalog + 海豚调度
+
+本规则描述当前数仓的技术栈与连接方式，在编写/修改 **技术方案、表结构设计、调度配置** 时按此约定执行。
+
+## 技术栈
+
+- **主库**：Apache Doris
+- **业务库**：MySQL，通过 Doris 的 **JDBC Catalog** 连接（不直连 MySQL 做数仓表存储）
+- **调度**：海豚调度（DolphinScheduler）
+
+## MySQL Catalog（开发/示例）
+
+在 Doris 中创建 JDBC Catalog 连接 MySQL 的示例（敏感信息请使用占位符或环境变量，勿将真实密码提交到仓库）：
+
+```sql
+CREATE CATALOG ms_cloud_dev PROPERTIES (
+    'type' = 'jdbc',
+    'user' = 'root',
+    'password' = '${MYSQL_PASSWORD}',   -- 实际使用时从环境变量或密钥管理注入
+    'jdbc_url' = 'jdbc:mysql://<host>:3306/ms-cloud?useUnicode=true&characterEncoding=utf8&useSSL=false',
+    'driver_url' = 'mysql-connector-java-8.0.16.jar',
+    'driver_class' = 'com.mysql.cj.jdbc.Driver'
+);
+```
+
+参考值（仅用于本地/开发理解，勿写死到代码或文档）：
+- 示例地址：`124.71.66.128:3306`
+- 示例库：`ms-cloud`
+- 驱动：`mysql-connector-java-8.0.16.jar`，`com.mysql.cj.jdbc.Driver`
+
+## 库与表分层约定
+
+- **ods**：贴源层，库名 `ods`，表名前缀 `ods_`
+- **dwd**：明细层，库名 `dwd`，表名前缀 `dwd_`
+- **dws**：汇总层，库名 `dws`，表名前缀 `dws_`
+- **ads**：应用层，库名 `ads`，表名前缀 `ads_`
+- **dim**：维度表按项目约定放在对应库（如 `ods` 或独立 `dim`）
+
+建表时库名与表名前缀保持一致，例如：`dws.dws_*`、`ads.ads_*`。
+
+## 准实时与表命名
+
+- **准实时表**：表名必须以 `realtime` 结尾，例如 `dwd_sales_amount_detail_market_realtime`、`dwd_sales_order_item_market_wide_realtime`、`dws_sales_pid_gmv_realtime`、`ads_sales_pid_gmv_calc_realtime`、`ads_sales_store_site_order_count_realtime`。
+- **表名格式**：表名采用 **库名_业务域_具体描述** 格式，即 `{库前缀}_{业务域}_{xxxx}`。例如：`dwd_sales_*`（DWD 销售域）、`ads_sales_*`（ADS 销售域）、`dws_sales_*`（DWS 销售域）。
+
+## 实现 SQL 书写顺序
+
+具体实现（INSERT 写入 Doris）时，SQL 按以下顺序组织：
+
+1. **WITH**：公共 CTE 与数据源 CTE（维度表最大分区、维度表最新数据、数据源 CTE 等）。
+2. **INSERT**：目标表与列清单，`INSERT INTO 库.表 (col1, col2, ...)`。
+3. **SELECT**：计算与字段顺序建议为 **分区/键 → 金额计算 → 时间计算 → 维度**，便于阅读与校验。
+
+## 时间字符串格式约定
+
+- **日期时间字符串**：统一使用 `yyyy-MM-dd HH:mm:ss` 格式（如 `2026-01-16 17:55:03`），**不支持** ISO 8601 的 `T` 分隔格式（如 `2026-01-16T17:55:03`）。ODS/DWD 中 `order_time`、`purchase_date`、`payment_market_time` 等 VARCHAR 时间字段均按此格式落库与解析。
+
+## 调度参数约定
+
+- **${currentTime}**：表示当前的调度计划时间（海豚调度传入），格式为 `yyyy-MM-dd HH:mm:ss`（如 `2026-01-16 17:55:03`），用于增量任务的截止时间或时间窗口计算。
+- **${bizDate}**：计划调度的当天日期。
+- **${bizMonth}**：当前月，格式 `%Y%m`（如 202603）。
+- **${currentMonthPrev}**：上一个月，格式 `%Y%m`（如 202602）。
+- **${bizNextMonth}**：下一个月，格式 `%Y%m`（如 202604）。
+
+## 使用注意
+
+- 文档与脚本中的 Catalog 创建语句应使用占位符（如 `${MYSQL_PASSWORD}`、`<host>`），真实值通过海豚调度变量或运维配置注入。
+- 表结构设计文档（如 `表结构设计-Doris.html`）中只写库名与表名，不写 Catalog 密码或内网地址。

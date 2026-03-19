@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>tkDashboard 表结构设计 — Doris 数据仓库</title>
   <style>
-    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --ods: #3b82f6; --dwd: #8b5cf6; --ads: #059669; }
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --ods: #3b82f6; --dwd: #8b5cf6; --dws: #0891b2; --ads: #059669; --dim: #64748b; }
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
     .doc { max-width: 1400px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
@@ -31,7 +31,9 @@
     .layer-badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
     .layer-ods { background: #dbeafe; color: var(--ods); }
     .layer-dwd { background: #ede9fe; color: var(--dwd); }
+    .layer-dws { background: #cffafe; color: var(--dws); }
     .layer-ads { background: #d1fae5; color: var(--ads); }
+    .layer-dim { background: #e2e8f0; color: var(--dim); }
     .toc { background: #f8fafc; padding: 1rem 1.5rem; border-radius: 6px; margin: 1rem 0; border: 1px solid var(--border); }
     .toc h3 { font-size: 0.9rem; margin: 0 0 0.5rem; color: var(--muted); font-weight: 600; }
     .toc ul { list-style: none; margin: 0; padding: 0; }
@@ -53,45 +55,165 @@
       <h3>目录</h3>
       <ul>
         <li><a href="#sec-1">一、分层与表清单</a></li>
-        <li><a href="#sec-2">二、ODS 层表结构</a></li>
-        <li><a href="#sec-3">三、DWD 层表结构</a></li>
-        <li><a href="#sec-4">四、ADS 层表结构</a></li>
-        <li><a href="#sec-5">五、数据依赖关系</a></li>
-        <li><a href="#sec-6">六、计算逻辑与建表规范</a></li>
+        <li><a href="#sec-1-rt">准实时报表方案</a></li>
+        <li><a href="#sec-dim">二、DIM 层表结构</a></li>
+        <li><a href="#sec-2">三、ODS 层表结构</a></li>
+        <li><a href="#sec-3">四、DWD 层表结构</a></li>
+        <li><a href="#sec-dws">五、DWS 层表结构</a></li>
+        <li><a href="#sec-4">六、ADS 层表结构</a></li>
+        <li><a href="#sec-5">七、数据依赖关系</a></li>
+        <li><a href="#sec-6">八、计算逻辑与建表规范</a></li>
       </ul>
     </nav>
 
     <hr />
 
     <h2 id="sec-1">一、分层与表清单</h2>
+    <p>下表为离线与准实时共用表清单。参与准实时（约 10 分钟同步）的 ODS 及准实时 DWD/ADS 约定见本节<strong>准实时报表方案</strong>。</p>
     <div class="table-wrap">
       <table>
         <thead>
           <tr><th>层级</th><th>表名</th><th>说明</th><th>需求来源</th></tr>
         </thead>
         <tbody>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_di</td><td>TikTok 订单主表（全部笔订单）</td><td>PID 需求一 GMV 计算</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_item_di</td><td>TikTok 订单商品明细（SKU 维度）</td><td>PID 需求一 GMV 计算</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_di</td><td>TikTok 订单主表（全部笔订单，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_item_di</td><td>TikTok 订单商品明细（SKU 维度，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_product_api_jijia_omnichannel_product_df</td><td>全渠道商品表（积加）</td><td>PID 需求一/二、销售需求二</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_sales_api_jijia_omnichannel_order_di</td><td>全渠道销售订单表（积加）</td><td>销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_sales_api_jijia_omnichannel_order_di</td><td>全渠道销售订单表（积加/Shopify，支持准实时 10min）</td><td>销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_sales_api_jijia_omnichannel_order_item_di</td><td>全渠道销售订单明细表（积加，支持准实时 10min）</td><td>销售需求一/二</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_traffic_file_tiktok_product_list_di</td><td>TikTok 商品数据分析（product_list）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_marketing_file_tiktok_campaign_di</td><td>TikTok 广告推广（Product campaign data）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_traffic_file_tiktok_video_performance_di</td><td>TikTok 视频表现（Video Performance List）</td><td>PID 需求二 数据看板</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_product_file_product_stage_df</td><td>产品阶段（手动维护）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_platform_file_tiktok_account_df</td><td>TikTok 账号信息（达人列表）</td><td>PID 需求二 挂车量区分</td></tr>
-          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_tiktok_trend_order_detail_di</td><td>TK-独立站数据销量趋势-订单明细</td><td>销售需求二</td></tr>
-          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_gmv_calc_1d</td><td>PID 维度 GMV 计算表</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_jijia_store_site_df</td><td>积加模块-店铺站点表明细（日全量）</td><td>积加/销售 店铺站点维度</td></tr>
+          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_amount_detail_market_realtime</td><td>销售额明细-准实时（约 10 分钟更新）</td><td>准实时订单数/金额、销售需求二</td></tr>
+          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_order_item_market_wide_realtime</td><td>全渠道订单商品大宽表-准实时（以 ASIN 为维度，含下单时间、市场分区，约 10 分钟更新）</td><td>PID 需求一、销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_market_realtime</td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_site_market_realtime</td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_pid_gmv_realtime</td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_gmv_calc_realtime</td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_dashboard_1d</td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
-          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_order_count_store_1d</td><td>每日按店铺订单数播报表</td><td>销售需求一</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_store_site_order_count_realtime</td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
         </tbody>
       </table>
     </div>
+
+    <h3 id="sec-1-rt">准实时报表方案</h3>
+    <p>以下方案约定：TikTok 订单（API）与积加全渠道订单（Shopify 等）均以约 10 分钟频率同步入 ODS，在此之上建设准实时 DWD → DWS/ADS，供准实时报表使用。</p>
+    <div class="section-card">
+      <h4>1. 数据源与更新频率</h4>
+      <ul>
+        <li><strong>ods_trade_api_tiktok_order_di</strong>（及 order_item_di）：TikTok API 数据，调度约 10 分钟一次增量写入。</li>
+        <li><strong>ods_sales_api_jijia_omnichannel_order_di</strong>（及 order_item_di）：积加全渠道订单（含 Shopify 等），调度约 10 分钟一次增量写入。</li>
+      </ul>
+      <h4>2. 准实时分层</h4>
+      <ul>
+        <li><strong>ODS</strong>：沿用上表，不新增表；在表 COMMENT 中注明「支持准实时，约 10 分钟同步」。</li>
+        <li><strong>DWD</strong>：准实时链路需要 DWD 层，与离线可同表（同一张表由准实时任务 10 分钟刷新），或在 COMMENT 中注明「准实时」；若需物理隔离可单独建表（见下命名约定）。</li>
+        <li><strong>DWS / ADS</strong>：准实时报表层以 ADS 为主（可无 DWS），表名或 COMMENT 体现准实时（见下）。</li>
+      </ul>
+      <h4>3. 准实时表命名与注释约定</h4>
+      <ul>
+        <li><strong>表名是否带 realtime</strong>：建议 <strong>ADS 层</strong>准实时产出表在表名中带 <code>_realtime</code> 后缀（如 <code>ads_sales_store_site_order_count_realtime</code>），便于取数与运维区分；<strong>ODS、DWD</strong> 以 COMMENT 注明「准实时，约 10 分钟更新」即可，避免表名过长。</li>
+        <li><strong>与离线关系</strong>：同一业务可同时存在「离线 T+1 表」与「准实时表」：离线表名保持 <code>_1d</code> / <code>_di</code>，准实时表名用 <code>_realtime</code> 或 COMMENT 标明。</li>
+      </ul>
+      <h4>4. 建议涉及的准实时表（调整说明）</h4>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>层级</th><th>表名</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>ODS</td><td>ods_trade_api_tiktok_order_di / order_item_di</td><td>表结构不变；COMMENT 增加「支持准实时，约 10 分钟同步」</td></tr>
+            <tr><td>ODS</td><td>ods_sales_api_jijia_omnichannel_order_di / order_item_di</td><td>表结构不变；COMMENT 增加「支持准实时，约 10 分钟同步」</td></tr>
+            <tr><td>DWD</td><td>dwd_sales_amount_detail_market_realtime</td><td><strong>销售额明细表</strong>，见下四、4.1；TikTok + 积加全渠道订单写入此表，准实时 DWS/ADS 从本表取数</td></tr>
+            <tr><td>DWD</td><td>dwd_sales_order_item_market_wide_realtime</td><td><strong>订单商品大宽表</strong>，见下四、4.2；全渠道订单明细+订单+商品关联，约 10 分钟更新，供 GMV 计算、销量趋势</td></tr>
+            <tr><td>DWS</td><td>dws_sales_store_market_realtime</td><td>准实时店铺汇总；来源：dwd_sales_amount_detail_market_realtime</td></tr>
+            <tr><td>DWS</td><td>dws_sales_store_site_market_realtime</td><td>店铺站点粒度准实时汇总，结构参考店铺表增加 store_site_id/store_site_code/store_site_name；来源：dwd_sales_amount_detail_market_realtime</td></tr>
+            <tr><td>DWS</td><td>dws_sales_pid_gmv_realtime</td><td>PID 维度 GMV 准实时汇总；来源：dwd_sales_order_item_market_wide_realtime</td></tr>
+            <tr><td>ADS</td><td>ads_sales_store_site_order_count_realtime</td><td>播报为站点层级，准实时「按店铺站点订单数+金额」；来源：dws_sales_store_site_market_realtime</td></tr>
+            <tr><td>ADS</td><td>ads_sales_pid_gmv_calc_realtime</td><td>PID 维度 GMV 计算表，准实时；来源：dws_sales_pid_gmv_realtime</td></tr>
+            <tr><td>ADS</td><td>（其他准实时看板）</td><td>按需新建，命名建议 <code>ads_*_realtime</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h4>5. 准实时 DWD</h4>
+      <p><strong>dwd_sales_amount_detail_market_realtime</strong>（见四、4.1）：准实时与销量趋势均使用，TikTok + 积加全渠道订单写入。</p>
+      <p><strong>dwd_sales_order_item_market_wide_realtime</strong>（见四、4.2）：全渠道订单商品大宽表，以 ASIN 为维度，约 10 分钟更新，供 GMV 计算、销量趋势。</p>
+      <ul>
+        <li><strong>dwd_sales_amount_detail_market_realtime 粒度</strong>：UNIQUE KEY(smt, sdt, store_code, store_site_code, order_id, data_source)，即每订单每店铺/站点一行；含 <code>payment_amount</code>、<code>order_amount</code>、<code>net_amount</code>、<code>order_date_market</code> / <code>payment_date_market</code> 等。</li>
+        <li><strong>数据来源</strong>：TikTok 订单（ODS）+ 积加全渠道订单（ODS）以约 10 分钟或小时频率写入 <code>dwd_sales_amount_detail_market_realtime</code>；全渠道订单明细+订单+商品写入 <code>dwd_sales_order_item_market_wide_realtime</code>。<code>data_source</code> 区分 1-积加、2-手动导入、3-第三方 API。</li>
+        <li><strong>下游</strong>：dwd_sales_amount_detail_market_realtime → dws_sales_store_market_realtime、dws_sales_store_site_market_realtime、ads_sales_store_site_order_count_realtime；dwd_sales_order_item_market_wide_realtime → dws_sales_pid_gmv_realtime、ads_sales_pid_gmv_calc_realtime。</li>
+      </ul>
+      <p>具体 DDL 与字段以落地时为准；本方案仅约定数据源、分层、命名与复用方式。</p>
+    </div>
     <hr />
 
-    <h2 id="sec-2">二、ODS 层表结构</h2>
+    <h2 id="sec-dim">二、DIM 层表结构</h2>
 
-    <h3>2.1 ods_trade_api_tiktok_order_di</h3>
-    <p>全部笔订单主表，API 对接。用于 PID 需求一 GMV 计算、销售需求一订单数播报。表结构与 ods_sales_tiktok_order_di 保持一致。</p>
+    <h3>2.1 dim_jijia_store_site_df</h3>
+    <p>积加模块-店铺站点表明细，日全量（df）。用于积加/销售域按店铺站点关联时区、货币、ERP 店铺名等维度属性。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+          <tr><td>store_site_id</td><td>BIGINT</td><td>站点标识 ID</td></tr>
+          <tr><td>store_site_code</td><td>VARCHAR(200)</td><td>站点 code 标识</td></tr>
+          <tr><td>jijia_store_name</td><td>VARCHAR(200)</td><td>积加店铺名称</td></tr>
+          <tr><td>store_site_name</td><td>VARCHAR(200)</td><td>店铺站点名称</td></tr>
+          <tr><td>erp_store_name</td><td>VARCHAR(200)</td><td>对应 ERP 的店铺名</td></tr>
+          <tr><td>erp_site_code</td><td>VARCHAR(50)</td><td>对应 ERP 的站点 code</td></tr>
+          <tr><td>erp_timezone</td><td>VARCHAR(100)</td><td>对应 ERP 的时区标识</td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>货币标识</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_site_id) | 日全量，按站点唯一</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_jijia_store_site_df (
+    smt                 INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                 VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_site_id       BIGINT               COMMENT '站点标识 ID',
+    store_site_code     VARCHAR(200)         COMMENT '站点 code 标识',
+    jijia_store_name    VARCHAR(200)         COMMENT '积加店铺名称',
+    store_site_name     VARCHAR(200)         COMMENT '店铺站点名称',
+    erp_store_name      VARCHAR(200)         COMMENT '对应 ERP 的店铺名',
+    erp_site_code       VARCHAR(50)          COMMENT '对应 ERP 的站点 code',
+    erp_timezone        VARCHAR(100)         COMMENT '对应 ERP 的时区标识',
+    currency_code       VARCHAR(20)          COMMENT '货币标识',
+    insert_time         DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_site_id)
+COMMENT '积加模块-店铺站点表明细（维度表，日全量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(store_site_id) BUCKETS 8
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <hr />
+
+    <h2 id="sec-2">三、ODS 层表结构</h2>
+
+    <h3>3.1 ods_trade_api_tiktok_order_di</h3>
+    <p>全部笔订单主表，TikTok API 对接。用于 PID 需求一 GMV 计算、销售需求一订单数播报；支持准实时，约 30 分钟抽取一次。</p>
+    <h4>表实现</h4>
+    <p>本表当前实现如下：</p>
+    <ul>
+      <li><strong>数据来源</strong>：MySQL 库 <code>ms-cloud</code>，表 <code>tiktok_order</code>（通过 Doris JDBC Catalog 连接）。</li>
+      <li><strong>抽取频率</strong>：每 30 分钟一次（海豚调度）。</li>
+      <li><strong>增量字段</strong>：<code>update_time</code>。</li>
+      <li><strong>调度参数</strong>：<code>currentTime</code>，表示本次抽取的截止时间，格式 <code>yyyy-MM-dd HH:mm:ss</code>（如 <code>2026-02-03 15:15:13</code>）。</li>
+      <li><strong>时间窗口</strong>：由 <code>currentTime</code> 往前推 40 分钟，即抽取 <code>update_time</code> 在 (currentTime − 40 分钟, currentTime] 内的记录。</li>
+    </ul>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
@@ -364,8 +486,8 @@ PROPERTIES (
 "enable_mow_light_delete" = "false"
 );</code></pre>
 
-    <h3>2.2 ods_trade_api_tiktok_order_item_di</h3>
-    <p>全部笔订单商品明细（SKU 维度），与订单主表关联。用于 PID 需求一 GMV 计算（Seller SKU → 父 ASIN）。表结构参考 MySQL tiktok_order_item，Doris 必含 smt、sdt、insert_time。</p>
+    <h3>3.2 ods_trade_api_tiktok_order_item_di</h3>
+    <p>全部笔订单商品明细（SKU 维度），与订单主表关联；支持准实时，约 10 分钟同步。用于 PID 需求一 GMV 计算（Seller SKU → 父 ASIN）。表结构参考 MySQL tiktok_order_item，Doris 必含 smt、sdt、insert_time。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
@@ -546,58 +668,67 @@ PROPERTIES (
 "enable_mow_light_delete" = "false"
 );</code></pre>
 
-    <h3>2.3 ods_product_api_jijia_omnichannel_product_df</h3>
-    <p>全渠道商品表（积加 API）。用于 PID 映射、SPU 关联、销量趋势补 PID/SPU。</p>
+    <h3>3.3 ods_product_api_jijia_omnichannel_product_df</h3>
+    <p>全渠道商品表（积加 API）。用于 PID 映射、SPU 关联、销量趋势补 PID/SPU。业务字段与接口文档「导出 Excel / 落库字段」一致。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
           <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
-          <tr><td>asin</td><td>VARCHAR(200)</td><td>ASIN</td></tr>
-          <tr><td>parent_asin</td><td>VARCHAR(200)</td><td>父 ASIN（即 PID）</td></tr>
-          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU（与订单 seller_sku 关联）</td></tr>
-          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU</td></tr>
-          <tr><td>product_title</td><td>STRING</td><td>商品标题</td></tr>
-          <tr><td>store_site</td><td>VARCHAR(200)</td><td>店铺/站点</td></tr>
-          <tr><td>platform</td><td>VARCHAR(100)</td><td>平台</td></tr>
-          <tr><td>sales_status</td><td>VARCHAR(50)</td><td>销售状态（在售/下架等）</td></tr>
+          <tr><td>p_asin</td><td>VARCHAR(200)</td><td>父 ASIN（groupItemId）</td></tr>
+          <tr><td>asin</td><td>VARCHAR(200)</td><td>ASIN（itemId）</td></tr>
+          <tr><td>market_id</td><td>BIGINT</td><td>市场/店铺 ID</td></tr>
+          <tr><td>market_name</td><td>VARCHAR(500)</td><td>市场/店铺名称</td></tr>
+          <tr><td>sku</td><td>VARCHAR(200)</td><td>SKU 编码</td></tr>
+          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
+          <tr><td>sku_name</td><td>STRING</td><td>SKU 名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU 编码</td></tr>
+          <tr><td>spu_name</td><td>STRING</td><td>SPU 名称</td></tr>
+          <tr><td>sale_price</td><td>DECIMAL(20,4)</td><td>售价</td></tr>
+          <tr><td>adjust_standard_price</td><td>DECIMAL(20,4)</td><td>调整后标准价</td></tr>
+          <tr><td>currency</td><td>VARCHAR(20)</td><td>币种</td></tr>
+          <tr><td>category_tree</td><td>STRING</td><td>类目树</td></tr>
+          <tr><td>sales_state</td><td>VARCHAR(100)</td><td>销售状态码</td></tr>
+          <tr><td>sales_state_desc</td><td>VARCHAR(100)</td><td>销售状态描述（如在售）</td></tr>
+          <tr><td>is_single</td><td>BOOLEAN</td><td>是否单规格</td></tr>
+          <tr><td>main_image_url</td><td>STRING</td><td>主图 URL</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">UNIQUE KEY(smt, sdt, asin, store_site)</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, p_asin, asin, market_id)</p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_api_jijia_omnichannel_product_df (
-    smt                  INT                  COMMENT '月分区，格式：YYYYMM',
-    sdt                  VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
-    asin                 VARCHAR(200)         COMMENT 'ASIN',
-    parent_asin          VARCHAR(200)         COMMENT '父ASIN（即 PID）',
-    msku                 VARCHAR(200)         COMMENT 'MSKU',
-    spu                  VARCHAR(200)         COMMENT 'SPU',
-    product_title        STRING               COMMENT '商品标题',
-    store_site           VARCHAR(200)         COMMENT '店铺/站点',
-    platform             VARCHAR(100)         COMMENT '平台',
-    sales_status         VARCHAR(50)          COMMENT '销售状态（在售/下架等）',
-    insert_time          DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+    smt                     INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                     VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    p_asin                  VARCHAR(200)         COMMENT '父 ASIN（groupItemId）',
+    asin                    VARCHAR(200)         COMMENT 'ASIN（itemId）',
+    market_id               BIGINT               COMMENT '市场/店铺 ID',
+    market_name             VARCHAR(500)         COMMENT '市场/店铺名称',
+    sku                     VARCHAR(200)         COMMENT 'SKU 编码',
+    msku                    VARCHAR(200)         COMMENT 'MSKU',
+    sku_name                STRING               COMMENT 'SKU 名称',
+    spu                     VARCHAR(200)         COMMENT 'SPU 编码',
+    spu_name                STRING               COMMENT 'SPU 名称',
+    sale_price              DECIMAL(20,4)        COMMENT '售价',
+    adjust_standard_price   DECIMAL(20,4)        COMMENT '调整后标准价',
+    currency                VARCHAR(20)          COMMENT '币种',
+    category_tree           STRING               COMMENT '类目树',
+    sales_state             VARCHAR(100)         COMMENT '销售状态码',
+    sales_state_desc        VARCHAR(100)         COMMENT '销售状态描述（如在售）',
+    is_single               BOOLEAN              COMMENT '是否单规格',
+    main_image_url          STRING               COMMENT '主图 URL',
+    insert_time             DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
-UNIQUE KEY(smt, sdt, asin, store_site)
+UNIQUE KEY(smt, sdt, p_asin, asin, market_id)
 COMMENT '全渠道商品表 ODS 层表（商品域，API 数据源，日全量）'
 PARTITION BY RANGE(smt) (
-    PARTITION p202503 VALUES [(202503), (202504)),
-    PARTITION p202504 VALUES [(202504), (202505)),
-    PARTITION p202505 VALUES [(202505), (202506)),
-    PARTITION p202506 VALUES [(202506), (202507)),
-    PARTITION p202507 VALUES [(202507), (202508)),
-    PARTITION p202508 VALUES [(202508), (202509)),
-    PARTITION p202509 VALUES [(202509), (202510)),
-    PARTITION p202510 VALUES [(202510), (202511)),
-    PARTITION p202511 VALUES [(202511), (202512)),
-    PARTITION p202512 VALUES [(202512), (202601)),
     PARTITION p202601 VALUES [(202601), (202602)),
     PARTITION p202602 VALUES [(202602), (202603)),
     PARTITION p202603 VALUES [(202603), (202604)),
-    PARTITION p202604 VALUES [(202604), (202605))
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
 )
 DISTRIBUTED BY HASH(asin) BUCKETS 16
 PROPERTIES (
@@ -605,68 +736,136 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>2.4 ods_sales_api_jijia_omnichannel_order_di</h3>
-    <p>全渠道销售订单表（积加 API）。用于销售需求一订单数播报、需求二销量趋势。</p>
+    <h3>3.4 ods_sales_api_jijia_omnichannel_order_di</h3>
+    <p>全渠道销售订单表（积加 API，含 Shopify 等）。用于销售需求一订单数播报、需求二销量趋势；支持准实时，约 10 分钟同步。业务字段与接口文档「落库所需 1. 订单数据」一致。</p>
+    <p><strong>订单时间说明</strong>：本表订单时间（<code>purchase_date</code>、<code>payment_market_time</code>）为<strong>北京时间</strong>，格式固定为 <code>yyyy-MM-dd HH:mm:ss</code>（如 <code>2026-01-16 17:55:03</code>），不支持带 <code>T</code> 的 ISO 8601 格式。下游使用时需：① 获取对应的时间标识（如 <code>market_id</code> / <code>time_zone</code> 或维度表中的时区、utc_offset）；② 根据该时间标识判断当前为冬令时或夏令时；③ 将北京时间转换为对应市场本地时间后，再写入 DWD 的 <code>order_time_market</code>、<code>payment_time_market</code> 等字段。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
           <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
-          <tr><td>platform_order_id</td><td>VARCHAR(200)</td><td>平台订单编号</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>platform</td><td>VARCHAR(100)</td><td>平台</td></tr>
-          <tr><td>asin</td><td>VARCHAR(200)</td><td>ASIN（与商品表关联补 PID/SPU）</td></tr>
-          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
-          <tr><td>quantity</td><td>INT</td><td>订购数量</td></tr>
-          <tr><td>buyer_payment_amount</td><td>DECIMAL(20,4)</td><td>买家实付金额</td></tr>
-          <tr><td>payment_time</td><td>DATETIME</td><td>付款时间</td></tr>
-          <tr><td>order_status</td><td>VARCHAR(100)</td><td>订单状态</td></tr>
+          <tr><td>order_id</td><td>VARCHAR(200)</td><td>订单号（orderId）</td></tr>
+          <tr><td>platform_id</td><td>VARCHAR(200)</td><td>平台订单 ID</td></tr>
+          <tr><td>platform_market_id</td><td>VARCHAR(200)</td><td>平台市场 ID</td></tr>
+          <tr><td>platform_order_status</td><td>VARCHAR(100)</td><td>平台订单状态</td></tr>
+          <tr><td>market_id</td><td>BIGINT</td><td>市场/店铺 ID</td></tr>
+          <tr><td>market_name</td><td>VARCHAR(500)</td><td>市场/店铺名称</td></tr>
+          <tr><td>order_status_name</td><td>VARCHAR(100)</td><td>订单状态名（如已发货）</td></tr>
+          <tr><td>order_total</td><td>DECIMAL(20,4)</td><td>订单总金额</td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>币种代码</td></tr>
+          <tr><td>purchase_date</td><td>VARCHAR(50)</td><td>购买日期（<strong>北京时间</strong>，下游需按时间标识+冬/夏令时转为市场时间）</td></tr>
+          <tr><td>payment_market_time</td><td>VARCHAR(50)</td><td>支付时间（<strong>北京时间</strong>，下游需按时间标识+冬/夏令时转为市场时间）</td></tr>
+          <tr><td>buyer_pay_amount</td><td>DECIMAL(20,4)</td><td>买家实付金额</td></tr>
+          <tr><td>refund_total_amount</td><td>DECIMAL(20,4)</td><td>退款总金额</td></tr>
+          <tr><td>time_zone</td><td>VARCHAR(50)</td><td>时区</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">UNIQUE KEY(smt, sdt, platform_order_id, asin, store_name) | 筛选：实付≠0；美区 18:00/17:00 前；欧洲不卡时间</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, order_id) | 筛选：实付≠0；美区 18:00/17:00 前；欧洲不卡时间</p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_sales_api_jijia_omnichannel_order_di (
-    smt                    INT                  COMMENT '月分区，格式：YYYYMM',
-    sdt                    VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
-    platform_order_id      VARCHAR(200)         COMMENT '平台订单编号',
-    store_name             VARCHAR(200)         COMMENT '店铺',
-    platform               VARCHAR(100)         COMMENT '平台',
-    asin                   VARCHAR(200)         COMMENT 'ASIN',
-    msku                   VARCHAR(200)         COMMENT 'MSKU',
-    quantity               INT                  COMMENT '订购数量',
-    buyer_payment_amount   DECIMAL(20,4)        COMMENT '买家实付金额',
-    payment_time           DATETIME             COMMENT '付款时间',
-    order_status           VARCHAR(100)         COMMENT '订单状态',
-    insert_time            DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+    smt                     INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                     VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    order_id                VARCHAR(200)         COMMENT '订单号（orderId）',
+    platform_id             VARCHAR(200)         COMMENT '平台订单 ID',
+    platform_market_id      VARCHAR(200)         COMMENT '平台市场 ID',
+    platform_order_status   VARCHAR(100)         COMMENT '平台订单状态',
+    market_id               BIGINT               COMMENT '市场/店铺 ID',
+    market_name             VARCHAR(500)         COMMENT '市场/店铺名称',
+    order_status_name       VARCHAR(100)         COMMENT '订单状态名（如已发货）',
+    order_total             DECIMAL(20,4)        COMMENT '订单总金额',
+    currency_code           VARCHAR(20)          COMMENT '币种代码',
+    purchase_date           VARCHAR(50)          COMMENT '购买日期（北京时间，下游按时间标识+冬夏令时转市场时间）',
+    payment_market_time     VARCHAR(50)          COMMENT '支付时间（北京时间，下游按时间标识+冬夏令时转市场时间）',
+    buyer_pay_amount        DECIMAL(20,4)        COMMENT '买家实付金额',
+    refund_total_amount     DECIMAL(20,4)        COMMENT '退款总金额',
+    time_zone               VARCHAR(50)          COMMENT '时区',
+    insert_time             DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
-UNIQUE KEY(smt, sdt, platform_order_id, asin, store_name)
+UNIQUE KEY(smt, sdt, order_id)
 COMMENT '全渠道销售订单表 ODS 层表（销售域，API 数据源，日增量）'
 PARTITION BY RANGE(smt) (
-    PARTITION p202503 VALUES [(202503), (202504)),
-    PARTITION p202504 VALUES [(202504), (202505)),
-    PARTITION p202505 VALUES [(202505), (202506)),
-    PARTITION p202506 VALUES [(202506), (202507)),
-    PARTITION p202507 VALUES [(202507), (202508)),
-    PARTITION p202508 VALUES [(202508), (202509)),
-    PARTITION p202509 VALUES [(202509), (202510)),
-    PARTITION p202510 VALUES [(202510), (202511)),
-    PARTITION p202511 VALUES [(202511), (202512)),
-    PARTITION p202512 VALUES [(202512), (202601)),
     PARTITION p202601 VALUES [(202601), (202602)),
     PARTITION p202602 VALUES [(202602), (202603)),
     PARTITION p202603 VALUES [(202603), (202604)),
-    PARTITION p202604 VALUES [(202604), (202605))
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
 )
-DISTRIBUTED BY HASH(platform_order_id) BUCKETS 16
+DISTRIBUTED BY HASH(order_id) BUCKETS 16
 PROPERTIES (
     "replication_allocation" = "tag.location.default: 1",
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>2.5 ods_traffic_file_tiktok_product_list_di</h3>
+    <h3>3.5 ods_sales_api_jijia_omnichannel_order_item_di</h3>
+    <p>全渠道销售订单明细表（积加 API，对应接口 data.rows[].itemVoList[]）。用于销量趋势按 SKU/商品维度统计；支持准实时，约 10 分钟同步。业务字段与接口文档「落库所需 2. 订单商品明细」一致。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+          <tr><td>order_time</td><td>VARCHAR(50)</td><td>下单时间</td></tr>
+          <tr><td>order_id</td><td>VARCHAR(200)</td><td>订单号（关联订单表）</td></tr>
+          <tr><td>item_id</td><td>VARCHAR(200)</td><td>商品明细 ID（itemId）</td></tr>
+          <tr><td>asin</td><td>VARCHAR(200)</td><td>ASIN</td></tr>
+          <tr><td>platform_id</td><td>VARCHAR(200)</td><td>平台商品 ID</td></tr>
+          <tr><td>platform_fid</td><td>VARCHAR(200)</td><td>平台订单 ID（platformFid）</td></tr>
+          <tr><td>market_id</td><td>BIGINT</td><td>市场/店铺 ID</td></tr>
+          <tr><td>sku</td><td>VARCHAR(200)</td><td>SKU 编码</td></tr>
+          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名称</td></tr>
+          <tr><td>order_title</td><td>STRING</td><td>订单标题</td></tr>
+          <tr><td>category_name</td><td>VARCHAR(500)</td><td>类目名称</td></tr>
+          <tr><td>selling_price</td><td>DECIMAL(20,4)</td><td>售价</td></tr>
+          <tr><td>item_price</td><td>DECIMAL(20,4)</td><td>商品单价</td></tr>
+          <tr><td>order_status_name</td><td>VARCHAR(100)</td><td>订单状态名</td></tr>
+          <tr><td>promotion_discount</td><td>DECIMAL(20,4)</td><td>促销优惠</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, order_id, item_id, sku)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_sales_api_jijia_omnichannel_order_item_di (
+    smt                     INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                     VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    order_time              VARCHAR(50)         COMMENT '下单时间',
+    order_id                VARCHAR(200)         COMMENT '订单号（关联订单表）',
+    item_id                 VARCHAR(200)         COMMENT '商品明细 ID（itemId）',
+    sku                     VARCHAR(200)         COMMENT 'SKU 编码',
+    asin                    VARCHAR(200)         COMMENT 'ASIN',
+    platform_id             VARCHAR(200)         COMMENT '平台商品 ID',
+    platform_fid            VARCHAR(200)         COMMENT '平台订单 ID（platformFid）',
+    market_id               BIGINT               COMMENT '市场/店铺 ID',
+    msku                    VARCHAR(200)         COMMENT 'MSKU',
+    product_name            STRING               COMMENT '商品名称',
+    order_title             STRING               COMMENT '订单标题',
+    category_name           VARCHAR(500)         COMMENT '类目名称',
+    selling_price           DECIMAL(20,4)        COMMENT '售价',
+    item_price              DECIMAL(20,4)        COMMENT '商品单价',
+    order_status_name       VARCHAR(100)         COMMENT '订单状态名',
+    promotion_discount      DECIMAL(20,4)        COMMENT '促销优惠',
+    insert_time             DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, order_id, item_id, sku)
+COMMENT '全渠道销售订单明细表 ODS 层表（销售域，API 数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
+)
+DISTRIBUTED BY HASH(order_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3>3.6 ods_traffic_file_tiktok_product_list_di</h3>
     <p>TikTok 商品数据分析表（product_list，TK 后台导出）。数据看板底表。</p>
     <div class="table-wrap">
       <table>
@@ -753,7 +952,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>2.6 ods_marketing_file_tiktok_campaign_di</h3>
+    <h3>3.7 ods_marketing_file_tiktok_campaign_di</h3>
     <p>TikTok 广告推广数据（Product campaign data）。广告计划名称以 "-" 分隔取最后一段 = PID。</p>
     <div class="table-wrap">
       <table>
@@ -812,7 +1011,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>2.7 ods_traffic_file_tiktok_video_performance_di</h3>
+    <h3>3.8 ods_traffic_file_tiktok_video_performance_di</h3>
     <p>TikTok 视频表现数据（Video Performance List）。用于挂车量：商品=全渠道商品标题；creator_id 在达人列表为剪辑挂车。</p>
     <div class="table-wrap">
       <table>
@@ -881,38 +1080,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>2.8 ods_product_file_product_stage_df</h3>
-    <p>产品阶段（手动维护/飞书 API）。商品层级：爆品/潜力品/清仓等。</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区</td></tr>
-          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU</td></tr>
-          <tr><td>product_name</td><td>VARCHAR(500)</td><td>产品名称</td></tr>
-          <tr><td>product_level</td><td>VARCHAR(100)</td><td>商品层级（爆品/潜力品/清仓等）</td></tr>
-          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="req-ref">UNIQUE KEY(sdt, spu)</p>
-    <h4>DDL</h4>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_file_product_stage_df (
-    sdt                  VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
-    spu                  VARCHAR(200)         COMMENT 'SPU',
-    product_name         VARCHAR(500)         COMMENT '产品名称',
-    product_level        VARCHAR(100)         COMMENT '商品层级（爆品/潜力品/清仓等）',
-    insert_time          DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
-) ENGINE=OLAP
-UNIQUE KEY(sdt, spu)
-COMMENT '产品阶段 ODS 层表（商品域，文件数据源，日全量）'
-DISTRIBUTED BY HASH(spu) BUCKETS 10
-PROPERTIES (
-    "replication_allocation" = "tag.location.default: 1",
-    "enable_unique_key_merge_on_write" = "true"
-);</code></pre>
-
-    <h3>2.9 ods_platform_file_tiktok_account_df</h3>
+    <h3>3.9 ods_platform_file_tiktok_account_df</h3>
     <p>TikTok 账号信息（达人列表，手动导入/飞书 API）。用于区分商务挂车与剪辑挂车。</p>
     <div class="table-wrap">
       <table>
@@ -945,141 +1113,685 @@ PROPERTIES (
 
     <hr />
 
-    <h2 id="sec-3">三、DWD 层表结构</h2>
+    <h2 id="sec-3">四、DWD 层表结构</h2>
 
-    <h3>3.1 dwd_sales_tiktok_trend_order_detail_di</h3>
-    <p>TK-独立站数据销量趋势-订单明细。对应需求文档「TK-独立站数据销量趋势数据」。</p>
+    <h3>4.1 dwd_sales_amount_detail_market_realtime</h3>
+    <p>销售额明细表-准实时，TikTok 与积加全渠道订单由准实时任务（约 10 分钟）写入本表；准实时 DWS/ADS 及销量趋势均从本表取数。分区字段 <code>smt</code>、<code>sdt</code>、<code>sht</code> 从 <code>order_date_market</code> / <code>order_time_market</code> 计算；含 <code>insert_time</code>，UNIQUE KEY 合并时使用 <code>function_column.sequence_col = "last_update_time"</code>。</p>
+
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE `dwd_sales_amount_detail_market_realtime` (
+  `smt` int NULL COMMENT "月分区，格式：YYYYMM（如202512），从order_date_market计算",
+  `sdt` varchar(8) NULL COMMENT "日期，格式：YYYYMMDD，从order_date_market计算",
+  `store_code` varchar(200) NULL COMMENT "店铺代码",
+  `store_site_code` varchar(200) NULL COMMENT "店铺站点代码",
+  `order_id` varchar(100) NULL COMMENT "订单ID",
+  `data_source` tinyint NULL COMMENT "数据来源：1-积加平台,2-手动导入,3-第三方API",
+  `sht` bigint NULL COMMENT "小时分区，格式：YYYYMMDDHH（如2026012019），从order_time_market计算",
+  `id` bigint NULL COMMENT "销售额明细ID，主键",
+  `order_status` varchar(10) NULL COMMENT "统一订单状态编码：0-待付款, 1-待确认, 2-待发货, 5-已发货, 7-已收货, 8-已完成, 11-已取消, 13-已退款, 99-未知",
+  `order_status_name` varchar(100) NULL COMMENT "订单状态名称（统一平台状态名称）",
+  `order_amount` decimal(20,4) NULL COMMENT "订单金额",
+  `payment_amount` decimal(20,4) NULL COMMENT "支付金额",
+  `refund_amount` decimal(20,4) NULL COMMENT "退款金额",
+  `net_amount` decimal(20,4) NULL COMMENT "净销售额（订单金额-退款金额）",
+  `discount_amount` decimal(20,4) NULL COMMENT "折扣金额",
+  `sku_subtotal_before_discount` decimal(20,4) NULL COMMENT "折扣前商品金额（SKU单价*数量）",
+  `sku_platform_discount` decimal(20,4) NULL COMMENT "平台商品补贴",
+  `sku_seller_discount` decimal(20,4) NULL COMMENT "卖家商品补贴",
+  `sku_subtotal_after_discount` decimal(20,4) NULL COMMENT "折扣后商品金额",
+  `shipping_fee_after_discount` decimal(12,4) NULL COMMENT "折扣后运费",
+  `shipping_fee` decimal(12,4) NULL COMMENT "运费",
+  `tax_amount` decimal(12,4) NULL COMMENT "税费",
+  `commission_amount` decimal(12,4) NULL COMMENT "佣金金额",
+  `currency_code` char(3) NULL COMMENT "货币代码",
+  `exchange_rate` decimal(10,4) NULL COMMENT "汇率",
+  `amount_rmb` decimal(20,4) NULL COMMENT "人民币金额（原币金额 * 汇率）",
+  `order_date` date NULL COMMENT "订单日期（北京时间）",
+  `order_time` datetime NULL COMMENT "订单时间（北京时间，精确到时分秒）",
+  `order_date_market` date NULL COMMENT "订单日期（市场本地时间，用于跨时区报表统计）",
+  `order_time_market` datetime NULL COMMENT "订单时间（市场本地时间，精确到时分秒）",
+  `payment_date` date NULL COMMENT "支付日期（北京时间）",
+  `payment_time` datetime NULL COMMENT "支付时间（北京时间，精确到时分秒）",
+  `payment_date_market` date NULL COMMENT "支付日期（市场本地时间，用于跨时区报表统计）",
+  `payment_time_market` datetime NULL COMMENT "支付时间（市场本地时间，精确到时分秒）",
+  `refund_date` date NULL COMMENT "退款日期",
+  `refund_time` datetime NULL COMMENT "退款时间（北京时间，精确到时分秒）",
+  `refund_date_market` date NULL COMMENT "退款日期（市场本地时间，用于跨时区报表统计）",
+  `refund_time_market` datetime NULL COMMENT "退款时间（市场本地时间，精确到时分秒）",
+  `purchase_date` datetime NULL COMMENT "购买日期",
+  `last_update_time` datetime NULL COMMENT "最后更新时间（北京时间）",
+  `last_update_time_market` datetime NULL COMMENT "最后更新时间（市场本地时间，精确到时分秒）",
+  `platform_id` bigint NULL COMMENT "平台ID",
+  `store_id` bigint NULL COMMENT "店铺ID",
+  `store_site_id` bigint NULL COMMENT "店铺站点ID",
+  `platform_code` varchar(200) NULL COMMENT "平台代码",
+  `platform_name` varchar(100) NULL COMMENT "平台名称",
+  `store_name` varchar(100) NULL COMMENT "店铺名称",
+  `store_alias` varchar(100) NULL COMMENT "店铺别名（用于第三方平台的店铺标识）",
+  `store_site_name` varchar(100) NULL COMMENT "店铺站点名称",
+  `insert_time` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT "数据插入时间戳"
+) ENGINE=OLAP
+UNIQUE KEY(`smt`, `sdt`, `store_code`, `store_site_code`, `order_id`, `data_source`)
+COMMENT '销售额明细表-准实时（销售域，事实类型，小时增量，smt/sdt/sht从order_time_market获取）'
+PARTITION BY RANGE(`smt`)
+(PARTITION p202301 VALUES [("202301"), ("202302")),
+PARTITION p202302 VALUES [("202302"), ("202303")),
+PARTITION p202303 VALUES [("202303"), ("202304")),
+PARTITION p202304 VALUES [("202304"), ("202305")),
+PARTITION p202305 VALUES [("202305"), ("202306")),
+PARTITION p202306 VALUES [("202306"), ("202307")),
+PARTITION p202307 VALUES [("202307"), ("202308")),
+PARTITION p202308 VALUES [("202308"), ("202309")),
+PARTITION p202309 VALUES [("202309"), ("202310")),
+PARTITION p202310 VALUES [("202310"), ("202311")),
+PARTITION p202311 VALUES [("202311"), ("202312")),
+PARTITION p202312 VALUES [("202312"), ("202401")),
+PARTITION p202401 VALUES [("202401"), ("202402")),
+PARTITION p202402 VALUES [("202402"), ("202403")),
+PARTITION p202403 VALUES [("202403"), ("202404")),
+PARTITION p202404 VALUES [("202404"), ("202405")),
+PARTITION p202405 VALUES [("202405"), ("202406")),
+PARTITION p202406 VALUES [("202406"), ("202407")),
+PARTITION p202407 VALUES [("202407"), ("202408")),
+PARTITION p202408 VALUES [("202408"), ("202409")),
+PARTITION p202409 VALUES [("202409"), ("202410")),
+PARTITION p202410 VALUES [("202410"), ("202411")),
+PARTITION p202411 VALUES [("202411"), ("202412")),
+PARTITION p202412 VALUES [("202412"), ("202501")),
+PARTITION p202501 VALUES [("202501"), ("202502")),
+PARTITION p202502 VALUES [("202502"), ("202503")),
+PARTITION p202503 VALUES [("202503"), ("202504")),
+PARTITION p202504 VALUES [("202504"), ("202505")),
+PARTITION p202505 VALUES [("202505"), ("202506")),
+PARTITION p202506 VALUES [("202506"), ("202507")),
+PARTITION p202507 VALUES [("202507"), ("202508")),
+PARTITION p202508 VALUES [("202508"), ("202509")),
+PARTITION p202509 VALUES [("202509"), ("202510")),
+PARTITION p202510 VALUES [("202510"), ("202511")),
+PARTITION p202511 VALUES [("202511"), ("202512")),
+PARTITION p202512 VALUES [("202512"), ("202601")),
+PARTITION p202601 VALUES [("202601"), ("202602")),
+PARTITION p202602 VALUES [("202602"), ("202603")),
+PARTITION p202603 VALUES [("202603"), ("202604")))
+DISTRIBUTED BY HASH(`order_id`) BUCKETS 32
+PROPERTIES (
+"replication_allocation" = "tag.location.default: 1",
+"min_load_replica_num" = "-1",
+"is_being_synced" = "false",
+"storage_medium" = "hdd",
+"storage_format" = "V2",
+"inverted_index_storage_format" = "V1",
+"enable_unique_key_merge_on_write" = "true",
+"light_schema_change" = "true",
+"function_column.sequence_col" = "last_update_time",
+"disable_auto_compaction" = "false",
+"enable_single_replica_compaction" = "false",
+"group_commit_interval_ms" = "10000",
+"group_commit_data_bytes" = "134217728",
+"enable_mow_light_delete" = "false"
+);</code></pre>
+
+    <h4>表实现（TikTok + Shopify 合并写入）</h4>
+    <p>实现参考 <code>ms-warehouse-batch-data/hours/sales/dwd/dwd_sales_amount_detail_market_hour_di.sql</code> 的 TikTok 逻辑，目标表改为 <code>dwd_sales_amount_detail_market_realtime</code>，并与积加全渠道（Shopify）分支 <code>UNION ALL</code> 后一次写入。参数：<code>currentMonthPrev</code>、<code>currentMonth</code>、<code>currentDatePrev</code>、<code>currentDate</code>、<code>currentHourPrev</code>、<code>currentHourCurr</code>。TikTok 来源表为 ODS <code>ods_trade_api_tiktok_order_di</code>，<code>data_source=2</code>；Shopify 使用 <code>ods_sales_api_jijia_omnichannel_order_di</code>，<code>data_source=1</code>。</p>
+
+    <h3>4.2 dwd_sales_order_item_market_wide_realtime</h3>
+    <p>全渠道订单商品大宽表-准实时，以 <strong>ASIN</strong> 为维度，由 <code>ods_sales_api_jijia_omnichannel_order_item_di</code> 关联订单表、商品表产出。含订单下单时间、市场分区（smt/sdt 从下单时间推导）、市场/店铺、商品层级（PID/SPU）等，约 10 分钟刷新，供销量趋势、GMV 计算等下游使用。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
-          <tr><td>paid_time</td><td>DATETIME</td><td>付款时间（Paid Time）</td></tr>
-          <tr><td>belong_month</td><td>VARCHAR(6)</td><td>归属月份，格式：YYYYMM</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>platform_order_id</td><td>VARCHAR(200)</td><td>平台订单编号（order id）</td></tr>
-          <tr><td>asin</td><td>VARCHAR(200)</td><td>Platform SKU ID</td></tr>
-          <tr><td>msku</td><td>VARCHAR(200)</td><td>Seller sku</td></tr>
-          <tr><td>quantity</td><td>INT</td><td>SKU sold quantity in the order</td></tr>
-          <tr><td>buyer_payment_amount</td><td>DECIMAL(20,4)</td><td>Order total amount paid by the buyer</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（从 order_time 推导）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD（从 order_time 推导）</td></tr>
+          <tr><td>order_time</td><td>VARCHAR(50)</td><td>下单时间</td></tr>
+          <tr><td>order_id</td><td>VARCHAR(200)</td><td>订单号</td></tr>
+          <tr><td>market_id</td><td>BIGINT</td><td>市场/店铺 ID</td></tr>
+          <tr><td>market_name</td><td>VARCHAR(500)</td><td>市场/店铺名称</td></tr>
+          <tr><td>time_zone</td><td>VARCHAR(50)</td><td>时区</td></tr>
+          <tr><td>asin</td><td>VARCHAR(200)</td><td>ASIN</td></tr>
           <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN，来自商品表）</td></tr>
           <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU（来自商品表）</td></tr>
+          <tr><td>item_id</td><td>VARCHAR(200)</td><td>商品明细 ID</td></tr>
+          <tr><td>sku</td><td>VARCHAR(200)</td><td>SKU 编码</td></tr>
+          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名称</td></tr>
+          <tr><td>selling_price</td><td>DECIMAL(20,4)</td><td>售价</td></tr>
+          <tr><td>item_price</td><td>DECIMAL(20,4)</td><td>商品单价</td></tr>
+          <tr><td>sale_qty</td><td>INT</td><td>订购数量</td></tr>
+          <tr><td>promotion_discount</td><td>DECIMAL(20,4)</td><td>促销优惠</td></tr>
+          <tr><td>order_total</td><td>DECIMAL(20,4)</td><td>订单总金额</td></tr>
+          <tr><td>buyer_pay_amount</td><td>DECIMAL(20,4)</td><td>买家实付金额</td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>币种代码</td></tr>
+          <tr><td>payment_market_time</td><td>VARCHAR(50)</td><td>支付时间</td></tr>
+          <tr><td>order_status_name</td><td>VARCHAR(100)</td><td>订单状态名</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">DUPLICATE KEY(smt, sdt, platform_order_id, asin, store_name) | 来源：ods_sales_api_jijia_omnichannel_order_di LEFT JOIN ods_product_api_jijia_omnichannel_product_df</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, order_id, asin, item_id, sku) | 来源：ods_sales_api_jijia_omnichannel_order_item_di + ods_sales_api_jijia_omnichannel_order_di + ods_product_api_jijia_omnichannel_product_df</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dwd.dwd_sales_order_item_market_wide_realtime (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（从 order_time 推导）',
+    sdt                   VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD（从 order_time 推导）',
+    order_time            VARCHAR(50)          COMMENT '下单时间，格式：yyyy-MM-dd HH:mm:ss',
+    order_id              VARCHAR(200)         COMMENT '订单号',
+    market_id             BIGINT               COMMENT '市场/店铺 ID',
+    market_name           VARCHAR(500)         COMMENT '市场/店铺名称',
+    time_zone             VARCHAR(50)          COMMENT '时区',
+    asin                  VARCHAR(200)         COMMENT 'ASIN',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN）',
+    spu                   VARCHAR(200)         COMMENT 'SPU',
+    item_id               VARCHAR(200)         COMMENT '商品明细 ID',
+    sku                   VARCHAR(200)         COMMENT 'SKU 编码',
+    msku                  VARCHAR(200)         COMMENT 'MSKU',
+    product_name          STRING               COMMENT '商品名称',
+    selling_price         DECIMAL(20,4)        COMMENT '售价',
+    item_price            DECIMAL(20,4)        COMMENT '商品单价',
+    sale_qty              INT                  COMMENT '订购数量',
+    promotion_discount    DECIMAL(20,4)        COMMENT '促销优惠',
+    order_total           DECIMAL(20,4)        COMMENT '订单总金额',
+    buyer_pay_amount      DECIMAL(20,4)        COMMENT '买家实付金额',
+    currency_code         VARCHAR(20)          COMMENT '币种代码',
+    payment_market_time   VARCHAR(50)          COMMENT '支付时间',
+    order_status_name     VARCHAR(100)         COMMENT '订单状态名',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, order_id, asin, item_id, sku)
+COMMENT '全渠道订单商品大宽表-准实时（销售域，以 ASIN 为维度，含下单时间、市场分区，约10分钟更新，供销量趋势等下游使用）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(order_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
 
     <hr />
 
-    <h2 id="sec-4">四、ADS 层表结构</h2>
+    <h2 id="sec-dws">五、DWS 层表结构</h2>
+    <p>店铺汇总中间层：<code>dws_sales_store_market_realtime</code> 为准实时店铺汇总，<code>dws_sales_store_site_market_realtime</code> 为准实时店铺站点汇总（站点粒度）。<code>dws_sales_pid_gmv_realtime</code> 为 PID 维度 GMV 日汇总，对应 ads_sales_pid_gmv_calc_realtime。</p>
 
-    <h3>4.1 ads_sales_pid_gmv_calc_1d</h3>
-    <p>PID 维度 GMV 计算表。需求一产出，供数据看板使用。</p>
+    <h3>5.1 dws_sales_store_market_realtime（准实时）</h3>
+    <p>店铺销售额准实时汇总表，用于准实时看板/播报，约 10 分钟刷新。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期（Paid Time 日期），格式：YYYYMMDD</td></tr>
-          <tr><td>store_code</td><td>VARCHAR(100)</td><td>店铺代码</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>store_id</td><td>BIGINT</td><td>店铺ID</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(100)</td><td>店铺名称</td></tr>
+          <tr><td>platform_id</td><td>BIGINT</td><td>平台ID</td></tr>
+          <tr><td>platform_code</td><td>VARCHAR(200)</td><td>平台代码</td></tr>
+          <tr><td>platform_name</td><td>VARCHAR(100)</td><td>平台名称</td></tr>
+          <tr><td>data_source</td><td>TINYINT</td><td>数据来源：1-积加,2-手动导入,3-第三方API</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>市场货币（如 USD、EUR、CNY）</td></tr>
+          <tr><td>order_count</td><td>BIGINT</td><td>订单数量汇总</td></tr>
+          <tr><td>payment_order_count</td><td>BIGINT</td><td>支付订单数量汇总</td></tr>
+          <tr><td>order_amount</td><td>DECIMAL(20,4)</td><td>订单金额汇总-市场货币</td></tr>
+          <tr><td>order_amount_rmb</td><td>DECIMAL(20,4)</td><td>订单金额汇总-人民币</td></tr>
+          <tr><td>payment_amount</td><td>DECIMAL(20,4)</td><td>支付金额汇总-市场货币</td></tr>
+          <tr><td>payment_amount_rmb</td><td>DECIMAL(20,4)</td><td>支付金额汇总-人民币</td></tr>
+          <tr><td>refund_amount</td><td>DECIMAL(20,4)</td><td>退款金额汇总-市场货币</td></tr>
+          <tr><td>refund_amount_rmb</td><td>DECIMAL(20,4)</td><td>退款金额汇总-人民币</td></tr>
+          <tr><td>net_amount</td><td>DECIMAL(20,4)</td><td>净销售额汇总-市场货币</td></tr>
+          <tr><td>net_amount_rmb</td><td>DECIMAL(20,4)</td><td>净销售额汇总-人民币</td></tr>
+          <tr><td>discount_amount</td><td>DECIMAL(20,4)</td><td>折扣金额汇总-市场货币</td></tr>
+          <tr><td>discount_amount_rmb</td><td>DECIMAL(20,4)</td><td>折扣金额汇总-人民币</td></tr>
+          <tr><td>shipping_fee</td><td>DECIMAL(12,4)</td><td>运费汇总-市场货币</td></tr>
+          <tr><td>shipping_fee_rmb</td><td>DECIMAL(12,4)</td><td>运费汇总-人民币</td></tr>
+          <tr><td>tax_amount</td><td>DECIMAL(12,4)</td><td>税费汇总-市场货币</td></tr>
+          <tr><td>tax_amount_rmb</td><td>DECIMAL(12,4)</td><td>税费汇总-人民币</td></tr>
+          <tr><td>commission_amount</td><td>DECIMAL(12,4)</td><td>佣金金额汇总-市场货币</td></tr>
+          <tr><td>commission_amount_rmb</td><td>DECIMAL(12,4)</td><td>佣金金额汇总-人民币</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入/更新时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, platform_code, store_id, store_code) | 来源：dwd_sales_amount_detail_market_realtime 按 sdt+店铺维度聚合；准实时任务约 10 分钟合并写入</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_store_market_realtime (
+    store_id              BIGINT               COMMENT '店铺ID',
+    store_code            VARCHAR(200)         COMMENT '店铺代码',
+    store_name            VARCHAR(100)         COMMENT '店铺名称',
+    platform_id           BIGINT               COMMENT '平台ID',
+    platform_code         VARCHAR(200)         COMMENT '平台代码',
+    platform_name         VARCHAR(100)         COMMENT '平台名称',
+    data_source           TINYINT              COMMENT '数据来源：1-积加平台,2-手动导入,3-第三方API',
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                   VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
+    currency_code         VARCHAR(20)          COMMENT '市场货币（如 USD、EUR、CNY）',
+    order_count           BIGINT               COMMENT '订单数量汇总',
+    payment_order_count   BIGINT               COMMENT '支付订单数量汇总（已支付订单数量）',
+    order_amount          DECIMAL(20,4)        COMMENT '订单金额汇总-市场货币（包含未支付订单）',
+    order_amount_rmb      DECIMAL(20,4)        COMMENT '订单金额汇总-人民币（包含未支付订单）',
+    payment_amount        DECIMAL(20,4)        COMMENT '支付金额汇总-市场货币（已支付订单金额）',
+    payment_amount_rmb    DECIMAL(20,4)        COMMENT '支付金额汇总-人民币（已支付订单金额）',
+    refund_amount         DECIMAL(20,4)        COMMENT '退款金额汇总-市场货币',
+    refund_amount_rmb     DECIMAL(20,4)        COMMENT '退款金额汇总-人民币',
+    net_amount            DECIMAL(20,4)        COMMENT '净销售额汇总-市场货币',
+    net_amount_rmb        DECIMAL(20,4)        COMMENT '净销售额汇总-人民币',
+    discount_amount       DECIMAL(20,4)        COMMENT '折扣金额汇总-市场货币',
+    discount_amount_rmb   DECIMAL(20,4)        COMMENT '折扣金额汇总-人民币',
+    shipping_fee          DECIMAL(12,4)        COMMENT '运费汇总-市场货币',
+    shipping_fee_rmb      DECIMAL(12,4)        COMMENT '运费汇总-人民币',
+    tax_amount            DECIMAL(12,4)        COMMENT '税费汇总-市场货币',
+    tax_amount_rmb        DECIMAL(12,4)        COMMENT '税费汇总-人民币',
+    commission_amount     DECIMAL(12,4)        COMMENT '佣金金额汇总-市场货币',
+    commission_amount_rmb DECIMAL(12,4)        COMMENT '佣金金额汇总-人民币',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, platform_code, store_id, store_code)
+COMMENT '店铺销售额准实时汇总表（销售域，店铺粒度，约10分钟更新）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(store_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3>5.2 dws_sales_store_site_market_realtime（店铺站点准实时）</h3>
+    <p>店铺站点销售额准实时汇总表，参考 <code>dws_sales_store_market_realtime</code>，粒度到<strong>店铺站点</strong>（store_site）。按店铺+站点+项目+平台+数据来源+日期汇总订单数、支付订单数、各金额指标等，约 10 分钟刷新。来源：dwd_sales_amount_detail_market_realtime 按 sdt+store_site 维度聚合。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>store_id</td><td>BIGINT</td><td>店铺ID</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(100)</td><td>店铺名称</td></tr>
+          <tr><td>store_site_id</td><td>BIGINT</td><td>店铺站点ID</td></tr>
+          <tr><td>store_site_code</td><td>VARCHAR(200)</td><td>店铺站点代码</td></tr>
+          <tr><td>store_site_name</td><td>VARCHAR(100)</td><td>店铺站点名称</td></tr>
+          <tr><td>platform_id</td><td>BIGINT</td><td>平台ID</td></tr>
+          <tr><td>platform_code</td><td>VARCHAR(200)</td><td>平台代码</td></tr>
+          <tr><td>platform_name</td><td>VARCHAR(100)</td><td>平台名称</td></tr>
+          <tr><td>data_source</td><td>TINYINT</td><td>数据来源：1-积加,2-手动导入,3-第三方API</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>市场货币（如 USD、EUR、CNY）</td></tr>
+          <tr><td>order_count</td><td>BIGINT</td><td>订单数量汇总</td></tr>
+          <tr><td>payment_order_count</td><td>BIGINT</td><td>支付订单数量汇总</td></tr>
+          <tr><td>order_amount</td><td>DECIMAL(20,4)</td><td>订单金额汇总-市场货币</td></tr>
+          <tr><td>order_amount_rmb</td><td>DECIMAL(20,4)</td><td>订单金额汇总-人民币</td></tr>
+          <tr><td>payment_amount</td><td>DECIMAL(20,4)</td><td>支付金额汇总-市场货币</td></tr>
+          <tr><td>payment_amount_rmb</td><td>DECIMAL(20,4)</td><td>支付金额汇总-人民币</td></tr>
+          <tr><td>refund_amount</td><td>DECIMAL(20,4)</td><td>退款金额汇总-市场货币</td></tr>
+          <tr><td>refund_amount_rmb</td><td>DECIMAL(20,4)</td><td>退款金额汇总-人民币</td></tr>
+          <tr><td>net_amount</td><td>DECIMAL(20,4)</td><td>净销售额汇总-市场货币</td></tr>
+          <tr><td>net_amount_rmb</td><td>DECIMAL(20,4)</td><td>净销售额汇总-人民币</td></tr>
+          <tr><td>discount_amount</td><td>DECIMAL(20,4)</td><td>折扣金额汇总-市场货币</td></tr>
+          <tr><td>discount_amount_rmb</td><td>DECIMAL(20,4)</td><td>折扣金额汇总-人民币</td></tr>
+          <tr><td>shipping_fee</td><td>DECIMAL(12,4)</td><td>运费汇总-市场货币</td></tr>
+          <tr><td>shipping_fee_rmb</td><td>DECIMAL(12,4)</td><td>运费汇总-人民币</td></tr>
+          <tr><td>tax_amount</td><td>DECIMAL(12,4)</td><td>税费汇总-市场货币</td></tr>
+          <tr><td>tax_amount_rmb</td><td>DECIMAL(12,4)</td><td>税费汇总-人民币</td></tr>
+          <tr><td>commission_amount</td><td>DECIMAL(12,4)</td><td>佣金金额汇总-市场货币</td></tr>
+          <tr><td>commission_amount_rmb</td><td>DECIMAL(12,4)</td><td>佣金金额汇总-人民币</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入/更新时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, platform_code, store_id, store_code, store_site_code, store_site_name) | 来源：dwd_sales_amount_detail_market_realtime 按 sdt+店铺站点维度聚合；准实时任务约 10 分钟合并写入</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_store_site_market_realtime (
+    store_id              BIGINT               COMMENT '店铺ID',
+    store_code            VARCHAR(200)         COMMENT '店铺代码',
+    store_name            VARCHAR(100)         COMMENT '店铺名称',
+    store_site_id         BIGINT               COMMENT '店铺站点ID',
+    store_site_code       VARCHAR(200)         COMMENT '店铺站点代码',
+    store_site_name       VARCHAR(100)         COMMENT '店铺站点名称',
+    platform_id           BIGINT               COMMENT '平台ID',
+    platform_code         VARCHAR(200)         COMMENT '平台代码',
+    platform_name         VARCHAR(100)         COMMENT '平台名称',
+    data_source           TINYINT              COMMENT '数据来源：1-积加平台,2-手动导入,3-第三方API',
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                   VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
+    currency_code         VARCHAR(20)          COMMENT '市场货币（如 USD、EUR、CNY）',
+    order_count           BIGINT               COMMENT '订单数量汇总',
+    payment_order_count   BIGINT               COMMENT '支付订单数量汇总（已支付订单数量）',
+    order_amount          DECIMAL(20,4)        COMMENT '订单金额汇总-市场货币（包含未支付订单）',
+    order_amount_rmb      DECIMAL(20,4)        COMMENT '订单金额汇总-人民币（包含未支付订单）',
+    payment_amount        DECIMAL(20,4)        COMMENT '支付金额汇总-市场货币（已支付订单金额）',
+    payment_amount_rmb    DECIMAL(20,4)        COMMENT '支付金额汇总-人民币（已支付订单金额）',
+    refund_amount         DECIMAL(20,4)        COMMENT '退款金额汇总-市场货币',
+    refund_amount_rmb     DECIMAL(20,4)        COMMENT '退款金额汇总-人民币',
+    net_amount            DECIMAL(20,4)        COMMENT '净销售额汇总-市场货币',
+    net_amount_rmb        DECIMAL(20,4)        COMMENT '净销售额汇总-人民币',
+    discount_amount       DECIMAL(20,4)        COMMENT '折扣金额汇总-市场货币',
+    discount_amount_rmb   DECIMAL(20,4)        COMMENT '折扣金额汇总-人民币',
+    shipping_fee          DECIMAL(12,4)        COMMENT '运费汇总-市场货币',
+    shipping_fee_rmb      DECIMAL(12,4)        COMMENT '运费汇总-人民币',
+    tax_amount            DECIMAL(12,4)        COMMENT '税费汇总-市场货币',
+    tax_amount_rmb        DECIMAL(12,4)        COMMENT '税费汇总-人民币',
+    commission_amount     DECIMAL(12,4)        COMMENT '佣金金额汇总-市场货币',
+    commission_amount_rmb DECIMAL(12,4)        COMMENT '佣金金额汇总-人民币',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, platform_code, store_id, store_code, store_site_code, store_site_name)
+COMMENT '店铺站点销售额准实时汇总表（销售域，店铺站点粒度，约10分钟更新）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(store_site_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3>5.3 dws_sales_pid_gmv_realtime（准实时）</h3>
+    <p>PID 维度 GMV 准实时汇总表，约 10 分钟刷新，对应 <code>ads_sales_pid_gmv_calc_realtime</code>。由 <code>dwd_sales_order_item_market_wide_realtime</code> 按 market_id、pid、sdt 聚合，产出 order_quantity、sale_qty、paid_amount、atv 等。ADS 层直接使用本表或基于本表做轻量加工。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（归属月份）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期，格式：YYYYMMDD</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码（来自 market_id）</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(500)</td><td>店铺名称（来自 market_name）</td></tr>
           <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN）</td></tr>
-          <tr><td>revenue_before_discount</td><td>DECIMAL(20,4)</td><td>营业总额</td></tr>
-          <tr><td>seller_discount</td><td>DECIMAL(20,4)</td><td>商家折扣</td></tr>
-          <tr><td>shipping_fee</td><td>DECIMAL(20,4)</td><td>运费</td></tr>
-          <tr><td>total_gmv</td><td>DECIMAL(20,4)</td><td>总 GMV（营业总额-商家折扣+运费）</td></tr>
-          <tr><td>order_quantity</td><td>BIGINT</td><td>单量</td></tr>
-          <tr><td>subsidy</td><td>DECIMAL(20,4)</td><td>补贴</td></tr>
-          <tr><td>subsidy_per_order</td><td>DECIMAL(20,4)</td><td>每单补贴</td></tr>
-          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>实付总价</td></tr>
-          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价（实付总价/单量）</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU</td></tr>
+          <tr><td>order_quantity</td><td>BIGINT</td><td>订单数（order id 去重）</td></tr>
+          <tr><td>sale_qty</td><td>BIGINT</td><td>SKU 订购数量汇总</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>买家实付金额汇总</td></tr>
+          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价（实付总价/订单数）</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">来源：ods_trade_api_tiktok_order_item_di + ods_trade_api_tiktok_order_di + ods_product_api_jijia_omnichannel_product_df</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_code, pid) | 来源：dwd_sales_order_item_market_wide_realtime</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_pid_gmv_realtime (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（归属月份）',
+    sdt                   VARCHAR(8)           COMMENT '统计日期，格式：YYYYMMDD',
+    store_code            VARCHAR(200)         COMMENT '店铺代码（来自 market_id）',
+    store_name            VARCHAR(500)         COMMENT '店铺名称（来自 market_name）',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN）',
+    spu                   VARCHAR(200)         COMMENT 'SPU',
+    order_quantity        BIGINT               COMMENT '订单数（order id 去重）',
+    sale_qty              BIGINT               COMMENT 'SKU 订购数量汇总',
+    paid_amount           DECIMAL(20,4)        COMMENT '买家实付金额汇总',
+    atv                   DECIMAL(20,2)        COMMENT '客单价（实付总价/订单数）',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_code, pid)
+COMMENT 'PID 维度 GMV 日汇总表（销售域，按店铺+PID+日期聚合，供 ads_sales_pid_gmv_calc_realtime 使用）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
 
-    <h3>4.2 ads_sales_pid_dashboard_1d</h3>
-    <p>PID 维度数据看板。需求二产出，支持按日期、店铺、PID 筛选。</p>
+    <hr />
+
+    <h2 id="sec-4">六、ADS 层表结构</h2>
+
+    <h3>6.1 ads_sales_pid_gmv_calc_realtime（准实时）</h3>
+    <p>PID 维度 GMV 计算表，准实时约 10 分钟刷新。需求一产出，供数据看板使用。业务字段与《销售数据映射 — 需求文档》TK-独立站数据销量趋势数据映射一致，来源 <code>dws_sales_pid_gmv_realtime</code>。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID</td></tr>
-          <tr><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
-          <tr><td>product_level</td><td>VARCHAR(100)</td><td>产品阶段（商品层级）</td></tr>
-          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价</td></tr>
-          <tr><td>subsidy_per_order</td><td>DECIMAL(20,4)</td><td>每单补贴</td></tr>
-          <tr><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务 GMV</td></tr>
-          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
-          <tr><td>sold_quantity</td><td>INT</td><td>成交件数</td></tr>
-          <tr><td>order_count</td><td>INT</td><td>订单数</td></tr>
-          <tr><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
-          <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
-          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>视频 GMV</td></tr>
-          <tr><td>product_card_gmv_ratio</td><td>DECIMAL(10,4)</td><td>商品卡 GMV 占比</td></tr>
-          <tr><td>live_gmv_ratio</td><td>DECIMAL(10,4)</td><td>直播 GMV 占比</td></tr>
-          <tr><td>video_gmv_ratio</td><td>DECIMAL(10,4)</td><td>视频 GMV 占比</td></tr>
-          <tr><td>product_card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
-          <tr><td>product_card_pv</td><td>BIGINT</td><td>商品卡 PV</td></tr>
-          <tr><td>product_card_click_rate</td><td>DECIMAL(10,4)</td><td>商品卡点击率</td></tr>
-          <tr><td>product_card_convert_rate</td><td>DECIMAL(10,4)</td><td>商品卡转化率</td></tr>
-          <tr><td>live_exposure</td><td>BIGINT</td><td>直播曝光</td></tr>
-          <tr><td>live_click_rate</td><td>DECIMAL(10,4)</td><td>直播点击率</td></tr>
-          <tr><td>live_convert_rate</td><td>DECIMAL(10,4)</td><td>直播转化率</td></tr>
-          <tr><td>video_exposure</td><td>BIGINT</td><td>视频曝光</td></tr>
-          <tr><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>视频点击率</td></tr>
-          <tr><td>video_convert_rate</td><td>DECIMAL(10,4)</td><td>视频转化率</td></tr>
-          <tr><td>business_hang_count</td><td>INT</td><td>商务挂车量</td></tr>
-          <tr><td>clip_hang_count</td><td>INT</td><td>剪辑挂车量</td></tr>
-          <tr><td>total_hang_count</td><td>INT</td><td>合计挂车量</td></tr>
-          <tr><td>gmvmax_cost</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
-          <tr><td>ad_order_count</td><td>INT</td><td>广告订单数</td></tr>
-          <tr><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
-          <tr><td>acoas</td><td>DECIMAL(20,4)</td><td>总 ACOAS（财务 GMV/GMVMAX 消耗）</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（归属月份）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期（Paid Time 日期），格式：YYYYMMDD</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(500)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN）</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU</td></tr>
+          <tr><td>order_quantity</td><td>BIGINT</td><td>订单数（order id 去重）</td></tr>
+          <tr><td>sale_qty</td><td>BIGINT</td><td>SKU 订购数量汇总</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>买家实付金额汇总（Order total amount）</td></tr>
+          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价（实付总价/订单数）</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">来源：product_list + 全渠道商品 + 产品阶段 + GMV 计算表 + campaign + video_performance + tk 账号</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_code, pid) | 来源：dws_sales_pid_gmv_realtime</p>
+    <p class="meta">DDL 文件：<code>ms-warehouse-batch-data/ddl/sales/ads/ads_sales_pid_gmv_calc_realtime.sql</code></p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_pid_gmv_calc_realtime (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（归属月份）',
+    sdt                   VARCHAR(8)           COMMENT '统计日期（Paid Time 日期），格式：YYYYMMDD',
+    store_code            VARCHAR(200)         COMMENT '店铺代码',
+    store_name            VARCHAR(500)         COMMENT '店铺名称',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN）',
+    spu                   VARCHAR(200)         COMMENT 'SPU',
+    order_quantity        BIGINT               COMMENT '订单数（order id 去重）',
+    sale_qty              BIGINT               COMMENT 'SKU 订购数量汇总',
+    paid_amount           DECIMAL(20,4)        COMMENT '买家实付金额汇总（Order total amount）',
+    atv                   DECIMAL(20,2)        COMMENT '客单价（实付总价/订单数）',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_code, pid)
+COMMENT 'PID 维度 GMV 计算表（销售域，按店铺+PID+日期聚合，与销售数据映射 TK-独立站销量趋势一致）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
 
-    <h3>4.3 ads_sales_order_count_store_1d</h3>
-    <p>每日按店铺订单数播报表。用于企微播报。</p>
+    <h3>6.2 ads_sales_pid_dashboard_1d</h3>
+    <p>PID 维度数据看板。需求二产出，支持按日期、店铺、PID 筛选。业务字段与接口文档 3.2 主表 <code>list[]</code> 及<code>需求二-数据看板.html</code>表头 51 列一致（序号 1～51，4 为分析操作列不落库），snake_case 命名。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>—</td><td>smt</td><td>INT</td><td>月分区，格式 YYYYMM（公用必选）</td></tr>
+          <tr><td>1</td><td>sdt</td><td>VARCHAR(8)</td><td>日期，YYYYMMDD（公用必选）</td></tr>
+          <tr><td>2</td><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>3</td><td>pid</td><td>VARCHAR(200)</td><td>PID</td></tr>
+          <tr><td>4</td><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
+          <tr><td>5</td><td>product_level</td><td>VARCHAR(100)</td><td>产品阶段（商品层级）</td></tr>
+          <tr><td>6</td><td>atv</td><td>DECIMAL(20,2)</td><td>客单价</td></tr>
+          <tr><td>7</td><td>subsidy_per</td><td>DECIMAL(20,4)</td><td>平均补贴/单</td></tr>
+          <tr><td>8</td><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务 GMV</td></tr>
+          <tr><td>9</td><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
+          <tr><td>10</td><td>deal_qty</td><td>INT</td><td>成交件数</td></tr>
+          <tr><td>11</td><td>order_qty</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>12</td><td>card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>13</td><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
+          <tr><td>14</td><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
+          <tr><td>15</td><td>card_gmv_ratio</td><td>VARCHAR(20)</td><td>商品卡 GMV 占比</td></tr>
+          <tr><td>16</td><td>live_gmv_ratio</td><td>VARCHAR(20)</td><td>直播 GMV 占比</td></tr>
+          <tr><td>17</td><td>video_gmv_ratio</td><td>VARCHAR(20)</td><td>短视频 GMV 占比</td></tr>
+          <tr><td>18</td><td>card_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡商品交易总额</td></tr>
+          <tr><td>19</td><td>card_deal_qty</td><td>INT</td><td>商品卡成交件数</td></tr>
+          <tr><td>20</td><td>card_atv</td><td>DECIMAL(20,2)</td><td>商品卡-客单价</td></tr>
+          <tr><td>21</td><td>card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
+          <tr><td>22</td><td>card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
+          <tr><td>23</td><td>card_uv_view</td><td>BIGINT</td><td>商品卡去重浏览</td></tr>
+          <tr><td>24</td><td>card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
+          <tr><td>25</td><td>card_click</td><td>BIGINT</td><td>商品卡点击</td></tr>
+          <tr><td>26</td><td>card_convert</td><td>BIGINT</td><td>商品卡转化</td></tr>
+          <tr><td>27</td><td>card_video_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡短视频商品交易总额</td></tr>
+          <tr><td>28</td><td>video_deal_qty</td><td>INT</td><td>短视频成交件数</td></tr>
+          <tr><td>29</td><td>video_atv</td><td>DECIMAL(20,2)</td><td>短视频-客单价</td></tr>
+          <tr><td>30</td><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
+          <tr><td>31</td><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>32</td><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
+          <tr><td>33</td><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
+          <tr><td>34</td><td>video_click_rate</td><td>VARCHAR(20)</td><td>视频点击率</td></tr>
+          <tr><td>35</td><td>video_convert_rate</td><td>VARCHAR(20)</td><td>视频转化率</td></tr>
+          <tr><td>36</td><td>biz_hanger_qty</td><td>INT</td><td>商务挂车量</td></tr>
+          <tr><td>37</td><td>edit_hanger_qty</td><td>INT</td><td>剪辑挂车量</td></tr>
+          <tr><td>38</td><td>total_hanger_qty</td><td>INT</td><td>合计挂车量</td></tr>
+          <tr><td>39</td><td>biz_open_video_qty</td><td>INT</td><td>商务开单视频</td></tr>
+          <tr><td>40</td><td>edit_open_video_qty</td><td>INT</td><td>剪辑开单视频</td></tr>
+          <tr><td>41</td><td>total_open_video_qty</td><td>INT</td><td>开单视频合计</td></tr>
+          <tr><td>42</td><td>vas_consume</td><td>DECIMAL(20,4)</td><td>vas 消耗</td></tr>
+          <tr><td>43</td><td>gmvmax_consume</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
+          <tr><td>44</td><td>ad_total_consume</td><td>DECIMAL(20,4)</td><td>广告总消耗</td></tr>
+          <tr><td>45</td><td>ad_order_count</td><td>INT</td><td>广告单量</td></tr>
+          <tr><td>46</td><td>ad_order_qty</td><td>INT</td><td>广告订单数</td></tr>
+          <tr><td>47</td><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
+          <tr><td>48</td><td>total_gmv</td><td>DECIMAL(20,4)</td><td>总 GMV</td></tr>
+          <tr><td>49</td><td>total_acoas</td><td>DECIMAL(20,4)</td><td>总 ACoAS</td></tr>
+          <tr><td>50</td><td>ad_roi</td><td>DECIMAL(20,4)</td><td>广告 ROI（测算）</td></tr>
+          <tr><td>51</td><td>ad_acoas</td><td>DECIMAL(20,4)</td><td>广告 AcoAs</td></tr>
+          <tr><td>52</td><td>ad_roi_setting_count</td><td>INT</td><td>广告 ROI 设置数</td></tr>
+          <tr><td>—</td><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">与接口文档 3.2 list[]、需求二-数据看板.html 表头 51 列顺序一致（分析列为前端操作，不落库）。来源：product_list + 全渠道商品 + GMV 计算表 + campaign + video_performance + tk 账号</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_pid_dashboard_1d (
+    smt                      INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                      VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
+    store_name               VARCHAR(200)         COMMENT '店铺名称',
+    pid                      VARCHAR(200)         COMMENT 'PID',
+    spu                      VARCHAR(200)         COMMENT '主推 SPU',
+    product_level            VARCHAR(100)         COMMENT '产品阶段（商品层级）',
+    atv                      DECIMAL(20,2)        COMMENT '客单价',
+    subsidy_per              DECIMAL(20,4)        COMMENT '平均补贴/单',
+    financial_gmv            DECIMAL(20,4)        COMMENT '财务 GMV',
+    trade_amount             DECIMAL(20,4)        COMMENT '商品交易总额',
+    deal_qty                 INT                  COMMENT '成交件数',
+    order_qty                INT                  COMMENT '订单数',
+    card_gmv                 DECIMAL(20,4)        COMMENT '商品卡 GMV',
+    live_gmv                 DECIMAL(20,4)        COMMENT '直播 GMV',
+    video_gmv                DECIMAL(20,4)        COMMENT '短视频 GMV',
+    card_gmv_ratio           VARCHAR(20)          COMMENT '商品卡 GMV 占比',
+    live_gmv_ratio           VARCHAR(20)          COMMENT '直播 GMV 占比',
+    video_gmv_ratio          VARCHAR(20)          COMMENT '短视频 GMV 占比',
+    card_trade_amount        DECIMAL(20,4)        COMMENT '商品卡商品交易总额',
+    card_deal_qty            INT                  COMMENT '商品卡成交件数',
+    card_atv                 DECIMAL(20,2)        COMMENT '商品卡-客单价',
+    card_exposure            BIGINT               COMMENT '商品卡曝光',
+    card_page_view           BIGINT               COMMENT '商品卡页面浏览次数',
+    card_uv_view             BIGINT               COMMENT '商品卡去重浏览',
+    card_uv_user             BIGINT               COMMENT '商品卡去重客户',
+    card_click               BIGINT               COMMENT '商品卡点击',
+    card_convert             BIGINT               COMMENT '商品卡转化',
+    card_video_trade_amount  DECIMAL(20,4)        COMMENT '商品卡短视频商品交易总额',
+    video_deal_qty           INT                  COMMENT '短视频成交件数',
+    video_atv                DECIMAL(20,2)        COMMENT '短视频-客单价',
+    video_exposure           BIGINT               COMMENT '视频曝光次数',
+    video_page_view          BIGINT               COMMENT '来自视频的页面浏览次数',
+    video_uv_view            BIGINT               COMMENT '来自视频的去重页面浏览次数',
+    video_uv_user            BIGINT               COMMENT '视频去重商品客户数',
+    video_click_rate         VARCHAR(20)          COMMENT '视频点击率',
+    video_convert_rate       VARCHAR(20)          COMMENT '视频转化率',
+    biz_hanger_qty           INT                  COMMENT '商务挂车量',
+    edit_hanger_qty          INT                  COMMENT '剪辑挂车量',
+    total_hanger_qty         INT                  COMMENT '合计挂车量',
+    biz_open_video_qty       INT                  COMMENT '商务开单视频',
+    edit_open_video_qty      INT                  COMMENT '剪辑开单视频',
+    total_open_video_qty     INT                  COMMENT '开单视频合计',
+    vas_consume              DECIMAL(20,4)        COMMENT 'vas 消耗',
+    gmvmax_consume           DECIMAL(20,4)        COMMENT 'GMVMAX 消耗',
+    ad_total_consume         DECIMAL(20,4)        COMMENT '广告总消耗',
+    ad_order_count           INT                  COMMENT '广告单量',
+    ad_order_qty             INT                  COMMENT '广告订单数',
+    ad_gmv                   DECIMAL(20,4)        COMMENT '广告 GMV',
+    total_gmv                DECIMAL(20,4)        COMMENT '总 GMV',
+    total_acoas              DECIMAL(20,4)        COMMENT '总 ACoAS',
+    ad_roi                   DECIMAL(20,4)        COMMENT '广告 ROI（测算）',
+    ad_acoas                 DECIMAL(20,4)        COMMENT '广告 AcoAs',
+    ad_roi_setting_count     INT                  COMMENT '广告 ROI 设置数',
+    insert_time              DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+DUPLICATE KEY(smt, sdt, store_name, pid)
+COMMENT 'PID 维度数据看板（需求二，与接口 3.2 list[]、需求二-数据看板 51 列一致）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1"
+);</code></pre>
+
+    <h3>6.3 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
+    <p>按店铺站点维度的订单数与金额准实时播报表，<strong>播报为站点层级</strong>，直接使用本表。约 10 分钟刷新，保留历史数据；每日播报与准实时看板均按 sdt 取当日各站点 order_count、paid_amount。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期（市场本地日期），格式：YYYYMMDD</td></tr>
-          <tr><td>store_code</td><td>VARCHAR(100)</td><td>店铺代码</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（如 1 店、美区跨境 1 店）</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(100)</td><td>店铺名称</td></tr>
+          <tr><td>store_site_code</td><td>VARCHAR(200)</td><td>店铺站点代码</td></tr>
+          <tr><td>store_site_name</td><td>VARCHAR(100)</td><td>店铺站点名称</td></tr>
           <tr><td>order_count</td><td>BIGINT</td><td>订单数（去重）</td></tr>
-          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>金额（实付总价，当日累计）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入/更新时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">来源：ods_trade_api_tiktok_order_di，按店铺+平台订单编号去重；美区 18:00/17:00 前，欧洲不卡时间</p>
+    <p class="req-ref">UNIQUE KEY(sdt, store_code, store_site_code) | 来源：<code>dws_sales_store_site_market_realtime</code>（按 store_site 取 order_count、payment_amount 等）；准实时任务约 10 分钟合并写入</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_store_site_order_count_realtime (
+    sdt               VARCHAR(8)           COMMENT '统计日期，格式：YYYYMMDD',
+    store_code        VARCHAR(200)         COMMENT '店铺代码',
+    store_name        VARCHAR(100)         COMMENT '店铺名称',
+    store_site_code    VARCHAR(200)         COMMENT '店铺站点代码',
+    store_site_name   VARCHAR(100)         COMMENT '店铺站点名称',
+    order_count       BIGINT               COMMENT '订单数（去重）',
+    paid_amount       DECIMAL(20,4)        COMMENT '金额（实付总价，当日累计）',
+    insert_time       DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入/更新时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(sdt, store_code, store_site_code)
+COMMENT '按店铺站点订单数+金额准实时播报表，约10分钟更新，保留历史'
+DISTRIBUTED BY HASH(store_site_code) BUCKETS 8
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
 
     <hr />
 
-    <h2 id="sec-5">五、数据依赖关系</h2>
+    <h2 id="sec-5">七、数据依赖关系</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>产出表</th><th>依赖 ODS/DWD</th></tr></thead>
         <tbody>
-          <tr><td>ads_sales_pid_gmv_calc_1d</td><td>ods_trade_api_tiktok_order_item_di、ods_trade_api_tiktok_order_di、ods_product_api_jijia_omnichannel_product_df、dim_store</td></tr>
-          <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di、ods_product_api_jijia_omnichannel_product_df、ods_product_file_product_stage_df、ads_sales_pid_gmv_calc_1d、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
-          <tr><td>dwd_sales_tiktok_trend_order_detail_di</td><td>ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
-          <tr><td>ads_sales_order_count_store_1d</td><td>ods_trade_api_tiktok_order_di、dim_store_site_info、dim_store_info</td></tr>
+          <tr><td>dim_jijia_store_site_df</td><td>积加接口或手工维护（维度表，日全量）</td></tr>
+          <tr><td>dws_sales_store_market_realtime</td><td>dwd_sales_amount_detail_market_realtime</td></tr>
+          <tr><td>dws_sales_store_site_market_realtime</td><td>dwd_sales_amount_detail_market_realtime</td></tr>
+          <tr><td>ads_sales_pid_gmv_calc_realtime</td><td>dws_sales_pid_gmv_realtime</td></tr>
+          <tr><td>dws_sales_pid_gmv_realtime</td><td>dwd_sales_order_item_market_wide_realtime</td></tr>
+          <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
+          <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
+          <tr><td>ads_sales_store_site_order_count_realtime</td><td>dws_sales_store_site_market_realtime</td></tr>
         </tbody>
       </table>
     </div>
 
     <hr />
 
-    <h2 id="sec-6">六、计算逻辑与建表规范</h2>
+    <h2 id="sec-6">八、计算逻辑与建表规范</h2>
     <p>以下内容合并自原 ms-warehouse-batch-data/docs/FWVD-1071 设计文档，按需求维度整理。</p>
 
     <h3>6.1 通用规范</h3>
@@ -1102,29 +1814,31 @@ PROPERTIES (
 
     <h3>6.2 PID 需求一：GMV 计算表</h3>
     <div class="section-card">
-      <p class="meta">产出表：<code>ads_sales_pid_gmv_calc_1d</code>（见第四节 4.1）</p>
+      <p class="meta">产出表：<code>ads_sales_pid_gmv_calc_realtime</code>（见第六节 6.1）。DWS 层：<code>dws_sales_pid_gmv_realtime</code>（见五、5.3）。DWD 层：<code>dwd_sales_order_item_market_wide_realtime</code>（见四、4.2）。业务字段与《销售数据映射 — 需求文档》TK-独立站数据销量趋势数据映射一致。</p>
       <h4>规则</h4>
       <ul>
-        <li><strong>输入</strong>：全部笔订单（SKU 明细）+ 全渠道商品表</li>
-        <li><strong>关联</strong>：order_item.seller_sku = product.msku → parent_asin 作为 PID</li>
-        <li><strong>筛选</strong>：Cancelation/Return Type ≠ Cancel；Order Amount ≠ 0</li>
-        <li><strong>汇总</strong>：按日期、PID、店铺</li>
+        <li><strong>DWD</strong>：<code>dwd_sales_order_item_market_wide_realtime</code>（订单商品大宽表-准实时，以 ASIN 为维度，含下单时间、市场分区、PID、SPU，约 10 分钟更新）</li>
+        <li><strong>DWS 汇总</strong>：由 DWD 按 smt、sdt、market_id（映射 store_code）、market_name（映射 store_name）、pid 聚合，产出 dws_sales_pid_gmv_realtime</li>
+        <li><strong>ADS</strong>：来源 dws_sales_pid_gmv_realtime（可直接使用或轻量加工）</li>
       </ul>
       <h4>字段计算</h4>
       <ul>
-        <li>总 GMV = 营业总额 - 商家折扣 + 运费</li>
-        <li>每单补贴 = 补贴 / 单量</li>
-        <li>客单价 = 实付总价 / 单量（保留两位小数）</li>
+        <li>store_code = CAST(market_id AS VARCHAR)</li>
+        <li>store_name = market_name</li>
+        <li>order_quantity = COUNT(DISTINCT order_id)</li>
+        <li>sale_qty = SUM(sale_qty)</li>
+        <li>paid_amount = SUM(按明细分摊的买家实付金额，如 item_price×sale_qty 或按比例分摊 buyer_pay_amount)</li>
+        <li>atv = paid_amount / order_quantity（保留两位小数）</li>
       </ul>
     </div>
 
     <h3>6.3 PID 需求二：数据看板</h3>
     <div class="section-card">
-      <p class="meta">产出表：<code>ads_sales_pid_dashboard_1d</code>（见第四节 4.2）</p>
+      <p class="meta">产出表：<code>ads_sales_pid_dashboard_1d</code>（见第六节 6.2）</p>
       <h4>规则</h4>
       <ul>
         <li><strong>底表</strong>：product_list（ID 即 PID）</li>
-        <li><strong>关联</strong>：全渠道商品表、产品阶段、GMV 计算表、Product campaign data、Video Performance List、tk 账号信息</li>
+        <li><strong>关联</strong>：全渠道商品表、GMV 计算表、Product campaign data、Video Performance List、tk 账号信息</li>
       </ul>
       <h4>挂车量</h4>
       <ul>
@@ -1138,21 +1852,20 @@ PROPERTIES (
 
     <h3>6.4 销售需求二：订单明细与销量趋势</h3>
     <div class="section-card">
-      <p class="meta">产出表：<code>dwd_sales_tiktok_trend_order_detail_di</code>（见第三节 3.1）</p>
+      <p class="meta">数据来源：<code>dwd_sales_amount_detail_market_realtime</code>（见四、4.1）。原 <code>dwd_sales_tiktok_trend_order_detail_di</code> 已废弃。</p>
       <h4>规则</h4>
       <ul>
-        <li><strong>筛选</strong>：实付≠0；美区 18:00/17:00 前；欧洲不卡时间</li>
-        <li><strong>关联</strong>：订单表.asin = 商品表.asin，补 PID（parent_asin）、SPU</li>
+        <li><strong>取数</strong>：从 <code>dwd_sales_amount_detail_market_realtime</code> 按 sdt、store、订单维度查询或聚合。筛选逻辑（实付≠0、美区 18:00/17:00 前、欧洲不卡时间）在 ODS→DWD 写入时或查询时保证。</li>
         <li><strong>目标</strong>：① 订单明细映射 ② 近两天差异播报 ③ AI 异常播报</li>
       </ul>
     </div>
 
     <h3>6.5 销售需求一：每日订单数播报</h3>
     <div class="section-card">
-      <p class="meta">产出表：<code>ads_sales_order_count_store_1d</code>（见第四节 4.3）</p>
+      <p class="meta">取数表：<code>ads_sales_store_site_order_count_realtime</code>（见第六节 6.3）。播报为站点层级，该表保留历史数据，每日播报按 <code>sdt = 播报日期</code> 查询各站点即可，无需单独 1d 表。</p>
       <h4>规则</h4>
       <ul>
-        <li><strong>筛选</strong>：实付≠0</li>
+        <li><strong>筛选</strong>：实付≠0（在 DWD/DWS 写入或上游保证）</li>
         <li><strong>美区</strong>：付款时间早于当日 夏令时 18:00 / 冬令时 17:00</li>
         <li><strong>欧洲</strong>：不卡时间</li>
         <li><strong>统计</strong>：按店铺 + 平台订单编号去重</li>
@@ -1162,9 +1875,22 @@ PROPERTIES (
 IF 店铺属于美区: cutoff_hour = 夏令时 ? 18 : 17
   保留 IF (paid_date_local = 播报日期 AND paid_hour_local &lt; cutoff_hour) OR (paid_date_local &lt; 播报日期)
 ELSE IF 店铺属于欧洲: 保留 IF paid_date_local = 播报日期</code></pre>
-      <p>需关联 <code>dim_store_site_info</code> 获取 utc_offset_hours、country_code。</p>
+      <p>需关联 <code>dim_store_site_info</code> 获取 utc_offset_hours、country_code。播报时从 <code>ads_sales_store_site_order_count_realtime</code> 按 sdt 取当日各站点 order_count、paid_amount。</p>
       <h4>企微播报示例</h4>
       <p><code>2月27日（美国时间）订单数：1店230 / 2店0 / 3店3 / 英区12 / 独立站0 @所有人</code></p>
+    </div>
+
+    <h3>6.6 准实时报表链路</h3>
+    <div class="section-card">
+      <p class="meta">参见本节前文「一、分层与表清单」下的<strong>准实时报表方案</strong>。</p>
+      <h4>数据流</h4>
+      <ul>
+        <li><strong>ODS</strong>：ods_trade_api_tiktok_order_di、ods_trade_api_tiktok_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_sales_api_jijia_omnichannel_order_item_di，约 10 分钟调度写入。</li>
+        <li><strong>DWD</strong>：使用 <code>dwd_sales_amount_detail_market_realtime</code>（见四、4.1），由准实时任务约 10 分钟或小时级写入。</li>
+        <li><strong>ADS</strong>：准实时报表表建议表名带 <code>_realtime</code>（如 ads_sales_store_site_order_count_realtime），COMMENT 写「准实时，约 10 分钟更新」。</li>
+      </ul>
+      <h4>与每日播报关系</h4>
+      <p>每日按站点订单数播报与准实时看板共用 <code>ads_sales_store_site_order_count_realtime</code>（站点层级）：该表约 10 分钟刷新且保留历史数据，按 sdt 取某日即可做每日播报，无需单独 1d 表。</p>
     </div>
 
     <hr />

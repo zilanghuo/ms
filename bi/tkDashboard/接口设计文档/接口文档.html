@@ -864,6 +864,60 @@
 }</code></pre>
     <p><strong>导出 Excel / 落库字段明细</strong></p>
     <p>导出 Excel 及落库时，从 <code>childList</code> 单条对象中取以下字段：<code>groupItemId</code>（父 ASIN）、<code>itemId</code>（ASIN）、<code>marketId</code>、<code>marketName</code>、<code>sku</code>、<code>msku</code>、<code>skuName</code>、<code>spu</code>、<code>spuName</code>、<code>salePrice</code>、<code>adjustStandardPrice</code>、<code>currency</code>、<code>categoryTree</code>、<code>salesState</code>、<code>salesStateDesc</code>、<code>single</code>、<code>mainImageUrl</code>。</p>
+
+    <h3>5.3 对接方式：根据子体 ID 获取子体参数</h3>
+    <p>全渠道商品接口返回的 <code>data.rows[]</code> 为商品组列表，每组含 <code>childIdList</code>（子体 ID 数组）和 <code>childList</code>（子体明细）。若需按子体 ID 批量拉取完整子体参数，可再调用以下接口，请求体中的 <code>ids</code> 即由 <code>data.rows[].childIdList</code> 汇总得到。</p>
+    <p><strong>接口地址</strong></p>
+    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/child</code></pre>
+    <h4>5.3.1 请求</h4>
+    <p><strong>请求体示例</strong></p>
+    <pre><code>{
+  "ids": [226981, 226980, 226979, 226978, 226977, 226976, 226975, 226974, 226973, 226972, 226971, 226970, 226969, 226968, 226967, 226966, 226965, 226964, 226963, 226962, 226961, 226960, 226959, 226958, 226957]
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>ids</td><td>number[]</td><td>子体 ID 列表，来源于全渠道商品接口 <code>data.rows[].childIdList</code> 汇总</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>5.3.2 响应结构</h4>
+    <p>根结构：<code>traceId</code>（string|null）、<code>code</code>（number，0 表示成功）、<code>success</code>（number）、<code>data</code>（array）。<code>data</code> 为数组，每项为一条子体对象，结构与 5.2 中 <code>data.rows[].childList[]</code> 单条对象一致（即与上文「childList 单条对象字段」表格一致）。</p>
+    <p><strong>响应示例（结构摘要）</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "data": [
+    {
+      "id": 226981,
+      "platformCode": "TIKTOK",
+      "platformEnName": "Tiktok自运营",
+      "adjustStandardPrice": 69.99,
+      "b2bPrice": null,
+      "b2bQuantityType": null,
+      "brand": "",
+      "brandName": null,
+      "category": "MW105",
+      "categoryTree": "AL-美亚项目/MY-男装/MW105-男式+卫衣(洗水)",
+      "currency": "USD",
+      "currencySymbol": "$",
+      "firstLevelCategory": "AL-美亚项目",
+      "groupItemId": "1729445816792093029",
+      "groupKey": "1000017_1729445816792093029",
+      "itemId": "1732031437114282341",
+      "marketId": 1000017,
+      "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
+      "msku": "AL-W0190B-MLS-2XL",
+      "listingTitle": "FAIABLE Ultimate Plain Comfort Acid Wash Long Sleeve tops...",
+      "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/...",
+      "productManagerName": "李里唯",
+      "listingTagParam": { "bizId": 108996, "bizKey": "TIKTOK_108996", "platformCode": "TIKTOK" }
+    }
+  ]
+}</code></pre>
+    <p>字段完整说明见 5.2「childList 单条对象字段」表格；导出/落库所需字段与 5.2 末尾「导出 Excel / 落库字段明细」相同。</p>
     <hr />
 
     <h2>六、积加对接：全渠道订单数据</h2>

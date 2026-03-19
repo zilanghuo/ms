@@ -44,6 +44,45 @@ description: >-
 
 新增文档时直接复用现有任意一份文档的 `<style>` 块即可。
 
+## UI 界面风格与设计规范
+
+bi 下原型与文档页统一一套**色彩、字体、圆角与组件**约定，保证视觉一致。
+
+### 色彩
+
+- **主色 / 强调色**：`#0d9488`（teal），用于主按钮、链接、选中态、h1 底线。hover 用 `#0f766e`（--accent-hover）。
+- **背景**：页面底 `#f5f6f8`（--bg）；卡片/内容区白 `#fff`（--card）；主内容区灰 `#f1f5f9`（仅入口页 main）。
+- **文字**：正文 `#333`（--text）；次要/表头/placeholder `#666`（--muted）。
+- **边框**：默认 `#e0e0e0`（--border）；输入框 `#d1d5db`（--input-border）。
+- **侧栏**（仅入口 index）：背景 `#1e293b`，文字 `#e2e8f0`，hover `#334155`，选中强调色同主色，选中背景 `rgba(13,148,136,0.2)`。
+- **表格**：表头背景 `#f9fafb` 或 `#f1f5f9`；行 hover `#f9fafb`；合计行浅绿 `#f0fdf4`，hover `#dcfce7`。
+- **表头模块色**：日期/主模块浅蓝 `#cce5ff`、`#004085`；商品信息等浅黄 `#fff3cd`、`#856404`。
+- **语义**：涨/警示红 `#dc2626`，跌/成功绿 `#16a34a`；导出提示红底 `#fef2f2`、字 `#991b1b`。
+- **标签/级联选中**：浅蓝底 `#e0f2fe`、字 `#0369a1`；hover 蓝 `#2563eb`、`#eff6ff`/`#f0f9ff`。
+
+### 字体与字号
+
+- **字体**：`-apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif`，正文 14px，line-height 1.5～1.6。
+- **标题**：页面标题 1.25rem、600；h1 文档 1.5rem；h2 1.2rem；h3 1.05rem、muted 色。
+- **表格与控件**：表 0.75rem～0.9rem；输入、按钮、tab 0.8rem～0.9rem；辅助 0.7rem～0.85rem。
+
+### 圆角与间距
+
+- **圆角**：卡片/面板 8px；按钮、输入、tab 组 4px；标签、小按钮 3px～6px。
+- **间距**：卡片 padding 0.5rem～1rem；表 cell 0.4rem～0.5rem；表与区块间 margin 1rem。
+
+### 组件约定
+
+- **主按钮**：`.btn-query`，accent 背景+白字，hover 用 accent-hover。
+- **次要按钮**：`.btn-secondary`，白底+边框，hover 浅灰 `#f9fafb`。
+- **Tab 组**：边框用 accent，未选白底+accent 字，选中 accent 底+白字，hover 浅青 `#f0fdfa`。
+- **输入/下拉**：白底、input-border 边框、4px 圆角，与 label 同用 `.query-item` 包一层。
+- **级联选择器**：`.cascade-trigger`、`.cascade-panel`，展开 panel 白底+阴影 `0 6px 20px rgba(0,0,0,0.12)`。
+- **表格**：外 `.table-wrap` 防横向溢出；表头 `.th-module` 可加 `.bg-blue`/`.bg-yellow`；数字列右对齐、`tabular-nums`。
+- **链接**：`.back a` 或正文链接用 accent，hover 下划线。
+
+新增原型页时优先从现有 `htmls/*.html` 或 `index.html` 拷贝整段 `<style>`，再按需删改。完整变量与色值见 [reference/design-tokens.md](reference/design-tokens.md)。
+
 ## 接口文档编写惯例
 
 1. **顶部**：标题 + 简短说明（对应哪些页面/模块）。
@@ -81,4 +120,5 @@ description: >-
 ## 参考
 
 - 目录与文件清单见 [reference/structure.md](reference/structure.md)（以 `bi/tkDashboard` 为示例）。
+- **UI 色彩与 token** 见 [reference/design-tokens.md](reference/design-tokens.md)，新页面可直接复制 :root 与色值表。
 - 具体示例以 **bi 目录下** 现有文件为准，修改时先浏览对应子项目内相关 HTML 再落笔。
