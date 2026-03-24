@@ -63,6 +63,7 @@
         <li><a href="#sec-4">六、ADS 层表结构</a></li>
         <li><a href="#sec-5">七、数据依赖关系</a></li>
         <li><a href="#sec-6">八、计算逻辑与建表规范</a></li>
+        <li><a href="#sec-store-site-mapping">九、店铺站点对应信息</a></li>
       </ul>
     </nav>
 
@@ -1332,6 +1333,8 @@ PROPERTIES (
           <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
           <tr><td>currency_code</td><td>VARCHAR(20)</td><td>市场货币（如 USD、EUR、CNY）</td></tr>
           <tr><td>order_count</td><td>BIGINT</td><td>订单数量汇总</td></tr>
+          <tr><td>valid_order_count</td><td>BIGINT</td><td>有效订单数（金额大于0的订单）</td></tr>
+          <tr><td>sample_order_count</td><td>BIGINT</td><td>样品订单数（金额等于0的订单）</td></tr>
           <tr><td>payment_order_count</td><td>BIGINT</td><td>支付订单数量汇总</td></tr>
           <tr><td>order_amount</td><td>DECIMAL(20,4)</td><td>订单金额汇总-市场货币</td></tr>
           <tr><td>order_amount_rmb</td><td>DECIMAL(20,4)</td><td>订单金额汇总-人民币</td></tr>
@@ -1367,6 +1370,8 @@ PROPERTIES (
     sdt                   VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
     currency_code         VARCHAR(20)          COMMENT '市场货币（如 USD、EUR、CNY）',
     order_count           BIGINT               COMMENT '订单数量汇总',
+    valid_order_count     BIGINT               COMMENT '有效订单数（金额大于0的订单）',
+    sample_order_count   BIGINT               COMMENT '样品订单数（金额等于0的订单）',
     payment_order_count   BIGINT               COMMENT '支付订单数量汇总（已支付订单数量）',
     order_amount          DECIMAL(20,4)        COMMENT '订单金额汇总-市场货币（包含未支付订单）',
     order_amount_rmb      DECIMAL(20,4)        COMMENT '订单金额汇总-人民币（包含未支付订单）',
@@ -1413,6 +1418,7 @@ PROPERTIES (
           <tr><td>store_site_id</td><td>BIGINT</td><td>店铺站点ID</td></tr>
           <tr><td>store_site_code</td><td>VARCHAR(200)</td><td>店铺站点代码</td></tr>
           <tr><td>store_site_name</td><td>VARCHAR(100)</td><td>店铺站点名称</td></tr>
+          <tr><td>jijia_store_site_name</td><td>VARCHAR(100)</td><td>积加店铺站点名称</td></tr>
           <tr><td>platform_id</td><td>BIGINT</td><td>平台ID</td></tr>
           <tr><td>platform_code</td><td>VARCHAR(200)</td><td>平台代码</td></tr>
           <tr><td>platform_name</td><td>VARCHAR(100)</td><td>平台名称</td></tr>
@@ -1421,6 +1427,8 @@ PROPERTIES (
           <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
           <tr><td>currency_code</td><td>VARCHAR(20)</td><td>市场货币（如 USD、EUR、CNY）</td></tr>
           <tr><td>order_count</td><td>BIGINT</td><td>订单数量汇总</td></tr>
+          <tr><td>valid_order_count</td><td>BIGINT</td><td>有效订单数（金额大于0的订单）</td></tr>
+          <tr><td>sample_order_count</td><td>BIGINT</td><td>样品订单数（金额等于0的订单）</td></tr>
           <tr><td>payment_order_count</td><td>BIGINT</td><td>支付订单数量汇总</td></tr>
           <tr><td>order_amount</td><td>DECIMAL(20,4)</td><td>订单金额汇总-市场货币</td></tr>
           <tr><td>order_amount_rmb</td><td>DECIMAL(20,4)</td><td>订单金额汇总-人民币</td></tr>
@@ -1451,6 +1459,7 @@ PROPERTIES (
     store_site_id         BIGINT               COMMENT '店铺站点ID',
     store_site_code       VARCHAR(200)         COMMENT '店铺站点代码',
     store_site_name       VARCHAR(100)         COMMENT '店铺站点名称',
+    jijia_store_site_name VARCHAR(100)         COMMENT '积加店铺站点名称',
     platform_id           BIGINT               COMMENT '平台ID',
     platform_code         VARCHAR(200)         COMMENT '平台代码',
     platform_name         VARCHAR(100)         COMMENT '平台名称',
@@ -1459,6 +1468,8 @@ PROPERTIES (
     sdt                   VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
     currency_code         VARCHAR(20)          COMMENT '市场货币（如 USD、EUR、CNY）',
     order_count           BIGINT               COMMENT '订单数量汇总',
+    valid_order_count     BIGINT               COMMENT '有效订单数（金额大于0的订单）',
+    sample_order_count   BIGINT               COMMENT '样品订单数（金额等于0的订单）',
     payment_order_count   BIGINT               COMMENT '支付订单数量汇总（已支付订单数量）',
     order_amount          DECIMAL(20,4)        COMMENT '订单金额汇总-市场货币（包含未支付订单）',
     order_amount_rmb      DECIMAL(20,4)        COMMENT '订单金额汇总-人民币（包含未支付订单）',
@@ -1734,7 +1745,7 @@ PROPERTIES (
 );</code></pre>
 
     <h3>6.3 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
-    <p>按店铺站点维度的订单数与金额准实时播报表，<strong>播报为站点层级</strong>，直接使用本表。约 10 分钟刷新，保留历史数据；每日播报与准实时看板均按 sdt 取当日各站点 order_count、paid_amount。</p>
+    <p>按店铺站点维度的订单数与金额准实时播报表，<strong>播报为站点层级</strong>，直接使用本表。约 10 分钟刷新，保留历史数据；每日播报与准实时看板均按 sdt 取当日各站点 order_count、valid_order_count、sample_order_count、paid_amount。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
@@ -1745,12 +1756,14 @@ PROPERTIES (
           <tr><td>store_site_code</td><td>VARCHAR(200)</td><td>店铺站点代码</td></tr>
           <tr><td>store_site_name</td><td>VARCHAR(100)</td><td>店铺站点名称</td></tr>
           <tr><td>order_count</td><td>BIGINT</td><td>订单数（去重）</td></tr>
+          <tr><td>valid_order_count</td><td>BIGINT</td><td>有效订单数（金额大于0的订单）</td></tr>
+          <tr><td>sample_order_count</td><td>BIGINT</td><td>样品订单数（金额等于0的订单）</td></tr>
           <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>金额（实付总价，当日累计）</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入/更新时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">UNIQUE KEY(sdt, store_code, store_site_code) | 来源：<code>dws_sales_store_site_market_realtime</code>（按 store_site 取 order_count、payment_amount 等）；准实时任务约 10 分钟合并写入</p>
+    <p class="req-ref">UNIQUE KEY(sdt, store_code, store_site_code) | 来源：<code>dws_sales_store_site_market_realtime</code>（按 store_site 取 order_count、valid_order_count、sample_order_count、payment_amount 等）；准实时任务约 10 分钟合并写入</p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_store_site_order_count_realtime (
     sdt               VARCHAR(8)           COMMENT '统计日期，格式：YYYYMMDD',
@@ -1759,6 +1772,8 @@ PROPERTIES (
     store_site_code    VARCHAR(200)         COMMENT '店铺站点代码',
     store_site_name   VARCHAR(100)         COMMENT '店铺站点名称',
     order_count       BIGINT               COMMENT '订单数（去重）',
+    valid_order_count BIGINT               COMMENT '有效订单数（金额大于0的订单）',
+    sample_order_count BIGINT              COMMENT '样品订单数（金额等于0的订单）',
     paid_amount       DECIMAL(20,4)        COMMENT '金额（实付总价，当日累计）',
     insert_time       DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入/更新时间戳'
 ) ENGINE=OLAP
@@ -1875,7 +1890,7 @@ PROPERTIES (
 IF 店铺属于美区: cutoff_hour = 夏令时 ? 18 : 17
   保留 IF (paid_date_local = 播报日期 AND paid_hour_local &lt; cutoff_hour) OR (paid_date_local &lt; 播报日期)
 ELSE IF 店铺属于欧洲: 保留 IF paid_date_local = 播报日期</code></pre>
-      <p>需关联 <code>dim_store_site_info</code> 获取 utc_offset_hours、country_code。播报时从 <code>ads_sales_store_site_order_count_realtime</code> 按 sdt 取当日各站点 order_count、paid_amount。</p>
+      <p>需关联 <code>dim_store_site_info</code> 获取 utc_offset_hours、country_code。播报时从 <code>ads_sales_store_site_order_count_realtime</code> 按 sdt 取当日各站点 order_count、valid_order_count、sample_order_count、paid_amount。</p>
       <h4>企微播报示例</h4>
       <p><code>2月27日（美国时间）订单数：1店230 / 2店0 / 3店3 / 英区12 / 独立站0 @所有人</code></p>
     </div>
@@ -1891,6 +1906,26 @@ ELSE IF 店铺属于欧洲: 保留 IF paid_date_local = 播报日期</code></pre
       </ul>
       <h4>与每日播报关系</h4>
       <p>每日按站点订单数播报与准实时看板共用 <code>ads_sales_store_site_order_count_realtime</code>（站点层级）：该表约 10 分钟刷新且保留历史数据，按 sdt 取某日即可做每日播报，无需单独 1d 表。</p>
+    </div>
+
+    <hr />
+
+    <h2 id="sec-store-site-mapping">九、店铺站点对应信息</h2>
+    <p>积加店铺站点名称与数仓店铺名映射，供店铺统计、播报等场景对照使用。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>积加店铺站点名称</th><th>数仓店铺名</th></tr></thead>
+        <tbody>
+          <tr><td>美国 TK・艾斯特尼 - 欧洲直邮店 IT</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 欧洲直邮店 FR</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 欧洲直邮店 ES</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 欧洲直邮店 DE</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 美区特 1 店 US</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 美区特 2 店 US</td><td></td></tr>
+          <tr><td>美国 TK・艾斯特尼 - 美区特 3 店 US</td><td></td></tr>
+          <tr><td>美国TK独立站-shopify:Global</td><td></td></tr>
+        </tbody>
+      </table>
     </div>
 
     <hr />

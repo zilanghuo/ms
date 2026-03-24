@@ -189,19 +189,31 @@
       <li><strong>销售额时</strong>：可选最低金额筛选、统一展示币种</li>
     </ul>
     <h3>1.2 主表接口：店铺统计列表</h3>
-    <pre><code>GET /api/bi/tk/sales/store-stats</code></pre>
-    <p><strong>查询参数</strong></p>
+    <p>实现类：<code>TkStoreStatsController#getStoreSiteStats</code>，数据来源：Doris <code>ads_sales_store_site_order_count_realtime</code>。</p>
+    <pre><code>POST /tk/sales/storeSiteStats
+Content-Type: application/json</code></pre>
+    <p><strong>请求体（JSON）</strong></p>
+    <pre><code>{
+  "metric": "qty",
+  "storeName": "",
+  "startDate": "2026-02-01",
+  "endDate": "2026-02-28",
+  "gran": "day",
+  "minAmount": null,
+  "displayCurrency": ""
+}</code></pre>
+    <p><strong>请求参数说明</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>metric</td><td>string</td><td>否</td><td><code>qty</code> 销量 / <code>amount</code> 销售额，默认 <code>qty</code></td></tr>
-          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部</td></tr>
+          <tr><td>metric</td><td>string</td><td>否</td><td><code>qty</code> 订单数 / <code>amount</code> 实付金额，默认 qty</td></tr>
+          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺站点名称（store_site_name）精确匹配；空=全部（或按配置 tk.jg.sync.storeSiteNames 限定）</td></tr>
           <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD</td></tr>
           <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
           <tr><td>gran</td><td>string</td><td>否</td><td>日期类型：day / week / month / quarter / year，默认 day</td></tr>
-          <tr><td>minAmount</td><td>number</td><td>否</td><td>销售额模式下最低金额过滤</td></tr>
-          <tr><td>displayCurrency</td><td>string</td><td>否</td><td>销售额统一展示币种（如 USD、EUR），空为原始币种</td></tr>
+          <tr><td>minAmount</td><td>number</td><td>否</td><td>销售额模式下最低额过滤：<strong>按自然日</strong>比较，仅保留该日金额达标的明细。displayCurrency 空：阈值为原币，与 paid_amount 比较；非空：阈值先换人民币后与 paid_amount_rmb 比较</td></tr>
+          <tr><td>displayCurrency</td><td>string</td><td>否</td><td>销售额展示币种：CNY/USD/EUR/GBP/CAD 等；空或 original 表示原币（每店铺站点一种 currency_code）</td></tr>
         </tbody>
       </table>
     </div>
@@ -212,30 +224,31 @@
   "endDate": "2026-02-28",
   "gran": "day",
   "metric": "qty",
+  "displayCurrency": null,
   "buckets": [
     { "label": "2026/2/28" },
     { "label": "2026/2/27" },
-    { "label": "2026/2/26" },
-    { "label": "2026/2/25" },
-    { "label": "2026/2/24" }
+    { "label": "2026/2/26" }
   ],
   "list": [
     {
-      "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
+      "store_site_name": "美国 TK・艾斯特尼 - 美区特 1 店 US",
+      "currency": null,
       "total": 1250,
       "ratio": "45.20%",
       "avg": 44,
       "chainRatio": "+12.5%",
-      "vals": [38, 42, 45, 41, 44]
+      "vals": [38, 42, 45]
     }
   ],
   "totalRow": {
-    "storeName": "合计",
+    "store_site_name": "合计",
+    "currency": "—",
     "total": 2760,
     "ratio": "100%",
     "avg": 98,
     "chainRatio": "+8.2%",
-    "vals": [90, 95, 92, 88, 98]
+    "vals": [90, 95, 92]
   }
 }</code></pre>
     <p><strong>data 字段说明（按层级）</strong></p>
@@ -243,33 +256,42 @@
       <table>
         <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>storeName</td><td>string</td><td>当前筛选的店铺范围：单选店铺时为该店铺名，未选时为「全部」</td></tr>
-          <tr><td>1</td><td>startDate</td><td>string</td><td>查询开始日期，格式 YYYY-MM-DD，与请求参数一致</td></tr>
-          <tr><td>1</td><td>endDate</td><td>string</td><td>查询结束日期，格式 YYYY-MM-DD，与请求参数一致</td></tr>
-          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度：day / week / month / quarter / year，决定表头列与环比对比基准</td></tr>
-          <tr><td>1</td><td>metric</td><td>string</td><td>指标类型：qty 销量 / amount 销售额</td></tr>
-          <tr><td>1</td><td>buckets</td><td>list</td><td>与表头列一致，按 gran 聚合后的时间 bucket 列表，顺序与前端表头一致</td></tr>
-          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>单个 bucket 的展示标签，如「2026/2/28」，用于表头展示</td></tr>
-          <tr><td>1</td><td>list</td><td>list</td><td>各店铺统计行，每行对应一个店铺，顺序与前端表格一致</td></tr>
-          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称</td></tr>
-          <tr><td>2</td><td>list[].total</td><td>number</td><td>该店铺在 startDate～endDate 内的汇总值（销量为整数，销售额为小数）</td></tr>
-          <tr><td>2</td><td>list[].ratio</td><td>string</td><td>该店铺小计占合计的百分比，如「45.20%」</td></tr>
-          <tr><td>2</td><td>list[].avg</td><td>number</td><td>各 bucket 值的算术平均（销量取整，销售额保留小数）</td></tr>
-          <tr><td>2</td><td>list[].chainRatio</td><td>string</td><td>环比：当前期（首 bucket）与上一周期对比的百分比，如「+12.5%」「-3.2%」</td></tr>
-          <tr><td>2</td><td>list[].vals</td><td>list</td><td>各 bucket 对应的值，与 buckets 顺序、长度一致；销量为 number，销售额为 number</td></tr>
-          <tr><td>1</td><td>totalRow</td><td>object</td><td>合计行，与 list 中每行结构一致，表示全表合计</td></tr>
-          <tr><td>2</td><td>totalRow.storeName</td><td>string</td><td>固定为「合计」</td></tr>
-          <tr><td>2</td><td>totalRow.total</td><td>number</td><td>所有店铺的汇总值</td></tr>
-          <tr><td>2</td><td>totalRow.ratio</td><td>string</td><td>固定为「100%」</td></tr>
-          <tr><td>2</td><td>totalRow.avg</td><td>number</td><td>合计行的平均值（按 bucket 数）</td></tr>
-          <tr><td>2</td><td>totalRow.chainRatio</td><td>string</td><td>合计行的环比百分比</td></tr>
-          <tr><td>2</td><td>totalRow.vals</td><td>list</td><td>各 bucket 的合计值，与 buckets 顺序、长度一致</td></tr>
+          <tr><td>1</td><td>storeName</td><td>string</td><td>当前筛选范围：传 storeName 时为该值，未传时为「全部」</td></tr>
+          <tr><td>1</td><td>startDate / endDate</td><td>string</td><td>查询日期范围，YYYY-MM-DD</td></tr>
+          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度，决定 bucket 与环比基准</td></tr>
+          <tr><td>1</td><td>metric</td><td>string</td><td>qty 订单数 / amount 实付金额</td></tr>
+          <tr><td>1</td><td>displayCurrency</td><td>string</td><td>销售额展示币种；未传或 original 时 list 各行用原币</td></tr>
+          <tr><td>1</td><td>buckets</td><td>list</td><td>时间 bucket 列表，与表头列一致，新→旧</td></tr>
+          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>展示标签，如「2026/2/28」</td></tr>
+          <tr><td>1</td><td>list</td><td>list</td><td>各店铺站点统计行，每行对应一个 store_site</td></tr>
+          <tr><td>2</td><td>list[].store_site_name</td><td>string</td><td>店铺站点名称（store_site_name 优先，空则 store_name，再空则 store_code|store_site_code）</td></tr>
+          <tr><td>2</td><td>list[].currency</td><td>string</td><td>该行金额币种；amount 模式且原币时为站点 currency_code；统一币种时为 displayCurrency；合计行多币种时为「—」</td></tr>
+          <tr><td>2</td><td>list[].total</td><td>number/string</td><td>汇总值；minAmount 按日过滤下无达标日时为 <code>--</code></td></tr>
+          <tr><td>2</td><td>list[].ratio</td><td>string</td><td>占合计百分比，如「45.20%」</td></tr>
+          <tr><td>2</td><td>list[].avg</td><td>number/string</td><td>各 bucket 值的算术平均；无有效数值时为 <code>--</code></td></tr>
+          <tr><td>2</td><td>list[].chainRatio</td><td>string</td><td>环比：首 bucket 与上一周期对比，如「+12.5%」</td></tr>
+          <tr><td>2</td><td>list[].vals</td><td>list</td><td>各 bucket 对应值，与 buckets 顺序一致；无达标日时为 <code>--</code></td></tr>
+          <tr><td>1</td><td>totalRow</td><td>object</td><td>合计行，结构同 list 单行</td></tr>
+          <tr><td>2</td><td>totalRow.store_site_name</td><td>string</td><td>固定「合计」</td></tr>
+          <tr><td>2</td><td>totalRow.ratio</td><td>string</td><td>固定「100%」或「—」（全表 -- 时）</td></tr>
         </tbody>
       </table>
     </div>
+    <p><strong>业务逻辑梳理</strong></p>
+    <ol>
+      <li><strong>参数校验</strong>：startDate、endDate 必填且格式 YYYY-MM-DD；startDate ≤ endDate；metric 仅支持 qty 或 amount。</li>
+      <li><strong>数据来源</strong>：查询 Doris <code>ads.ads_sales_store_site_order_count_realtime</code>，字段含 sdt、store_code、store_site_code、store_name、store_site_name、order_count、valid_order_count、paid_amount、currency_code（及 paid_amount_rmb 用于 minAmount 人民币比较）。</li>
+      <li><strong>店铺筛选</strong>：storeName 非空时按 store_site_name 精确匹配；为空时若配置了 tk.jg.sync.storeSiteNames 则限定在该列表，否则查全部。</li>
+      <li><strong>指标计算</strong>：metric=qty 时取 order_count 汇总；metric=amount 时取 paid_amount。按 gran 将 sdt 映射到 bucket（day→yyyyMMdd，week→周首日 yyyyMMdd，month→yyyyMM，quarter→yyyyQn，year→yyyy），同一 bucket 内聚合。</li>
+      <li><strong>minAmount 过滤</strong>（仅 amount 模式）：按<strong>自然日</strong>比较。原币：<code>COALESCE(paid_amount,0) >= minAmount</code>；指定展示币种：先将 minAmount 换算为人民币，与 <code>paid_amount_rmb</code> 比较。某日不达标则该日明细不参与该 bucket 汇总；整行无达标日时 total/avg/vals 为 <code>--</code>。</li>
+      <li><strong>展示币种换算</strong>（amount 且 displayCurrency 非空）：从 dim.dim_exchange_rate_df 取 USD→CNY 汇率，再按配置换算各币种→展示币种。每行金额统一换算后展示。</li>
+      <li><strong>环比</strong>：首 bucket 与上一周期（按 gran 推算）对比，计算百分比，格式如 +12.5%、-3.2%。</li>
+      <li><strong>占比</strong>：每行 total / 合计 total × 100%，保留两位小数。</li>
+    </ol>
     <h3>1.3 导出</h3>
-    <pre><code>GET /api/bi/tk/sales/store-stats/export</code></pre>
-    <p>查询参数同 1.2，返回 CSV：店铺、小计、占比、平均值、环比、各 bucket 列。</p>
+    <pre><code>POST /tk/sales/storeSiteStats/export
+Content-Type: application/json</code></pre>
+    <p>请求体同 1.2，返回 Excel（<code>storeSiteStats.xlsx</code>）。表头：店铺、币种、小计、占比、平均值、环比、各 bucket 列（与 data.buckets 顺序一致）。</p>
     <hr />
 
     <h2>二、需求二：订单明细与销量趋势（商品统计）</h2>
@@ -1233,8 +1255,8 @@
           <tr><td>1</td><td>三个页面共用</td><td>站点级联选项</td><td>GET</td><td><code>/api/bi/tk/options/sites</code></td></tr>
           <tr><td>2</td><td>三个页面共用</td><td>店铺列表（按站点筛选）</td><td>GET</td><td><code>/api/bi/tk/options/stores</code></td></tr>
           <tr><td>3</td><td>需求一 店铺统计</td><td>货币选项（销售额模式）</td><td>GET</td><td><code>/api/bi/tk/options/currencies</code></td></tr>
-          <tr><td>4</td><td>需求一 店铺统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats</code></td></tr>
-          <tr><td>5</td><td>需求一 店铺统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/store-stats/export</code></td></tr>
+          <tr><td>4</td><td>需求一 店铺统计</td><td>主表</td><td>POST</td><td><code>/tk/sales/storeSiteStats</code></td></tr>
+          <tr><td>5</td><td>需求一 店铺统计</td><td>导出</td><td>POST</td><td><code>/tk/sales/storeSiteStats/export</code></td></tr>
           <tr><td>6</td><td>需求二 商品统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats</code></td></tr>
           <tr><td>7</td><td>需求二 商品统计</td><td>弹框 AI 分析</td><td>POST</td><td><code>/api/bi/tk/sales/product-stats/ai-analysis</code></td></tr>
           <tr><td>8</td><td>需求二 商品统计 / 需求三 数据看板</td><td>弹框 PID 明细</td><td>GET</td><td><code>/api/bi/tk/pid/detail</code></td></tr>
@@ -1245,6 +1267,13 @@
         </tbody>
       </table>
     </div>
+    <hr />
+    <h2>备注</h2>
+    <ul>
+      <li><strong>PID</strong>：全称 Product ID（产品 ID），对应 TikTok API 订单明细中的 <code>product_id</code> 字段。</li>
+      <li>对应产品 API 的字段为 <code>product_id</code>。</li>
+      <li><strong>SPU</strong>：积加自有概念。在积加产品资料界面可添加 SPU，SPU 与 <code>seller_sku</code> 进行绑定。</li>
+    </ul>
     <hr />
     <p><em>文档版本：按 店铺统计、商品统计、需求二-数据看板 三个 HTML 及其中弹框整理，数据规则以需求文档为准。</em></p>
     <p class="back"><a href="../index.html">← 返回首页</a></p>
