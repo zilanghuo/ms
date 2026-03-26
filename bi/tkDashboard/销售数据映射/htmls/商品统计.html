@@ -68,7 +68,9 @@
     .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
     .help-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 0.75rem; font-weight: 600; cursor: help; position: relative; vertical-align: middle; margin-left: 0.4rem; }
     .help-icon:hover .help-tip { display: block; }
-    .help-tip { display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%); background: #1e293b; color: #f1f5f9; font-size: 0.8rem; font-weight: 400; line-height: 1.6; padding: 0.6rem 0.85rem; border-radius: 6px; white-space: nowrap; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .help-tip { display: none; position: absolute; left: 28px; top: 50%; transform: translateY(-50%); background: #1e293b; color: #f1f5f9; font-size: 0.8rem; font-weight: 400; line-height: 1.75; padding: 0.65rem 0.95rem; border-radius: 6px; white-space: nowrap; max-width: none; z-index: 50; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .help-tip .rule-line { display: block; margin-top: 0.35rem; white-space: nowrap; }
+    .help-tip .rule-line:first-of-type { margin-top: 0; }
     .help-tip::before { content: ''; position: absolute; left: -6px; top: 50%; transform: translateY(-50%); border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-right: 6px solid #1e293b; }
 
     .back { font-size: 0.85rem; margin-top: 1rem; }
@@ -140,7 +142,7 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">商品统计<span class="help-icon">?<span class="help-tip">数据规则：<br/>① 买家实付金额不为零<br/>② 美区：付款时间早于当日夏令时 18:00 / 冬令时 17:00<br/>③ 欧洲：不限制时间，取全部符合「实付不为零」的数据</span></span></h1>
+    <h1 class="page-title">商品统计<span class="help-icon">?<span class="help-tip">数据规则：<span class="rule-line">① 订单数据每半小时更新一次，基于 TikTok、积加等订单相关接口同步入仓。</span><span class="rule-line">② SPU 信息每天更新一次，来源于积加产品资料等主数据（与订单刷新频率独立）。</span><span class="rule-line">③ 统计时间口径为各店铺所属<strong>市场本地时间</strong>，按市场时区对 Paid Time 等字段归集。</span><span class="rule-line">④ 仅纳入订单金额不为 0、且订单为<strong>非取消</strong>状态的明细（取消单不参与统计）。</span></span></span></h1>
 
     <div class="query-card">
       <div class="query-row">
