@@ -867,35 +867,53 @@ PROPERTIES (
 );</code></pre>
 
     <h3>3.6 ods_traffic_file_tiktok_product_list_di</h3>
-    <p>TikTok 商品数据分析表（product_list，TK 后台导出）。数据看板底表。</p>
+    <p>TikTok 商品数据分析表（product_list，TK 后台导出）。导出 Excel <strong>第 3 行为列名</strong>（共 39 列业务字段）；第 1 行多为统计日期范围，数据自第 4 行起。<code>smt</code>、<code>sdt</code>、<code>store_name</code> 由文件名或调度参数解析写入。字段与 <code>接口设计文档/接口文档.html</code>「3.0 贴源表」一致。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>smt</td><td>INT</td><td>月分区</td></tr>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID（即 PID）</td></tr>
-          <tr><td>product_name</td><td>STRING</td><td>产品名称</td></tr>
-          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>商品交易 GMV</td></tr>
-          <tr><td>order_count</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID（Excel：ID，即 PID）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品（标题/名称）</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>状态，如 Active</td></tr>
+          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>GMV（汇总）</td></tr>
           <tr><td>sold_quantity</td><td>INT</td><td>成交件数</td></tr>
-          <tr><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>order_count</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断</td></tr>
+          <tr><td>mall_page_gmv</td><td>DECIMAL(20,4)</td><td>商城页 GMV</td></tr>
+          <tr><td>mall_sold_quantity</td><td>INT</td><td>商城商品成交件数</td></tr>
+          <tr><td>mall_listing_exposure</td><td>BIGINT</td><td>商城页发品曝光次数</td></tr>
+          <tr><td>mall_page_view</td><td>BIGINT</td><td>商城页面浏览次数</td></tr>
+          <tr><td>mall_uv_view</td><td>BIGINT</td><td>商城页去重页面浏览次数</td></tr>
+          <tr><td>mall_uv_user</td><td>BIGINT</td><td>商城页去重商品客户数</td></tr>
+          <tr><td>mall_click_rate</td><td>DECIMAL(10,4)</td><td>商城点击率</td></tr>
+          <tr><td>mall_convert_rate</td><td>DECIMAL(10,4)</td><td>商城转化率</td></tr>
           <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
-          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>视频 GMV</td></tr>
-          <tr><td>product_card_exposure</td><td>BIGINT</td><td>商品卡曝光次数</td></tr>
-          <tr><td>product_card_pv</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
-          <tr><td>product_card_uv</td><td>BIGINT</td><td>商品卡去重页面浏览次数</td></tr>
-          <tr><td>product_card_click_rate</td><td>DECIMAL(10,4)</td><td>商品卡点击率</td></tr>
-          <tr><td>product_card_convert_rate</td><td>DECIMAL(10,4)</td><td>商品卡转化率</td></tr>
+          <tr><td>live_sold_quantity</td><td>INT</td><td>直播商品成交件数</td></tr>
           <tr><td>live_exposure</td><td>BIGINT</td><td>直播曝光次数</td></tr>
-          <tr><td>live_pv</td><td>BIGINT</td><td>直播页面浏览次数</td></tr>
+          <tr><td>live_page_view</td><td>BIGINT</td><td>直播的页面浏览次数</td></tr>
+          <tr><td>live_uv_view</td><td>BIGINT</td><td>直播的去重页面浏览次数</td></tr>
+          <tr><td>live_uv_user</td><td>BIGINT</td><td>直播去重商品客户数</td></tr>
           <tr><td>live_click_rate</td><td>DECIMAL(10,4)</td><td>直播点击率</td></tr>
           <tr><td>live_convert_rate</td><td>DECIMAL(10,4)</td><td>直播转化率</td></tr>
+          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>视频 GMV</td></tr>
+          <tr><td>video_sold_quantity</td><td>INT</td><td>视频商品成交件数</td></tr>
           <tr><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
-          <tr><td>video_pv</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
+          <tr><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
           <tr><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>视频点击率</td></tr>
           <tr><td>video_convert_rate</td><td>DECIMAL(10,4)</td><td>视频转化率</td></tr>
+          <tr><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>product_card_sold_quantity</td><td>INT</td><td>商品卡片商品成交件数</td></tr>
+          <tr><td>product_card_exposure</td><td>BIGINT</td><td>商品卡曝光次数</td></tr>
+          <tr><td>product_card_page_view</td><td>BIGINT</td><td>商品卡的页面浏览次数</td></tr>
+          <tr><td>product_card_uv_view</td><td>BIGINT</td><td>商品卡的去重页面浏览次数</td></tr>
+          <tr><td>product_card_uv_user</td><td>BIGINT</td><td>商品卡去重客户数</td></tr>
+          <tr><td>product_card_click_rate</td><td>DECIMAL(10,4)</td><td>商品卡点击率</td></tr>
+          <tr><td>product_card_convert_rate</td><td>DECIMAL(10,4)</td><td>商品卡转化率</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
@@ -906,27 +924,45 @@ PROPERTIES (
     smt                        INT                  COMMENT '月分区，格式：YYYYMM',
     sdt                        VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
     store_name                 VARCHAR(200)         COMMENT '店铺',
-    product_id                 VARCHAR(200)         COMMENT '商品ID（即 PID）',
-    product_name               STRING               COMMENT '产品名称',
-    gmv                        DECIMAL(20,4)        COMMENT '商品交易 GMV',
-    order_count                INT                  COMMENT '订单数',
+    product_id                 VARCHAR(200)         COMMENT '商品ID（即 PID），对应导出列 ID',
+    product_name               STRING               COMMENT '商品名称，对应导出列 商品',
+    product_status             VARCHAR(64)          COMMENT '状态，如 Active',
+    gmv                        DECIMAL(20,4)        COMMENT 'GMV（汇总）',
     sold_quantity              INT                  COMMENT '成交件数',
-    product_card_gmv           DECIMAL(20,4)        COMMENT '商品卡 GMV',
+    order_count                INT                  COMMENT '订单数',
+    voc_diagnosis              VARCHAR(200)         COMMENT 'VoC 诊断',
+    mall_page_gmv              DECIMAL(20,4)        COMMENT '商城页 GMV',
+    mall_sold_quantity         INT                  COMMENT '商城商品成交件数',
+    mall_listing_exposure      BIGINT               COMMENT '商城页发品曝光次数',
+    mall_page_view             BIGINT               COMMENT '商城页面浏览次数',
+    mall_uv_view               BIGINT               COMMENT '商城页去重页面浏览次数',
+    mall_uv_user               BIGINT               COMMENT '商城页去重商品客户数',
+    mall_click_rate            DECIMAL(10,4)        COMMENT '商城点击率',
+    mall_convert_rate          DECIMAL(10,4)        COMMENT '商城转化率',
     live_gmv                   DECIMAL(20,4)        COMMENT '直播 GMV',
-    video_gmv                  DECIMAL(20,4)        COMMENT '视频 GMV',
-    product_card_exposure      BIGINT               COMMENT '商品卡曝光次数',
-    product_card_pv            BIGINT               COMMENT '商品卡页面浏览次数',
-    product_card_uv            BIGINT               COMMENT '商品卡去重页面浏览次数',
-    product_card_click_rate    DECIMAL(10,4)        COMMENT '商品卡点击率',
-    product_card_convert_rate  DECIMAL(10,4)        COMMENT '商品卡转化率',
+    live_sold_quantity         INT                  COMMENT '直播商品成交件数',
     live_exposure              BIGINT               COMMENT '直播曝光次数',
-    live_pv                    BIGINT               COMMENT '直播页面浏览次数',
+    live_page_view             BIGINT               COMMENT '直播的页面浏览次数',
+    live_uv_view               BIGINT               COMMENT '直播的去重页面浏览次数',
+    live_uv_user               BIGINT               COMMENT '直播去重商品客户数',
     live_click_rate            DECIMAL(10,4)        COMMENT '直播点击率',
     live_convert_rate          DECIMAL(10,4)        COMMENT '直播转化率',
+    video_gmv                  DECIMAL(20,4)        COMMENT '视频 GMV',
+    video_sold_quantity        INT                  COMMENT '视频商品成交件数',
     video_exposure             BIGINT               COMMENT '视频曝光次数',
-    video_pv                   BIGINT               COMMENT '来自视频的页面浏览次数',
+    video_page_view            BIGINT               COMMENT '来自视频的页面浏览次数',
+    video_uv_view              BIGINT               COMMENT '来自视频的去重页面浏览次数',
+    video_uv_user              BIGINT               COMMENT '视频去重商品客户数',
     video_click_rate           DECIMAL(10,4)        COMMENT '视频点击率',
     video_convert_rate         DECIMAL(10,4)        COMMENT '视频转化率',
+    product_card_gmv           DECIMAL(20,4)        COMMENT '商品卡 GMV',
+    product_card_sold_quantity INT                  COMMENT '商品卡片商品成交件数',
+    product_card_exposure      BIGINT               COMMENT '商品卡曝光次数',
+    product_card_page_view     BIGINT               COMMENT '商品卡的页面浏览次数',
+    product_card_uv_view       BIGINT               COMMENT '商品卡的去重页面浏览次数',
+    product_card_uv_user       BIGINT               COMMENT '商品卡去重客户数',
+    product_card_click_rate    DECIMAL(10,4)        COMMENT '商品卡点击率',
+    product_card_convert_rate  DECIMAL(10,4)        COMMENT '商品卡转化率',
     insert_time                DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
 UNIQUE KEY(smt, sdt, store_name, product_id)
@@ -954,21 +990,26 @@ PROPERTIES (
 );</code></pre>
 
     <h3>3.7 ods_marketing_file_tiktok_campaign_di</h3>
-    <p>TikTok 广告推广数据（Product campaign data）。广告计划名称以 "-" 分隔取最后一段 = PID。</p>
+    <p>TikTok「实时推广系列数据」导出（Product campaign）。导出 Excel <strong>第 1 行为列名</strong>（共 12 列），数据自第 2 行起。示例：<code>bi/tkDashboard/PID/docs/实时推广系列数据 2026-03-28 - 2026-03-28.xlsx</code>。<code>smt</code>、<code>sdt</code>、<code>store_name</code> 由文件名或调度写入。广告计划名称以 <code>-</code> 分段时，<strong>末段为数字</strong>可视为 PID，与商品数据分析表 <code>product_id</code> 关联。字段与 <code>接口设计文档/接口文档.html</code>「3.0.1 贴源表」一致。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>smt</td><td>INT</td><td>月分区</td></tr>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>campaign_id</td><td>VARCHAR(200)</td><td>广告计划 ID</td></tr>
-          <tr><td>campaign_name</td><td>VARCHAR(500)</td><td>广告计划名称（可解析 PID）</td></tr>
-          <tr><td>cost</td><td>DECIMAL(20,4)</td><td>成本（GMVMAX 消耗）</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺（文件外补充）</td></tr>
+          <tr><td>campaign_id</td><td>VARCHAR(200)</td><td>广告计划 ID（Excel：广告计划 ID）</td></tr>
+          <tr><td>campaign_name</td><td>VARCHAR(500)</td><td>广告计划名称</td></tr>
+          <tr><td>cost</td><td>DECIMAL(20,4)</td><td>成本（推广/GMVMAX 消耗）</td></tr>
+          <tr><td>roi_protection</td><td>VARCHAR(500)</td><td>ROI 保障/保护状态文案</td></tr>
+          <tr><td>net_cost</td><td>DECIMAL(20,4)</td><td>净成本</td></tr>
+          <tr><td>current_budget</td><td>DECIMAL(20,4)</td><td>当前预算</td></tr>
           <tr><td>sku_order_count</td><td>INT</td><td>SKU 订单数</td></tr>
+          <tr><td>avg_order_cost</td><td>DECIMAL(20,4)</td><td>平均下单成本</td></tr>
           <tr><td>total_revenue</td><td>DECIMAL(20,4)</td><td>总收入（广告 GMV）</td></tr>
           <tr><td>roi</td><td>DECIMAL(10,4)</td><td>ROI</td></tr>
-          <tr><td>currency</td><td>VARCHAR(10)</td><td>货币</td></tr>
+          <tr><td>currency</td><td>VARCHAR(10)</td><td>货币，如 USD</td></tr>
+          <tr><td>optimization_mode</td><td>VARCHAR(100)</td><td>当前优化模式，如促销日</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
@@ -982,15 +1023,22 @@ PROPERTIES (
     campaign_id          VARCHAR(200)         COMMENT '广告计划 ID',
     campaign_name        VARCHAR(500)         COMMENT '广告计划名称（可解析 PID）',
     cost                 DECIMAL(20,4)        COMMENT '成本',
+    roi_protection       VARCHAR(500)         COMMENT 'ROI 保护/保障文案',
+    net_cost             DECIMAL(20,4)        COMMENT '净成本',
+    current_budget       DECIMAL(20,4)        COMMENT '当前预算',
     sku_order_count      INT                  COMMENT 'SKU 订单数',
+    avg_order_cost       DECIMAL(20,4)        COMMENT '平均下单成本',
     total_revenue        DECIMAL(20,4)        COMMENT '总收入',
     roi                  DECIMAL(10,4)        COMMENT 'ROI',
     currency             VARCHAR(10)          COMMENT '货币',
+    optimization_mode    VARCHAR(100)         COMMENT '当前优化模式',
     insert_time          DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
 UNIQUE KEY(smt, sdt, store_name, campaign_id)
 COMMENT 'TikTok 广告推广数据 ODS 层表（营销域，文件数据源，日增量）'
 PARTITION BY RANGE(smt) (
+    PARTITION p202501 VALUES [(202501), (202502)),
+    PARTITION p202502 VALUES [(202502), (202503)),
     PARTITION p202503 VALUES [(202503), (202504)),
     PARTITION p202504 VALUES [(202504), (202505)),
     PARTITION p202505 VALUES [(202505), (202506)),
@@ -1004,7 +1052,9 @@ PARTITION BY RANGE(smt) (
     PARTITION p202601 VALUES [(202601), (202602)),
     PARTITION p202602 VALUES [(202602), (202603)),
     PARTITION p202603 VALUES [(202603), (202604)),
-    PARTITION p202604 VALUES [(202604), (202605))
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607))
 )
 DISTRIBUTED BY HASH(campaign_id) BUCKETS 16
 PROPERTIES (
@@ -1013,26 +1063,39 @@ PROPERTIES (
 );</code></pre>
 
     <h3>3.8 ods_traffic_file_tiktok_video_performance_di</h3>
-    <p>TikTok 视频表现数据（Video Performance List）。用于挂车量：商品=全渠道商品标题；creator_id 在达人列表为剪辑挂车。</p>
+    <p>TikTok「直播和视频数据分析」导出（Video Performance）。导出 Excel <strong>第 3 行为列名</strong>（共 25 列），第 1 行多为日期范围，数据自第 4 行起。示例：<code>bi/tkDashboard/PID/docs/直播和视频数据分析_20260330053533.xlsx</code>。<code>商品</code> 与全渠道商品标题对齐做挂车；<code>creator_id</code> 与 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 关联区分商务/剪辑挂车。字段与 <code>接口设计文档/接口文档.html</code>「3.0.2 贴源表」一致。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>smt</td><td>INT</td><td>月分区</td></tr>
-          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区</td></tr>
-          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺</td></tr>
-          <tr><td>creator_name</td><td>VARCHAR(200)</td><td>达人名称</td></tr>
-          <tr><td>creator_id</td><td>VARCHAR(200)</td><td>达人 ID（与 tk 账号信息关联）</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺（文件外补充）</td></tr>
+          <tr><td>creator_id</td><td>VARCHAR(200)</td><td>达人 ID（Excel：达人ID）</td></tr>
           <tr><td>video_id</td><td>VARCHAR(200)</td><td>视频 ID</td></tr>
-          <tr><td>video_title</td><td>STRING</td><td>视频信息/标题</td></tr>
-          <tr><td>product_name</td><td>STRING</td><td>商品（用于挂车关联，= 全渠道商品标题）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品标题</td></tr>
+          <tr><td>creator_name</td><td>VARCHAR(200)</td><td>达人昵称</td></tr>
+          <tr><td>video_title</td><td>STRING</td><td>视频信息/描述</td></tr>
           <tr><td>publish_time</td><td>DATETIME</td><td>发布时间</td></tr>
-          <tr><td>play_count</td><td>BIGINT</td><td>播放数</td></tr>
-          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>视频商品总销售额/GMV</td></tr>
-          <tr><td>sku_order_count</td><td>INT</td><td>成交订单数</td></tr>
-          <tr><td>click_count</td><td>BIGINT</td><td>商品点击次数</td></tr>
-          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>点击率</td></tr>
-          <tr><td>convert_rate</td><td>DECIMAL(10,4)</td><td>视频转化率</td></tr>
+          <tr><td>video_views</td><td>BIGINT</td><td>VV/播放量</td></tr>
+          <tr><td>like_count</td><td>INT</td><td>点赞数</td></tr>
+          <tr><td>comment_count</td><td>INT</td><td>评论数</td></tr>
+          <tr><td>share_count</td><td>INT</td><td>分享数</td></tr>
+          <tr><td>new_follower_count</td><td>INT</td><td>新增粉丝数</td></tr>
+          <tr><td>traffic_diversion_count</td><td>BIGINT</td><td>引流次数</td></tr>
+          <tr><td>product_exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>product_click_count</td><td>BIGINT</td><td>商品点击次数</td></tr>
+          <tr><td>dedup_customer_count</td><td>BIGINT</td><td>去重客户数，可空</td></tr>
+          <tr><td>video_deal_order_count</td><td>INT</td><td>视频成交订单数</td></tr>
+          <tr><td>video_sold_quantity</td><td>INT</td><td>视频商品成交件数</td></tr>
+          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>GMV（视频）</td></tr>
+          <tr><td>gpm</td><td>DECIMAL(20,4)</td><td>GPM</td></tr>
+          <tr><td>attributed_shoppable_video_gmv</td><td>DECIMAL(20,4)</td><td>归因于带货视频的 GMV</td></tr>
+          <tr><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>点击率（视频）</td></tr>
+          <tr><td>traffic_diversion_rate</td><td>DECIMAL(10,4)</td><td>引流率</td></tr>
+          <tr><td>video_completion_rate</td><td>DECIMAL(10,4)</td><td>视频完播率</td></tr>
+          <tr><td>video_click_to_order_convert_rate</td><td>DECIMAL(10,4)</td><td>点击成交转化率（视频）</td></tr>
+          <tr><td>diagnosis</td><td>VARCHAR(200)</td><td>诊断</td></tr>
           <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
@@ -1040,26 +1103,41 @@ PROPERTIES (
     <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, creator_id, video_id, product_name)</p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_video_performance_di (
-    smt                  INT                  COMMENT '月分区，格式：YYYYMM',
-    sdt                  VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
-    store_name           VARCHAR(200)         COMMENT '店铺',
-    creator_name         VARCHAR(200)         COMMENT '达人名称',
-    creator_id           VARCHAR(200)         COMMENT '达人 ID',
-    video_id             VARCHAR(200)         COMMENT '视频 ID',
-    video_title          STRING               COMMENT '视频信息/标题',
-    product_name         STRING               COMMENT '商品（用于挂车关联）',
-    publish_time         DATETIME             COMMENT '发布时间',
-    play_count           BIGINT               COMMENT '播放数',
-    gmv                  DECIMAL(20,4)        COMMENT '视频商品总销售额/GMV',
-    sku_order_count      INT                  COMMENT '成交订单数',
-    click_count          BIGINT               COMMENT '商品点击次数',
-    click_rate           DECIMAL(10,4)        COMMENT '点击率',
-    convert_rate         DECIMAL(10,4)        COMMENT '视频转化率',
-    insert_time          DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+    smt                                INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                                VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                         VARCHAR(200)         COMMENT '店铺',
+    creator_id                         VARCHAR(200)         COMMENT '达人 ID',
+    video_id                           VARCHAR(200)         COMMENT '视频 ID',
+    product_name                       STRING               COMMENT '商品（用于挂车关联）',
+    creator_name                       VARCHAR(200)         COMMENT '达人昵称',
+    video_title                        STRING               COMMENT '视频信息/描述',
+    publish_time                       DATETIME             COMMENT '发布时间',
+    video_views                        BIGINT               COMMENT 'VV/播放量',
+    like_count                         INT                  COMMENT '点赞数',
+    comment_count                      INT                  COMMENT '评论数',
+    share_count                        INT                  COMMENT '分享数',
+    new_follower_count                 INT                  COMMENT '新增粉丝数',
+    traffic_diversion_count            BIGINT               COMMENT '引流次数',
+    product_exposure_count             BIGINT               COMMENT '商品曝光次数',
+    product_click_count                BIGINT               COMMENT '商品点击次数',
+    dedup_customer_count               BIGINT               COMMENT '去重客户数',
+    video_deal_order_count             INT                  COMMENT '视频成交订单数',
+    video_sold_quantity                INT                  COMMENT '视频商品成交件数',
+    gmv                                DECIMAL(20,4)        COMMENT 'GMV（视频）',
+    gpm                                DECIMAL(20,4)        COMMENT 'GPM',
+    attributed_shoppable_video_gmv     DECIMAL(20,4)        COMMENT '归因于带货视频的 GMV',
+    video_click_rate                   DECIMAL(10,4)        COMMENT '点击率（视频）',
+    traffic_diversion_rate             DECIMAL(10,4)        COMMENT '引流率',
+    video_completion_rate              DECIMAL(10,4)        COMMENT '视频完播率',
+    video_click_to_order_convert_rate  DECIMAL(10,4)        COMMENT '点击成交转化率（视频）',
+    diagnosis                          VARCHAR(200)         COMMENT '诊断',
+    insert_time                        DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
 UNIQUE KEY(smt, sdt, store_name, creator_id, video_id, product_name)
 COMMENT 'TikTok 视频表现数据 ODS 层表（流量域，文件数据源，日增量）'
 PARTITION BY RANGE(smt) (
+    PARTITION p202501 VALUES [(202501), (202502)),
+    PARTITION p202502 VALUES [(202502), (202503)),
     PARTITION p202503 VALUES [(202503), (202504)),
     PARTITION p202504 VALUES [(202504), (202505)),
     PARTITION p202505 VALUES [(202505), (202506)),
@@ -1073,7 +1151,9 @@ PARTITION BY RANGE(smt) (
     PARTITION p202601 VALUES [(202601), (202602)),
     PARTITION p202602 VALUES [(202602), (202603)),
     PARTITION p202603 VALUES [(202603), (202604)),
-    PARTITION p202604 VALUES [(202604), (202605))
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607))
 )
 DISTRIBUTED BY HASH(video_id) BUCKETS 16
 PROPERTIES (

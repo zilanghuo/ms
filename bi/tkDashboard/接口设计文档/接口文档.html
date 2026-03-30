@@ -425,6 +425,120 @@ Content-Type: application/json</code></pre>
 
     <h2>三、需求二：PID 数据看板</h2>
     <p>对应页面：<code>需求二-数据看板.html</code>。主表支持对比期；弹框为 <strong>PID 明细</strong>（与 2.4 同一接口）。</p>
+    <h3>3.0 贴源表：ods_traffic_file_tiktok_product_list_di（商品数据分析导出）</h3>
+    <p>TikTok Seller Center 「商品数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_product_list_di</code>，为数据看板等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/商品数据分析_美国TK-艾斯特尼-美区跨境1店_2026-03-29.xlsx</code>。</p>
+    <p><strong>文件行约定</strong>（以上述示例为准）：第 1 行为统计日期范围（如 <code>2026-03-28 ~ 2026-03-28</code>）；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。店铺名称可由<strong>文件名</strong>或调度参数解析后写入 <code>store_name</code>；业务日期写入 <code>sdt</code>（YYYYMMDD），月分区 <code>smt</code>（YYYYMM）。</p>
+    <p><strong>Excel 第 3 行列名 → 建议落库字段</strong>（共 39 列，顺序与导出一致）</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>Excel 列名（第 3 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>ID</td><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID，即 PID</td></tr>
+          <tr><td>2</td><td>商品</td><td>product_name</td><td>STRING</td><td>商品标题/名称</td></tr>
+          <tr><td>3</td><td>状态</td><td>product_status</td><td>VARCHAR(64)</td><td>如 Active</td></tr>
+          <tr><td>4</td><td>GMV</td><td>gmv</td><td>DECIMAL(20,4)</td><td>汇总 GMV；导入时去掉货币符号与千分位</td></tr>
+          <tr><td>5</td><td>成交件数</td><td>sold_quantity</td><td>INT</td><td>成交件数</td></tr>
+          <tr><td>6</td><td>订单数</td><td>order_count</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>7</td><td>VoC 诊断</td><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>如 Market average</td></tr>
+          <tr><td>8</td><td>商城页 GMV</td><td>mall_page_gmv</td><td>DECIMAL(20,4)</td><td>商城场景 GMV</td></tr>
+          <tr><td>9</td><td>商城商品成交件数</td><td>mall_sold_quantity</td><td>INT</td><td>商城成交件数</td></tr>
+          <tr><td>10</td><td>商城页发品曝光次数</td><td>mall_listing_exposure</td><td>BIGINT</td><td>发品曝光</td></tr>
+          <tr><td>11</td><td>商城页面浏览次数</td><td>mall_page_view</td><td>BIGINT</td><td>页面浏览（PV）</td></tr>
+          <tr><td>12</td><td>商城页去重页面浏览次数</td><td>mall_uv_view</td><td>BIGINT</td><td>去重浏览</td></tr>
+          <tr><td>13</td><td>商城页去重商品客户数</td><td>mall_uv_user</td><td>BIGINT</td><td>去重客户</td></tr>
+          <tr><td>14</td><td>商城点击率</td><td>mall_click_rate</td><td>DECIMAL(10,4)</td><td>如 3.03%，存小数或原样解析</td></tr>
+          <tr><td>15</td><td>商城转化率</td><td>mall_convert_rate</td><td>DECIMAL(10,4)</td><td>商城转化率</td></tr>
+          <tr><td>16</td><td>直播 GMV</td><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
+          <tr><td>17</td><td>直播商品成交件数</td><td>live_sold_quantity</td><td>INT</td><td>直播成交件数</td></tr>
+          <tr><td>18</td><td>直播曝光次数</td><td>live_exposure</td><td>BIGINT</td><td>直播曝光</td></tr>
+          <tr><td>19</td><td>直播的页面浏览次数</td><td>live_page_view</td><td>BIGINT</td><td>直播 PV</td></tr>
+          <tr><td>20</td><td>直播的去重页面浏览次数</td><td>live_uv_view</td><td>BIGINT</td><td>直播去重浏览</td></tr>
+          <tr><td>21</td><td>直播去重商品客户数</td><td>live_uv_user</td><td>BIGINT</td><td>直播去重客户</td></tr>
+          <tr><td>22</td><td>直播点击率</td><td>live_click_rate</td><td>DECIMAL(10,4)</td><td>直播点击率</td></tr>
+          <tr><td>23</td><td>直播转化率</td><td>live_convert_rate</td><td>DECIMAL(10,4)</td><td>直播转化率</td></tr>
+          <tr><td>24</td><td>视频 GMV</td><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
+          <tr><td>25</td><td>视频商品成交件数</td><td>video_sold_quantity</td><td>INT</td><td>短视频成交件数</td></tr>
+          <tr><td>26</td><td>视频曝光次数</td><td>video_exposure</td><td>BIGINT</td><td>视频曝光</td></tr>
+          <tr><td>27</td><td>来自视频的页面浏览次数</td><td>video_page_view</td><td>BIGINT</td><td>来自视频的 PV</td></tr>
+          <tr><td>28</td><td>来自视频的去重页面浏览次数</td><td>video_uv_view</td><td>BIGINT</td><td>视频去重浏览</td></tr>
+          <tr><td>29</td><td>视频去重商品客户数</td><td>video_uv_user</td><td>BIGINT</td><td>视频去重客户</td></tr>
+          <tr><td>30</td><td>视频点击率</td><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>视频点击率</td></tr>
+          <tr><td>31</td><td>视频转化率</td><td>video_convert_rate</td><td>DECIMAL(10,4)</td><td>视频转化率</td></tr>
+          <tr><td>32</td><td>商品卡 GMV</td><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>33</td><td>商品卡片商品成交件数</td><td>product_card_sold_quantity</td><td>INT</td><td>商品卡成交件数</td></tr>
+          <tr><td>34</td><td>商品卡曝光次数</td><td>product_card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
+          <tr><td>35</td><td>商品卡的页面浏览次数</td><td>product_card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数（PV）</td></tr>
+          <tr><td>36</td><td>商品卡的去重页面浏览次数</td><td>product_card_uv_view</td><td>BIGINT</td><td>商品卡去重页面浏览（UV）</td></tr>
+          <tr><td>37</td><td>商品卡去重客户数</td><td>product_card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
+          <tr><td>38</td><td>商品卡点击率</td><td>product_card_click_rate</td><td>DECIMAL(10,4)</td><td>商品卡点击率</td></tr>
+          <tr><td>39</td><td>商品卡转化率</td><td>product_card_convert_rate</td><td>DECIMAL(10,4)</td><td>商品卡转化率</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>技术方案/表结构设计-Doris.html</code>「3.6 ods_traffic_file_tiktok_product_list_di」，与本节字段一致。</p>
+    <h3>3.0.1 贴源表：ods_marketing_file_tiktok_campaign_di（实时推广系列数据导出）</h3>
+    <p>TikTok Seller Center「实时推广系列数据」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_marketing_file_tiktok_campaign_di</code>，为数据看板广告相关指标（如 GMVMAX 消耗、广告 GMV、ROI 等）提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/实时推广系列数据 2026-03-28 - 2026-03-28.xlsx</code>（工作表可能非 Sheet1，以实际 workbook 为准）。</p>
+    <p><strong>文件行约定</strong>：<strong>第 1 行即为列名</strong>；第 2 行起为数据行。文件名或第 1 行附近常见统计日期范围，可与调度参数一起解析 <code>sdt</code>、<code>smt</code>；<code>store_name</code> 由文件名或任务参数补充。</p>
+    <p><strong>PID 解析</strong>：<code>广告计划名称</code> 中常以 <code>-</code> 分段，<strong>最后一段</strong>为数字时可视作 PID，与 <code>ods_traffic_file_tiktok_product_list_di.product_id</code> 或主表 PID 关联（形如 <code>新-AL-W0161-主PID-1729773126172578149</code>）；非纯数字时段落为运营命名，需按实际规则解析。</p>
+    <p><strong>Excel 第 1 行列名 → 建议落库字段</strong>（共 12 列，顺序与导出一致）</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>Excel 列名（第 1 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>广告计划 ID</td><td>campaign_id</td><td>VARCHAR(200)</td><td>唯一键组成部分</td></tr>
+          <tr><td>2</td><td>广告计划名称</td><td>campaign_name</td><td>VARCHAR(500)</td><td>可解析出 PID</td></tr>
+          <tr><td>3</td><td>成本</td><td>cost</td><td>DECIMAL(20,4)</td><td>推广/GMVMAX 侧成本；导入时去货币符号与千分位</td></tr>
+          <tr><td>4</td><td>ROI 保护</td><td>roi_protection</td><td>VARCHAR(500)</td><td>文案类，如「符合投资回报率 (ROI) 保障资格」</td></tr>
+          <tr><td>5</td><td>净成本</td><td>net_cost</td><td>DECIMAL(20,4)</td><td>净成本</td></tr>
+          <tr><td>6</td><td>当前预算</td><td>current_budget</td><td>DECIMAL(20,4)</td><td>当前预算</td></tr>
+          <tr><td>7</td><td>SKU 订单数</td><td>sku_order_count</td><td>INT</td><td>SKU 订单数</td></tr>
+          <tr><td>8</td><td>平均下单成本</td><td>avg_order_cost</td><td>DECIMAL(20,4)</td><td>平均下单成本（单次或 per order，与后台口径一致）</td></tr>
+          <tr><td>9</td><td>总收入</td><td>total_revenue</td><td>DECIMAL(20,4)</td><td>广告带来的总收入 / 广告 GMV</td></tr>
+          <tr><td>10</td><td>ROI</td><td>roi</td><td>DECIMAL(10,4)</td><td>投资回报率</td></tr>
+          <tr><td>11</td><td>货币</td><td>currency</td><td>VARCHAR(10)</td><td>如 USD</td></tr>
+          <tr><td>12</td><td>当前优化模式</td><td>optimization_mode</td><td>VARCHAR(100)</td><td>如「促销日」</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>技术方案/表结构设计-Doris.html</code>「3.7 ods_marketing_file_tiktok_campaign_di」，与本节字段一致。</p>
+    <h3>3.0.2 贴源表：ods_traffic_file_tiktok_video_performance_di（直播和视频数据分析导出）</h3>
+    <p>TikTok Seller Center「直播和视频数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_video_performance_di</code>，为数据看板短视频曝光、互动、挂车与成交等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/直播和视频数据分析_20260330053533.xlsx</code>。</p>
+    <p><strong>文件行约定</strong>：第 1 行多为统计日期范围（如 <code>[日期范围]: 2026-03-28 ~ 2026-03-28</code>）；第 2 行可能为空；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。<code>store_name</code>、<code>sdt</code>、<code>smt</code> 由文件名或调度参数解析写入。导出列为美元标价时（如 <code>GMV（视频） ($)</code>），导入时去掉 <code>$</code> 与千分位后按数值落库。</p>
+    <p><strong>关联说明</strong>：<code>达人ID</code> 与 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 关联，用于区分商务挂车 / 剪辑挂车等；<code>商品</code> 与积加全渠道商品 <code>listingTitle</code> 等标题字段对齐做挂车匹配。</p>
+    <p><strong>Excel 第 3 行列名 → 建议落库字段</strong>（共 25 列，顺序与导出一致）</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>Excel 列名（第 3 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>达人昵称</td><td>creator_name</td><td>VARCHAR(200)</td><td>达人展示昵称</td></tr>
+          <tr><td>2</td><td>达人ID</td><td>creator_id</td><td>VARCHAR(200)</td><td>与 tk 账号表 tiktok_uid 关联</td></tr>
+          <tr><td>3</td><td>视频信息</td><td>video_title</td><td>STRING</td><td>视频文案/描述（原「视频信息」列）</td></tr>
+          <tr><td>4</td><td>视频ID</td><td>video_id</td><td>VARCHAR(200)</td><td>唯一键组成部分</td></tr>
+          <tr><td>5</td><td>发布时间</td><td>publish_time</td><td>DATETIME</td><td>导入时规范为 <code>yyyy-MM-dd HH:mm:ss</code></td></tr>
+          <tr><td>6</td><td>商品</td><td>product_name</td><td>STRING</td><td>挂载商品标题，用于挂车关联</td></tr>
+          <tr><td>7</td><td>VV</td><td>video_views</td><td>BIGINT</td><td>播放量/VV</td></tr>
+          <tr><td>8</td><td>点赞数</td><td>like_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>9</td><td>评论数</td><td>comment_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>10</td><td>分享数</td><td>share_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>11</td><td>新增粉丝数</td><td>new_follower_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>12</td><td>引流次数</td><td>traffic_diversion_count</td><td>BIGINT</td><td>—</td></tr>
+          <tr><td>13</td><td>商品曝光次数</td><td>product_exposure_count</td><td>BIGINT</td><td>—</td></tr>
+          <tr><td>14</td><td>商品点击次数</td><td>product_click_count</td><td>BIGINT</td><td>—</td></tr>
+          <tr><td>15</td><td>去重客户数</td><td>dedup_customer_count</td><td>BIGINT</td><td>可为空</td></tr>
+          <tr><td>16</td><td>视频成交订单数</td><td>video_deal_order_count</td><td>INT</td><td>—</td></tr>
+          <tr><td>17</td><td>视频商品成交件数</td><td>video_sold_quantity</td><td>INT</td><td>—</td></tr>
+          <tr><td>18</td><td>GMV（视频） ($)</td><td>gmv</td><td>DECIMAL(20,4)</td><td>视频 GMV；列名带货币时仅作展示，数值已按店铺币种</td></tr>
+          <tr><td>19</td><td>GPM ($)</td><td>gpm</td><td>DECIMAL(20,4)</td><td>千次播放收入等指标口径与后台一致</td></tr>
+          <tr><td>20</td><td>归因于带货视频的 GMV ($)</td><td>attributed_shoppable_video_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
+          <tr><td>21</td><td>点击率（视频）</td><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>如导出为 1.65%，解析去掉 % 后存数值（建议统一为百分点 1.65 或小数 0.0165，与数仓约定一致）</td></tr>
+          <tr><td>22</td><td>引流率</td><td>traffic_diversion_rate</td><td>DECIMAL(10,4)</td><td>同上，百分比解析</td></tr>
+          <tr><td>23</td><td>视频完播率</td><td>video_completion_rate</td><td>DECIMAL(10,4)</td><td>同上</td></tr>
+          <tr><td>24</td><td>点击成交转化率（视频）</td><td>video_click_to_order_convert_rate</td><td>DECIMAL(10,4)</td><td>同上</td></tr>
+          <tr><td>25</td><td>诊断</td><td>diagnosis</td><td>VARCHAR(200)</td><td>如 No issues</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。唯一键建议 <code>(smt, sdt, store_name, creator_id, video_id, product_name)</code>，详见 <code>技术方案/表结构设计-Doris.html</code>「3.8 ods_traffic_file_tiktok_video_performance_di」。若历史作业仍使用旧列名（<code>play_count</code>、<code>sku_order_count</code>、<code>click_count</code>、<code>click_rate</code>、<code>convert_rate</code>），需迁移为与上表一致的字段。</p>
     <h3>3.1 查询条件</h3>
     <ul>
       <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
