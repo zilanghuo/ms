@@ -135,68 +135,78 @@
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>类型</th><th>目标字段</th><th>计算逻辑（A列）</th><th>关联字段</th><th>源数据表</th><th>源字段名称</th><th>在源字段第几列</th></tr>
+          <tr><th>类型</th><th>目标字段</th><th>计算逻辑（A列）</th><th>关联字段</th><th>源数据表</th><th>源数据表对应的表名</th><th>源字段名称</th><th>在源字段第几列</th></tr>
         </thead>
         <tbody>
-          <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取表格右上角的日期</td><td>—</td><td>product_list</td><td>（表头/图片）</td><td>—</td></tr>
-          <tr><td>计算</td><td>PID</td><td class="tbl-formula">直接取源表：product_list.ID</td><td>—</td><td>product_list</td><td>ID</td><td>—</td></tr>
-          <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>SPU</td><td>—</td></tr>
-          <tr><td>映射</td><td>客单价</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.客单价（实付总价/单量）</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>客单价（实付总价/单量）</td><td>—</td></tr>
-          <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.每单补贴</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>每单补贴</td><td>—</td></tr>
-          <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">1店PID维度的数据监测工具表-7天数据-》GMV计算.总GMV</td><td>PID与product_list（ID）</td><td>1店PID维度的数据监测工具表-7天数据-》GMV计算</td><td>总GMV</td><td>—</td></tr>
-          <tr><td>映射</td><td>商品交易总额4</td><td class="tbl-formula">product_list.GMV</td><td>—</td><td>product_list</td><td>GMV</td><td>4</td></tr>
-          <tr><td>映射</td><td>成交件数5</td><td class="tbl-formula">product_list.成交件数</td><td>—</td><td>product_list</td><td>成交件数</td><td>5</td></tr>
-          <tr><td>映射</td><td>订单数6</td><td class="tbl-formula">product_list.订单数</td><td>—</td><td>product_list</td><td>订单数</td><td>6</td></tr>
-          <tr><td>映射</td><td>商品卡GMV31</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>商品卡 GMV</td><td>32</td></tr>
-          <tr><td>映射</td><td>直播GMV15</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>直播 GMV</td><td>16</td></tr>
-          <tr><td>映射</td><td>短视频GMV23</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>视频 GMV</td><td>24</td></tr>
-          <tr><td>计算</td><td>商品卡GMV占比</td><td class="tbl-formula">商品卡GMV占比=商品卡 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>计算</td><td>直播GMV占比</td><td class="tbl-formula">直播GMV占比=直播 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>计算</td><td>短视频GMV占比</td><td class="tbl-formula">短视频GMV占比=视频 GMV/（商品卡 GMV+直播 GMV+视频 GMV），取小数点两位数的百分比</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>映射</td><td>商品卡商品交易总额33</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>商品卡 GMV</td><td>32</td></tr>
-          <tr><td>映射</td><td>商品卡成交件数32</td><td class="tbl-formula">product_list.商品卡片商品成交件数</td><td>—</td><td>product_list</td><td>商品卡片商品成交件数</td><td>33</td></tr>
-          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=商品卡 GMV/商品卡片商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>映射</td><td>曝光33</td><td class="tbl-formula">product_list.商品卡曝光次数</td><td>—</td><td>product_list</td><td>商品卡曝光次数</td><td>34</td></tr>
-          <tr><td>映射</td><td>商品卡片的页面浏览次数36</td><td class="tbl-formula">product_list.商品卡的页面浏览次数</td><td>—</td><td>product_list</td><td>商品卡的页面浏览次数</td><td>35</td></tr>
-          <tr><td>映射</td><td>去重浏览35</td><td class="tbl-formula">product_list.商品卡的去重页面浏览次数</td><td>—</td><td>product_list</td><td>商品卡的去重页面浏览次数</td><td>36</td></tr>
-          <tr><td>映射</td><td>去重客户36</td><td class="tbl-formula">product_list.商品卡去重客户数</td><td>—</td><td>product_list</td><td>商品卡去重客户数</td><td>37</td></tr>
-          <tr><td>映射</td><td>商品卡点击37</td><td class="tbl-formula">product_list.商品卡点击率</td><td>—</td><td>product_list</td><td>商品卡点击率</td><td>38</td></tr>
-          <tr><td>映射</td><td>商品卡转化38</td><td class="tbl-formula">product_list.商品卡转化率</td><td>—</td><td>product_list</td><td>商品卡转化率</td><td>39</td></tr>
-          <tr><td>映射</td><td>直播商品交易总额17</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>直播 GMV</td><td>16</td></tr>
-          <tr><td>映射</td><td>直播成交件数16</td><td class="tbl-formula">product_list.直播商品成交件数</td><td>—</td><td>product_list</td><td>直播商品成交件数</td><td>17</td></tr>
-          <tr><td>计算</td><td>直播成交客单</td><td class="tbl-formula">直播成交客单=直播 GMV/直播商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>映射</td><td>曝光次数19</td><td class="tbl-formula">product_list.直播曝光次数</td><td>—</td><td>product_list</td><td>直播曝光次数</td><td>18</td></tr>
-          <tr><td>映射</td><td>来自视频的页面浏览次数</td><td class="tbl-formula">product_list.直播的页面浏览次数</td><td>—</td><td>product_list</td><td>直播的页面浏览次数</td><td>19</td></tr>
-          <tr><td>映射</td><td>直播的去重页面浏览次数21</td><td class="tbl-formula">product_list.直播的去重页面浏览次数</td><td>—</td><td>product_list</td><td>直播的去重页面浏览次数</td><td>20</td></tr>
-          <tr><td>映射</td><td>去重商品客户数22</td><td class="tbl-formula">product_list.直播去重商品客户数</td><td>—</td><td>product_list</td><td>直播去重商品客户数</td><td>21</td></tr>
-          <tr><td>映射</td><td>直播点击率21</td><td class="tbl-formula">product_list.直播点击率</td><td>—</td><td>product_list</td><td>直播点击率</td><td>22</td></tr>
-          <tr><td>映射</td><td>直播转化率22</td><td class="tbl-formula">product_list.直播转化率</td><td>—</td><td>product_list</td><td>直播转化率</td><td>23</td></tr>
-          <tr><td>映射</td><td>商品卡短视频商品交易总额25</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>视频 GMV</td><td>24</td></tr>
-          <tr><td>映射</td><td>短视频成交件数24</td><td class="tbl-formula">product_list.视频商品成交件数</td><td>—</td><td>product_list</td><td>视频商品成交件数</td><td>25</td></tr>
-          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=视频 GMV/视频商品成交件数，取小数点两位数</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>映射</td><td>视频曝光次数25</td><td class="tbl-formula">product_list.视频曝光次数</td><td>—</td><td>product_list</td><td>视频曝光次数</td><td>26</td></tr>
-          <tr><td>映射</td><td>来自视频的页面浏览次数28</td><td class="tbl-formula">product_list.来自视频的页面浏览次数</td><td>—</td><td>product_list</td><td>来自视频的页面浏览次数</td><td>27</td></tr>
-          <tr><td>映射</td><td>来自视频的去重页面浏览次数27</td><td class="tbl-formula">product_list.来自视频的去重页面浏览次数</td><td>—</td><td>product_list</td><td>来自视频的去重页面浏览次数</td><td>28</td></tr>
-          <tr><td>映射</td><td>视频去重商品客户数28</td><td class="tbl-formula">product_list.视频去重商品客户数</td><td>—</td><td>product_list</td><td>视频去重商品客户数</td><td>29</td></tr>
-          <tr><td>映射</td><td>视频点击率29</td><td class="tbl-formula">product_list.视频点击率</td><td>—</td><td>product_list</td><td>视频点击率</td><td>30</td></tr>
-          <tr><td>映射</td><td>视频转化率30</td><td class="tbl-formula">product_list.视频转化率</td><td>—</td><td>product_list</td><td>视频转化率</td><td>31</td></tr>
-          <tr><td>映射</td><td>商务挂车量（合计的挂车量 - 剪辑的挂车量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题</td><td>商品=全渠道商品的商品标题</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
-          <tr><td>映射</td><td>剪辑挂车量（同一个商品，处于达人列表的数据量）</td><td class="tbl-formula">Video Performance List.商品；商品=全渠道商品的商品标题，达人列表的id处于该明细算剪辑</td><td>商品=全渠道商品的商品标题 + 达人列表id</td><td>Video Performance List.商品</td><td>商品</td><td>—</td></tr>
-          <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>预留</td><td>商务开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>预留</td><td>剪辑开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>映射</td><td>GMVMAX消耗</td><td class="tbl-formula">Product campaign data.成本；PID=广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>PID=提取Product campaign data广告计划名称以"-"分隔的最后一个 与 product_list的id关联</td><td>Product campaign data</td><td>成本</td><td>—</td></tr>
-          <tr><td>映射</td><td>广告单量</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>SKU 订单数</td><td>—</td></tr>
-          <tr><td>映射</td><td>广告订单数</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>SKU 订单数</td><td>—</td></tr>
-          <tr><td>映射</td><td>广告GMV</td><td class="tbl-formula">Product campaign data.总收入</td><td>同上</td><td>Product campaign data</td><td>总收入</td><td>—</td></tr>
-          <tr><td>计算</td><td>总ACOAS</td><td class="tbl-formula">总ACOAS=财务GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>计算</td><td>广告ROI（测算）</td><td class="tbl-formula">广告ROI（测算）=广告GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>计算</td><td>广告AcoAs</td><td class="tbl-formula">广告AcoAs=GMVMAX消耗/广告GMV</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>预留</td><td>广告ROI设置数</td><td class="tbl-formula">暂无数据，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取导出文件的日期范围（或任务调度入参），写入 sdt（YYYYMMDD）</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>（表头/文件名）</td><td>—</td></tr>
+          <tr><td>计算</td><td>PID</td><td class="tbl-formula">直接取源表：product_list.ID</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>ID</td><td>—</td></tr>
+          <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>ods_product_api_jijia_omnichannel_product_df</td><td>SPU</td><td>—</td></tr>
+          <tr><td>映射</td><td>客单价</td><td class="tbl-formula">GMV 计算表.客单价（实付总价/单量）</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>atv</td><td>—</td></tr>
+          <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">GMV 计算表.平均补贴/单</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>subsidy_per</td><td>—</td></tr>
+          <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">GMV 计算表.财务GMV/总GMV</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>paid_amount（或 financial_gmv）</td><td>—</td></tr>
+          <tr><td>映射</td><td>商品交易总额4</td><td class="tbl-formula">product_list.GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>GMV</td><td>4</td></tr>
+          <tr><td>映射</td><td>成交件数5</td><td class="tbl-formula">product_list.成交件数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>成交件数</td><td>5</td></tr>
+          <tr><td>映射</td><td>订单数6</td><td class="tbl-formula">product_list.订单数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>订单数</td><td>6</td></tr>
+          <tr><td>映射</td><td>商品卡GMV31</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡 GMV</td><td>32</td></tr>
+          <tr><td>映射</td><td>直播GMV15</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播 GMV</td><td>16</td></tr>
+          <tr><td>映射</td><td>短视频GMV23</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频 GMV</td><td>24</td></tr>
+          <tr><td>计算</td><td>商品卡GMV占比</td><td class="tbl-formula">商品卡GMV占比=商品卡 GMV/（商品卡 GMV+直播 GMV+视频 GMV）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>直播GMV占比</td><td class="tbl-formula">直播GMV占比=直播 GMV/（商品卡 GMV+直播 GMV+视频 GMV）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>短视频GMV占比</td><td class="tbl-formula">短视频GMV占比=视频 GMV/（商品卡 GMV+直播 GMV+视频 GMV）</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>商品卡商品交易总额33</td><td class="tbl-formula">product_list.商品卡 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡 GMV</td><td>32</td></tr>
+          <tr><td>映射</td><td>商品卡成交件数32</td><td class="tbl-formula">product_list.商品卡片商品成交件数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡片商品成交件数</td><td>33</td></tr>
+          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=商品卡 GMV/商品卡片商品成交件数</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>曝光33</td><td class="tbl-formula">product_list.商品卡曝光次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡曝光次数</td><td>34</td></tr>
+          <tr><td>映射</td><td>商品卡片的页面浏览次数36</td><td class="tbl-formula">product_list.商品卡的页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡的页面浏览次数</td><td>35</td></tr>
+          <tr><td>映射</td><td>去重浏览35</td><td class="tbl-formula">product_list.商品卡的去重页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡的去重页面浏览次数</td><td>36</td></tr>
+          <tr><td>映射</td><td>去重客户36</td><td class="tbl-formula">product_list.商品卡去重客户数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡去重客户数</td><td>37</td></tr>
+          <tr><td>映射</td><td>商品卡点击37</td><td class="tbl-formula">product_list.商品卡点击率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡点击率</td><td>38</td></tr>
+          <tr><td>映射</td><td>商品卡转化38</td><td class="tbl-formula">product_list.商品卡转化率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>商品卡转化率</td><td>39</td></tr>
+          <tr><td>映射</td><td>直播商品交易总额17</td><td class="tbl-formula">product_list.直播 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播 GMV</td><td>16</td></tr>
+          <tr><td>映射</td><td>直播成交件数16</td><td class="tbl-formula">product_list.直播商品成交件数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播商品成交件数</td><td>17</td></tr>
+          <tr><td>计算</td><td>直播成交客单</td><td class="tbl-formula">直播成交客单=直播 GMV/直播商品成交件数</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>曝光次数19</td><td class="tbl-formula">product_list.直播曝光次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播曝光次数</td><td>18</td></tr>
+          <tr><td>映射</td><td>来自视频的页面浏览次数</td><td class="tbl-formula">product_list.直播的页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播的页面浏览次数</td><td>19</td></tr>
+          <tr><td>映射</td><td>直播的去重页面浏览次数21</td><td class="tbl-formula">product_list.直播的去重页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播的去重页面浏览次数</td><td>20</td></tr>
+          <tr><td>映射</td><td>去重商品客户数22</td><td class="tbl-formula">product_list.直播去重商品客户数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播去重商品客户数</td><td>21</td></tr>
+          <tr><td>映射</td><td>直播点击率21</td><td class="tbl-formula">product_list.直播点击率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播点击率</td><td>22</td></tr>
+          <tr><td>映射</td><td>直播转化率22</td><td class="tbl-formula">product_list.直播转化率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>直播转化率</td><td>23</td></tr>
+          <tr><td>映射</td><td>商品卡短视频商品交易总额25</td><td class="tbl-formula">product_list.视频 GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频 GMV</td><td>24</td></tr>
+          <tr><td>映射</td><td>短视频成交件数24</td><td class="tbl-formula">product_list.视频商品成交件数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频商品成交件数</td><td>25</td></tr>
+          <tr><td>计算</td><td>客单价</td><td class="tbl-formula">客单价=视频 GMV/视频商品成交件数</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>视频曝光次数25</td><td class="tbl-formula">product_list.视频曝光次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频曝光次数</td><td>26</td></tr>
+          <tr><td>映射</td><td>来自视频的页面浏览次数28</td><td class="tbl-formula">product_list.来自视频的页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>来自视频的页面浏览次数</td><td>27</td></tr>
+          <tr><td>映射</td><td>来自视频的去重页面浏览次数27</td><td class="tbl-formula">product_list.来自视频的去重页面浏览次数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>来自视频的去重页面浏览次数</td><td>28</td></tr>
+          <tr><td>映射</td><td>视频去重商品客户数28</td><td class="tbl-formula">product_list.视频去重商品客户数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频去重商品客户数</td><td>29</td></tr>
+          <tr><td>映射</td><td>视频点击率29</td><td class="tbl-formula">product_list.视频点击率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频点击率</td><td>30</td></tr>
+          <tr><td>映射</td><td>视频转化率30</td><td class="tbl-formula">product_list.视频转化率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频转化率</td><td>31</td></tr>
+          <tr><td>映射</td><td>商务挂车量（合计挂车量 - 剪辑挂车量）</td><td class="tbl-formula">按商品标题在 Video Performance List 聚合挂车视频数，再减去剪辑挂车量</td><td>商品=全渠道商品的商品标题</td><td>Video Performance List</td><td>ods_traffic_file_tiktok_video_performance_di</td><td>product_name</td><td>—</td></tr>
+          <tr><td>映射</td><td>剪辑挂车量（同一个商品，处于达人列表的数据量）</td><td class="tbl-formula">Video Performance List 中，creator_id 在 tk 账号信息表命中即为剪辑挂车，按商品标题聚合计数</td><td>商品=全渠道商品的商品标题 + creator_id in tk账号</td><td>Video Performance List + tk 账号信息表</td><td>ods_traffic_file_tiktok_video_performance_di / ods_platform_file_tiktok_account_df</td><td>creator_id / tiktok_uid</td><td>—</td></tr>
+          <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>商务开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>剪辑开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>映射</td><td>GMVMAX消耗</td><td class="tbl-formula">Product campaign data.成本；PID=广告计划名称以 \"-\" 分隔的最后一段，与 product_list.ID 关联</td><td>PID=从广告计划名称提取末段数字，与 product_list.ID 关联</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>cost</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告单量</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>sku_order_count</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告订单数</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>sku_order_count</td><td>—</td></tr>
+          <tr><td>映射</td><td>广告GMV</td><td class="tbl-formula">Product campaign data.总收入</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>total_revenue</td><td>—</td></tr>
+          <tr><td>计算</td><td>总ACOAS</td><td class="tbl-formula">总ACOAS=财务GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>广告ROI（测算）</td><td class="tbl-formula">广告ROI（测算）=广告GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>计算</td><td>广告AcoAs</td><td class="tbl-formula">广告AcoAs=GMVMAX消耗/广告GMV</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>广告ROI设置数</td><td class="tbl-formula">暂无数据，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
         </tbody>
       </table>
     </div>
-    <h3>2.4 最终目标结果</h3>
+    <h3>2.4 实现逻辑梳理（落库与计算）</h3>
+    <ol>
+      <li><strong>ODS 入仓</strong>：按店铺+日期导出并入仓 4 张 ODS 表：<code>ods_traffic_file_tiktok_product_list_di</code>（商品数据分析）、<code>ods_marketing_file_tiktok_campaign_di</code>（实时推广系列）、<code>ods_traffic_file_tiktok_video_performance_di</code>（直播和视频详细信息）、<code>ods_platform_file_tiktok_account_df</code>（达人列表）。全渠道商品表为 <code>ods_product_api_jijia_omnichannel_product_df</code>（来自积加）。</li>
+      <li><strong>确定主键</strong>：数据看板主键建议为 <code>(sdt, store_name, pid)</code>；其中 pid=product_list.product_id（即导出列 ID）。</li>
+      <li><strong>维度补全</strong>：通过全渠道商品表补全 <code>spu</code> 等商品维度（按 pid/父ASIN 与标题等规则匹配，口径以数仓实现为准）。</li>
+      <li><strong>GMV 计算来源</strong>：客单价、补贴等可直接取 <code>dws_sales_pid_gmv_calc_realtime_detail</code>（DWS GMV 计算明细表），按 <code>(sdt, store_name, pid)</code> 关联；若无该表则需由订单明细聚合生成。</li>
+      <li><strong>广告指标</strong>：从 <code>ods_marketing_file_tiktok_campaign_di</code> 按 <code>sdt+store_name</code> 聚合，并从 <code>campaign_name</code> 解析 pid（以 <code>-</code> 分段，末段为纯数字时取末段）后与主表 pid 关联。</li>
+      <li><strong>挂车/视频指标</strong>：从 <code>ods_traffic_file_tiktok_video_performance_di</code> 按 <code>sdt+store_name</code> 聚合；剪辑挂车用 <code>creator_id</code> 命中 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 的集合统计，其余归为商务挂车。</li>
+      <li><strong>产出 ADS</strong>：最终日表输出到 <code>ads_sales_pid_dashboard_1d</code>（与接口文档中 PID 数据看板主表字段一致）。</li>
+    </ol>
+    <h3>2.5 最终目标结果</h3>
     <p>需求二达成的目标：<strong>PID 维度数据看板</strong>，支持按日期、店铺、PID 筛选，展示上述 GMV、渠道占比、商品卡/直播/短视频指标及广告挂车、ACOAS、广告ROI（测算）、广告AcoAs 等，与「1店PID维度的数据监测工具表-7天数据-》数据看板」结构一致或等价。</p>
     <p><strong>数据看板最终呈现示意</strong></p>
     <p>下图为需求二数据看板的目标呈现效果：按店铺（如 2 店）、按日期展示 PID、产品名称、一级/二级/三级分类、品牌，以及销售（销量、日销量、日销售额、环比/同环比）、销售额、7 日/30 日销售额趋势、复购（复购人数、复购率、复购客单价）、活跃度等指标。</p>

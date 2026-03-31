@@ -92,6 +92,7 @@
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_market_realtime</td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_site_market_realtime</td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_pid_gmv_realtime</td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>PID 维度 GMV 计算明细表（按店铺+PID+日期聚合，含补贴/折扣/运费/实付等口径）</td><td>PID 需求一（GMV计算）/ 需求二（数据看板）</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_gmv_calc_realtime</td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_dashboard_1d</td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_store_site_order_count_realtime</td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
@@ -1627,6 +1628,74 @@ PARTITION BY RANGE(smt) (
     PARTITION p202603 VALUES [("202603"), ("202604")),
     PARTITION p202604 VALUES [("202604"), ("202605")),
     PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3>5.4 dws_sales_pid_gmv_calc_realtime_detail（准实时 / GMV 计算明细）</h3>
+    <p>PID 维度 GMV 计算明细表，按店铺 + PID + 日期聚合，补齐 GMV 计算表所需的营业总额/折扣/运费/实付等口径字段，供数据看板引用。实现逻辑见 <code>bi/tkDashboard/PID/需求文档.html</code>「需求一：GMV 计算表」映射规则。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（归属月份）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期（Paid Time 日期），格式：YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(500)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN / product_id）</td></tr>
+          <tr><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额/营业总额（Subtotal Before Discount 汇总）</td></tr>
+          <tr><td>seller_discount</td><td>DECIMAL(20,4)</td><td>商家折扣（SKU Seller Discount 汇总）</td></tr>
+          <tr><td>shipping_fee</td><td>DECIMAL(20,4)</td><td>运费（Original Shipping Fee - Shipping Fee Seller Discount 汇总）</td></tr>
+          <tr><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务GMV（营业总额-商家折扣+运费）</td></tr>
+          <tr><td>quantity</td><td>BIGINT</td><td>单量（订单口径去重后汇总）</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>实付总价（折扣价-补贴+运费；Subtotal After Discount + Shipping Fee After Discount 汇总）</td></tr>
+          <tr><td>subsidy_per</td><td>DECIMAL(20,4)</td><td>补贴/单（补贴/单量）</td></tr>
+          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价（实付总价/单量）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, pid) | 口径：需求一 GMV 计算映射（Cancel 剔除等）</p>
+    <p class="meta">DDL 文件：<code>ms-warehouse-batch-data/ddl/sales/dws/dws_sales_pid_gmv_calc_realtime_detail.sql</code></p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_pid_gmv_calc_realtime_detail (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（归属月份）',
+    sdt                   VARCHAR(8)           COMMENT '统计日期（Paid Time 日期），格式：YYYYMMDD',
+    store_name            VARCHAR(500)         COMMENT '店铺名称',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN / product_id）',
+    atv                   DECIMAL(20,2)        COMMENT '客单价（实付总价/单量）',
+    subsidy_per           DECIMAL(20,4)        COMMENT '补贴/单（补贴/单量）',
+    financial_gmv         DECIMAL(20,4)        COMMENT '财务GMV（营业总额-商家折扣+运费）',
+    trade_amount          DECIMAL(20,4)        COMMENT '商品交易总额/营业总额（Subtotal Before Discount 汇总）',
+    quantity              BIGINT               COMMENT '单量（订单口径去重后汇总）',
+    seller_discount       DECIMAL(20,4)        COMMENT '商家折扣（SKU Seller Discount 汇总）',
+    shipping_fee          DECIMAL(20,4)        COMMENT '运费（Original Shipping Fee - Shipping Fee Seller Discount 汇总）',
+    paid_amount           DECIMAL(20,4)        COMMENT '实付总价（折扣价-补贴+运费；Subtotal After Discount + Shipping Fee After Discount 汇总）',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, pid)
+COMMENT 'PID 维度 GMV 计算明细表（DWS 销售域，按店铺+PID+日期聚合，供 PID 数据看板使用）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202501 VALUES [("202501"), ("202502")),
+    PARTITION p202502 VALUES [("202502"), ("202503")),
+    PARTITION p202503 VALUES [("202503"), ("202504")),
+    PARTITION p202504 VALUES [("202504"), ("202505")),
+    PARTITION p202505 VALUES [("202505"), ("202506")),
+    PARTITION p202506 VALUES [("202506"), ("202507)),
+    PARTITION p202507 VALUES [("202507"), ("202508)),
+    PARTITION p202508 VALUES [("202508"), ("202509)),
+    PARTITION p202509 VALUES [("202509"), ("202510)),
+    PARTITION p202510 VALUES [("202510"), ("202511)),
+    PARTITION p202511 VALUES [("202511"), ("202512)),
+    PARTITION p202512 VALUES [("202512"), ("202601)),
+    PARTITION p202601 VALUES [("202601"), ("202602)),
+    PARTITION p202602 VALUES [("202602"), ("202603)),
+    PARTITION p202603 VALUES [("202603"), ("202604)),
+    PARTITION p202604 VALUES [("202604"), ("202605)),
+    PARTITION p202605 VALUES [("202605"), ("202606)),
+    PARTITION p202606 VALUES [("202606"), ("202607))
 )
 DISTRIBUTED BY HASH(pid) BUCKETS 16
 PROPERTIES (
