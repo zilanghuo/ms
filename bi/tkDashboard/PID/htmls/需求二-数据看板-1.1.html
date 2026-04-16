@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>需求二：PID数据看板</title>
+  <title>PID数据看板 1.1</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -164,7 +164,7 @@
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">PID数据看板</h1>
+    <h1 class="page-title">PID数据看板 1.1</h1>
 
     <div class="query-card">
       <div class="query-row">
@@ -239,7 +239,7 @@
       </div>
       <div class="filter-summary" id="filterSummary" style="font-size:0.85rem;color:var(--muted);"></div>
       <div class="export-tip">
-        导出字段与下表一致：日期；商品基础信息（PID、主推SPU、产品阶段）；GMV情况（客单价、平均补贴/单、财务GMV 等）；商品卡；短视频；商务剪辑情况（商务挂车量、剪辑挂车量、合计挂车量、商务开单视频、剪辑开单视频、开单视频合计）；广告情况（vas消耗、GMVMAX消耗、广告总消耗、广告单量、广告订单数、广告GMV、总GMV、总ACOAS、广告ROI（测算）、广告AcoAs、广告ROI设置数）
+        导出字段与下表一致。本版已删除部分历史字段，所有数值统一保留两位小数，金额字段统一追加货币单位。
       </div>
     </div>
 
@@ -250,9 +250,9 @@
             <tr>
               <th class="th-module bg-blue col-sticky-1" colspan="1">日期</th>
               <th class="th-module bg-yellow col-sticky-23" colspan="3">商品基础信息</th>
-              <th class="th-module bg-blue" colspan="12">GMV情况</th>
-              <th class="th-module bg-yellow" colspan="9">商品卡</th>
-              <th class="th-module bg-blue" colspan="9">短视频</th>
+              <th class="th-module bg-blue" colspan="6">GMV情况</th>
+              <th class="th-module bg-yellow" colspan="8">商品卡</th>
+              <th class="th-module bg-blue" colspan="3">短视频</th>
               <th class="th-module bg-yellow" colspan="6">商务剪辑情况</th>
               <th class="th-module bg-blue" colspan="11">广告情况</th>
             </tr>
@@ -264,16 +264,9 @@
               <th class="th-col">客单价</th>
               <th class="th-col">平均补贴/单</th>
               <th class="th-col">财务GMV</th>
-              <th class="th-col">商品交易总额4</th>
-              <th class="th-col">成交件数5</th>
-              <th class="th-col">订单数6</th>
-              <th class="th-col">商品卡GMV31</th>
-              <th class="th-col">直播GMV15</th>
-              <th class="th-col">短视频GMV23</th>
               <th class="th-col">商品卡GMV占比</th>
               <th class="th-col">直播GMV占比</th>
               <th class="th-col">短视频GMV占比</th>
-              <th class="th-col">商品卡商品交易总额33</th>
               <th class="th-col">商品卡成交件数32</th>
               <th class="th-col">客单价</th>
               <th class="th-col">曝光33</th>
@@ -285,12 +278,6 @@
               <th class="th-col">商品卡短视频商品交易总额25</th>
               <th class="th-col">短视频成交件数24</th>
               <th class="th-col">客单价</th>
-              <th class="th-col">视频曝光次数25</th>
-              <th class="th-col">来自视频的页面浏览次数28</th>
-              <th class="th-col">来自视频的去重页面浏览次数27</th>
-              <th class="th-col">视频去重商品客户数28</th>
-              <th class="th-col">视频点击率29</th>
-              <th class="th-col">视频转化率30</th>
               <th class="th-col">商务挂车量</th>
               <th class="th-col">剪辑挂车量</th>
               <th class="th-col">合计挂车量</th>
@@ -311,10 +298,20 @@
             </tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="38" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
+    </div>
+
+    <div class="query-card">
+      <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.1 版本说明</h3>
+      <ul style="margin:0 0 0 1.25rem;padding:0;">
+        <li>1、PID 当前应只有 4 月份有数据，4 月份之前的历史数据，后续会从 NAS 文件的数据看板导入，仍需要一些时间。</li>
+        <li>2、已删除字段：商品交易总额4、成交件数5、订单数6、商品卡GMV31、直播GMV15、短视频GMV23、商品卡商品交易总额33、视频曝光次数25、来自视频的页面浏览次数28、来自视频的去重页面浏览次数27、视频去重商品客户数28、视频点击率29、视频转化率30。</li>
+        <li>3、关于数值：统一保留两位小数。</li>
+        <li>4、关于货币表示：涉及到数值的金额字段，统一使用 <code>$</code> 前缀展示。</li>
+      </ul>
     </div>
 
     <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
@@ -340,7 +337,7 @@
         <div class="analysis-body">
           <table class="analysis-table" id="analysisTable">
             <thead id="analysisThead">
-              <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>分析</th><th colspan="47"></th></tr>
+              <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>分析</th><th colspan="34"></th></tr>
             </thead>
             <tbody id="analysisBody"></tbody>
           </table>
@@ -350,8 +347,28 @@
   </div>
   <script>
     (function() {
-      var COLS = 51;
-      var headers = ['日期','PID','主推SPU','分析','客单价','平均补贴/单','财务GMV','商品交易总额4','成交件数5','订单数6','商品卡GMV31','直播GMV15','短视频GMV23','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额33','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','视频曝光次数25','来自视频的页面浏览次数28','来自视频的去重页面浏览次数27','视频去重商品客户数28','视频点击率29','视频转化率30','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
+      var COLS = 38;
+      var headers = ['日期','PID','主推SPU','分析','客单价','平均补贴/单','财务GMV','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡成交件数32','客单价','曝光33','商品卡片的页面浏览次数36','去重浏览35','去重客户36','商品卡点击37','商品卡转化38','商品卡短视频商品交易总额25','短视频成交件数24','客单价','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
+      var MONEY_COLS = { 4: true, 5: true, 6: true, 11: true, 18: true, 20: true, 27: true, 28: true, 29: true, 32: true, 33: true };
+      var PERCENT_COLS = { 7: true, 8: true, 9: true, 17: true, 34: true, 36: true };
+      var TEXT_COLS = { 24: true, 25: true, 26: true, 37: true };
+
+      function fmtFixed(num) {
+        return Number(num).toFixed(2);
+      }
+
+      function fmtMoney(num) {
+        return '$' + fmtFixed(num);
+      }
+
+      function fmtByCol(col, val) {
+        if (val === '—' || val === '' || val == null) return '—';
+        var num = Number(val);
+        if (isNaN(num)) return String(val);
+        if (MONEY_COLS[col]) return fmtMoney(num);
+        if (PERCENT_COLS[col]) return fmtFixed(num) + '%';
+        return fmtFixed(num);
+      }
 
       var regionTree = [
         { name: '欧洲', children: [
@@ -473,40 +490,40 @@
       syncStoreOptions();
 
       function fillRow(date, pid, spu, store) {
-        var atv = 58 + Math.floor(Math.random() * 20);
-        var gmv = 5000 + Math.floor(Math.random() * 50000);
-        var cnt = Math.floor(gmv / atv);
-        var orders = Math.floor(cnt * 0.9);
-        var cardGmv = Math.floor(gmv * 0.6);
-        var liveGmv = Math.floor(gmv * 0.25);
+        var atv = 58 + Math.random() * 20;
+        var gmv = 5000 + Math.random() * 50000;
+        var cnt = gmv / atv;
+        var cardGmv = gmv * 0.6;
+        var liveGmv = gmv * 0.25;
         var videoGmv = gmv - cardGmv - liveGmv;
         var gmvMaxConsume = 200 + Math.random() * 300;
-        var adQty = Math.floor(orders * 0.18);
-        var adOrders = Math.floor(orders * 0.15);
-        var adGmv = Math.floor(gmv * 0.12);
-        var totalGmv = gmv + Math.floor(Math.random() * 2000);
+        var adQty = cnt * 0.18;
+        var adOrders = cnt * 0.15;
+        var adGmv = gmv * 0.12;
+        var totalGmv = gmv + Math.random() * 2000;
         var vasConsume = 800 + Math.random() * 500;
         var adTotalConsume = vasConsume + gmvMaxConsume;
-        var totalAcoas = adTotalConsume > 0 ? (adTotalConsume / gmv * 100).toFixed(2) + '%' : '—';
-        var adRoi = gmvMaxConsume > 0 ? (adGmv / gmvMaxConsume).toFixed(2) : '—';
-        var adAcoas = adGmv > 0 ? (gmvMaxConsume / adGmv * 100).toFixed(2) + '%' : '—';
-        var row = [
-          date, pid, spu, '', atv,
-          (2.5 + Math.random() * 3).toFixed(2), gmv, gmv, cnt, orders,
-          cardGmv, liveGmv, videoGmv,
-          (60 + Math.random() * 20).toFixed(1) + '%', (20 + Math.random() * 15).toFixed(1) + '%', (10 + Math.random() * 10).toFixed(1) + '%',
-          Math.floor(cardGmv * 1.02), Math.floor(cnt * 0.62),
-          atv, 12000 + Math.floor(Math.random() * 8000), 8000 + Math.floor(Math.random() * 5000), 6500 + Math.floor(Math.random() * 4000),
-          (5 + Math.random() * 4).toFixed(2) + '%', (3 + Math.random() * 2).toFixed(2) + '%', (1.5 + Math.random() * 2).toFixed(2) + '%',
-          Math.floor(videoGmv * 0.95), Math.floor(cnt * 0.22),
-          atv, 5000 + Math.floor(Math.random() * 5000), 3500 + Math.floor(Math.random() * 3000), 2800 + Math.floor(Math.random() * 2500),
-          2200 + Math.floor(Math.random() * 2000), (4 + Math.random() * 3).toFixed(2) + '%', (2.5 + Math.random() * 2).toFixed(2) + '%',
-          15 + Math.floor(Math.random() * 20), 8 + Math.floor(Math.random() * 12), 23 + Math.floor(Math.random() * 25),
+        var totalAcoas = adTotalConsume > 0 ? (adTotalConsume / gmv * 100) : null;
+        var adRoi = gmvMaxConsume > 0 ? (adGmv / gmvMaxConsume) : null;
+        var adAcoas = adGmv > 0 ? (gmvMaxConsume / adGmv * 100) : null;
+        var raw = [
+          date, pid, spu, '',
+          atv, 2.5 + Math.random() * 3, gmv,
+          60 + Math.random() * 20, 20 + Math.random() * 15, 10 + Math.random() * 10,
+          cnt * 0.62, atv, 12000 + Math.random() * 8000, 8000 + Math.random() * 5000, 6500 + Math.random() * 4000,
+          2200 + Math.random() * 2000, 5 + Math.random() * 4, 3 + Math.random() * 2,
+          videoGmv * 0.95, cnt * 0.22, atv,
+          15 + Math.random() * 20, 8 + Math.random() * 12, 23 + Math.random() * 25,
           '—', '—', '—',
-          vasConsume.toFixed(2), gmvMaxConsume.toFixed(2), adTotalConsume.toFixed(2),
+          vasConsume, gmvMaxConsume, adTotalConsume,
           adQty, adOrders, adGmv, totalGmv,
           totalAcoas, adRoi, adAcoas, '—'
         ];
+        var row = raw.map(function(val, idx) {
+          if (idx < 4) return val;
+          if (TEXT_COLS[idx]) return val;
+          return fmtByCol(idx, val);
+        });
         row._store = store;
         return row;
       }
@@ -641,7 +658,7 @@
             if (String(orig).indexOf('%') !== -1 || orig === '—') {
               out.push(orig);
             } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
-              out.push((Math.round(n * 100) / 100).toString());
+              out.push(fmtByCol(j, n));
             } else {
               out.push(orig !== undefined ? orig : '');
             }
@@ -661,7 +678,7 @@
 
       var analysisGran = 'day';
       var currentAnalysisSpu = '';
-      var adColStart = 40;
+      var adColStart = 27;
       function getAnalysisDateRange() {
         var start = (document.getElementById('analysisStartDate') && document.getElementById('analysisStartDate').value) || '';
         var end = (document.getElementById('analysisEndDate') && document.getElementById('analysisEndDate').value) || '';
@@ -703,7 +720,7 @@
             if (String(orig).indexOf('%') !== -1 || orig === '—') {
               out.push(orig);
             } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
-              out.push((Math.round(n * 100) / 100).toString());
+              out.push(fmtByCol(j, n));
             } else {
               out.push(orig !== undefined ? orig : '');
             }
@@ -714,7 +731,7 @@
       function renderAnalysisTable(spu) {
         var thead = document.getElementById('analysisThead');
         thead.innerHTML =
-          '<tr><th class="th-module bg-blue">日期</th><th class="th-module bg-yellow" colspan="3">商品基础信息</th><th class="th-module bg-blue" colspan="12">GMV情况</th><th class="th-module bg-yellow" colspan="9">商品卡</th><th class="th-module bg-blue" colspan="9">短视频</th><th class="th-module bg-yellow" colspan="6">商务剪辑情况</th><th class="th-module bg-blue" colspan="11">广告情况</th></tr>' +
+          '<tr><th class="th-module bg-blue">日期</th><th class="th-module bg-yellow" colspan="3">商品基础信息</th><th class="th-module bg-blue" colspan="6">GMV情况</th><th class="th-module bg-yellow" colspan="8">商品卡</th><th class="th-module bg-blue" colspan="3">短视频</th><th class="th-module bg-yellow" colspan="6">商务剪辑情况</th><th class="th-module bg-blue" colspan="11">广告情况</th></tr>' +
           '<tr>' + headers.map(function(h, i) {
             var cls = (i >= adColStart) ? ' class="th-col col-num-right"' : ' class="th-col"';
             return '<th' + cls + '>' + String(h).replace(/</g, '&lt;') + '</th>';
@@ -877,7 +894,7 @@
 
       function renderPage() {
         var tbody = document.getElementById('resultBody');
-        var adColStart = 40;
+        var adColStart = 27;
         if (!currentRows.length) {
           tbody.innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">暂无数据</td></tr>';
           return;
@@ -901,7 +918,7 @@
               var curStr = String(cell);
               var isPct = curStr.indexOf('%') !== -1;
               var compareNum = row._compare[i];
-              var compareStr = (typeof compareNum === 'number') ? (isPct ? (Math.round(compareNum * 100) / 100) + '%' : (Math.round(compareNum * 100) / 100).toString()) : String(compareNum);
+              var compareStr = (typeof compareNum === 'number') ? fmtByCol(i, compareNum) : String(compareNum);
               var chainHtml = fmtChainCell(cell, compareNum, isPct);
               cls += ' cell-with-compare';
               return '<td' + cls + '><span class="cell-main">' + curStr.replace(/</g, '&lt;') + '</span><br><span class="cell-compare">' + compareStr.replace(/</g, '&lt;') + '</span><br><span class="cell-chain">' + chainHtml + '</span></td>';
@@ -935,7 +952,7 @@
             var n = parseFloat(v);
             if (!isNaN(n)) { sum += n; hasNum = true; }
           }
-          var display = hasNum ? (Math.round(sum * 100) / 100).toString() : '';
+          var display = hasNum ? fmtByCol(j, sum) : '';
           totalCells.push('<td' + cls + '>' + display + '</td>');
         }
         tbody.innerHTML = dataHtml + '<tr class="row-total">' + totalCells.join('') + '</tr>';

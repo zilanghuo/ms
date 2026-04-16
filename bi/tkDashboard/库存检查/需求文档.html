@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>TK库存检查 — 需求文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    blockquote { margin: 1rem 0; padding: 0.5rem 0 0.5rem 1rem; border-left: 4px solid var(--accent); color: var(--muted); font-size: 0.95rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 600px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    p { margin: 0.5rem 0 1rem; }
+    .req-metrics { display: inline-table; margin: 0.5rem 0 1rem; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .req-metrics th { background: #f1f5f9; padding: 0.35rem 0.75rem; width: 5em; text-align: left; }
+    .req-metrics td { padding: 0.35rem 0.75rem; }
+    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 320px; }
+    .todo-note { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; padding: 0.8rem 1rem; border-radius: 6px; margin: 1rem 0; }
+    .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
+    .image-card { border: 1px solid var(--border); border-radius: 8px; background: #fff; overflow: hidden; }
+    .image-card img { display: block; width: 100%; height: auto; background: #f8fafc; }
+    .image-card .caption { padding: 0.65rem 0.8rem; font-size: 0.82rem; color: var(--muted); border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>TK库存检查 — 需求文档</h1>
+    <blockquote>以需求为一级维度；源数据取数方式在文末「源数据统一梳理」统一说明。参照 Excel：<code>TK库存检查映射表.xlsx</code>（需求 / 映射表 / 源数据路径）。</blockquote>
+    <hr />
+
+    <h2>一、需求一：TK库存检查-PID&amp;SKU 维度看板</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>库存检查、库存同步异常排查、跨仓库存核对</td></tr>
+      <tr><th>价值</th><td>1、统一梳理 TikTok 在线商品与各仓库存数据<br />2、支持快速发现库存少同步、超卖风险、同步异常<br />3、沉淀 PID&amp;SKU 维度库存检查看板，便于业务排查</td></tr>
+    </table>
+
+    <h3>1.1 需求描述</h3>
+    <ul>
+      <li><strong>输入</strong>：<code>TIKTOK-在线商品</code>、<code>站点产品库存-自定义导出</code>、<code>TikTok.FBT库存-自定义导出</code>、<code>积加-商品管理-可用库存</code>。</li>
+      <li><strong>目标</strong>：用映射表，做一个以 <strong>PID&amp;SKU</strong> 维度的库存检查看板。</li>
+      <li><strong>核心口径</strong>：先以 TikTok 在线商品为商品范围，再按 SKU 关联站点库存、FBT 库存和积加商品管理可用库存，计算总在途、总可用、总库存与库存是否异常。</li>
+      <li><strong>场景</strong>：用于排查各仓库存与店铺实际同步库存之间的差异，识别少同步或超卖风险。</li>
+    </ul>
+
+    <h3>1.2 流程</h3>
+    <ol>
+      <li>从 <strong>TIKTOK-在线商品</strong> 获取 PID、SKU、站点、产品名称、店铺等基础商品维度。</li>
+      <li>以 <strong>TIKTOK-在线商品</strong> 为商品基础表，按 <strong>PID&amp;SKU</strong> 关联 <strong>站点产品库存-自定义导出</strong>，拆分国内仓、谷仓、万邑通、英国退货仓等不同仓库维度的库存。</li>
+      <li>以 <strong>TIKTOK-在线商品</strong> 为商品基础表，按 <strong>PID&amp;SKU</strong> 关联 <strong>TikTok.FBT库存-自定义导出</strong>，补充 FBT 在途量、FBT 可用量。</li>
+      <li>结合 <strong>积加-商品管理-可用库存</strong>，基于<strong>积加接口获取的数据并按 PID 查询</strong>，核对店铺后台已同步库存，形成“我们有的库存”和“实际已同步库存”两套口径。</li>
+      <li>基于映射表公式，计算海外在途库存、海外可用库存、总在途库存、总可用库存、总库存、库存是否异常，以及各仓差异字段。</li>
+      <li>最终产出 <strong>TK库存检查</strong> 看板，按 PID&amp;SKU 粒度展示各仓库存与异常结果。</li>
+    </ol>
+
+    <h3>1.3 映射表（PID&amp;SKU 看板）</h3>
+    <ul>
+      <li><strong>最终数据表</strong>：<code>TK库存检查</code></li>
+      <li><strong>规则</strong>：<strong>条件/需求公式为空</strong> → 该目标字段为<strong>映射</strong>，按关联字段 + 源数据表 + 源字段取数；<strong>条件/需求公式有值</strong> → 该目标字段为<strong>计算或筛选后映射</strong>。</li>
+      <li><strong>底表建议</strong>：以 <code>TIKTOK-在线商品</code> 为商品基础范围，按 <code>PID&amp;SKU</code> 维度展开。</li>
+      <li><strong>相关表</strong>：站点产品库存、TikTok.FBT 库存、积加商品管理可用库存。</li>
+      <li><strong>补充关联规则</strong>：<code>站点产品库存-自定义导出</code> 与 <code>TIKTOK-在线商品</code> 按 <strong>PID&amp;SKU</strong> 口径关联；原型展示层不输出 SPU 相关字段。</li>
+      <li><strong>补充关联规则</strong>：<code>TikTok.FBT库存-自定义导出</code> 与 <code>TIKTOK-在线商品</code> 按 <strong>PID&amp;SKU</strong> 口径关联；原型展示层不输出 SPU 相关字段。</li>
+      <li><strong>补充取数规则</strong>：<code>积加-商品管理-可用库存</code> 来源于<strong>积加接口返回数据</strong>，查询口径按 <strong>PID</strong> 发起，不依赖手工导出文件。</li>
+    </ul>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>类型</th>
+            <th>目标字段</th>
+            <th>计算逻辑（A列）</th>
+            <th>关联字段</th>
+            <th>源数据表</th>
+            <th>源字段名称</th>
+            <th>备注 / 可落地情况</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>映射</td><td>站点</td><td class="tbl-formula">—</td><td>TK库存检查的“PID”&amp;“SKU” = TIKTOK-在线商品的“PID”&amp;“SKU”</td><td>TIKTOK-在线商品</td><td>站点</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>PID</td><td class="tbl-formula">—</td><td>TIKTOK-在线商品的“PID” = TIKTOK-在线商品的“PID”</td><td>TIKTOK-在线商品</td><td>PID</td><td>依赖未集成源数据；Excel 备注：不是唯一</td></tr>
+          <tr><td>映射</td><td>SKU</td><td class="tbl-formula">—</td><td>TK库存检查的“PID”&amp;“SKU” = TIKTOK-在线商品的“PID”&amp;“SKU”</td><td>TIKTOK-在线商品</td><td>sku</td><td>依赖未集成源数据；Excel 备注：不是唯一</td></tr>
+          <tr><td>映射</td><td>SKU名称</td><td class="tbl-formula">—</td><td>TK库存检查的“PID”&amp;“SKU” = TIKTOK-在线商品的“PID”&amp;“SKU”</td><td>TIKTOK-在线商品</td><td>产品名称</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>店铺</td><td class="tbl-formula">—</td><td>TK库存检查的“PID”&amp;“SKU” = TIKTOK-在线商品的“PID”&amp;“SKU”</td><td>TIKTOK-在线商品</td><td>店铺</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>采购量</td><td class="tbl-formula">—</td><td>TK库存检查的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td>站点产品库存-自定义导出</td><td>采购量</td><td>依赖 <code>站点产品库存-自定义导出</code>；当前未在源数据集成列表登记</td></tr>
+          <tr><td>筛选后映射</td><td>交货在途库存</td><td class="tbl-formula">筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓</td><td>TK库存检查的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>依赖未集成源数据；需支持仓库筛选口径</td></tr>
+          <tr><td>筛选后映射</td><td>国内库存</td><td class="tbl-formula">筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓</td><td>TK库存检查的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据；需支持仓库筛选口径</td></tr>
+          <tr><td>筛选后映射</td><td>三方仓在途量</td><td class="tbl-formula">筛选仓库为万邑通:USKY3_Warehouse、万邑通:USWC2_Warehouse、万邑通:USWC_Warehouse、美国TK-艾斯特尼-美国谷仓:美西仓库</td><td>TK库存检查的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>依赖未集成源数据；需支持多仓汇总</td></tr>
+          <tr><td>筛选后映射</td><td>谷仓-1</td><td class="tbl-formula">筛选仓库为美国TK-艾斯特尼-美国谷仓:美西仓库</td><td>站点产品库存-自定义导出的“SKU” = TK库存检查的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>“我们有的库存”口径；依赖未集成源数据</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USKY3-1</td><td class="tbl-formula">筛选仓库为万邑通:USKY3_Warehouse</td><td>TK库存检查的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USWC-1</td><td class="tbl-formula">筛选仓库为万邑通:USWC_Warehouse</td><td>站点产品库存-自定义导出的“SKU” = TIKTOK-在线商品的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USWC2-1</td><td class="tbl-formula">筛选仓库为万邑通:USWC2_Warehouse</td><td>站点产品库存-自定义导出的“SKU” = TIKTOK-在线商品的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>筛选后映射</td><td>国内仓-1</td><td class="tbl-formula">筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓</td><td>站点产品库存-自定义导出的“SKU” = TIKTOK-在线商品的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>筛选后映射</td><td>英国退货仓-1</td><td class="tbl-formula">筛选仓库为万邑通:UKTW Warehouse和美国TK-艾斯特尼-英国退件仓:英国仓</td><td>站点产品库存-自定义导出的“SKU” = TIKTOK-在线商品的“SKU”</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>FBT在途量</td><td class="tbl-formula">—</td><td>TK库存检查的“SKU” = TikTok.FBT库存-自定义导出的“SKU”</td><td>TikTok.FBT库存-自定义导出</td><td>在途量</td><td>依赖 <code>TikTok.FBT库存-自定义导出</code>；当前未在源数据集成列表登记</td></tr>
+          <tr><td>映射</td><td>FBT可用量</td><td class="tbl-formula">—</td><td>TK库存检查的“SKU” = TikTok.FBT库存-自定义导出的“SKU”</td><td>TikTok.FBT库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>FBT-1（接口能不能抓到？）</td><td class="tbl-formula">—</td><td>TK库存检查的“SKU” = TikTok.FBT库存-自定义导出的“SKU”</td><td>TikTok.FBT库存-自定义导出</td><td>可用量</td><td>依赖未集成源数据；待确认接口获取能力</td></tr>
+          <tr><td>映射</td><td>谷仓-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖 <code>积加-商品管理-可用库存</code>；当前未在源数据集成列表登记</td></tr>
+          <tr><td>映射</td><td>万邑通USKY3-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>万邑通USWC-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>万邑通USWC2-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>国内仓-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>FBA(空着)-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>映射</td><td>英国退货仓-2</td><td class="tbl-formula">—</td><td>—</td><td>积加-商品管理-可用库存</td><td>店铺后台实际被同步的库存-接口</td><td>依赖未集成源数据</td></tr>
+          <tr><td>计算</td><td>海外在途库存</td><td class="tbl-formula">海外在途库存 = 三方仓在途量 + 国内库存</td><td>—</td><td>—</td><td>—</td><td>纯计算字段；前置依赖为“三方仓在途量 + 国内库存”</td></tr>
+          <tr><td>计算</td><td>海外可用库存</td><td class="tbl-formula">美国站点：谷仓-1 + 万邑通USKY3-1 + 万邑通USWC-1 + 万邑通USWC2-1 + 国内仓-1 + FBT-1 + FBA(空着)-1；英国站点：国内仓-1 + 英国退货仓-1</td><td>—</td><td>—</td><td>—</td><td>纯计算字段；按站点分别汇总，且依赖部分待确认字段</td></tr>
+          <tr><td>计算</td><td>总在途库存</td><td class="tbl-formula">总在途库存 = 海外在途库存 + 三方仓在途量 + FBT在途量 + 交货在途库存</td><td>—</td><td>—</td><td>—</td><td>纯计算字段；依赖多个未集成源数据字段</td></tr>
+          <tr><td>计算</td><td>总可用库存</td><td class="tbl-formula">总可用库存 = 海外可用库存 + 国内库存</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
+          <tr><td>计算</td><td>总库存</td><td class="tbl-formula">总库存 = 总在途库存 + 总可用库存</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
+          <tr><td>计算</td><td>库存是否异常</td><td class="tbl-formula">库存差异大于0代表少同步，小于0代表超卖风险，=0代表同步正确</td><td>—</td><td>—</td><td>—</td><td>结果判断字段；依赖差异字段计算完成后得出</td></tr>
+          <tr><td>计算</td><td>谷仓-3</td><td class="tbl-formula">谷仓-3 = 谷仓-1 - 谷仓-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段；前置依赖未全部集成</td></tr>
+          <tr><td>计算</td><td>万邑通USKY3-3</td><td class="tbl-formula">万邑通USKY3-3 = 万邑通USKY3-1 - 万邑通USKY3-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段</td></tr>
+          <tr><td>计算</td><td>万邑通USWC-3</td><td class="tbl-formula">万邑通USWC-3 = 万邑通USWC-1 - 万邑通USWC-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段</td></tr>
+          <tr><td>计算</td><td>万邑通USWC2-3</td><td class="tbl-formula">万邑通USWC2-3 = 万邑通USWC2-1 - 万邑通USWC2-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段</td></tr>
+          <tr><td>计算</td><td>国内仓-3</td><td class="tbl-formula">国内仓-3 = 国内仓-1 - 国内仓-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段</td></tr>
+          <tr><td>计算</td><td>FBT-3</td><td class="tbl-formula">FBT-3 = FBT-1 - FBT-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段；Excel 备注说明 FBT 因多 PID 同步会有异常</td></tr>
+          <tr><td>计算</td><td>FBA(空着)-3</td><td class="tbl-formula">FBA(空着)-3 = FBA(空着)-1 - FBA(空着)-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段；但前置字段当前为空</td></tr>
+          <tr><td>计算</td><td>英国退货仓-3</td><td class="tbl-formula">英国退货仓-3 = 英国退货仓-1 - 英国退货仓-2</td><td>—</td><td>—</td><td>—</td><td>库存差异字段</td></tr>
+          <tr><td>预留</td><td>FBA(空着)-1</td><td class="tbl-formula">当前为空</td><td>—</td><td>—</td><td>—</td><td>预留字段；当前不可落地</td></tr>
+          <tr><td>预留</td><td>FBT-2（积加4月会上暂时空着）</td><td class="tbl-formula">当前为空</td><td>—</td><td>—</td><td>—</td><td>预留字段；待后续补充，不可直接落地</td></tr>
+          <tr><td>计算</td><td>总库存-1</td><td class="tbl-formula">美国站点：谷仓-1 + 万邑通USKY3-1 + 万邑通USWC-1 + 万邑通USWC2-1 + 国内仓-1 + FBT-1 + FBA(空着)-1；英国站点：国内仓-1 + 英国退货仓-1</td><td>—</td><td>—</td><td>—</td><td>“我们有的库存”汇总字段；依赖部分待确认字段</td></tr>
+          <tr><td>计算</td><td>总库存-2</td><td class="tbl-formula">美国站点：谷仓-2 + 万邑通USKY3-2 + 万邑通USWC-2 + 万邑通USWC2-2 + 国内仓-2 + FBT-2 + FBA(空着)-2；英国站点：国内仓-2 + 英国退货仓-2</td><td>—</td><td>—</td><td>—</td><td>“店铺后台实际被同步的库存”汇总字段；依赖部分待确认字段</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.4 最终目标结果</h3>
+    <p>需求一达成的目标：<strong>TK库存检查-PID&amp;SKU 维度看板</strong>，按 PID、SKU 展示商品基础信息、各仓库存、同步库存、库存差异与库存是否异常结果，用于日常库存同步排查；该视图不展示 SPU 相关信息。</p>
+    <p>页面输出应至少包含以下几类信息：</p>
+    <ul>
+      <li><strong>商品基础维度</strong>：PID、SKU、SKU名称、站点、店铺。</li>
+      <li><strong>库存来源维度</strong>：采购量、交货在途库存、国内库存、三方仓在途量、FBT在途量、FBT可用量，以及谷仓、万邑通、英国退货仓等仓别拆分字段。</li>
+      <li><strong>核对结果维度</strong>：总在途库存、总可用库存、总库存、库存是否异常、各仓差异字段（如谷仓-3、国内仓-3等）。</li>
+    </ul>
+    <hr />
+
+    <h2>二、需求二：TK库存检查-SPU 维度看板</h2>
+    <table class="req-metrics">
+      <tr><th>优先级</th><td>—</td></tr>
+      <tr><th>影响面</th><td>库存汇总查看、SPU 级异常排查</td></tr>
+      <tr><th>价值</th><td>在 PID&amp;SKU 明细基础上，支持按 SPU 聚合查看库存健康度，便于管理层或业务做汇总判断</td></tr>
+    </table>
+
+    <h3>2.1 需求描述</h3>
+    <ul>
+      <li><strong>目标</strong>：用映射表，做一个以 <strong>SPU</strong> 维度的看板。</li>
+      <li><strong>底表来源</strong>：直接基于需求一产出的 <strong>TK库存检查-PID&amp;SKU 维度底表</strong> 做二次汇总，不单独重建一套明细来源。</li>
+      <li><strong>聚合方式</strong>：以 <strong>SPU</strong> 为维度做 <code>group by</code>，将需求一中的库存相关字段汇总到 SPU 粒度，形成汇总视角。</li>
+      <li><strong>字段收口</strong>：SPU 看板结果中<strong>不再展示 PID、SKU、SKU名称</strong>；即使底表中存在没有 PID、没有 SKU 的记录，也统一收口在对应 <strong>SPU</strong> 下面参与汇总。</li>
+      <li><strong>预期用途</strong>：快速查看某个 SPU 在不同站点、不同仓的库存状态与异常情况。</li>
+    </ul>
+
+    <h3>2.2 流程</h3>
+    <ol>
+      <li>先完成 PID&amp;SKU 维度明细数据的梳理与落表。</li>
+      <li>以需求一底表作为唯一输入，按 <strong>SPU</strong> 做 <code>group by</code> 聚合，形成 SPU 维度库存检查看板。</li>
+      <li>需求一中归属于同一 SPU 的多条 PID&amp;SKU 明细，需要合并为一条 SPU 粒度结果；底表中没有 PID、没有 SKU 的记录，也直接并入对应 SPU 汇总结果。</li>
+      <li>各库存数值字段默认按 SPU 粒度进行求和汇总；异常字段不直接沿用明细结果，而是基于 SPU 聚合后的库存结果重新判断。</li>
+    </ol>
+
+    <h3>2.3 映射表（SPU 看板）</h3>
+    <ul>
+      <li><strong>最终数据表</strong>：<code>TK库存检查-SPU</code>（建议命名，可按项目实际 ADS / 看板表规范调整）</li>
+      <li><strong>构建方式</strong>：以上一节需求一产出的 <code>TK库存检查</code> 明细底表为输入，按 <code>SPU</code> 粒度聚合生成。</li>
+      <li><strong>分组主键</strong>：<code>SPU</code>。SPU 看板结果中不保留 <code>PID</code>、<code>SKU</code>、<code>SKU名称</code> 粒度字段。</li>
+      <li><strong>特殊口径</strong>：若明细记录缺失 <code>PID</code> 或缺失 <code>SKU</code>，但能够落到某个 <code>SPU</code>，则仍纳入该 <code>SPU</code> 的汇总结果，不因 PID/SKU 缺失而剔除。</li>
+      <li><strong>聚合规则</strong>：库存类数值字段默认按 <code>sum()</code> 汇总；状态/判断类字段基于汇总后的差异结果重新计算。</li>
+    </ul>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>类型</th>
+            <th>SPU 看板字段</th>
+            <th>来源</th>
+            <th>聚合/计算口径</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>分组字段</td><td>SPU</td><td>需求一底表</td><td>按 <code>SPU</code> 分组</td><td>SPU 看板唯一主维度</td></tr>
+          <tr><td>映射/汇总</td><td>SPU名称</td><td>需求一底表</td><td>同一 SPU 下建议取统一名称；若存在不一致，需以后续口径定义为准</td><td>建议保持与 SPU 一一对应</td></tr>
+          <tr><td>汇总</td><td>站点、店铺</td><td>需求一底表</td><td>同一 SPU 下若跨多个站点/店铺，可按看板展示需要做去重汇总或拆分筛选</td><td>当前以需求一底表原始归属为准</td></tr>
+          <tr><td>汇总</td><td>采购量、交货在途库存、国内库存、三方仓在途量、FBT在途量、FBT可用量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>均为库存数量类字段</td></tr>
+          <tr><td>汇总</td><td>谷仓-1 / -2 / -3、万邑通USKY3-1 / -2 / -3、万邑通USWC-1 / -2 / -3、万邑通USWC2-1 / -2 / -3、国内仓-1 / -2 / -3、FBT-1 / -2 / -3、FBA(空着)-1 / -2 / -3、英国退货仓-1 / -2 / -3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>仓别差异字段在 SPU 粒度汇总展示</td></tr>
+          <tr><td>重新计算</td><td>海外在途库存、海外可用库存、总在途库存、总可用库存、总库存、总库存-1、总库存-2</td><td>需求一底表聚合结果</td><td>基于 SPU 粒度汇总后的基础库存字段重新计算</td><td>不建议直接混用明细判断结果</td></tr>
+          <tr><td>重新判断</td><td>库存是否异常</td><td>需求一底表聚合结果</td><td>按 SPU 粒度汇总后的库存差异重新判断：差异大于 0 为少同步，小于 0 为超卖风险，等于 0 为同步正确</td><td>SPU 层级单独输出判断结果</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.4 最终目标结果</h3>
+    <p>需求二达成的目标：<strong>TK库存检查-SPU 维度看板</strong>，基于需求一底表按 SPU 聚合后，汇总展示各站点、各仓库存与异常情况，为库存汇总排查提供高层视图。</p>
+    <p>SPU 看板中不展示 PID、SKU、SKU名称；所有可归属到同一 SPU 的明细，无论是否缺少 PID 或 SKU，均统一收口到该 SPU 结果中。</p>
+    <hr />
+
+    <h2>三、源数据统一梳理</h2>
+    <p>以下为当前库存检查需求涉及的源数据，统一说明取数方式、用途，以及是否已经在 <strong>源数据集成列表</strong> 中登记。</p>
+    <div class="todo-note">
+      当前对照文件：<code>bi/tkDashboard/技术方案/源数据统一梳理-ODS.html</code>。<br />
+      本节中的“已集成 / 未登记”判断，以该清单当前内容为准：
+      <ul>
+        <li><strong>已在源数据集成列表中存在</strong>：说明已有对应 ODS 表或至少已有统一登记口径。</li>
+        <li><strong>当前未在源数据集成列表中登记</strong>：说明库存检查需求已识别出该源数据，但现有总清单中尚未补充对应 ODS 表名。</li>
+      </ul>
+    </div>
+
+    <h3>3.1 TIKTOK-在线商品</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>积加后台</td><td><strong>当前未在源数据集成列表中登记</strong></td></tr>
+        <tr><td>步骤 1</td><td>积加 → 销售 → 商品管理 → Tiktok自运营 → 筛选店铺 → 筛选在售</td><td>现有总清单中没有以 <code>TIKTOK-在线商品</code> 为名称的 ODS 记录</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 导出查询结果</td><td>若后续确认与现有商品主数据复用，需要补充统一命名口径</td></tr>
+        <tr><td>店铺范围</td><td>美国TK-艾斯特尼-美区跨境1店、美国TK-艾斯特尼-美区跨境2店、美国TK-艾斯特尼-美区跨境3店、美国TK-艾斯特尼-英国直邮店:GB</td><td>—</td></tr>
+        <tr><td>用途</td><td>提供 SPU、站点、父产品名称、PID、SKU、产品名称、店铺等商品基础信息，是库存检查的商品维度基础表。</td><td>业务语义上与“商品主数据”接近，但是否可复用 <code>全渠道商品表 → ods_product_api_jijia_omnichannel_product_df</code>，当前待确认</td></tr>
+      </table>
+    </div>
+    <div class="image-gallery">
+      <div class="image-card">
+        <img src="./assets/image5.png" alt="TIKTOK-在线商品获取路径截图-步骤1" />
+        <div class="caption">截图 1：TIKTOK-在线商品，步骤 1，进入积加后台销售 → 商品管理 → Tiktok自运营，并按店铺、在售状态筛选。</div>
+      </div>
+      <div class="image-card">
+        <img src="./assets/image1.png" alt="TIKTOK-在线商品获取路径截图-步骤2" />
+        <div class="caption">截图 2：TIKTOK-在线商品，步骤 2，导出查询结果。</div>
+      </div>
+    </div>
+
+    <h3>3.2 站点产品库存-自定义导出</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>积加后台</td><td><strong>当前未在源数据集成列表中登记</strong></td></tr>
+        <tr><td>步骤 1</td><td>积加 → 仓库 → 产品库存 → 站点产品库存 → 筛选仓库 → 筛选共享</td><td>现有总清单中没有“站点产品库存”对应的 ODS 表</td></tr>
+        <tr><td>仓库范围</td><td>美区：美国TK-国内厦门仓、万邑通:USKY3_Warehouse、万邑通:USWC2_Warehouse、万邑通:USWC_Warehouse、美国TK-艾斯特尼-美国谷仓:美西仓库、美国TK-厦门直邮仓；英区：美国TK-国内厦门仓、美国TK-厦门直邮仓、美国TK-艾斯特尼-英国退件仓:英国仓、万邑通:UKTW Warehouse</td><td>—</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 自定义导出</td><td>后续若正式建设数仓链路，建议优先补充对应 ODS 表登记</td></tr>
+        <tr><td>用途</td><td>提供采购量、在途量、可用量等仓库库存字段，是交货在途库存、国内库存、三方仓在途量、谷仓/万邑通/英国退货仓库存等字段的主要来源。</td><td>这是库存检查场景下最核心的库存明细来源</td></tr>
+      </table>
+    </div>
+    <div class="image-gallery">
+      <div class="image-card">
+        <img src="./assets/image2.png" alt="站点产品库存获取路径截图-步骤1" />
+        <div class="caption">截图 3：站点产品库存-自定义导出，步骤 1，进入积加后台仓库 → 产品库存 → 站点产品库存，并按仓库、共享状态筛选。</div>
+      </div>
+      <div class="image-card">
+        <img src="./assets/image8.png" alt="站点产品库存获取路径截图-步骤2" />
+        <div class="caption">截图 4：站点产品库存-自定义导出，步骤 2，自定义导出操作截图。</div>
+      </div>
+    </div>
+
+    <h3>3.3 TikTok.FBT库存-自定义导出</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>积加后台</td><td><strong>当前未在源数据集成列表中登记</strong></td></tr>
+        <tr><td>步骤 1</td><td>积加 → 仓库 → 平台仓库存 → TikTok自运营 → 筛选仓库为美国TK-艾斯特尼-美区跨境1店:US_FBT → 筛选同步状态为正常</td><td>现有总清单里没有 TikTok FBT 库存导出对应的 ODS 表</td></tr>
+        <tr><td>步骤 2</td><td>导出 → 自定义导出</td><td>后续若补齐接口或导出链路，建议同步补充源数据集成登记</td></tr>
+        <tr><td>用途</td><td>提供 FBT 在途量、FBT 可用量，用于补充平台仓库存维度。</td><td>当前需求和原型中均标注了 FBT 字段存在待确认项</td></tr>
+      </table>
+    </div>
+    <div class="image-gallery">
+      <div class="image-card">
+        <img src="./assets/image4.png" alt="TikTok FBT库存获取路径截图-步骤1" />
+        <div class="caption">截图 5：TikTok.FBT库存-自定义导出，步骤 1，进入平台仓库存 → TikTok自运营，并按 US_FBT 仓库、同步状态筛选。</div>
+      </div>
+      <div class="image-card">
+        <img src="./assets/image9.png" alt="TikTok FBT库存获取路径截图-步骤2" />
+        <div class="caption">截图 6：TikTok.FBT库存-自定义导出，步骤 2，自定义导出操作截图。</div>
+      </div>
+    </div>
+
+    <h3>3.4 积加-商品管理-可用库存</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>积加后台接口</td><td><strong>当前未在源数据集成列表中登记</strong></td></tr>
+        <tr><td>实现方式</td><td>基于积加接口获取库存相关数据，查询口径按 <strong>PID</strong> 发起</td><td>现有总清单中没有“积加-商品管理-可用库存”对应的 ODS 表；该项应按接口型源数据补充登记</td></tr>
+        <tr><td>用途</td><td>作为店铺后台“实际被同步的库存”口径来源，对应谷仓-2、万邑通USKY3-2、万邑通USWC-2、万邑通USWC2-2、国内仓-2、FBA(空着)-2、英国退货仓-2 等字段。</td><td>该数据是“店铺后台已同步库存”口径的关键来源，与“我们有的库存”做对比后才能判断同步差异，建议后续补齐接口登记、请求参数与返回字段说明</td></tr>
+      </table>
+    </div>
+    <div class="image-gallery">
+      <div class="image-card">
+        <img src="./assets/image6.png" alt="积加商品管理可用库存获取路径截图" />
+        <div class="caption">截图 7：积加-商品管理-可用库存，对应库存数量页面的获取路径截图。</div>
+      </div>
+    </div>
+
+    <h3>3.5 获取可用的仓库列表</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>积加后台接口</td><td><strong>当前未在源数据集成列表中登记</strong></td></tr>
+        <tr><td>实现方式</td><td>基于积加后台接口能力获取当前账号/业务范围下可用的仓库列表，不依赖手工导出</td><td>当前仓库相关源数据主要来自导出文件；该项需补充为接口型源数据</td></tr>
+        <tr><td>返回内容</td><td>仓库 ID、仓库名称、仓库类型、仓库所属站点/业务范围等基础信息（以接口实际返回为准）</td><td>建议后续在接口文档中补充字段定义与请求示例</td></tr>
+        <tr><td>用途</td><td>为“站点产品库存-自定义导出”“积加-商品管理-可用库存”等库存数据提供仓库筛选候选集与仓库名称标准口径，支撑前端筛选项、仓库归类及仓库映射维护</td><td>该列表属于库存检查场景的基础维表/字典数据，不直接产出库存数值</td></tr>
+        <tr><td>备注</td><td>若后续正式建设数仓链路，建议将该接口结果沉淀为仓库维表，并与库存事实数据共用统一仓库主数据口径</td><td>建议补充接口登记、调度频率与增量/全量同步策略</td></tr>
+      </table>
+    </div>
+    <hr />
+
+    <h2>四、需求与数据对照小结</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>需求</th><th>核心动作</th><th>使用的源数据</th><th>产出</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>需求一</td><td>按 PID&amp;SKU 维度映射商品与库存字段，并计算异常结果</td><td>TIKTOK-在线商品 + 站点产品库存-自定义导出 + TikTok.FBT库存-自定义导出 + 积加-商品管理-可用库存 + 获取可用的仓库列表</td><td>TK库存检查-PID&amp;SKU 维度看板</td></tr>
+          <tr><td>需求二</td><td>基于需求一底表按 SPU 聚合，缺失 PID/SKU 的记录也按 SPU 收口汇总</td><td>同上</td><td>TK库存检查-SPU 维度看板</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="back"><a href="../index.html">← 返回首页</a></p>
+  </div>
+</body>
+</html>

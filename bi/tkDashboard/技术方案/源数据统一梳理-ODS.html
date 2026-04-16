@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tkDashboard 源数据统一梳理（ODS）</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    p { margin: 0.5rem 0 1rem; }
+    ul { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 760px; }
+    th, td { padding: 0.45rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .note { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>tkDashboard 源数据统一梳理（ODS）</h1>
+    <p>本文只保留 <strong>已集成的 ODS 列表明细</strong>，用于后续业务排查时快速确认：当前有哪些贴源表已经接入、每张表对应什么源数据、来源系统是什么、当前被哪些页面或场景使用。不展开 DWD / DWS / ADS。</p>
+
+    <div class="note">
+      <strong>使用方式</strong>
+      <ul>
+        <li>优先按 ODS 表名查，再看它对应的源数据、使用页面和排查重点。</li>
+        <li>若页面数据异常，优先核对该 ODS 表当天是否有数、店铺名是否正常、业务日期是否落对。</li>
+        <li>本文基于现有需求文档、接口设计文档、技术方案与表结构设计整理，口径以当前已集成表为准。</li>
+      </ul>
+    </div>
+
+    <h2>一、已集成 ODS 列表明细</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ODS 表名</th>
+            <th>对应源数据</th>
+            <th>来源</th>
+            <th>当前用途</th>
+            <th>使用页面 / 场景</th>
+            <th>排查重点</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ods_trade_api_tiktok_order_di</code></td>
+            <td>全部笔订单主表</td>
+            <td>TikTok 订单 API</td>
+            <td>提供订单主信息，支撑 PID GMV 计算</td>
+            <td>PID 需求一 / GMV计算表</td>
+            <td>重点核对 <code>sdt</code>、店铺、支付时间、订单状态是否符合业务口径</td>
+          </tr>
+          <tr>
+            <td><code>ods_trade_api_tiktok_order_item_di</code></td>
+            <td>全部笔订单明细</td>
+            <td>TikTok 订单 API</td>
+            <td>提供 SKU 粒度订单明细，支撑销量、件数、PID 补全</td>
+            <td>PID 需求一 / GMV计算表</td>
+            <td>重点核对订单是否存在明细缺失、SKU 是否完整、同一订单是否有重复明细</td>
+          </tr>
+          <tr>
+            <td><code>ods_product_api_jijia_omnichannel_product_df</code></td>
+            <td>全渠道商品表</td>
+            <td>积加后台</td>
+            <td>补充父 ASIN、SPU、商品标题等商品维度，支撑 PID 和商品侧映射</td>
+            <td>PID 需求一 / PID 需求二 / 商品统计</td>
+            <td>重点核对店铺、父 ASIN、Seller SKU、listingTitle 等映射字段是否齐全</td>
+          </tr>
+          <tr>
+            <td><code>ods_traffic_file_tiktok_product_list_di</code></td>
+            <td>product_list</td>
+            <td>TikTok 后台商品数据分析导出</td>
+            <td>PID 看板主底表，提供 PID、商品标题、商品卡/直播/视频等原始指标</td>
+            <td>PID 需求二 / 数据看板</td>
+            <td>优先确认当天数据是否入仓、店铺名是否正确、PID 是否完整</td>
+          </tr>
+          <tr>
+            <td><code>ods_marketing_file_tiktok_campaign_di</code></td>
+            <td>Product campaign data</td>
+            <td>TikTok 后台实时推广系列导出</td>
+            <td>提供广告消耗、广告订单、广告 GMV、ROI 等广告侧指标</td>
+            <td>PID 需求二 / 数据看板</td>
+            <td>重点核对 <code>campaign_name</code> 是否能解析出 PID，日期与店铺是否和主表对齐</td>
+          </tr>
+          <tr>
+            <td><code>ods_traffic_file_tiktok_video_performance_di</code></td>
+            <td>Video Performance List</td>
+            <td>TikTok / 积加视频与直播数据分析导出</td>
+            <td>提供视频曝光、点击、引流、成交、挂车相关原始数据</td>
+            <td>PID 需求二 / 数据看板</td>
+            <td>重点核对 <code>creator_id</code>、<code>product_name</code>、视频发布时间与业务日期的对应关系</td>
+          </tr>
+          <tr>
+            <td><code>ods_platform_file_tiktok_account_df</code></td>
+            <td>tk 账号信息表</td>
+            <td>手工维护 / 导入</td>
+            <td>用于达人账号识别，区分商务挂车、剪辑挂车等账号类型</td>
+            <td>PID 需求二 / 数据看板</td>
+            <td>重点核对 <code>tiktok_uid</code> 是否和视频表中的 <code>creator_id</code> 对得上</td>
+          </tr>
+          <tr>
+            <td><code>ods_sales_api_jijia_omnichannel_order_di</code></td>
+            <td>全渠道销售订单表</td>
+            <td>积加 API / Shopify 侧订单</td>
+            <td>提供订单主信息，支撑店铺统计、商品统计</td>
+            <td>店铺统计 / 商品统计</td>
+            <td>重点核对实付金额、付款时间、店铺、平台订单编号</td>
+          </tr>
+          <tr>
+            <td><code>ods_sales_api_jijia_omnichannel_order_item_di</code></td>
+            <td>全渠道销售订单明细表</td>
+            <td>积加 API / Shopify 侧订单明细</td>
+            <td>提供商品粒度订单明细，支撑商品销量和订单主子表核对</td>
+            <td>店铺统计 / 商品统计</td>
+            <td>重点核对订单主子表是否能按订单号关联上，商品件数是否完整</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二、ODS 表反查清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>ODS 表名</th>
+            <th>对应源数据</th>
+            <th>主要被哪些模块使用</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ods_trade_api_tiktok_order_di</code></td>
+            <td>全部笔订单主表</td>
+            <td>PID - GMV 计算</td>
+          </tr>
+          <tr>
+            <td><code>ods_trade_api_tiktok_order_item_di</code></td>
+            <td>全部笔订单明细</td>
+            <td>PID - GMV 计算</td>
+          </tr>
+          <tr>
+            <td><code>ods_product_api_jijia_omnichannel_product_df</code></td>
+            <td>全渠道商品表</td>
+            <td>PID - GMV 计算、PID - 数据看板、商品统计</td>
+          </tr>
+          <tr>
+            <td><code>ods_traffic_file_tiktok_product_list_di</code></td>
+            <td>product_list</td>
+            <td>PID - 数据看板</td>
+          </tr>
+          <tr>
+            <td><code>ods_marketing_file_tiktok_campaign_di</code></td>
+            <td>Product campaign data</td>
+            <td>PID - 数据看板</td>
+          </tr>
+          <tr>
+            <td><code>ods_traffic_file_tiktok_video_performance_di</code></td>
+            <td>Video Performance List</td>
+            <td>PID - 数据看板</td>
+          </tr>
+          <tr>
+            <td><code>ods_platform_file_tiktok_account_df</code></td>
+            <td>tk 账号信息表</td>
+            <td>PID - 数据看板</td>
+          </tr>
+          <tr>
+            <td><code>ods_sales_api_jijia_omnichannel_order_di</code></td>
+            <td>全渠道销售订单表</td>
+            <td>店铺统计、商品统计</td>
+          </tr>
+          <tr>
+            <td><code>ods_sales_api_jijia_omnichannel_order_item_di</code></td>
+            <td>全渠道销售订单明细表</td>
+            <td>店铺统计、商品统计</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>三、排查建议</h2>
+    <ul>
+      <li>PID 数据看板异常时，先查 <code>ods_traffic_file_tiktok_product_list_di</code>，因为它是主底表，缺它通常整行指标都出不来。</li>
+      <li>广告数据异常时，优先查 <code>ods_marketing_file_tiktok_campaign_di</code> 的 <code>campaign_name</code> 是否还能正确解析 PID。</li>
+      <li>视频 / 挂车数据异常时，联查 <code>ods_traffic_file_tiktok_video_performance_di</code> 和 <code>ods_platform_file_tiktok_account_df</code>，先确认达人 ID 是否可匹配。</li>
+      <li>商品维度补不出来时，优先查 <code>ods_product_api_jijia_omnichannel_product_df</code> 中商品标题、父 ASIN、Seller SKU 等关键字段。</li>
+      <li>GMV 计算异常时，先看 <code>ods_trade_api_tiktok_order_di</code> 和 <code>ods_trade_api_tiktok_order_item_di</code> 是否同批次、同日期完整入仓。</li>
+      <li>店铺统计 / 商品统计异常时，先查 <code>ods_sales_api_jijia_omnichannel_order_di</code> 与 <code>ods_sales_api_jijia_omnichannel_order_item_di</code> 的订单主子表是否一致。</li>
+    </ul>
+
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="表结构设计-Doris.html">表结构设计（Doris）</a></p>
+  </div>
+</body>
+</html>

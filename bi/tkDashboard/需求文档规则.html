@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tkDashboard 需求文档规则</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    blockquote { margin: 1rem 0; padding: 0.5rem 0 0.5rem 1rem; border-left: 4px solid var(--accent); color: var(--muted); font-size: 0.95rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; min-width: 720px; }
+    th, td { padding: 0.45rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    code { background: #f8fafc; padding: 0.08rem 0.3rem; border-radius: 4px; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; padding: 0.8rem 1rem; border-radius: 6px; margin: 1rem 0; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>tkDashboard 需求文档规则</h1>
+    <blockquote>适用范围：<code>bi/tkDashboard</code> 下所有需求文档、原型页、接口文档中涉及筛选条件说明的内容。本文档用于统一跨模块的字段口径与交互描述方式。</blockquote>
+
+    <h2>一、通用规则</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>规则编号</th>
+            <th>规则主题</th>
+            <th>规则内容</th>
+            <th>适用对象</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>REQ-TKD-001</td>
+            <td>站点与店铺联动规则</td>
+            <td>
+              在 <code>tkDashboard</code> 下所有需求文档中，凡涉及 <strong>站点</strong> 与 <strong>店铺</strong> 两个筛选项时，必须使用统一口径：
+              <br />1. <strong>店铺支持独立筛选</strong>，即用户可直接按店铺选择目标范围。
+              <br />2. <strong>站点也支持单独筛选</strong>，并用于缩小店铺候选范围。
+              <br />3. 当用户先选择站点后，<strong>店铺列表必须联动</strong>，仅展示该站点下的店铺。
+              <br />4. 文档中不得将“站点筛选”和“店铺筛选”描述为二选一、互斥关系，必须明确为<strong>联动关系</strong>。
+            </td>
+            <td>需求文档、原型页、接口文档</td>
+          </tr>
+          <tr>
+            <td>REQ-TKD-002</td>
+            <td>原型页统计说明与更新时间</td>
+            <td>
+              在 <code>tkDashboard</code> 下所有原型页中，必须在查询区下方或工具条区域提供统一的辅助信息组件：
+              <br />1. <strong>必须有“数据统计说明”按钮</strong>，用于查看当前页面的数据口径、统计说明或核心规则。
+              <br />2. <strong>必须展示“数据更新时间”</strong>，格式统一为 <code>数据更新时间：YYYY-MM-DD HH:mm:ss</code>。
+              <br />3. 该按钮和更新时间展示应位于导出、导出图片等操作按钮同一层级，作为页面级固定元素存在。
+              <br />4. 任何原型页不得省略这两项；若页面尚无真实更新时间，也必须保留静态展示占位。
+            </td>
+            <td>原型页</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二、编写要求</h2>
+    <h3>2.1 需求文档写法</h3>
+    <ul>
+      <li>当页面存在 <code>站点</code>、<code>店铺</code> 两个筛选项时，需求描述中必须写清楚二者的联动关系，而不是只列字段名。</li>
+      <li>推荐表述为：<strong>店铺可直接筛选；也可先通过站点缩小范围，再获取对应店铺列表进行筛选</strong>。</li>
+      <li>若页面默认由上游入口已限定店铺范围，也应明确说明是否仍保留店铺筛选控件，以及该控件是否受站点联动影响。</li>
+    </ul>
+
+    <h3>2.2 原型页写法</h3>
+    <ul>
+      <li>原型页的查询区若出现 <code>站点</code> 与 <code>店铺</code>，其交互行为必须与需求文档一致。</li>
+      <li><code>站点</code> 选择后，<code>店铺</code> 下拉或候选列表必须同步刷新，不允许继续展示不属于当前站点的店铺。</li>
+      <li>同一模块下存在多个视图时，例如明细视图与汇总视图，顶部筛选区的 <code>站点/店铺</code> 规则应保持一致。</li>
+      <li>每一个原型页都必须提供 <code>数据统计说明</code> 按钮和 <code>数据更新时间</code> 展示，不允许缺省。</li>
+    </ul>
+
+    <h3>2.3 接口文档写法</h3>
+    <ul>
+      <li>若接口支持按 <code>站点</code>、<code>店铺</code> 查询，参数说明中要明确两者是否同时可传，以及传入站点后店铺值的约束关系。</li>
+      <li>若页面需要根据站点获取店铺候选列表，应在接口文档中补充对应的候选项接口或字典来源说明。</li>
+    </ul>
+
+    <h2>三、标准描述模板</h2>
+    <div class="note">
+      标准模板：页面支持按店铺直接筛选；同时支持先按站点筛选，再联动获取该站点下的店铺列表。站点与店铺不是互斥关系，而是联动关系，相关需求文档、原型页和接口文档需保持一致。
+    </div>
+
+    <h2>四、执行说明</h2>
+    <ul>
+      <li>本规则自发布起，适用于 <code>bi/tkDashboard</code> 下新增与修改的所有需求文档。</li>
+      <li>若历史文档存在与本规则冲突的描述，后续修改时应按本规则统一修正。</li>
+      <li>若某个业务场景确实不适用本规则，需求文档中必须显式说明例外原因，不得默认省略。</li>
+    </ul>
+
+    <p class="back"><a href="./index.html">← 返回首页</a></p>
+  </div>
+</body>
+</html>

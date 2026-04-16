@@ -31,8 +31,11 @@
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
-    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
-    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .action-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-width: 280px; }
+    .update-time { font-size: 0.85rem; color: #64748b; }
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
@@ -121,8 +124,14 @@
     </div>
 
     <div class="action-bar">
-      <div class="btns">
-        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      <div class="action-head">
+        <div class="btns">
+          <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
+          <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+        </div>
+        <div class="meta-info">
+          <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+        </div>
       </div>
       <div class="export-tip">
         导出字段有：日期、店铺、总GMV、营业总额、实付总价（折扣价-补贴+运费）、客单价（实付总价/单量）、商家折扣、补贴、每单补贴、运费
@@ -577,6 +586,15 @@
         currentPage = 1;
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="10" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
         document.getElementById('paginationBar').style.display = 'none';
+      };
+      document.getElementById('btnMetricHelp').onclick = function() {
+        alert([
+          '数据统计说明',
+          '1. 本页按日期与店铺展示 GMV 计算结果，支持日、周、月、季度、年五种时间粒度。',
+          '2. 总GMV、营业总额、实付总价、客单价、商家折扣、补贴、每单补贴、运费均按当前筛选范围重新汇总。',
+          '3. 实付总价口径为折扣价减补贴再加运费，客单价按实付总价除以单量计算。',
+          '4. 店铺支持独立筛选，也支持通过站点联动带出对应店铺列表，保持 tkDashboard 统一筛选规则。'
+        ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
       document.getElementById('btnPrev').onclick = function() {

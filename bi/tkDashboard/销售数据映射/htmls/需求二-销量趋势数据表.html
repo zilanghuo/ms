@@ -22,8 +22,11 @@
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
-    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
-    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .action-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-width: 280px; }
+    .update-time { font-size: 0.85rem; color: #64748b; }
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
@@ -71,8 +74,14 @@
     </div>
 
     <div class="action-bar">
-      <div class="btns">
-        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      <div class="action-head">
+        <div class="btns">
+          <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
+          <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+        </div>
+        <div class="meta-info">
+          <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+        </div>
       </div>
       <div class="export-tip">
         导出字段与下表一致：Paid Time、归属月份(公式)、店铺、order id、Platform SKU ID.、Seller sku、SKU sold quantity、Order total amount、PID、SPU(公式)
@@ -207,6 +216,15 @@
         currentPage = 1;
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
         document.getElementById('paginationBar').style.display = 'none';
+      };
+      document.getElementById('btnMetricHelp').onclick = function() {
+        alert([
+          '数据统计说明',
+          '1. 本页为销量趋势明细表，字段口径与映射表目标字段保持一致，导出内容与列表列完全一致。',
+          '2. 支持按店铺与支付日期筛选，支付日期基于 Paid Time 字段过滤。',
+          '3. 一条记录对应一笔订单商品明细，用于回溯 PID、SPU、SKU sold quantity 与订单实付金额。',
+          '4. 页面分页仅影响展示，不影响导出，导出将输出当前筛选条件下的全部命中数据。'
+        ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
       document.getElementById('btnPrev').onclick = function() {

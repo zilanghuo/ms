@@ -140,10 +140,6 @@
         <tbody>
           <tr><td>计算</td><td>日期</td><td class="tbl-formula">提取导出文件的日期范围（或任务调度入参），写入 sdt（YYYYMMDD）</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>（表头/文件名）</td><td>—</td></tr>
           <tr><td>计算</td><td>PID</td><td class="tbl-formula">直接取源表：product_list.ID</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>ID</td><td>—</td></tr>
-          <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>ods_product_api_jijia_omnichannel_product_df</td><td>SPU</td><td>—</td></tr>
-          <tr><td>映射</td><td>客单价</td><td class="tbl-formula">GMV 计算表.客单价（实付总价/单量）</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>atv</td><td>—</td></tr>
-          <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">GMV 计算表.平均补贴/单</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>subsidy_per</td><td>—</td></tr>
-          <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">GMV 计算表.财务GMV/总GMV</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>paid_amount（或 financial_gmv）</td><td>—</td></tr>
           <tr><td>映射</td><td>商品交易总额4</td><td class="tbl-formula">product_list.GMV</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>GMV</td><td>4</td></tr>
           <tr><td>映射</td><td>成交件数5</td><td class="tbl-formula">product_list.成交件数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>成交件数</td><td>5</td></tr>
           <tr><td>映射</td><td>订单数6</td><td class="tbl-formula">product_list.订单数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>订单数</td><td>6</td></tr>
@@ -180,15 +176,19 @@
           <tr><td>映射</td><td>视频去重商品客户数28</td><td class="tbl-formula">product_list.视频去重商品客户数</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频去重商品客户数</td><td>29</td></tr>
           <tr><td>映射</td><td>视频点击率29</td><td class="tbl-formula">product_list.视频点击率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频点击率</td><td>30</td></tr>
           <tr><td>映射</td><td>视频转化率30</td><td class="tbl-formula">product_list.视频转化率</td><td>—</td><td>product_list</td><td>ods_traffic_file_tiktok_product_list_di</td><td>视频转化率</td><td>31</td></tr>
+          <tr><td>映射</td><td>主推SPU</td><td class="tbl-formula">全渠道商品表.SPU</td><td>全渠道商品表（父ASIN）与 product_list（ID）</td><td>全渠道商品表</td><td>ods_product_api_jijia_omnichannel_product_df</td><td>SPU</td><td>—</td></tr>
+          <tr><td>映射</td><td>客单价</td><td class="tbl-formula">GMV 计算表.客单价（实付总价/单量）</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>atv</td><td>—</td></tr>
+          <tr><td>映射</td><td>平均补贴/单</td><td class="tbl-formula">GMV 计算表.平均补贴/单</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>subsidy_per</td><td>—</td></tr>
+          <tr><td>映射</td><td>财务GMV</td><td class="tbl-formula">GMV 计算表.财务GMV/总GMV</td><td>PID 与 sdt 与 store_name</td><td>GMV 计算表（准实时）</td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>paid_amount（或 financial_gmv）</td><td>—</td></tr>
           <tr><td>映射</td><td>商务挂车量（合计挂车量 - 剪辑挂车量）</td><td class="tbl-formula">按商品标题在 Video Performance List 聚合挂车视频数，再减去剪辑挂车量</td><td>商品=全渠道商品的商品标题</td><td>Video Performance List</td><td>ods_traffic_file_tiktok_video_performance_di</td><td>product_name</td><td>—</td></tr>
           <tr><td>映射</td><td>剪辑挂车量（同一个商品，处于达人列表的数据量）</td><td class="tbl-formula">Video Performance List 中，creator_id 在 tk 账号信息表命中即为剪辑挂车，按商品标题聚合计数</td><td>商品=全渠道商品的商品标题 + creator_id in tk账号</td><td>Video Performance List + tk 账号信息表</td><td>ods_traffic_file_tiktok_video_performance_di / ods_platform_file_tiktok_account_df</td><td>creator_id / tiktok_uid</td><td>—</td></tr>
-          <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>预留</td><td>商务开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
-          <tr><td>预留</td><td>剪辑开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td>映射</td><td>GMVMAX消耗</td><td class="tbl-formula">Product campaign data.成本；PID=广告计划名称以 \"-\" 分隔的最后一段，与 product_list.ID 关联</td><td>PID=从广告计划名称提取末段数字，与 product_list.ID 关联</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>cost</td><td>—</td></tr>
           <tr><td>映射</td><td>广告单量</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>sku_order_count</td><td>—</td></tr>
           <tr><td>映射</td><td>广告订单数</td><td class="tbl-formula">Product campaign data.SKU 订单数</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>sku_order_count</td><td>—</td></tr>
           <tr><td>映射</td><td>广告GMV</td><td class="tbl-formula">Product campaign data.总收入</td><td>同上</td><td>Product campaign data</td><td>ods_marketing_file_tiktok_campaign_di</td><td>total_revenue</td><td>—</td></tr>
+          <tr><td>计算</td><td>合计挂车量</td><td class="tbl-formula">合计挂车量=商务挂车量+剪辑挂车量</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>商务开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>预留</td><td>剪辑开单视频</td><td class="tbl-formula">暂未实现，预留字段</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td>计算</td><td>总ACOAS</td><td class="tbl-formula">总ACOAS=财务GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td>计算</td><td>广告ROI（测算）</td><td class="tbl-formula">广告ROI（测算）=广告GMV/GMVMAX消耗</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           <tr><td>计算</td><td>广告AcoAs</td><td class="tbl-formula">广告AcoAs=GMVMAX消耗/广告GMV</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
@@ -318,7 +318,7 @@
           <li>美国 TK・艾斯特尼 - 美区特 3 店 US</li>
           <li>美国TK-艾斯特尼-英国直邮店:GB</li>
         </ul>
-      </li>
+      </li>/Users/a1/Documents/Office/code/ms-proj/bi/tkDashboard/PID/docs/1店PID维度的数据监测工具表-7天数据.xlsx
     </ol>
 
     <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="需求文档.md">需求文档.md（源文件）</a></p>

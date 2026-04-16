@@ -35,8 +35,11 @@
 
     .filter-info { font-size: 0.8rem; color: var(--accent); }
 
-    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem; }
-    .action-bar .btns { display: flex; gap: 0.5rem; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
+    .action-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-width: 280px; }
+    .update-time { font-size: 0.85rem; color: #64748b; }
     .export-tip { flex: 1; min-width: 280px; padding: 0.5rem 0.75rem; border: 1px solid #dc2626; border-radius: 4px; background: #fef2f2; font-size: 0.8rem; color: #991b1b; }
 
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
@@ -159,9 +162,15 @@
     </div>
 
     <div class="action-bar">
-      <div class="btns">
-        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
-        <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
+      <div class="action-head">
+        <div class="btns">
+          <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
+          <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+          <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
+        </div>
+        <div class="meta-info">
+          <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+        </div>
       </div>
       <div class="export-tip">
         导出字段：店铺、小计、各期间明细（与下表一致，用于播报到企微项目群）<br/>
@@ -727,6 +736,9 @@
 
       document.getElementById('btnQuery').onclick = render;
       document.getElementById('qCurrency').onchange = render;
+      document.getElementById('btnMetricHelp').onclick = function() {
+        alert('数据统计说明：\n1. 数据每半小时更新一次（基于 TikTok、积加 API）。\n2. 统计时间口径为各店铺所属市场本地时间。\n3. 订单金额不为 0，且订单为非取消状态。\n4. 销售额按当前页面既定公式口径计算。');
+      };
       document.getElementById('btnReset').onclick = function() {
         if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';

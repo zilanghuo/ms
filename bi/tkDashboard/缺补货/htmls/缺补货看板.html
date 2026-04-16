@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>缺补货看板</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #333;
+      --muted: #666;
+      --accent: #0d9488;
+      --accent-hover: #0f766e;
+      --border: #e0e0e0;
+      --input-border: #d1d5db;
+      --danger: #dc2626;
+      --warn-bg: #fff7ed;
+      --warn-text: #9a3412;
+      --ok-bg: #f0fdf4;
+      --ok-text: #166534;
+      --bad-bg: #fef2f2;
+      --bad-text: #991b1b;
+      --note-bg: #eff6ff;
+      --note-text: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+      padding: 1.5rem;
+      font-size: 14px;
+    }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+      color: var(--text);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .query-card, .summary-card, .table-card, .action-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .query-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item input[type="date"], .query-item input[type="text"], .query-item select {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+    }
+    .query-item input[type="text"] { min-width: 180px; }
+    .query-item select { min-width: 160px; cursor: pointer; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn {
+      border-radius: 4px;
+      padding: 0.45rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .tab-group {
+      display: inline-flex;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tab-group .tab {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      border-right: 1px solid var(--accent);
+    }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+    .tip-bar {
+      margin-top: 0.75rem;
+      padding: 0.65rem 0.8rem;
+      border-radius: 6px;
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      font-size: 0.82rem;
+      border: 1px solid #fdba74;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .summary-card { padding: 0.9rem 1rem; min-height: 90px; }
+    .summary-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.45rem; }
+    .summary-value { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .summary-sub { margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+    .summary-danger .summary-value { color: var(--danger); }
+    .summary-note .summary-value { color: #1d4ed8; }
+    .action-bar {
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .action-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-width: 260px; }
+    .update-time { font-size: 0.85rem; color: #64748b; }
+    .legend {
+      flex: 1;
+      min-width: 280px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .legend code {
+      background: #f1f5f9;
+      padding: 0.08rem 0.25rem;
+      border-radius: 3px;
+    }
+    .table-card { overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow: auto; }
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      table-layout: auto;
+    }
+    th, td {
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      color: var(--muted);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.center { text-align: center; }
+    tr:hover td { background: #f9fafb; }
+    .sticky-col-1, .sticky-col-2, .sticky-col-3, .sticky-col-4, .sticky-col-5 {
+      position: sticky;
+      background: var(--card);
+      z-index: 1;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08);
+    }
+    th.sticky-col-1, th.sticky-col-2, th.sticky-col-3, th.sticky-col-4, th.sticky-col-5 {
+      z-index: 3;
+      background: #f9fafb !important;
+    }
+    .sticky-col-1 { left: 0; min-width: 120px; }
+    .sticky-col-2 { left: 120px; min-width: 140px; }
+    .sticky-col-3 { left: 260px; min-width: 180px; }
+    .sticky-col-4 { left: 440px; min-width: 140px; }
+    .sticky-col-5 { left: 580px; min-width: 160px; }
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .status-ok { background: var(--ok-bg); color: var(--ok-text); }
+    .status-bad { background: var(--bad-bg); color: var(--bad-text); }
+    .status-warn { background: #fef3c7; color: #92400e; }
+    .mini-note {
+      margin-bottom: 1rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #bfdbfe;
+      background: var(--note-bg);
+      color: var(--note-text);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+      cursor: pointer;
+      min-width: 160px;
+      user-select: none;
+    }
+    .cascade-trigger::after {
+      content: '';
+      margin-left: auto;
+      border: 4px solid transparent;
+      border-top: 5px solid var(--muted);
+    }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 0.8rem;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cascade-trigger .tag .tag-close {
+      cursor: pointer;
+      font-size: 0.7rem;
+      margin-left: 2px;
+      color: #0369a1;
+    }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+    .cascade-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 100;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      min-width: 340px;
+    }
+    .cascade-panel.open { display: flex; }
+    .cascade-left {
+      width: 140px;
+      border-right: 1px solid var(--border);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .cascade-right {
+      flex: 1;
+      max-height: 260px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+    .cascade-left .cl-item {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+    .cascade-left .cl-item:hover,
+    .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn {
+      display: none;
+      margin-left: auto;
+      font-size: 0.7rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 1px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
+    @media (max-width: 1200px) {
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .query-actions { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">
+      缺补货看板
+      <span class="badge">原型页</span>
+    </h1>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="tab-group" id="viewTabs">
+          <button type="button" class="tab active" data-view="spu">SPU冗余检视</button>
+          <button type="button" class="tab" data-view="all">发货+补货总和</button>
+          <button type="button" class="tab" data-view="ship">发货</button>
+          <button type="button" class="tab" data-view="restock">补货</button>
+        </div>
+        <div class="query-item">
+          <span class="label">站点</span>
+          <div class="cascade-wrap" id="cascadeWrap">
+            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
+            <div class="cascade-panel" id="cascadePanel">
+              <div class="cascade-left" id="cascadeLeft"></div>
+              <div class="cascade-right" id="cascadeRight"></div>
+            </div>
+          </div>
+        </div>
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select id="qStore">
+            <option value="">全部</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">搜索</span>
+          <select id="qKeywordType">
+            <option>SPU</option>
+            <option>SKU</option>
+          </select>
+          <input type="text" placeholder="请输入关键字" />
+        </div>
+        <div class="query-item">
+          <span class="label">数据日期</span>
+          <input type="date" value="2026-04-12" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+      <div class="tip-bar">
+        口径说明：店铺支持独立筛选；也支持先按站点筛选，再联动缩小店铺范围。<code>SPU冗余检视</code> 基于 <code>发货+补货总和</code> 底表按 SPU 聚合，<code>发货</code> 和 <code>补货</code> 视图基于同一底表按打钩字段拆分展示。
+      </div>
+    </div>
+
+    <div class="view-panel active" id="view-spu">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary" id="btnMetricHelpSpu">数据统计说明</button>
+            <button type="button" class="btn btn-secondary">导出汇总</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">
+          说明：SPU 视图聚焦库存冗余走势，按 <code>加权日销</code>、<code>未来四个月预估日均</code>、<code>月底冗余量</code> 展示。
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">SPU总数</div>
+          <div class="summary-value">186</div>
+          <div class="summary-sub">当前查询范围内</div>
+        </div>
+        <div class="summary-card summary-danger">
+          <div class="summary-label">高冗余SPU数</div>
+          <div class="summary-value">24</div>
+          <div class="summary-sub">未来 4 个月冗余量持续为正</div>
+        </div>
+        <div class="summary-card summary-note">
+          <div class="summary-label">风险SPU数</div>
+          <div class="summary-value">13</div>
+          <div class="summary-sub">冗余量快速下降或转负</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">现有库存汇总</div>
+          <div class="summary-value">48,260</div>
+          <div class="summary-sub">按 SPU 聚合</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col-1">时间</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SPU名称</th>
+                <th class="sticky-col-4">站点</th>
+                <th class="sticky-col-5">现有库存</th>
+                <th>加权日销</th>
+                <th>第一个月系数</th>
+                <th>第二个月系数</th>
+                <th>第三个月系数</th>
+                <th>第四个月系数</th>
+                <th>第一个月预估日均</th>
+                <th>第二个月预估日均</th>
+                <th>第三个月预估日均</th>
+                <th>第四个月预估日均</th>
+                <th>第一个月底冗余量</th>
+                <th>第二个月底冗余量</th>
+                <th>第三个月底冗余量</th>
+                <th>第四个月底冗余量</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">Women Lounge Set</td>
+                <td class="sticky-col-4">美国站点</td>
+                <td class="num sticky-col-5">2,560</td>
+                <td class="num">36.8</td>
+                <td class="num">0.90</td>
+                <td class="num">0.85</td>
+                <td class="num">0.80</td>
+                <td class="num">0.75</td>
+                <td class="num">33.1</td>
+                <td class="num">31.2</td>
+                <td class="num">29.4</td>
+                <td class="num">27.5</td>
+                <td class="num">1,900</td>
+                <td class="num">980</td>
+                <td class="num">110</td>
+                <td class="num">-720</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-M2301</td>
+                <td class="sticky-col-3">Men Running Set</td>
+                <td class="sticky-col-4">美国站点</td>
+                <td class="num sticky-col-5">1,980</td>
+                <td class="num">18.2</td>
+                <td class="num">0.95</td>
+                <td class="num">0.90</td>
+                <td class="num">0.87</td>
+                <td class="num">0.82</td>
+                <td class="num">17.3</td>
+                <td class="num">16.4</td>
+                <td class="num">15.8</td>
+                <td class="num">15.0</td>
+                <td class="num">1,420</td>
+                <td class="num">910</td>
+                <td class="num">420</td>
+                <td class="num">-30</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="view-all">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary" id="btnMetricHelpAll">数据统计说明</button>
+            <button type="button" class="btn btn-secondary">导出底表</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">
+          说明：该视图为统一底表，既包含补货字段，也包含发货字段，是后续两个动作视图的共同基础。
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">SKU总数</div>
+          <div class="summary-value">1,286</div>
+          <div class="summary-sub">统一底表 SKU 数量</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">总可用库存</div>
+          <div class="summary-value">18,392</div>
+          <div class="summary-sub">国内 + 海外仓可用</div>
+        </div>
+        <div class="summary-card summary-danger">
+          <div class="summary-label">缺口SKU数</div>
+          <div class="summary-value">76</div>
+          <div class="summary-sub">所需总库存高于现有口径</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">平均加权日销</div>
+          <div class="summary-value">12.4</div>
+          <div class="summary-sub">当前筛选范围均值</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col-1">时间</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SKU</th>
+                <th class="sticky-col-4">SKU中文名称</th>
+                <th class="sticky-col-5">站点</th>
+                <th>FBT总库存</th>
+                <th>FBT库存-可用</th>
+                <th>三方仓总库存</th>
+                <th>三方仓可用库存</th>
+                <th>万邑通USKY3可用量</th>
+                <th>万邑通USWC可用量</th>
+                <th>万邑通USW2可用量</th>
+                <th>谷仓可用量</th>
+                <th>三方仓在途库存</th>
+                <th>万邑通USKY3在途量</th>
+                <th>万邑通USWC在途量</th>
+                <th>万邑通USW2在途量</th>
+                <th>谷仓在途量</th>
+                <th>海外仓可用总库存</th>
+                <th>国内可用库存</th>
+                <th>采购+交货在途库存</th>
+                <th>FBA库存（空着）</th>
+                <th>总可用库存</th>
+                <th>当前总的库存</th>
+                <th>过去7天日销</th>
+                <th>过去30天日销</th>
+                <th>加权日销</th>
+                <th>第一月日均预估</th>
+                <th>第二月日均预估</th>
+                <th>第三月日均预估</th>
+                <th>第四月日均预估</th>
+                <th>所需的总库存</th>
+                <th>状态</th>
+                <th>需要采购的数量</th>
+                <th>需要采购的数量-实际</th>
+                <th>预计要断货天数</th>
+                <th>需要发货的数量-测算</th>
+                <th>FBT-实际要发的库存</th>
+                <th>FBT海派时间</th>
+                <th>当天时间</th>
+                <th>海派到的时间内需要的库存</th>
+                <th>在线还缺的数量</th>
+                <th>可调拨</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-4">深灰 XL</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">18</td>
+                <td class="num">14</td>
+                <td class="num">78</td>
+                <td class="num">52</td>
+                <td class="num">21</td>
+                <td class="num">17</td>
+                <td class="num">8</td>
+                <td class="num">6</td>
+                <td class="num">26</td>
+                <td class="num">10</td>
+                <td class="num">9</td>
+                <td class="num">4</td>
+                <td class="num">3</td>
+                <td class="num">66</td>
+                <td class="num">42</td>
+                <td class="num">138</td>
+                <td class="num">0</td>
+                <td class="num">108</td>
+                <td class="num">188</td>
+                <td class="num">10.2</td>
+                <td class="num">8.4</td>
+                <td class="num">9.7</td>
+                <td class="num">9.1</td>
+                <td class="num">8.8</td>
+                <td class="num">8.2</td>
+                <td class="num">7.9</td>
+                <td class="num">220</td>
+                <td><span class="status-tag status-warn">还可以卖11天</span></td>
+                <td class="num">32</td>
+                <td class="num">32</td>
+                <td class="num">11</td>
+                <td class="num">42</td>
+                <td class="num">28</td>
+                <td>2026-05-03</td>
+                <td>2026-04-01</td>
+                <td class="num">118</td>
+                <td class="num">52</td>
+                <td class="num">16</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-M2301</td>
+                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-4">黑色 L</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">9</td>
+                <td class="num">6</td>
+                <td class="num">45</td>
+                <td class="num">27</td>
+                <td class="num">12</td>
+                <td class="num">11</td>
+                <td class="num">6</td>
+                <td class="num">4</td>
+                <td class="num">12</td>
+                <td class="num">5</td>
+                <td class="num">4</td>
+                <td class="num">2</td>
+                <td class="num">1</td>
+                <td class="num">33</td>
+                <td class="num">20</td>
+                <td class="num">95</td>
+                <td class="num">0</td>
+                <td class="num">53</td>
+                <td class="num">92</td>
+                <td class="num">6.1</td>
+                <td class="num">4.7</td>
+                <td class="num">5.7</td>
+                <td class="num">5.5</td>
+                <td class="num">5.2</td>
+                <td class="num">4.8</td>
+                <td class="num">4.6</td>
+                <td class="num">145</td>
+                <td><span class="status-tag status-warn">还可以卖9天</span></td>
+                <td class="num">53</td>
+                <td class="num">53</td>
+                <td class="num">9</td>
+                <td class="num">26</td>
+                <td class="num">19</td>
+                <td>2026-05-03</td>
+                <td>2026-04-01</td>
+                <td class="num">80</td>
+                <td class="num">47</td>
+                <td class="num">8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="view-ship">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary" id="btnMetricHelpShip">数据统计说明</button>
+            <button type="button" class="btn btn-secondary">导出发货清单</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">
+          说明：发货视图聚焦 <code>需要发货的数量-测算</code>、<code>FBT-实际要发的库存</code>、<code>海派到的时间内需要的库存</code>、<code>在线还缺的数量</code>。
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">待发货SKU数</div>
+          <div class="summary-value">58</div>
+          <div class="summary-sub">当前建议发货项</div>
+        </div>
+        <div class="summary-card summary-danger">
+          <div class="summary-label">在线还缺SKU数</div>
+          <div class="summary-value">21</div>
+          <div class="summary-sub">海派到货前存在缺口</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">建议发货总量</div>
+          <div class="summary-value">4,260</div>
+          <div class="summary-sub">按发货测算口径汇总</div>
+        </div>
+        <div class="summary-card summary-note">
+          <div class="summary-label">可调拨SKU数</div>
+          <div class="summary-value">17</div>
+          <div class="summary-sub">存在调拨空间</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col-1">时间</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SKU</th>
+                <th class="sticky-col-4">SKU中文名称</th>
+                <th class="sticky-col-5">站点</th>
+                <th>FBT总库存</th>
+                <th>FBT库存-可用</th>
+                <th>三方仓总库存</th>
+                <th>三方仓可用库存</th>
+                <th>万邑通USKY3可用量</th>
+                <th>万邑通USWC可用量</th>
+                <th>万邑通USW2可用量</th>
+                <th>谷仓可用量</th>
+                <th>三方仓在途库存</th>
+                <th>万邑通USKY3在途量</th>
+                <th>万邑通USWC在途量</th>
+                <th>万邑通USW2在途量</th>
+                <th>谷仓在途量</th>
+                <th>海外仓可用总库存</th>
+                <th>国内可用库存</th>
+                <th>总可用库存</th>
+                <th>当前总的库存</th>
+                <th>过去7天日销</th>
+                <th>过去30天日销</th>
+                <th>加权日销</th>
+                <th>第一月日均预估</th>
+                <th>第二月日均预估</th>
+                <th>第三月日均预估</th>
+                <th>第四月日均预估</th>
+                <th>所需的总库存</th>
+                <th>状态</th>
+                <th>预计要断货天数</th>
+                <th>需要发货的数量-测算</th>
+                <th>FBT-实际要发的库存</th>
+                <th>FBT海派时间</th>
+                <th>海派到的时间内需要的库存</th>
+                <th>在线还缺的数量</th>
+                <th>可调拨</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-4">深灰 XL</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">18</td>
+                <td class="num">14</td>
+                <td class="num">78</td>
+                <td class="num">52</td>
+                <td class="num">21</td>
+                <td class="num">17</td>
+                <td class="num">8</td>
+                <td class="num">6</td>
+                <td class="num">26</td>
+                <td class="num">10</td>
+                <td class="num">9</td>
+                <td class="num">4</td>
+                <td class="num">3</td>
+                <td class="num">66</td>
+                <td class="num">42</td>
+                <td class="num">108</td>
+                <td class="num">188</td>
+                <td class="num">10.2</td>
+                <td class="num">8.4</td>
+                <td class="num">9.7</td>
+                <td class="num">9.1</td>
+                <td class="num">8.8</td>
+                <td class="num">8.2</td>
+                <td class="num">7.9</td>
+                <td class="num">220</td>
+                <td><span class="status-tag status-warn">还可以卖11天</span></td>
+                <td class="num">11</td>
+                <td class="num">42</td>
+                <td class="num">28</td>
+                <td>2026-05-03</td>
+                <td class="num">118</td>
+                <td class="num">52</td>
+                <td class="num">16</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-M2301</td>
+                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-4">黑色 L</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">9</td>
+                <td class="num">6</td>
+                <td class="num">45</td>
+                <td class="num">33</td>
+                <td class="num">12</td>
+                <td class="num">11</td>
+                <td class="num">6</td>
+                <td class="num">4</td>
+                <td class="num">12</td>
+                <td class="num">5</td>
+                <td class="num">4</td>
+                <td class="num">2</td>
+                <td class="num">1</td>
+                <td class="num">33</td>
+                <td class="num">20</td>
+                <td class="num">53</td>
+                <td class="num">92</td>
+                <td class="num">6.1</td>
+                <td class="num">4.7</td>
+                <td class="num">5.7</td>
+                <td class="num">5.5</td>
+                <td class="num">5.2</td>
+                <td class="num">4.8</td>
+                <td class="num">4.6</td>
+                <td class="num">145</td>
+                <td><span class="status-tag status-warn">还可以卖9天</span></td>
+                <td class="num">9</td>
+                <td class="num">26</td>
+                <td class="num">19</td>
+                <td>2026-05-03</td>
+                <td class="num">80</td>
+                <td class="num">47</td>
+                <td class="num">8</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="view-panel" id="view-restock">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary" id="btnMetricHelpRestock">数据统计说明</button>
+            <button type="button" class="btn btn-secondary">导出补货清单</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">
+          说明：补货视图聚焦 <code>采购+交货在途库存</code>、<code>所需的总库存</code>、<code>需要采购的数量</code>、<code>需要采购的数量-实际</code>、<code>预计要断货天数</code>。
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-label">待补货SKU数</div>
+          <div class="summary-value">63</div>
+          <div class="summary-sub">当前建议补货项</div>
+        </div>
+        <div class="summary-card summary-danger">
+          <div class="summary-label">紧急补货SKU数</div>
+          <div class="summary-value">19</div>
+          <div class="summary-sub">预计断货天数较低</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">建议补货总量</div>
+          <div class="summary-value">5,880</div>
+          <div class="summary-sub">按补货测算口径汇总</div>
+        </div>
+        <div class="summary-card summary-note">
+          <div class="summary-label">平均断货天数</div>
+          <div class="summary-value">12</div>
+          <div class="summary-sub">仅统计待补货项</div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="sticky-col-1">时间</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SKU</th>
+                <th class="sticky-col-4">SKU中文名称</th>
+                <th class="sticky-col-5">站点</th>
+                <th>FBT总库存</th>
+                <th>三方仓总库存</th>
+                <th>海外仓可用总库存</th>
+                <th>采购+交货在途库存</th>
+                <th>FBA库存（空着）</th>
+                <th>国内可用库存</th>
+                <th>总可用库存</th>
+                <th>当前总的库存</th>
+                <th>过去7天日销</th>
+                <th>过去30天日销</th>
+                <th>加权日销</th>
+                <th>第一月日均预估</th>
+                <th>第二月日均预估</th>
+                <th>第三月日均预估</th>
+                <th>第四月日均预估</th>
+                <th>所需的总库存</th>
+                <th>需要采购的数量</th>
+                <th>需要采购的数量-实际</th>
+                <th>预计要断货天数</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-4">深灰 XL</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">18</td>
+                <td class="num">78</td>
+                <td class="num">66</td>
+                <td class="num">138</td>
+                <td class="num">0</td>
+                <td class="num">42</td>
+                <td class="num">108</td>
+                <td class="num">188</td>
+                <td class="num">10.2</td>
+                <td class="num">8.4</td>
+                <td class="num">9.7</td>
+                <td class="num">9.1</td>
+                <td class="num">8.8</td>
+                <td class="num">8.2</td>
+                <td class="num">7.9</td>
+                <td class="num">220</td>
+                <td class="num">32</td>
+                <td class="num">32</td>
+                <td class="num">11</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">2026-04-12</td>
+                <td class="sticky-col-2">AL-M2301</td>
+                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-4">黑色 L</td>
+                <td class="sticky-col-5">美国站点</td>
+                <td class="num">9</td>
+                <td class="num">45</td>
+                <td class="num">33</td>
+                <td class="num">95</td>
+                <td class="num">0</td>
+                <td class="num">20</td>
+                <td class="num">53</td>
+                <td class="num">92</td>
+                <td class="num">6.1</td>
+                <td class="num">4.7</td>
+                <td class="num">5.7</td>
+                <td class="num">5.5</td>
+                <td class="num">5.2</td>
+                <td class="num">4.8</td>
+                <td class="num">4.6</td>
+                <td class="num">145</td>
+                <td class="num">53</td>
+                <td class="num">53</td>
+                <td class="num">9</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
+  </div>
+
+  <script>
+    (function() {
+      var regionTree = [
+        { name: '欧洲', children: [{ label: '英国', code: 'GB' }] },
+        { name: '北美洲', children: [{ label: '美国', code: 'US' }] }
+      ];
+      var codeToStores = {
+        GB: ['美国TK-艾斯特尼-英国直邮店:GB'],
+        US: ['美国TK-艾斯特尼-美区跨境1店', '美国TK-艾斯特尼-美区跨境2店', '美国TK-艾斯特尼-美区跨境3店']
+      };
+      var allStores = [];
+      Object.keys(codeToStores).forEach(function(key) {
+        allStores = allStores.concat(codeToStores[key]);
+      });
+      allStores = Array.from(new Set(allStores));
+      var cascadeSelection = { region: '', country: '', stores: [] };
+
+      function syncStoreOptions() {
+        var sel = document.getElementById('qStore');
+        var prev = sel.value;
+        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
+        sel.innerHTML = '<option value="">全部</option>';
+        list.forEach(function(store) {
+          sel.innerHTML += '<option value="' + store + '">' + store + '</option>';
+        });
+        if (list.indexOf(prev) !== -1) sel.value = prev;
+      }
+
+      function initCascade() {
+        var trigger = document.getElementById('cascadeTrigger');
+        var panel = document.getElementById('cascadePanel');
+        var left = document.getElementById('cascadeLeft');
+        var right = document.getElementById('cascadeRight');
+        var activeIdx = -1;
+
+        function renderLeft() {
+          left.innerHTML = regionTree.map(function(region, idx) {
+            return '<div class="cl-item" data-idx="' + idx + '"><span>' + region.name + '</span><button type="button" class="only-btn" data-idx="' + idx + '">仅选此项</button><span class="arrow">›</span></div>';
+          }).join('');
+        }
+
+        function renderRight(idx) {
+          if (idx < 0 || idx >= regionTree.length) {
+            right.innerHTML = '';
+            return;
+          }
+          right.innerHTML = regionTree[idx].children.map(function(country) {
+            return '<div class="cr-item" data-code="' + country.code + '">' + country.label + '</div>';
+          }).join('');
+        }
+
+        function closePanel() {
+          panel.classList.remove('open');
+          trigger.classList.remove('open');
+          activeIdx = -1;
+        }
+
+        function setSelection(region, country, stores, label) {
+          cascadeSelection = { region: region, country: country, stores: stores };
+          if (label) {
+            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
+            document.getElementById('cascadeClear').addEventListener('click', function(e) {
+              e.stopPropagation();
+              setSelection('', '', [], '');
+            });
+          } else {
+            trigger.innerHTML = '<span class="placeholder">请选择</span>';
+          }
+          syncStoreOptions();
+          closePanel();
+        }
+
+        renderLeft();
+
+        left.addEventListener('mouseover', function(e) {
+          var item = e.target.closest('.cl-item');
+          if (!item) return;
+          var idx = parseInt(item.getAttribute('data-idx'), 10);
+          if (idx === activeIdx) return;
+          activeIdx = idx;
+          left.querySelectorAll('.cl-item').forEach(function(el, i) {
+            el.classList.toggle('active', i === idx);
+          });
+          renderRight(idx);
+        });
+
+        left.addEventListener('click', function(e) {
+          var btn = e.target.closest('.only-btn');
+          if (!btn) return;
+          e.stopPropagation();
+          var idx = parseInt(btn.getAttribute('data-idx'), 10);
+          var region = regionTree[idx];
+          var stores = [];
+          region.children.forEach(function(country) {
+            stores = stores.concat(codeToStores[country.code] || []);
+          });
+          stores = Array.from(new Set(stores));
+          setSelection(region.name, '', stores, region.name);
+        });
+
+        right.addEventListener('click', function(e) {
+          var item = e.target.closest('.cr-item');
+          if (!item) return;
+          var code = item.getAttribute('data-code');
+          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
+          setSelection(regionName, code, codeToStores[code] || [], regionName + ' / ' + item.textContent);
+        });
+
+        trigger.addEventListener('click', function() {
+          panel.classList.toggle('open');
+          trigger.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel();
+        });
+
+        window._resetCascadeStore = function() {
+          setSelection('', '', [], '');
+        };
+      }
+
+      initCascade();
+      syncStoreOptions();
+
+      var tabs = document.querySelectorAll('#viewTabs .tab');
+      var panels = {
+        spu: document.getElementById('view-spu'),
+        all: document.getElementById('view-all'),
+        ship: document.getElementById('view-ship'),
+        restock: document.getElementById('view-restock')
+      };
+
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var view = tab.getAttribute('data-view');
+          tabs.forEach(function(item) { item.classList.remove('active'); });
+          tab.classList.add('active');
+          Object.keys(panels).forEach(function(key) {
+            panels[key].classList.toggle('active', key === view);
+          });
+          var keywordType = document.getElementById('qKeywordType');
+          if (view === 'spu') {
+            keywordType.innerHTML = '<option>SPU</option>';
+          } else {
+            keywordType.innerHTML = '<option>SKU</option><option>SPU</option>';
+          }
+        });
+      });
+
+      document.getElementById('btnReset').addEventListener('click', function() {
+        if (window._resetCascadeStore) window._resetCascadeStore();
+        document.getElementById('qStore').value = '';
+        document.getElementById('qKeywordType').selectedIndex = 0;
+      });
+
+      document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
+        alert('数据统计说明：\n1. SPU冗余检视基于发货+补货总和底表按 SPU 聚合。\n2. 重点展示现有库存、加权日销、未来四个月预估日均和月底冗余量。\n3. 用于判断 SPU 冗余和消化风险。');
+      });
+
+      document.getElementById('btnMetricHelpAll').addEventListener('click', function() {
+        alert('数据统计说明：\n1. 发货+补货总和为统一底表。\n2. 同时承载补货和发货两个场景的公共字段。\n3. 重点字段包括库存结构、销量结构、加权日销、所需总库存和预计断货天数。');
+      });
+
+      document.getElementById('btnMetricHelpShip').addEventListener('click', function() {
+        alert('数据统计说明：\n1. 发货视图基于统一底表中的发货字段。\n2. 重点输出需要发货的数量、FBT实际要发库存、海派到货前缺口和可调拨量。\n3. 用于支持发货决策。');
+      });
+
+      document.getElementById('btnMetricHelpRestock').addEventListener('click', function() {
+        alert('数据统计说明：\n1. 补货视图基于统一底表中的补货字段。\n2. 重点输出所需总库存、需要采购的数量、需要采购的数量-实际和预计断货天数。\n3. 用于支持补货决策。');
+      });
+    })();
+  </script>
+</body>
+</html>
