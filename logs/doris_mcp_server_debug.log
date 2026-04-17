@@ -1,0 +1,135 @@
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 10:32:16.995 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 10:32:17.364 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 10:32:17.365 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x11a1970e0>
+2026-04-13 10:32:17.365 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 10:32:17.365 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 10:32:26.174 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 10:32:26.175 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 10:32:26.603 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 10:32:26.603 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x1165b5700>
+2026-04-13 10:32:26.604 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 10:32:26.604 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 10:32:37.932 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 10:32:37.933 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 10:32:39.328 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 10:32:39.329 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x116a2b980>
+2026-04-13 10:32:39.329 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 10:32:39.330 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 11:58:37.464 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 11:58:37.816 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 11:58:37.817 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x119853920>
+2026-04-13 11:58:37.817 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 11:58:37.818 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 11:58:55.282 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 11:58:55.283 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 11:58:55.706 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 11:58:55.707 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x12670fe30>
+2026-04-13 11:58:55.707 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 11:58:55.708 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 11:58:55.709 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 11:58:55.710 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x114d759a0>
+2026-04-13 11:58:55.710 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 11:58:55.711 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 13:59:01.253 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-13 13:59:01.254 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-13 13:59:05.605 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-13 13:59:05.606 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x112687ec0>
+2026-04-13 13:59:05.606 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-13 13:59:05.607 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-13 16:48:22.654 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x11ce05ca0>
+2026-04-13 16:48:22.658 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type CallToolRequest
+2026-04-13 16:48:22.692 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-14 15:39:31.581 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-14 15:39:31.984 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-14 15:39:31.985 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x10a8eb0b0>
+2026-04-14 15:39:31.986 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-14 15:39:31.986 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-14 15:39:49.914 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-14 15:39:50.340 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-14 15:39:50.341 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x1173d5f10>
+2026-04-14 15:39:50.343 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-14 15:39:50.345 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-15 17:01:51.530 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-15 17:01:51.954 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-15 17:01:51.958 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x127213410>
+2026-04-15 17:01:51.958 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-15 17:01:51.959 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-16 11:24:22.399 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-16 11:24:22.400 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-16 11:24:22.874 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-16 11:24:22.875 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x1221ff380>
+2026-04-16 11:24:22.876 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-16 11:24:22.876 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent
+2026-04-16 17:50:41.644 [DEBUG]    mcp.server.lowlevel.server:162 - Initializing server 'doris-mcp-server'
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:301 - Registering handler for ListResourcesRequest
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:336 - Registering handler for ReadResourceRequest
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:439 - Registering handler for ListToolsRequest
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:519 - Registering handler for CallToolRequest
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:263 - Registering handler for PromptListRequest
+2026-04-16 17:50:41.645 [DEBUG]    mcp.server.lowlevel.server:285 - Registering handler for GetPromptRequest
+2026-04-16 17:50:42.060 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: root=InitializedNotification(method='notifications/initialized', params=None, jsonrpc='2.0')
+2026-04-16 17:50:42.061 [DEBUG]    mcp.server.lowlevel.server:676 - Received message: <mcp.shared.session.RequestResponder object at 0x1134c6090>
+2026-04-16 17:50:42.061 [DEBUG]    mcp.server.lowlevel.server:730 - Dispatching request of type ListToolsRequest
+2026-04-16 17:50:42.061 [DEBUG]    mcp.server.lowlevel.server:811 - Response sent

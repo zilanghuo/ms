@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>库存模块 接口文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1400px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 640px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    p { margin: 0.5rem 0 1rem; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+    pre code { background: none; padding: 0; }
+    .note { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>库存模块 接口文档</h1>
+    <p>基于库存模块两个原型页面整理：<code>库存检查/htmls/TK库存检查-PID&amp;SKU看板.html</code>、<code>缺补货/htmls/缺补货看板.html</code>。文档格式参考销售数据接口文档，按页面交互、筛选项、汇总区、列表区、导出动作拆解接口。</p>
+    <hr />
+
+    <h2>通用约定</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Base URL</td><td>待定，建议 <code>/api/bi/inventory</code></td></tr>
+          <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code></td></tr>
+          <tr><td>响应格式</td><td><code>application/json</code>；导出接口返回文件流</td></tr>
+          <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code></td></tr>
+          <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
+          <tr><td>鉴权</td><td>待定（Cookie / Token）</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>统一响应结构</strong></p>
+    <pre><code>{
+  "code": 0,
+  "message": "",
+  "data": {}
+}</code></pre>
+    <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
+    <hr />
+
+    <h2>零、公共筛选接口</h2>
+    <p>当前仅保留搜索类型配置接口；站点、店铺等筛选值由前端固定选项或业务侧直接传值。</p>
+
+    <h3>0.1 搜索类型选项</h3>
+    <p>原型中库存检查支持 <code>PID / SKU / SPU</code> 搜索，缺补货支持 <code>SPU / SKU</code> 搜索。该接口也可以前端静态写死；若后续需要统一配置，可抽成公共接口。</p>
+    <pre><code>GET /api/bi/inventory/options/search-types?module=inventoryCheck</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "options": [
+    { "label": "PID", "value": "pid" },
+    { "label": "SKU", "value": "sku" },
+    { "label": "SPU", "value": "spu" }
+  ]
+}</code></pre>
+    <hr />
+
+    <h2>一、库存检查</h2>
+    <p>对应页面：<code>TK库存检查-PID&amp;SKU看板.html</code>。页面包含两个 Tab：<strong>PID&amp;SKU维度</strong>、<strong>SPU维度</strong>。两个 Tab 共用筛选区，分别有列表、汇总卡片、导出按钮和“数据统计说明”弹框。</p>
+
+    <h3>1.1 查询条件</h3>
+    <ul>
+      <li><strong>视图</strong>：<code>sku</code>（PID&amp;SKU维度） / <code>spu</code>（SPU维度）</li>
+      <li><strong>站点</strong>：前端筛选条件，直接将选中的站点代码传给列表和汇总接口</li>
+      <li><strong>异常状态</strong>：全部 / 仅看异常 / 仅看正常 / 仅看待确认</li>
+      <li><strong>搜索</strong>：搜索类型 + 关键字</li>
+      <li><strong>同步日期</strong>：按日期查询当日库存快照</li>
+    </ul>
+
+    <h3>1.2 主表接口：库存检查列表</h3>
+    <p>根据当前 Tab 返回对应粒度列表。建议一个接口通过 <code>viewType</code> 区分 SKU / SPU 两个视图。</p>
+    <pre><code>POST /api/bi/inventory/check/page</code></pre>
+    <p><strong>请求体（JSON）</strong></p>
+    <pre><code>{
+  "viewType": "sku",
+  "siteCodes": ["US"],
+  "statusFilter": "all",
+  "keywordType": "sku",
+  "keyword": "",
+  "syncDate": "2026-04-12",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>请求参数说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>viewType</td><td>string</td><td>是</td><td><code>sku</code> / <code>spu</code></td></tr>
+          <tr><td>siteCodes</td><td>list&lt;string&gt;</td><td>否</td><td>站点代码列表；支持多选或按区域展开</td></tr>
+          <tr><td>statusFilter</td><td>string</td><td>否</td><td><code>all</code> / <code>abnormal</code> / <code>normal</code> / <code>pending</code></td></tr>
+          <tr><td>keywordType</td><td>string</td><td>否</td><td>SKU 视图支持 <code>pid</code>、<code>sku</code>、<code>spu</code>；SPU 视图建议固定为 <code>spu</code></td></tr>
+          <tr><td>keyword</td><td>string</td><td>否</td><td>搜索关键字，支持模糊匹配</td></tr>
+          <tr><td>syncDate</td><td>string</td><td>是</td><td>同步日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td>page</td><td>number</td><td>否</td><td>页码，默认 1</td></tr>
+          <tr><td>pageSize</td><td>number</td><td>否</td><td>每页条数，默认 20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "viewType": "sku",
+  "syncDate": "2026-04-12",
+  "updateTime": "2026-04-13 16:00:20",
+  "list": [
+    {
+      "date": "2026-04-12",
+      "pid": "1729439482671567205",
+      "spu": null,
+      "spuName": null,
+      "sku": "AL-W0161-DARKGRAY-XL",
+      "skuName": "深灰 XL",
+      "purchaseQty": 120,
+      "domesticQty": 18,
+      "deliveryInTransitQty": 42,
+      "domesticWarehouseOwnQty": 26,
+      "domesticWarehouseSyncQty": 9,
+      "domesticWarehouseDiffQty": 14,
+      "thirdPartyTransitQty": 68,
+      "gucangOwnQty": 95,
+      "gucangSyncQty": 103,
+      "gucangDiffQty": -8,
+      "fbtTransitQty": 21,
+      "fbtAvailableQty": 18,
+      "usky3OwnQty": 12,
+      "usky3SyncQty": 10,
+      "usky3DiffQty": 2,
+      "overseaAvailableQty": 38,
+      "overseaTransitQty": 35,
+      "totalTransitQty": 59,
+      "totalAvailableQty": 56,
+      "totalInventoryQty": 115,
+      "ukReturnOwnQty": null,
+      "ukReturnSyncQty": null,
+      "ukReturnDiffQty": null,
+      "inventoryStatus": "少同步",
+      "inventoryStatusTag": "abnormal"
+    }
+  ],
+  "total": 1286
+}</code></pre>
+    <p><strong>data 字段说明（按层级）</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>viewType</td><td>string</td><td>当前返回的视图类型</td></tr>
+          <tr><td>1</td><td>syncDate</td><td>string</td><td>本次查询日期</td></tr>
+          <tr><td>1</td><td>updateTime</td><td>string</td><td>页面右上角“数据更新时间”</td></tr>
+          <tr><td>1</td><td>list</td><td>list</td><td>列表数据</td></tr>
+          <tr><td>1</td><td>total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>2</td><td>list[].pid / sku / skuName</td><td>string</td><td>SKU 视图主维度字段</td></tr>
+          <tr><td>2</td><td>list[].spu / spuName</td><td>string</td><td>SPU 视图主维度字段；SKU 视图下可为空或不返回</td></tr>
+          <tr><td>2</td><td>list[].inventoryStatus</td><td>string</td><td>库存状态：少同步 / 超卖风险 / 正常 / 待确认</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.3 汇总卡片接口：PID&amp;SKU维度</h3>
+    <p>PID&amp;SKU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
+    <pre><code>POST /api/bi/inventory/check/sku-summary</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "statusFilter": "all",
+  "keywordType": "sku",
+  "keyword": "",
+  "syncDate": "2026-04-12"
+}</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "skuCount": 1286,
+    "abnormalSkuCount": 93,
+    "totalInventoryQty": 24560,
+    "totalAvailableQty": 18392,
+    "totalTransitQty": 6168
+  }
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
+          <tr><td>metrics.skuCount</td><td>number</td><td>SKU总数</td></tr>
+          <tr><td>metrics.abnormalSkuCount</td><td>number</td><td>异常SKU数</td></tr>
+          <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
+          <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>metrics.totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.4 汇总卡片接口：SPU维度</h3>
+    <p>SPU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
+    <pre><code>POST /api/bi/inventory/check/spu-summary</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "statusFilter": "all",
+  "keywordType": "spu",
+  "keyword": "",
+  "syncDate": "2026-04-12"
+}</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "spuCount": 216,
+    "abnormalSpuCount": 28,
+    "totalInventoryQty": 24560,
+    "totalAvailableQty": 18392,
+    "totalTransitQty": 6168
+  }
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
+          <tr><td>metrics.spuCount</td><td>number</td><td>SPU总数</td></tr>
+          <tr><td>metrics.abnormalSpuCount</td><td>number</td><td>异常SPU数</td></tr>
+          <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
+          <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>metrics.totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.5 数据统计说明接口</h3>
+    <p>页面点击“数据统计说明”时，弹出当前视图的统计口径说明。若口径说明固定，也可前端静态写死；这里给出后端配置化方案。</p>
+    <pre><code>GET /api/bi/inventory/check/metric-desc?viewType=sku</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "title": "数据统计说明",
+  "items": [
+    {
+      "label": "SKU总数",
+      "definition": "当前查询范围内的 PID&SKU 数量",
+      "formula": "按当前筛选条件过滤后，对 PID&SKU 明细结果逐行计数"
+    },
+    {
+      "label": "异常SKU数",
+      "definition": "少同步或超卖风险项数量",
+      "formula": "库存是否异常字段不等于同步正确的 SKU 数"
+    }
+  ]
+}</code></pre>
+
+    <h3>1.6 导出接口：导出明细 / 导出汇总 / 导出异常SPU</h3>
+    <p>原型中 SKU 视图有“导出明细”，SPU 视图有“导出汇总”“导出异常SPU”。建议统一为一个导出接口，通过 <code>exportType</code> 区分。</p>
+    <pre><code>POST /api/bi/inventory/check/export</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "viewType": "spu",
+  "exportType": "abnormal",
+  "siteCodes": ["US"],
+  "statusFilter": "abnormal",
+  "keywordType": "spu",
+  "keyword": "",
+  "syncDate": "2026-04-12"
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>exportType</td><td><code>detail</code>（明细导出） / <code>summary</code>（SPU汇总导出） / <code>abnormal</code>（异常SPU导出）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.7 列表字段明细：PID&amp;SKU维度</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期</td></tr>
+          <tr><td>PID</td><td>pid</td><td>string</td><td>商品 PID</td></tr>
+          <tr><td>SKU</td><td>sku</td><td>string</td><td>商品 SKU</td></tr>
+          <tr><td>SKU名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
+          <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>采购数量</td></tr>
+          <tr><td>国内库存</td><td>domesticQty</td><td>number</td><td>国内可用库存</td></tr>
+          <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>交货在途库存</td></tr>
+          <tr><td>国内仓-1</td><td>domesticWarehouseOwnQty</td><td>number</td><td>我们有的库存口径</td></tr>
+          <tr><td>国内仓-2</td><td>domesticWarehouseSyncQty</td><td>number</td><td>店铺后台实际同步库存口径</td></tr>
+          <tr><td>国内仓-3</td><td>domesticWarehouseDiffQty</td><td>number</td><td>差异值 = -1 - -2</td></tr>
+          <tr><td>三方仓在途量</td><td>thirdPartyTransitQty</td><td>number</td><td>三方仓在途汇总</td></tr>
+          <tr><td>谷仓-1</td><td>gucangOwnQty</td><td>number</td><td>谷仓我们有的库存</td></tr>
+          <tr><td>谷仓-2</td><td>gucangSyncQty</td><td>number</td><td>谷仓同步库存</td></tr>
+          <tr><td>谷仓-3</td><td>gucangDiffQty</td><td>number</td><td>谷仓差异</td></tr>
+          <tr><td>FBT在途量</td><td>fbtTransitQty</td><td>number</td><td>FBT 在途量</td></tr>
+          <tr><td>FBT可用量</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用量</td></tr>
+          <tr><td>万邑通USKY3-1</td><td>usky3OwnQty</td><td>number</td><td>USKY3 我们有的库存</td></tr>
+          <tr><td>万邑通USKY3-2</td><td>usky3SyncQty</td><td>number</td><td>USKY3 同步库存</td></tr>
+          <tr><td>万邑通USKY3-3</td><td>usky3DiffQty</td><td>number</td><td>USKY3 差异</td></tr>
+          <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>海外可用库存汇总</td></tr>
+          <tr><td>海外在途库存</td><td>overseaTransitQty</td><td>number</td><td>海外在途库存汇总</td></tr>
+          <tr><td>总在途库存</td><td>totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
+          <tr><td>英国退货仓-1</td><td>ukReturnOwnQty</td><td>number</td><td>英国退货仓我们有的库存</td></tr>
+          <tr><td>英国退货仓-2</td><td>ukReturnSyncQty</td><td>number</td><td>英国退货仓同步库存</td></tr>
+          <tr><td>英国退货仓-3</td><td>ukReturnDiffQty</td><td>number</td><td>英国退货仓差异</td></tr>
+          <tr><td>库存是否异常</td><td>inventoryStatus</td><td>string</td><td>少同步 / 超卖风险 / 正常 / 待确认</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>1.8 列表字段明细：SPU维度</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期</td></tr>
+          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>SPU 维度汇总值</td></tr>
+          <tr><td>国内库存</td><td>domesticQty</td><td>number</td><td>SPU 汇总</td></tr>
+          <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>SPU 汇总</td></tr>
+          <tr><td>国内仓-1 ~ 英国退货仓-3</td><td>同 SKU 视图字段</td><td>number</td><td>与 SKU 视图同名字段，口径改为 SPU 聚合后重算/汇总值</td></tr>
+          <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>海外在途库存</td><td>overseaTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>总在途库存</td><td>totalTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>库存是否异常</td><td>inventoryStatus</td><td>string</td><td>SPU 粒度重新判断结果</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr />
+
+    <h2>二、缺补货看板</h2>
+    <p>对应页面：<code>缺补货看板.html</code>。页面包含四个独立视图：<strong>SPU冗余检视</strong>、<strong>发货</strong>、<strong>补货</strong>、<strong>发货+补货总和</strong>。每个视图单独成立一套接口，不混用。</p>
+
+    <h3>2.1 SPU冗余检视</h3>
+    <p>对应原型 Tab：<code>SPU冗余检视</code>。用于查看 SPU 级库存冗余走势。</p>
+    <p><strong>查询条件</strong></p>
+    <ul>
+      <li><strong>站点</strong>：前端筛选条件，直接将选中的站点代码传给接口</li>
+      <li><strong>搜索</strong>：固定支持 <code>SPU</code></li>
+      <li><strong>数据日期</strong>：按天查询快照</li>
+    </ul>
+    <p><strong>列表接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/spu-page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "keywordType": "spu",
+  "keyword": "",
+  "dataDate": "2026-04-12",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>汇总接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/spu-summary</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "spuCount": 186,
+    "highRedundancySpuCount": 24,
+    "currentInventoryQty": 48260
+  }
+}</code></pre>
+    <p><strong>数据统计说明接口</strong></p>
+    <pre><code>GET /api/bi/inventory/replenishment/spu-metric-desc</code></pre>
+    <p><strong>导出接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/spu-export</code></pre>
+
+    <h3>2.2 列表字段明细：SPU冗余检视</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
+          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td>现有库存</td><td>currentInventoryQty</td><td>number</td><td>SPU 当前库存</td></tr>
+          <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
+          <tr><td>第一个月系数</td><td>month1Factor</td><td>number</td><td>第一个月系数</td></tr>
+          <tr><td>第二个月系数</td><td>month2Factor</td><td>number</td><td>第二个月系数</td></tr>
+          <tr><td>第三个月系数</td><td>month3Factor</td><td>number</td><td>第三个月系数</td></tr>
+          <tr><td>第四个月系数</td><td>month4Factor</td><td>number</td><td>第四个月系数</td></tr>
+          <tr><td>第一个月预估日均</td><td>month1ForecastDaily</td><td>number</td><td>第一个月预估日均</td></tr>
+          <tr><td>第二个月预估日均</td><td>month2ForecastDaily</td><td>number</td><td>第二个月预估日均</td></tr>
+          <tr><td>第三个月预估日均</td><td>month3ForecastDaily</td><td>number</td><td>第三个月预估日均</td></tr>
+          <tr><td>第四个月预估日均</td><td>month4ForecastDaily</td><td>number</td><td>第四个月预估日均</td></tr>
+          <tr><td>第一个月底冗余量</td><td>month1RedundancyQty</td><td>number</td><td>第一个月底冗余量</td></tr>
+          <tr><td>第二个月底冗余量</td><td>month2RedundancyQty</td><td>number</td><td>第二个月底冗余量</td></tr>
+          <tr><td>第三个月底冗余量</td><td>month3RedundancyQty</td><td>number</td><td>第三个月底冗余量</td></tr>
+          <tr><td>第四个月底冗余量</td><td>month4RedundancyQty</td><td>number</td><td>第四个月底冗余量</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.3 发货视图</h3>
+    <p>对应原型 Tab：<code>发货</code>。用于查看建议发货量、海派到货前缺口、可调拨空间等。</p>
+    <p><strong>查询条件</strong></p>
+    <ul>
+      <li><strong>站点</strong>：前端筛选条件</li>
+      <li><strong>搜索</strong>：固定支持 <code>SKU</code></li>
+      <li><strong>数据日期</strong>：按天查询快照</li>
+    </ul>
+    <p><strong>列表接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/ship-page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "keywordType": "sku",
+  "keyword": "",
+  "dataDate": "2026-04-12",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>汇总接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/ship-summary</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "waitShipmentSkuCount": 58,
+    "onlineShortSkuCount": 21,
+    "shipmentQty": 4260,
+    "transferableSkuCount": 17
+  }
+}</code></pre>
+    <p><strong>数据统计说明接口</strong></p>
+    <pre><code>GET /api/bi/inventory/replenishment/ship-metric-desc</code></pre>
+    <p><strong>导出接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/ship-export</code></pre>
+
+    <h3>2.4 列表字段明细：发货视图</h3>
+    <p>发货视图字段基于统一底表裁剪，核心保留发货动作判断字段。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
+          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td>SKU中文名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
+          <tr><td>FBT总库存</td><td>fbtTotalQty</td><td>number</td><td>FBT 总库存</td></tr>
+          <tr><td>FBT库存-可用</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用库存</td></tr>
+          <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
+          <tr><td>三方仓可用库存</td><td>thirdWarehouseAvailableQty</td><td>number</td><td>三方仓可用库存</td></tr>
+          <tr><td>万邑通USKY3可用量</td><td>usky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
+          <tr><td>万邑通USWC可用量</td><td>uswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
+          <tr><td>万邑通USW2可用量</td><td>usw2AvailableQty</td><td>number</td><td>USW2 可用量</td></tr>
+          <tr><td>谷仓可用量</td><td>gucangAvailableQty</td><td>number</td><td>谷仓可用量</td></tr>
+          <tr><td>三方仓在途库存</td><td>thirdWarehouseTransitQty</td><td>number</td><td>三方仓在途</td></tr>
+          <tr><td>万邑通USKY3在途量</td><td>usky3TransitQty</td><td>number</td><td>USKY3 在途</td></tr>
+          <tr><td>万邑通USWC在途量</td><td>uswcTransitQty</td><td>number</td><td>USWC 在途</td></tr>
+          <tr><td>万邑通USW2在途量</td><td>usw2TransitQty</td><td>number</td><td>USW2 在途</td></tr>
+          <tr><td>谷仓在途量</td><td>gucangTransitQty</td><td>number</td><td>谷仓在途</td></tr>
+          <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用总库存</td></tr>
+          <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
+          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
+          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
+          <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
+          <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
+          <tr><td>第三月日均预估</td><td>month3ForecastDaily</td><td>number</td><td>第三月日均预估</td></tr>
+          <tr><td>第四月日均预估</td><td>month4ForecastDaily</td><td>number</td><td>第四月日均预估</td></tr>
+          <tr><td>所需的总库存</td><td>requiredTotalQty</td><td>number</td><td>所需总库存</td></tr>
+          <tr><td>状态</td><td>statusText</td><td>string</td><td>库存状态文案</td></tr>
+          <tr><td>预计要断货天数</td><td>stockoutDays</td><td>number</td><td>预计断货天数</td></tr>
+          <tr><td>需要发货的数量-测算</td><td>shipmentNeedEstimateQty</td><td>number</td><td>建议发货数量</td></tr>
+          <tr><td>FBT-实际要发的库存</td><td>fbtActualShipmentQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
+          <tr><td>FBT海派时间</td><td>fbtShipmentEta</td><td>string</td><td>FBT 海派到货时间</td></tr>
+          <tr><td>海派到的时间内需要的库存</td><td>neededQtyBeforeArrival</td><td>number</td><td>海派到货前所需库存</td></tr>
+          <tr><td>在线还缺的数量</td><td>onlineShortQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
+          <tr><td>可调拨</td><td>transferableQty</td><td>number</td><td>可调拨数量</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.5 补货视图</h3>
+    <p>对应原型 Tab：<code>补货</code>。用于查看采购补货建议和断货风险。</p>
+    <p><strong>查询条件</strong></p>
+    <ul>
+      <li><strong>站点</strong>：前端筛选条件</li>
+      <li><strong>搜索</strong>：固定支持 <code>SKU</code></li>
+      <li><strong>数据日期</strong>：按天查询快照</li>
+    </ul>
+    <p><strong>列表接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/restock-page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "keywordType": "sku",
+  "keyword": "",
+  "dataDate": "2026-04-12",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>汇总接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/restock-summary</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "waitRestockSkuCount": 63,
+    "urgentRestockSkuCount": 19,
+    "restockQty": 5880,
+    "avgStockoutDays": 12
+  }
+}</code></pre>
+    <p><strong>数据统计说明接口</strong></p>
+    <pre><code>GET /api/bi/inventory/replenishment/restock-metric-desc</code></pre>
+    <p><strong>导出接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/restock-export</code></pre>
+
+    <h3>2.6 列表字段明细：补货视图</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
+          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td>SKU中文名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
+          <tr><td>FBT总库存</td><td>fbtTotalQty</td><td>number</td><td>FBT 总库存</td></tr>
+          <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
+          <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用库存</td></tr>
+          <tr><td>采购+交货在途库存</td><td>purchaseTransitQty</td><td>number</td><td>采购+交货在途库存</td></tr>
+          <tr><td>FBA库存（空着）</td><td>fbaQty</td><td>number</td><td>预留字段</td></tr>
+          <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
+          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
+          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
+          <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
+          <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
+          <tr><td>第三月日均预估</td><td>month3ForecastDaily</td><td>number</td><td>第三月日均预估</td></tr>
+          <tr><td>第四月日均预估</td><td>month4ForecastDaily</td><td>number</td><td>第四月日均预估</td></tr>
+          <tr><td>所需的总库存</td><td>requiredTotalQty</td><td>number</td><td>所需总库存</td></tr>
+          <tr><td>需要采购的数量</td><td>purchaseNeedQty</td><td>number</td><td>建议采购数量</td></tr>
+          <tr><td>需要采购的数量-实际</td><td>purchaseNeedActualQty</td><td>number</td><td>实际建议采购数量</td></tr>
+          <tr><td>预计要断货天数</td><td>stockoutDays</td><td>number</td><td>预计断货天数</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.7 发货+补货总和</h3>
+    <p>对应原型 Tab：<code>发货+补货总和</code>。该视图是统一底表，既包含补货字段，也包含发货字段，是其他两个动作视图的共同基础。</p>
+    <p><strong>查询条件</strong></p>
+    <ul>
+      <li><strong>站点</strong>：前端筛选条件</li>
+      <li><strong>搜索</strong>：固定支持 <code>SKU</code></li>
+      <li><strong>数据日期</strong>：按天查询快照</li>
+    </ul>
+    <p><strong>列表接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/all-page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "siteCodes": ["US"],
+  "keywordType": "sku",
+  "keyword": "",
+  "dataDate": "2026-04-12",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>汇总接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/all-summary</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "updateTime": "2026-04-13 16:00:20",
+  "metrics": {
+    "skuCount": 1286,
+    "totalAvailableQty": 18392,
+    "gapSkuCount": 76
+  }
+}</code></pre>
+    <p><strong>数据统计说明接口</strong></p>
+    <pre><code>GET /api/bi/inventory/replenishment/all-metric-desc</code></pre>
+    <p><strong>导出接口</strong></p>
+    <pre><code>POST /api/bi/inventory/replenishment/all-export</code></pre>
+
+    <h3>2.8 列表字段明细：发货+补货总和</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
+          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td>SKU中文名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
+          <tr><td>FBT总库存</td><td>fbtTotalQty</td><td>number</td><td>FBT 总库存</td></tr>
+          <tr><td>FBT库存-可用</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用库存</td></tr>
+          <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
+          <tr><td>三方仓可用库存</td><td>thirdWarehouseAvailableQty</td><td>number</td><td>三方仓可用库存</td></tr>
+          <tr><td>万邑通USKY3可用量</td><td>usky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
+          <tr><td>万邑通USWC可用量</td><td>uswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
+          <tr><td>万邑通USW2可用量</td><td>usw2AvailableQty</td><td>number</td><td>USW2 可用量</td></tr>
+          <tr><td>谷仓可用量</td><td>gucangAvailableQty</td><td>number</td><td>谷仓可用量</td></tr>
+          <tr><td>三方仓在途库存</td><td>thirdWarehouseTransitQty</td><td>number</td><td>三方仓在途</td></tr>
+          <tr><td>万邑通USKY3在途量</td><td>usky3TransitQty</td><td>number</td><td>USKY3 在途</td></tr>
+          <tr><td>万邑通USWC在途量</td><td>uswcTransitQty</td><td>number</td><td>USWC 在途</td></tr>
+          <tr><td>万邑通USW2在途量</td><td>usw2TransitQty</td><td>number</td><td>USW2 在途</td></tr>
+          <tr><td>谷仓在途量</td><td>gucangTransitQty</td><td>number</td><td>谷仓在途</td></tr>
+          <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用总库存</td></tr>
+          <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
+          <tr><td>采购+交货在途库存</td><td>purchaseTransitQty</td><td>number</td><td>采购+交货在途库存</td></tr>
+          <tr><td>FBA库存（空着）</td><td>fbaQty</td><td>number</td><td>预留字段</td></tr>
+          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
+          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
+          <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
+          <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
+          <tr><td>第三月日均预估</td><td>month3ForecastDaily</td><td>number</td><td>第三月日均预估</td></tr>
+          <tr><td>第四月日均预估</td><td>month4ForecastDaily</td><td>number</td><td>第四月日均预估</td></tr>
+          <tr><td>所需的总库存</td><td>requiredTotalQty</td><td>number</td><td>所需总库存</td></tr>
+          <tr><td>状态</td><td>statusText</td><td>string</td><td>库存状态文案，如还可以卖11天</td></tr>
+          <tr><td>需要采购的数量</td><td>purchaseNeedQty</td><td>number</td><td>建议采购数量</td></tr>
+          <tr><td>需要采购的数量-实际</td><td>purchaseNeedActualQty</td><td>number</td><td>实际建议采购数量</td></tr>
+          <tr><td>预计要断货天数</td><td>stockoutDays</td><td>number</td><td>预计断货天数</td></tr>
+          <tr><td>需要发货的数量-测算</td><td>shipmentNeedEstimateQty</td><td>number</td><td>建议发货数量</td></tr>
+          <tr><td>FBT-实际要发的库存</td><td>fbtActualShipmentQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
+          <tr><td>FBT海派时间</td><td>fbtShipmentEta</td><td>string</td><td>FBT 海派到货时间</td></tr>
+          <tr><td>当天时间</td><td>todayDate</td><td>string</td><td>当前日期</td></tr>
+          <tr><td>海派到的时间内需要的库存</td><td>neededQtyBeforeArrival</td><td>number</td><td>海派到货前所需库存</td></tr>
+          <tr><td>在线还缺的数量</td><td>onlineShortQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
+          <tr><td>可调拨</td><td>transferableQty</td><td>number</td><td>可调拨数量</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>2.9 待确认说明接口</h3>
+    <p>页面底部有“待确认点”区域，包括导出、图片播报、飞书系数维护、FBT 店铺维度与站点维度汇总口径等内容。若需要在前端动态维护，可增加说明接口。</p>
+    <pre><code>GET /api/bi/inventory/replenishment/todos</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "items": [
+    "是否需要导出明细",
+    "是否需要图片定时播报",
+    "每个月的系数如何维护，是否走飞书 API",
+    "TikTok.FBT库存-自定义导出按店铺维度取数，与发货+补货总和按 SKU+站点汇总是否口径一致"
+  ]
+}</code></pre>
+
+    <hr />
+
+    <h2>三、接口总览</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>页面/模块</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>公共</td><td>搜索类型选项</td><td>GET</td><td><code>/api/bi/inventory/options/search-types</code></td></tr>
+          <tr><td>2</td><td>库存检查</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/check/page</code></td></tr>
+          <tr><td>3</td><td>库存检查</td><td>PID&amp;SKU汇总</td><td>POST</td><td><code>/api/bi/inventory/check/sku-summary</code></td></tr>
+          <tr><td>4</td><td>库存检查</td><td>SPU汇总</td><td>POST</td><td><code>/api/bi/inventory/check/spu-summary</code></td></tr>
+          <tr><td>5</td><td>库存检查</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/check/metric-desc</code></td></tr>
+          <tr><td>6</td><td>库存检查</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/check/export</code></td></tr>
+          <tr><td>7</td><td>缺补货-SPU冗余检视</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-page</code></td></tr>
+          <tr><td>8</td><td>缺补货-SPU冗余检视</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-summary</code></td></tr>
+          <tr><td>9</td><td>缺补货-SPU冗余检视</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/spu-metric-desc</code></td></tr>
+          <tr><td>10</td><td>缺补货-SPU冗余检视</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-export</code></td></tr>
+          <tr><td>11</td><td>缺补货-发货</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-page</code></td></tr>
+          <tr><td>12</td><td>缺补货-发货</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-summary</code></td></tr>
+          <tr><td>13</td><td>缺补货-发货</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/ship-metric-desc</code></td></tr>
+          <tr><td>14</td><td>缺补货-发货</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-export</code></td></tr>
+          <tr><td>15</td><td>缺补货-补货</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-page</code></td></tr>
+          <tr><td>16</td><td>缺补货-补货</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-summary</code></td></tr>
+          <tr><td>17</td><td>缺补货-补货</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/restock-metric-desc</code></td></tr>
+          <tr><td>18</td><td>缺补货-补货</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-export</code></td></tr>
+          <tr><td>19</td><td>缺补货-发货+补货总和</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-page</code></td></tr>
+          <tr><td>20</td><td>缺补货-发货+补货总和</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-summary</code></td></tr>
+          <tr><td>21</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/all-metric-desc</code></td></tr>
+          <tr><td>22</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-export</code></td></tr>
+          <tr><td>23</td><td>缺补货</td><td>待确认说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/todos</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      <strong>说明：</strong>当前为接口约定稿，接口路径、字段命名可按后端项目规范调整；但原型中的查询条件、汇总卡片、列表字段与导出口径，建议保持一致，避免前后端理解偏差。
+    </div>
+
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="技术方案.html">技术方案</a> &nbsp; <a href="表结构设计.html">表结构设计</a></p>
+  </div>
+</body>
+</html>

@@ -154,8 +154,8 @@
         <div class="view-switch">
           <span class="label">维度</span>
           <div class="tab-group" id="viewTabs">
-            <button type="button" class="tab" data-view="spu">SPU汇总</button>
-            <button type="button" class="tab active" data-view="pid">PID明细</button>
+            <button type="button" class="tab active" data-view="spu">SPU汇总</button>
+            <button type="button" class="tab" data-view="pid">PID明细</button>
           </div>
         </div>
         <div class="query-item">
@@ -283,7 +283,7 @@
   <script>
     (function() {
       var curGran = 'day';
-      var curView = 'pid';
+      var curView = 'spu';
 
       var regionTree = [
         { name: '欧洲', children: [
@@ -507,7 +507,7 @@
         var range = getDateRange();
 
         if (!data || !data.spus.length || !range.start || !range.end || range.start > range.end) {
-          tbody.innerHTML = '<tr><td colspan="11" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="' + (curView === 'spu' ? '10' : '12') + '" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
           return;
         }
 
@@ -520,14 +520,25 @@
 
         var bLen = buckets.length;
         var thead = document.getElementById('resultHead');
-        thead.innerHTML =
-          '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th><th class="sticky-col-4">分析</th>' +
-          '<th class="sticky-col-5">小计</th><th class="sticky-col-6">平均值</th><th class="sticky-col-7">' + diffLabel + '</th>' +
-          '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
-          '</tr>' +
-          '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th><th class="sticky-col-7"></th>' +
-          buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
-          '</tr>';
+        if (curView === 'spu') {
+          thead.innerHTML =
+            '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th>' +
+            '<th class="sticky-col-3">小计</th><th class="sticky-col-4">平均值</th><th class="sticky-col-5">' + diffLabel + '</th>' +
+            '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
+            '</tr>' +
+            '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th>' +
+            buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
+            '</tr>';
+        } else {
+          thead.innerHTML =
+            '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th><th class="sticky-col-4">分析</th>' +
+            '<th class="sticky-col-5">小计</th><th class="sticky-col-6">平均值</th><th class="sticky-col-7">' + diffLabel + '</th>' +
+            '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
+            '</tr>' +
+            '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th><th class="sticky-col-7"></th>' +
+            buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
+            '</tr>';
+        }
 
         function sumArr(arr) { return arr.reduce(function(a, b) { return a + b; }, 0); }
         function avgArr(arr) { return arr.length ? Math.round(sumArr(arr) / arr.length) : 0; }
@@ -578,7 +589,28 @@
             if (gidx === 0) {
               html += '<td class="sticky-col-1" rowspan="' + spuRowCount + '">' + data.name + '</td>';
             }
-            html += '<td class="sticky-col-2"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
+            html += '<td class="sticky-col-2"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span></span></td>';
+            html += '<td class="sticky-col-3" style="font-weight:600;">' + group.totalSub + '</td>';
+            html += '<td class="sticky-col-4" style="font-weight:600;">' + group.totalAvg + '</td>';
+            html += '<td class="sticky-col-5 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
+            group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+            html += '</tr>';
+          });
+        } else {
+          var totalRowCount = 0;
+          groups.forEach(function(g) { totalRowCount += 1 + g.pidRows.length; });
+          totalRowCount += 1;
+
+          var firstRow = true;
+          groups.forEach(function(group, gidx) {
+            var rowspan = 1 + group.pidRows.length;
+
+            html += '<tr class="spu-row">';
+            if (firstRow) {
+              html += '<td class="sticky-col-1" rowspan="' + totalRowCount + '">' + data.name + '</td>';
+              firstRow = false;
+            }
+            html += '<td class="sticky-col-2" rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
             html += '<td class="sticky-col-3">合计</td>';
             html += '<td class="sticky-col-4">—</td>';
             html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalSub + '</td>';
@@ -586,42 +618,35 @@
             html += '<td class="sticky-col-7 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
             group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
             html += '</tr>';
-          });
-        } else {
-          var pidRowsAll = [];
-          groups.forEach(function(group) {
+
             var spuEnc = encodeURIComponent(group.spu || '');
             var storeEnc = encodeURIComponent(data.name || '');
             group.pidRows.forEach(function(pr) {
-              pidRowsAll.push({ spu: group.spu, spuEnc: spuEnc, storeEnc: storeEnc, row: pr });
+              html += '<tr>';
+              html += '<td class="sticky-col-3">' + pr.pid + '</td>';
+              html += '<td class="sticky-col-4"><button type="button" class="btn-detail-analysis" title="PID 明细" data-spu="' + spuEnc + '" data-store="' + storeEnc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
+              html += '<td class="sticky-col-5">' + pr.sub + '</td>';
+              html += '<td class="sticky-col-6">' + pr.avg + '</td>';
+              html += '<td class="sticky-col-7 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
+              pr.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+              html += '</tr>';
             });
-          });
-          pidRowsAll.sort(function(a, b) { return (b.row.sub || 0) - (a.row.sub || 0); });
-          var pidRowCount = pidRowsAll.length + 1;
-          pidRowsAll.forEach(function(item, idx) {
-            var pr = item.row;
-            html += '<tr>';
-            if (idx === 0) {
-              html += '<td class="sticky-col-1" rowspan="' + pidRowCount + '">' + data.name + '</td>';
-            }
-            html += '<td class="sticky-col-2">' + item.spu + '</td>';
-            html += '<td class="sticky-col-3">' + pr.pid + '</td>';
-            html += '<td class="sticky-col-4"><button type="button" class="btn-detail-analysis" title="PID 明细" data-spu="' + item.spuEnc + '" data-store="' + item.storeEnc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
-            html += '<td class="sticky-col-5">' + pr.sub + '</td>';
-            html += '<td class="sticky-col-6">' + pr.avg + '</td>';
-            html += '<td class="sticky-col-7 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
-            pr.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
-            html += '</tr>';
           });
         }
 
         html += '<tr class="row-store-total">';
         html += '<td class="sticky-col-2">店铺小计合计</td>';
-        html += '<td class="sticky-col-3">—</td>';
-        html += '<td class="sticky-col-4">—</td>';
-        html += '<td class="sticky-col-5">' + storeTotalSub + '</td>';
-        html += '<td class="sticky-col-6">' + storeTotalAvg + '</td>';
-        html += '<td class="sticky-col-7">' + storeDiffStr + '</td>';
+        if (curView === 'spu') {
+          html += '<td class="sticky-col-3">' + storeTotalSub + '</td>';
+          html += '<td class="sticky-col-4">' + storeTotalAvg + '</td>';
+          html += '<td class="sticky-col-5">' + storeDiffStr + '</td>';
+        } else {
+          html += '<td class="sticky-col-3">—</td>';
+          html += '<td class="sticky-col-4">—</td>';
+          html += '<td class="sticky-col-5">' + storeTotalSub + '</td>';
+          html += '<td class="sticky-col-6">' + storeTotalAvg + '</td>';
+          html += '<td class="sticky-col-7">' + storeDiffStr + '</td>';
+        }
         storeTotals.forEach(function(v) { html += '<td>' + v + '</td>'; });
         html += '</tr>';
 
@@ -773,7 +798,9 @@
         }
         var days = enumDays(range.start, range.end);
         var buckets = buildBuckets(days, curGran);
-        var csvHeaders = ['店铺名', 'SPU(公式)', 'PID'].concat(buckets.map(function(b) { return b.label; })).concat(['环比']);
+        var csvHeaders = curView === 'spu'
+          ? ['店铺名', 'SPU(公式)', '小计', '平均值', '环比'].concat(buckets.map(function(b) { return b.label; }))
+          : ['店铺名', 'SPU(公式)', 'PID'].concat(buckets.map(function(b) { return b.label; })).concat(['环比']);
         var lines = [csvHeaders.map(escapeCell).join(',')];
 
         data.spus.forEach(function(spu) {
@@ -791,8 +818,10 @@
           var t1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
           var t2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
           var totalDiffStr = fmtChainRatio(t1, t2);
+          var totalAvg = avgArr(totals);
           if (curView === 'spu') {
-            lines.push([data.name, spu, '合计'].concat(totals).concat([totalDiffStr]).map(escapeCell).join(','));
+            var totalSub = sumArr(totals);
+            lines.push([data.name, spu, totalSub, totalAvg, totalDiffStr].concat(totals).map(escapeCell).join(','));
           } else {
             pidRows.forEach(function(pr) {
               lines.push([data.name, spu, pr.pid].concat(pr.vals).concat([pr.diffStr]).map(escapeCell).join(','));
@@ -832,9 +861,9 @@
         document.getElementById('qSearchField').value = 'spu';
         document.getElementById('qSearchVal').value = '';
         curGran = 'day';
-        curView = 'pid';
+        curView = 'spu';
         document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
-        document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-view') === 'pid'); });
+        document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-view') === 'spu'); });
         document.getElementById('filterInfo').textContent = '';
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="12" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
       };

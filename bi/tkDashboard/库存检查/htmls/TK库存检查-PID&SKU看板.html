@@ -454,7 +454,6 @@
         <div class="btns">
           <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
           <button type="button" class="btn btn-secondary">导出明细</button>
-          <button type="button" class="btn btn-secondary">导出异常数据</button>
         </div>
         <div class="meta-info">
           <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -470,27 +469,27 @@
       <div class="summary-card">
         <div class="summary-label">SKU总数</div>
         <div class="summary-value">1,286</div>
-        <div class="summary-sub">当前查询范围内的 PID&SKU 数量</div>
+        <div class="summary-sub">结果口径：当前查询范围内的 PID&amp;SKU 数量。<br />计算逻辑：按当前筛选条件过滤后，对 PID&amp;SKU 明细结果逐行计数。</div>
       </div>
       <div class="summary-card summary-danger">
         <div class="summary-label">异常SKU数</div>
         <div class="summary-value">93</div>
-        <div class="summary-sub">少同步或超卖风险项</div>
+        <div class="summary-sub">结果口径：少同步或超卖风险项数量。<br />计算逻辑：按 SKU 判断库存是否异常字段不等于“同步正确”，满足条件的 SKU 计入异常 SKU 数。</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">总库存</div>
         <div class="summary-value">24,560</div>
-        <div class="summary-sub">当前查询范围汇总</div>
+        <div class="summary-sub">结果口径：当前查询范围内总库存汇总。<br />计算逻辑：对所有 SKU 的总库存字段逐行求和。</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">总可用库存</div>
         <div class="summary-value">18,392</div>
-        <div class="summary-sub">海外可用 + 国内库存</div>
+        <div class="summary-sub">结果口径：海外可用 + 国内库存汇总。<br />计算逻辑：对所有 SKU 的总可用库存字段逐行求和。</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">总在途库存</div>
         <div class="summary-value">6,168</div>
-        <div class="summary-sub">海外在途 + FBT在途 + 交货在途</div>
+        <div class="summary-sub">结果口径：海外在途 + FBT在途 + 交货在途汇总。<br />计算逻辑：对所有 SKU 的总在途库存字段逐行求和。</div>
       </div>
     </div>
 
@@ -695,27 +694,27 @@
         <div class="summary-card">
           <div class="summary-label">SPU总数</div>
           <div class="summary-value">216</div>
-          <div class="summary-sub">当前查询范围内的 SPU 数量</div>
+          <div class="summary-sub">结果口径：当前查询范围内的 SPU 数量。<br />计算逻辑：基于 PID&amp;SKU 底表按 SPU 聚合后，对 SPU 去重计数。</div>
         </div>
         <div class="summary-card summary-danger">
           <div class="summary-label">异常SPU数</div>
           <div class="summary-value">28</div>
-          <div class="summary-sub">少同步或超卖风险项</div>
+          <div class="summary-sub">结果口径：少同步或超卖风险项数量。<br />计算逻辑：按 SPU 聚合后重新判断库存是否异常，不等于“同步正确”的 SPU 计入异常 SPU 数。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">总库存</div>
           <div class="summary-value">24,560</div>
-          <div class="summary-sub">当前查询范围汇总</div>
+          <div class="summary-sub">结果口径：当前查询范围内总库存汇总。<br />计算逻辑：对所有 SPU 的总库存聚合值逐行求和。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">总可用库存</div>
           <div class="summary-value">18,392</div>
-          <div class="summary-sub">海外可用 + 国内库存</div>
+          <div class="summary-sub">结果口径：海外可用 + 国内库存汇总。<br />计算逻辑：对所有 SPU 的总可用库存聚合值逐行求和。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">总在途库存</div>
           <div class="summary-value">6,168</div>
-          <div class="summary-sub">海外在途 + FBT在途 + 交货在途</div>
+          <div class="summary-sub">结果口径：海外在途 + FBT在途 + 交货在途汇总。<br />计算逻辑：对所有 SPU 的总在途库存聚合值逐行求和。</div>
         </div>
       </div>
 
@@ -886,14 +885,18 @@
         ]},
         { name: '北美洲', children: [
           { label: '美国', code: 'US' }
+        ]},
+        { name: '其它', children: [
+          { label: 'Global', code: 'Global' }
         ]}
       ];
       var codeToStores = {
-        DE: ['美国TK-艾斯特尼-英国直邮店:GB'],
-        ES: ['美国TK-艾斯特尼-英国直邮店:GB'],
-        FR: ['美国TK-艾斯特尼-英国直邮店:GB'],
-        IT: ['美国TK-艾斯特尼-英国直邮店:GB'],
-        US: ['美国TK-艾斯特尼-美区跨境1店', '美国TK-艾斯特尼-美区跨境2店', '美国TK-艾斯特尼-美区跨境3店']
+        DE: ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        ES: ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        FR: ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        IT: ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        US: ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        Global: ['美国TK独立站-shopify:Global']
       };
       var allStores = [];
       Object.keys(codeToStores).forEach(function(key) {

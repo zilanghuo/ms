@@ -10,8 +10,8 @@
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
-    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 1.5rem 2rem 2.5rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1960px; min-height: calc(100vh - 3rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
     h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
     h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
     h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
@@ -21,7 +21,7 @@
     strong { color: var(--text); }
     hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
     .table-wrap { overflow-x: auto; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 600px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 1520px; }
     th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
     th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
     tr:hover td { background: #f9fafb; }
@@ -32,7 +32,7 @@
     .req-metrics { display: inline-table; margin: 0.5rem 0 1rem; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
     .req-metrics th { background: #f1f5f9; padding: 0.35rem 0.75rem; width: 5em; text-align: left; }
     .req-metrics td { padding: 0.35rem 0.75rem; }
-    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 320px; }
+    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 520px; }
     .todo-note { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; padding: 0.8rem 1rem; border-radius: 6px; margin: 1rem 0; }
     .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
     .image-card { border: 1px solid var(--border); border-radius: 8px; background: #fff; overflow: hidden; }
@@ -201,9 +201,46 @@
           <tr><td>分组字段</td><td>SPU</td><td>需求一底表</td><td>按 <code>SPU</code> 分组</td><td>SPU 看板唯一主维度</td></tr>
           <tr><td>映射/汇总</td><td>SPU名称</td><td>需求一底表</td><td>同一 SPU 下建议取统一名称；若存在不一致，需以后续口径定义为准</td><td>建议保持与 SPU 一一对应</td></tr>
           <tr><td>汇总</td><td>站点、店铺</td><td>需求一底表</td><td>同一 SPU 下若跨多个站点/店铺，可按看板展示需要做去重汇总或拆分筛选</td><td>当前以需求一底表原始归属为准</td></tr>
+          <tr><td>汇总</td><td>采购量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>数量类字段</td></tr>
+          <tr><td>汇总</td><td>交货在途库存</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>数量类字段</td></tr>
+          <tr><td>汇总</td><td>国内库存</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>数量类字段</td></tr>
+          <tr><td>汇总</td><td>三方仓在途量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>数量类字段</td></tr>
+          <tr><td>汇总</td><td>谷仓-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USKY3-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC2-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
+          <tr><td>汇总</td><td>国内仓-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
+          <tr><td>汇总</td><td>英国退货仓-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>“我们有的库存”仓别字段</td></tr>
           <tr><td>汇总</td><td>采购量、交货在途库存、国内库存、三方仓在途量、FBT在途量、FBT可用量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>均为库存数量类字段</td></tr>
+          <tr><td>汇总</td><td>FBT在途量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>平台仓库存字段</td></tr>
+          <tr><td>汇总</td><td>FBT可用量</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>平台仓库存字段</td></tr>
+          <tr><td>汇总</td><td>FBT-1（接口能不能抓到？）</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>待确认接口获取能力</td></tr>
+          <tr><td>汇总</td><td>谷仓-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USKY3-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC2-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
+          <tr><td>汇总</td><td>国内仓-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
+          <tr><td>汇总</td><td>FBA(空着)-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>当前为空，预留字段</td></tr>
+          <tr><td>汇总</td><td>英国退货仓-2</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>店铺后台实际被同步库存字段</td></tr>
           <tr><td>汇总</td><td>谷仓-1 / -2 / -3、万邑通USKY3-1 / -2 / -3、万邑通USWC-1 / -2 / -3、万邑通USWC2-1 / -2 / -3、国内仓-1 / -2 / -3、FBT-1 / -2 / -3、FBA(空着)-1 / -2 / -3、英国退货仓-1 / -2 / -3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>仓别差异字段在 SPU 粒度汇总展示</td></tr>
+          <tr><td>汇总</td><td>谷仓-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USKY3-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
+          <tr><td>汇总</td><td>万邑通USWC2-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
+          <tr><td>汇总</td><td>国内仓-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
+          <tr><td>汇总</td><td>FBT-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段；Excel 备注说明 FBT 因多 PID 同步会有异常</td></tr>
+          <tr><td>汇总</td><td>FBA(空着)-1</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>当前为空，预留字段</td></tr>
+          <tr><td>汇总</td><td>FBA(空着)-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>当前为空，预留差异字段</td></tr>
+          <tr><td>汇总</td><td>FBT-2（积加4月会上暂时空着）</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>当前为空，预留字段</td></tr>
+          <tr><td>汇总</td><td>英国退货仓-3</td><td>需求一底表</td><td>按 <code>sum()</code> 聚合</td><td>库存差异字段</td></tr>
           <tr><td>重新计算</td><td>海外在途库存、海外可用库存、总在途库存、总可用库存、总库存、总库存-1、总库存-2</td><td>需求一底表聚合结果</td><td>基于 SPU 粒度汇总后的基础库存字段重新计算</td><td>不建议直接混用明细判断结果</td></tr>
+          <tr><td>重新计算</td><td>海外在途库存</td><td>需求一底表聚合结果</td><td>SPU 粒度：<code>三方仓在途量 + 国内库存</code></td><td>沿用需求一公式，在聚合后重新计算</td></tr>
+          <tr><td>重新计算</td><td>海外可用库存</td><td>需求一底表聚合结果</td><td>按站点口径汇总各仓可用库存后重新计算</td><td>依赖部分待确认字段</td></tr>
+          <tr><td>重新计算</td><td>总在途库存</td><td>需求一底表聚合结果</td><td><code>海外在途库存 + 三方仓在途量 + FBT在途量 + 交货在途库存</code></td><td>聚合后重算</td></tr>
+          <tr><td>重新计算</td><td>总可用库存</td><td>需求一底表聚合结果</td><td><code>海外可用库存 + 国内库存</code></td><td>聚合后重算</td></tr>
+          <tr><td>重新计算</td><td>总库存</td><td>需求一底表聚合结果</td><td><code>总在途库存 + 总可用库存</code></td><td>聚合后重算</td></tr>
+          <tr><td>重新计算</td><td>总库存-1</td><td>需求一底表聚合结果</td><td>按“我们有的库存”仓别字段聚合后重算</td><td>依赖部分待确认字段</td></tr>
+          <tr><td>重新计算</td><td>总库存-2</td><td>需求一底表聚合结果</td><td>按“店铺后台实际被同步的库存”仓别字段聚合后重算</td><td>依赖部分待确认字段</td></tr>
           <tr><td>重新判断</td><td>库存是否异常</td><td>需求一底表聚合结果</td><td>按 SPU 粒度汇总后的库存差异重新判断：差异大于 0 为少同步，小于 0 为超卖风险，等于 0 为同步正确</td><td>SPU 层级单独输出判断结果</td></tr>
         </tbody>
       </table>

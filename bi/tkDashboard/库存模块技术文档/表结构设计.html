@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>库存模块 表结构设计</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --ods: #3b82f6; --dwd: #8b5cf6; --dws: #0891b2; --ads: #059669; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1500px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 840px; }
+    th, td { padding: 0.45rem 0.65rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.85em; }
+    pre { background: #f8fafc; color: #1e293b; padding: 1.1rem 1.3rem; border-radius: 6px; overflow-x: auto; font-size: 0.86rem; line-height: 1.6; border: 1px solid #e2e8f0; }
+    pre code { background: transparent; padding: 0; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .ods { background: #dbeafe; color: var(--ods); }
+    .dwd { background: #ede9fe; color: var(--dwd); }
+    .dws { background: #cffafe; color: var(--dws); }
+    .ads { background: #d1fae5; color: var(--ads); }
+    .toc-link { color: var(--accent); text-decoration: none; }
+    .toc-link:hover { text-decoration: underline; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>库存模块 表结构设计</h1>
+    <p>按库存模块 1.0 需求整理 Doris 数仓表结构，覆盖库存检查与缺补货两个看板所需的 ODS、DIM、DWD、DWS、ADS 表。表名已按 <code>ms-warehouse-batch-data/AGENTS.md</code> 的命名规范调整：统一使用分层前缀、业务域、业务含义、时间粒度/增长类型后缀。</p>
+    <hr />
+
+    <h2>一、分层表清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>层级</th><th>表名</th><th>说明</th><th>服务页面</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-online-product">ods_inventory_tiktok_product_online_product_df</a></td><td>TikTok 在线商品日全量快照表</td><td>库存检查、缺补货</td></tr>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-site-stock">ods_inventory_tiktok_site_product_stock_df</a></td><td>站点产品库存-自定义导出日全量原始表</td><td>库存检查、缺补货</td></tr>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-fbt-stock">ods_inventory_tiktok_fbt_stock_df</a></td><td>TikTok FBT库存-自定义导出日全量原始表</td><td>库存检查、缺补货</td></tr>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-jijia-pid-warehouse-stock">ods_inventory_jijia_pid_warehouse_stock_df</a></td><td>积加 API 店铺PID-仓库库存日全量快照表</td><td>库存检查</td></tr>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-warehouse-list">ods_inventory_manual_available_warehouse_df</a></td><td>可用仓库列表手动导入日全量表</td><td>库存检查、缺补货</td></tr>
+          <tr><td><span class="badge dim">DIM</span></td><td><a class="toc-link" href="#tbl-dim-platform-monthly-factor">dim_platform_inventory_monthly_factor_df</a></td><td>库存平台域月度系数维表</td><td>缺补货</td></tr>
+          <tr><td><span class="badge dwd">DWD</span></td><td><a class="toc-link" href="#tbl-dwd-stock-check">dwd_inventory_stock_check_sku_snapshot_1d</a></td><td>库存检查 SKU 日快照宽表，统一 PID/SKU/SPU/站点/仓库口径</td><td>库存检查</td></tr>
+          <tr><td><span class="badge dwd">DWD</span></td><td><a class="toc-link" href="#tbl-dwd-replenishment">dwd_inventory_replenishment_sku_snapshot_1d</a></td><td>缺补货 SKU 日快照宽表，沉淀发货/补货/冗余分析所需字段</td><td>缺补货</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-stock-check-sku">dws_inventory_stock_check_sku_1d</a></td><td>库存检查 SKU 粒度汇总表</td><td>库存检查</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-stock-check-spu">dws_inventory_stock_check_spu_1d</a></td><td>库存检查 SPU 粒度汇总表</td><td>库存检查</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-redundancy">dws_inventory_replenishment_spu_redundancy_1d</a></td><td>缺补货-SPU冗余检视汇总表</td><td>缺补货-SPU冗余检视</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-ship">dws_inventory_replenishment_ship_detail_1d</a></td><td>缺补货-发货视图汇总表</td><td>缺补货-发货</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-restock">dws_inventory_replenishment_restock_detail_1d</a></td><td>缺补货-补货视图汇总表</td><td>缺补货-补货</td></tr>
+          <tr><td><span class="badge dws">DWS</span></td><td><a class="toc-link" href="#tbl-dws-all">dws_inventory_replenishment_all_detail_1d</a></td><td>缺补货-发货+补货总和汇总表</td><td>缺补货-发货+补货总和</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-stock-check-sku">ads_inventory_stock_check_sku_1d</a></td><td>库存检查 SKU 看板查询表</td><td>库存检查</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-stock-check-spu">ads_inventory_stock_check_spu_1d</a></td><td>库存检查 SPU 看板查询表</td><td>库存检查</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-redundancy">ads_inventory_spu_redundancy_analysis_1d</a></td><td>缺补货-SPU冗余检视查询表</td><td>缺补货-SPU冗余检视</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-ship">ads_inventory_sku_replenishment_ship_1d</a></td><td>缺补货-发货视图查询表</td><td>缺补货-发货</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-restock">ads_inventory_sku_replenishment_restock_1d</a></td><td>缺补货-补货视图查询表</td><td>缺补货-补货</td></tr>
+          <tr><td><span class="badge ads">ADS</span></td><td><a class="toc-link" href="#tbl-ads-all">ads_inventory_sku_replenishment_all_1d</a></td><td>缺补货-发货+补货总和查询表</td><td>缺补货-发货+补货总和</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二、ODS / DIM 层设计</h2>
+    <h3 id="tbl-ods-online-product">2.1 ods_inventory_tiktok_product_online_product_df</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>record_id</td><td>VARCHAR(50)</td><td>源记录 ID，对应接口 <code>id</code></td></tr>
+          <tr><td>product_id</td><td>VARCHAR(100)</td><td>平台商品 ID，对应接口 <code>productId</code></td></tr>
+          <tr><td>item_id</td><td>VARCHAR(100)</td><td>平台 item ID，对应接口 <code>itemId</code></td></tr>
+          <tr><td>platform_product_code</td><td>VARCHAR(100)</td><td>平台商品编码，对应接口 <code>productCode</code></td></tr>
+          <tr><td>site_id</td><td>VARCHAR(50)</td><td>站点 ID，对应接口 <code>siteId</code></td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称，对应接口 <code>siteName</code>，如美国</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺 ID，对应接口 <code>shopId</code>，按统一规范转为 <code>store_id</code></td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称，对应接口 <code>shopName</code>，按统一规范转为 <code>store_name</code></td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>币种，对应接口 <code>currency</code></td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU，对应接口 <code>sku</code></td></tr>
+          <tr><td>msku</td><td>VARCHAR(100)</td><td>MSKU，对应接口 <code>msku</code></td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU，对应接口 <code>spu</code></td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU 名称，对应接口 <code>spuName</code></td></tr>
+          <tr><td>product_name</td><td>VARCHAR(500)</td><td>商品名称，对应接口 <code>productName</code></td></tr>
+          <tr><td>product_title</td><td>VARCHAR(1000)</td><td>商品标题，对应接口 <code>title</code></td></tr>
+          <tr><td>main_image_url</td><td>VARCHAR(1000)</td><td>主图 URL，对应接口 <code>mainImage</code></td></tr>
+          <tr><td>brand_code</td><td>VARCHAR(100)</td><td>品牌编码，对应接口 <code>brandCode</code></td></tr>
+          <tr><td>brand_name</td><td>VARCHAR(200)</td><td>品牌名称，对应接口 <code>brandName</code></td></tr>
+          <tr><td>category_code</td><td>VARCHAR(100)</td><td>类目编码，对应接口 <code>categoryCode</code></td></tr>
+          <tr><td>category_name</td><td>VARCHAR(200)</td><td>类目名称，对应接口 <code>categoryName</code></td></tr>
+          <tr><td>charge_person_ids</td><td>VARCHAR(500)</td><td>负责人 ID 列表，对应接口 <code>chargePersonIds</code></td></tr>
+          <tr><td>charge_person_name</td><td>VARCHAR(200)</td><td>负责人名称，对应接口 <code>chargePersonName</code></td></tr>
+          <tr><td>original_price</td><td>DECIMAL(18,2)</td><td>原价，对应接口 <code>originalPrice</code></td></tr>
+          <tr><td>price_include_vat</td><td>DECIMAL(18,2)</td><td>含税售价，对应接口 <code>priceIncludeVat</code></td></tr>
+          <tr><td>inventory_product_total_num</td><td>BIGINT</td><td>库存商品总数，对应接口 <code>inventoryProductTotalNum</code></td></tr>
+          <tr><td>product_status_code</td><td>VARCHAR(50)</td><td>商品状态编码，对应接口 <code>productStatus</code>，如 <code>live</code></td></tr>
+          <tr><td>product_status_name</td><td>VARCHAR(100)</td><td>商品状态名称，对应接口 <code>productStatusName</code>，如在售</td></tr>
+          <tr><td>platform_create_date</td><td>DATE</td><td>平台创建日期，对应接口 <code>platformCreateTime</code>，格式 YYYY-MM-DD</td></tr>
+          <tr><td>platform_update_date</td><td>DATE</td><td>平台更新日期，对应接口 <code>platformUpdateTime</code>，格式 YYYY-MM-DD</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>字段命名统一说明：名称类统一使用 <code>site_name</code>、<code>store_name</code>、<code>spu_name</code>、<code>product_status_name</code>；编码类统一使用 <code>*_id</code> / <code>*_code</code>；链接类统一使用 <code>*_url</code>；系统时间字段统一使用 <code>insert_time</code>。该表按接口/统一采集快照设计，不保留 <code>raw_file_name</code> 这类文件导入字段。</p>
+
+    <h3 id="tbl-ods-site-stock">2.2 ods_inventory_tiktok_site_product_stock_df</h3>
+    <p>来源于站点产品库存接口 / 自定义导出明细，按仓库 + SKU 返回库存、库龄、计划量、在途量等字段。该表作为库存模块的重要 ODS 底表，需保留站点库存原始业务字段，供后续库存检查、缺补货统一清洗使用。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>record_id</td><td>VARCHAR(50)</td><td>源记录 ID，对应返回体 <code>id</code></td></tr>
+          <tr><td>warehouse_id</td><td>BIGINT</td><td>仓库 ID，对应返回体 <code>warehouseId</code></td></tr>
+          <tr><td>warehouse_name</td><td>VARCHAR(200)</td><td>仓库名称，对应返回体 <code>warehouseName</code></td></tr>
+          <tr><td>market_id</td><td>BIGINT</td><td>市场 ID，对应返回体 <code>marketId</code></td></tr>
+          <tr><td>market_name</td><td>VARCHAR(100)</td><td>市场名称，对应返回体 <code>marketName</code></td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU，对应返回体 <code>sku</code></td></tr>
+          <tr><td>msku</td><td>VARCHAR(100)</td><td>MSKU，对应返回体 <code>msku</code></td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU，对应返回体 <code>spu</code></td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU 名称，对应返回体 <code>spuName</code></td></tr>
+          <tr><td>product_name</td><td>VARCHAR(500)</td><td>商品名称，对应返回体 <code>productName</code></td></tr>
+          <tr><td>product_image_url</td><td>VARCHAR(1000)</td><td>商品图片 URL，对应返回体 <code>productImageUrl</code></td></tr>
+          <tr><td>brand_name</td><td>VARCHAR(200)</td><td>品牌名称，对应返回体 <code>brandName</code></td></tr>
+          <tr><td>category_name</td><td>VARCHAR(200)</td><td>类目名称，对应返回体 <code>categoryName</code></td></tr>
+          <tr><td>product_manager_account</td><td>VARCHAR(100)</td><td>商品负责人账号，对应返回体 <code>productManagerAccount</code></td></tr>
+          <tr><td>product_status_name</td><td>VARCHAR(100)</td><td>商品状态名称，对应返回体 <code>productStatusName</code></td></tr>
+          <tr><td>product_type_name</td><td>VARCHAR(100)</td><td>商品类型名称，对应返回体 <code>productTypeName</code></td></tr>
+          <tr><td>unit</td><td>VARCHAR(20)</td><td>库存单位，对应返回体 <code>unit</code></td></tr>
+          <tr><td>assembly</td><td>VARCHAR(100)</td><td>组装标识 / 组装信息，对应返回体 <code>assembly</code></td></tr>
+          <tr><td>product_delivery_days</td><td>INT</td><td>商品交付天数，对应返回体 <code>productDeliveryDays</code></td></tr>
+          <tr><td>available_qty</td><td>DECIMAL(18,2)</td><td>可用库存，对应返回体 <code>availableQty</code></td></tr>
+          <tr><td>fulfillable_quantity</td><td>DECIMAL(18,2)</td><td>可履约数量，对应返回体 <code>fulfillableQuantity</code></td></tr>
+          <tr><td>on_hand_qty</td><td>DECIMAL(18,2)</td><td>现有库存，对应返回体 <code>onHandQty</code></td></tr>
+          <tr><td>total_inventory_qty</td><td>DECIMAL(18,2)</td><td>总库存数量，对应返回体 <code>totalInventoryQty</code></td></tr>
+          <tr><td>in_transit_qty</td><td>DECIMAL(18,2)</td><td>在途数量，对应返回体 <code>inTransitQty</code></td></tr>
+          <tr><td>reservation_qty</td><td>DECIMAL(18,2)</td><td>预留数量，对应返回体 <code>reservationQty</code></td></tr>
+          <tr><td>reserved_processed_qty</td><td>DECIMAL(18,2)</td><td>已处理预留数量，对应返回体 <code>reservedProcessed</code></td></tr>
+          <tr><td>reserved_unprocessed_qty</td><td>DECIMAL(18,2)</td><td>未处理预留数量，对应返回体 <code>reservedUnprocessed</code></td></tr>
+          <tr><td>unsellable_qty</td><td>DECIMAL(18,2)</td><td>不可售数量，对应返回体 <code>unsellableQuantity</code></td></tr>
+          <tr><td>obsolete_qty</td><td>DECIMAL(18,2)</td><td>呆滞数量，对应返回体 <code>obsoleteQty</code></td></tr>
+          <tr><td>obsolete_rate</td><td>DECIMAL(18,4)</td><td>呆滞率，对应返回体 <code>obsoleteRate</code></td></tr>
+          <tr><td>assemble_plan_quantity</td><td>DECIMAL(18,2)</td><td>组装计划数量，对应返回体 <code>assemblePlanQuantity</code></td></tr>
+          <tr><td>purchase_plan_quantity</td><td>DECIMAL(18,2)</td><td>采购计划数量，对应返回体 <code>purchasePlanQuantity</code></td></tr>
+          <tr><td>plan_quantity</td><td>DECIMAL(18,2)</td><td>计划数量，对应返回体 <code>planQuantity</code></td></tr>
+          <tr><td>pl_po_ln_qty</td><td>DECIMAL(18,2)</td><td>采购单行数量，对应返回体 <code>plPoLnQty</code></td></tr>
+          <tr><td>order_quantity</td><td>DECIMAL(18,2)</td><td>订单数量，对应返回体 <code>orderQuantity</code></td></tr>
+          <tr><td>lot_no_quantity</td><td>DECIMAL(18,2)</td><td>批次号数量，对应返回体 <code>lotNoQuantity</code></td></tr>
+          <tr><td>single_quantity</td><td>DECIMAL(18,2)</td><td>单件数量，对应返回体 <code>singleQuantity</code></td></tr>
+          <tr><td>erp_receiving_qty</td><td>DECIMAL(18,2)</td><td>ERP 收货数量，对应返回体 <code>erpReceiving</code></td></tr>
+          <tr><td>erp_shipped_qty</td><td>DECIMAL(18,2)</td><td>ERP 已发货数量，对应返回体 <code>erpShipped</code></td></tr>
+          <tr><td>erp_wait_shipped_qty</td><td>DECIMAL(18,2)</td><td>ERP 待发货数量，对应返回体 <code>erpWaitShipped</code></td></tr>
+          <tr><td>erp_working_qty</td><td>DECIMAL(18,2)</td><td>ERP 在制作 / 处理中数量，对应返回体 <code>erpWorking</code></td></tr>
+          <tr><td>inv_age_0_to_30_days</td><td>DECIMAL(18,2)</td><td>0-30 天库龄库存，对应返回体 <code>invAge0To30Days</code></td></tr>
+          <tr><td>inv_age_31_to_60_days</td><td>DECIMAL(18,2)</td><td>31-60 天库龄库存，对应返回体 <code>invAge31To60Days</code></td></tr>
+          <tr><td>inv_age_61_to_90_days</td><td>DECIMAL(18,2)</td><td>61-90 天库龄库存，对应返回体 <code>invAge61To90Days</code></td></tr>
+          <tr><td>inv_age_91_to_180_days</td><td>DECIMAL(18,2)</td><td>91-180 天库龄库存，对应返回体 <code>invAge91To180Days</code></td></tr>
+          <tr><td>inv_age_181_to_270_days</td><td>DECIMAL(18,2)</td><td>181-270 天库龄库存，对应返回体 <code>invAge181To270Days</code></td></tr>
+          <tr><td>inv_age_271_to_330_days</td><td>DECIMAL(18,2)</td><td>271-330 天库龄库存，对应返回体 <code>invAge271To330Days</code></td></tr>
+          <tr><td>inv_age_331_to_365_days</td><td>DECIMAL(18,2)</td><td>331-365 天库龄库存，对应返回体 <code>invAge331To365Days</code></td></tr>
+          <tr><td>inv_age_365_plus_days</td><td>DECIMAL(18,2)</td><td>365 天以上库龄库存，对应返回体 <code>invAge365PlusDays</code></td></tr>
+          <tr><td>arrive_cost</td><td>DECIMAL(18,4)</td><td>到仓成本，对应返回体 <code>arriveCost</code></td></tr>
+          <tr><td>purchase_cost</td><td>DECIMAL(18,4)</td><td>采购成本，对应返回体 <code>purchaseCost</code></td></tr>
+          <tr><td>good_value</td><td>DECIMAL(18,4)</td><td>良品货值，对应返回体 <code>goodValue</code></td></tr>
+          <tr><td>defective_value</td><td>DECIMAL(18,4)</td><td>残次货值，对应返回体 <code>defectiveValue</code></td></tr>
+          <tr><td>in_transit_value</td><td>DECIMAL(18,4)</td><td>在途货值，对应返回体 <code>inTransitValue</code></td></tr>
+          <tr><td>obsolete_value</td><td>DECIMAL(18,4)</td><td>呆滞货值，对应返回体 <code>obsoleteValue</code></td></tr>
+          <tr><td>on_hand_value</td><td>DECIMAL(18,4)</td><td>现有库存货值，对应返回体 <code>onHandValue</code></td></tr>
+          <tr><td>total_value</td><td>DECIMAL(18,4)</td><td>总货值，对应返回体 <code>totalValue</code></td></tr>
+          <tr><td>transfer_pending_shipment_value</td><td>DECIMAL(18,4)</td><td>待发转运货值，对应返回体 <code>transferPendingShipmentValue</code></td></tr>
+          <tr><td>platform_create_time</td><td>DATETIME</td><td>平台创建时间，对应返回体 <code>createTime</code></td></tr>
+          <tr><td>last_update_time</td><td>DATETIME</td><td>最后更新时间，对应返回体 <code>updateTime</code></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>字段命名按当前统一规范处理：仓库统一使用 <code>warehouse_*</code>，商品统一使用 <code>product_*</code> / <code>spu</code> / <code>sku</code>，时间统一拆成平台时间字段和系统时间字段，数量字段统一使用 <code>*_qty</code>，货值字段统一使用 <code>*_value</code>。</p>
+
+    <h3 id="tbl-ods-fbt-stock">2.3 ods_inventory_tiktok_fbt_stock_df</h3>
+    <p>来源于 TikTok FBT 库存接口 / 自定义导出明细，按 FBT 仓 + 店铺仓维度返回库存、在途、不可履约、近 7/15/30/60/90 天销量等字段。该表需要保留平台仓口径与店铺仓口径，供库存检查和缺补货场景使用。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>record_id</td><td>BIGINT</td><td>源记录 ID，对应返回体 <code>id</code></td></tr>
+          <tr><td>fbt_id</td><td>VARCHAR(100)</td><td>FBT 记录 ID，对应返回体 <code>fbtId</code></td></tr>
+          <tr><td>warehouse_id</td><td>BIGINT</td><td>店铺仓库 ID，对应返回体 <code>warehouseId</code></td></tr>
+          <tr><td>warehouse_name</td><td>VARCHAR(200)</td><td>店铺仓库名称，对应返回体 <code>warehouseName</code></td></tr>
+          <tr><td>fbt_warehouse_id</td><td>VARCHAR(100)</td><td>FBT 仓库 ID，对应返回体 <code>fbtWarehouseId</code></td></tr>
+          <tr><td>fbt_warehouse_name</td><td>VARCHAR(200)</td><td>FBT 仓库名称，对应返回体 <code>fbtWarehouseName</code></td></tr>
+          <tr><td>fulfillment_channel</td><td>VARCHAR(50)</td><td>履约渠道编码，对应返回体 <code>fulfillmentChannel</code></td></tr>
+          <tr><td>fulfillment_channel_name</td><td>VARCHAR(100)</td><td>履约渠道名称，对应返回体 <code>fulfillmentChannelName</code></td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU，对应返回体 <code>sku</code></td></tr>
+          <tr><td>reference_code</td><td>VARCHAR(100)</td><td>参考编码，对应返回体 <code>referenceCode</code></td></tr>
+          <tr><td>goods_sku</td><td>VARCHAR(100)</td><td>货品 SKU，对应返回体 <code>goodsSku</code></td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU，对应返回体 <code>spu</code></td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU 名称，对应返回体 <code>spuName</code></td></tr>
+          <tr><td>product_name</td><td>VARCHAR(500)</td><td>商品名称，对应返回体 <code>productName</code></td></tr>
+          <tr><td>goods_name</td><td>VARCHAR(1000)</td><td>货品名称，对应返回体 <code>goodsName</code></td></tr>
+          <tr><td>product_image_url</td><td>VARCHAR(1000)</td><td>商品图片 URL，对应返回体 <code>productImageUrl</code></td></tr>
+          <tr><td>brand_name</td><td>VARCHAR(200)</td><td>品牌名称，对应返回体 <code>brandName</code></td></tr>
+          <tr><td>category_name</td><td>VARCHAR(200)</td><td>类目名称，对应返回体 <code>categoryName</code></td></tr>
+          <tr><td>product_manager_account</td><td>VARCHAR(100)</td><td>商品负责人账号，对应返回体 <code>productManagerAccount</code></td></tr>
+          <tr><td>selling_manager_name_list</td><td>VARCHAR(1000)</td><td>销售负责人列表，对应返回体 <code>sellingManagerNameList</code></td></tr>
+          <tr><td>product_status_name</td><td>VARCHAR(100)</td><td>商品状态名称，对应返回体 <code>productStatusName</code></td></tr>
+          <tr><td>product_type_name</td><td>VARCHAR(100)</td><td>商品类型名称，对应返回体 <code>productTypeName</code></td></tr>
+          <tr><td>status_code</td><td>INT</td><td>状态编码，对应返回体 <code>status</code></td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态名称，对应返回体 <code>statusName</code></td></tr>
+          <tr><td>listing_level</td><td>VARCHAR(100)</td><td>Listing 层级，对应返回体 <code>listingLevel</code></td></tr>
+          <tr><td>listing_state</td><td>VARCHAR(100)</td><td>Listing 状态，对应返回体 <code>listingState</code></td></tr>
+          <tr><td>assembly</td><td>VARCHAR(100)</td><td>组装信息，对应返回体 <code>assembly</code></td></tr>
+          <tr><td>unit</td><td>VARCHAR(20)</td><td>库存单位，对应返回体 <code>unit</code></td></tr>
+          <tr><td>product_delivery_days</td><td>INT</td><td>商品交付天数，对应返回体 <code>productDeliveryDays</code></td></tr>
+          <tr><td>available_qty</td><td>DECIMAL(18,2)</td><td>可用库存，对应返回体 <code>availableQuantity</code></td></tr>
+          <tr><td>total_qty</td><td>DECIMAL(18,2)</td><td>总库存数量，对应返回体 <code>totalQuantity</code></td></tr>
+          <tr><td>in_transit_qty</td><td>DECIMAL(18,2)</td><td>在途数量，对应返回体 <code>inTransitQuantity</code></td></tr>
+          <tr><td>reserved_qty</td><td>DECIMAL(18,2)</td><td>预留数量，对应返回体 <code>reservedQuantity</code></td></tr>
+          <tr><td>unfulfillable_qty</td><td>DECIMAL(18,2)</td><td>不可履约数量，对应返回体 <code>unfulfillableQuantity</code></td></tr>
+          <tr><td>single_quantity</td><td>DECIMAL(18,2)</td><td>单件数量，对应返回体 <code>singleQuantity</code></td></tr>
+          <tr><td>units_ordered_7_days</td><td>DECIMAL(18,2)</td><td>近 7 天销量，对应返回体 <code>unitsOrdered7Days</code></td></tr>
+          <tr><td>units_ordered_15_days</td><td>DECIMAL(18,2)</td><td>近 15 天销量，对应返回体 <code>unitsOrdered15Days</code></td></tr>
+          <tr><td>units_ordered_30_days</td><td>DECIMAL(18,2)</td><td>近 30 天销量，对应返回体 <code>unitsOrdered30Days</code></td></tr>
+          <tr><td>units_ordered_60_days</td><td>DECIMAL(18,2)</td><td>近 60 天销量，对应返回体 <code>unitsOrdered60Days</code></td></tr>
+          <tr><td>units_ordered_90_days</td><td>DECIMAL(18,2)</td><td>近 90 天销量，对应返回体 <code>unitsOrdered90Days</code></td></tr>
+          <tr><td>avg_units_ordered_7_days</td><td>DECIMAL(18,4)</td><td>近 7 天平均销量，对应返回体 <code>avgUnitsOrdered7Days</code></td></tr>
+          <tr><td>avg_units_ordered_15_days</td><td>DECIMAL(18,4)</td><td>近 15 天平均销量，对应返回体 <code>avgUnitsOrdered15Days</code></td></tr>
+          <tr><td>avg_units_ordered_30_days</td><td>DECIMAL(18,4)</td><td>近 30 天平均销量，对应返回体 <code>avgUnitsOrdered30Days</code></td></tr>
+          <tr><td>avg_units_ordered_60_days</td><td>DECIMAL(18,4)</td><td>近 60 天平均销量，对应返回体 <code>avgUnitsOrdered60Days</code></td></tr>
+          <tr><td>avg_units_ordered_90_days</td><td>DECIMAL(18,4)</td><td>近 90 天平均销量，对应返回体 <code>avgUnitsOrdered90Days</code></td></tr>
+          <tr><td>historical_units_ordered_7_days</td><td>DECIMAL(18,2)</td><td>历史近 7 天销量，对应返回体 <code>historicalUnitsOrdered7Days</code></td></tr>
+          <tr><td>historical_units_ordered_30_days</td><td>DECIMAL(18,2)</td><td>历史近 30 天销量，对应返回体 <code>historicalUnitsOrdered30Days</code></td></tr>
+          <tr><td>historical_7_days_detail_json</td><td>STRING</td><td>历史近 7 天明细，对应返回体 <code>historical7DaysDetailList</code></td></tr>
+          <tr><td>historical_30_days_detail_json</td><td>STRING</td><td>历史近 30 天明细，对应返回体 <code>historical30DaysDetailList</code></td></tr>
+          <tr><td>platform_create_time</td><td>DATETIME</td><td>平台创建时间，对应返回体 <code>createTime</code></td></tr>
+          <tr><td>last_update_time</td><td>DATETIME</td><td>最后更新时间，对应返回体 <code>updateTime</code></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>字段命名按统一规范处理：库存数量统一使用 <code>*_qty</code>，状态字段统一拆成 <code>status_code</code> 与 <code>status_name</code>，时间字段统一拆成平台业务时间与系统入仓时间。数组 / 明细列表字段在 ODS 层以 JSON 字符串形式保留原始结构，便于后续按需解析。</p>
+
+    <h3 id="tbl-ods-jijia-pid-warehouse-stock">2.4 ods_inventory_jijia_pid_warehouse_stock_df</h3>
+    <p>来源于 Jijia API 接口，按店铺 + PID + SKU 维度汇总多个仓库库存。该表采用“固定仓库字段平铺 + 扩展仓库预留字段”的设计，直接服务库存检查中“店铺后台实际被同步库存”的宽表关联场景。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺 ID</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(100)</td><td>店铺 PID</td></tr>
+          <tr><td>sku_id</td><td>VARCHAR(100)</td><td>SKU ID</td></tr>
+          <tr><td>available_qty_us_tk_xiamen_domestic</td><td>DECIMAL(18,2)</td><td>美国TK-国内厦门仓 可用库存</td></tr>
+          <tr><td>available_qty_winit_usky3</td><td>DECIMAL(18,2)</td><td>万邑通:USKY3_Warehouse 可用库存</td></tr>
+          <tr><td>available_qty_winit_uswc2</td><td>DECIMAL(18,2)</td><td>万邑通:USWC2_Warehouse 可用库存</td></tr>
+          <tr><td>available_qty_winit_uswc</td><td>DECIMAL(18,2)</td><td>万邑通:USWC_Warehouse 可用库存</td></tr>
+          <tr><td>available_qty_us_est_guchang_west</td><td>DECIMAL(18,2)</td><td>美国TK-艾斯特尼-美国谷仓:美西仓库 可用库存</td></tr>
+          <tr><td>available_qty_us_tk_xiamen_direct</td><td>DECIMAL(18,2)</td><td>美国TK-厦门直邮仓 可用库存</td></tr>
+          <tr><td>available_qty_uk_est_return</td><td>DECIMAL(18,2)</td><td>美国TK-艾斯特尼-英国退件仓:英国仓 可用库存</td></tr>
+          <tr><td>available_qty_winit_uktw</td><td>DECIMAL(18,2)</td><td>万邑通:UKTW Warehouse 可用库存</td></tr>
+          <tr><td>ext_warehouse_01_name</td><td>VARCHAR(200)</td><td>预留扩展仓库 01 名称</td></tr>
+          <tr><td>ext_warehouse_01_available_qty</td><td>DECIMAL(18,2)</td><td>预留扩展仓库 01 可用库存</td></tr>
+          <tr><td>ext_warehouse_02_name</td><td>VARCHAR(200)</td><td>预留扩展仓库 02 名称</td></tr>
+          <tr><td>ext_warehouse_02_available_qty</td><td>DECIMAL(18,2)</td><td>预留扩展仓库 02 可用库存</td></tr>
+          <tr><td>ext_warehouse_03_name</td><td>VARCHAR(200)</td><td>预留扩展仓库 03 名称</td></tr>
+          <tr><td>ext_warehouse_03_available_qty</td><td>DECIMAL(18,2)</td><td>预留扩展仓库 03 可用库存</td></tr>
+          <tr><td>ext_warehouse_04_name</td><td>VARCHAR(200)</td><td>预留扩展仓库 04 名称</td></tr>
+          <tr><td>ext_warehouse_04_available_qty</td><td>DECIMAL(18,2)</td><td>预留扩展仓库 04 可用库存</td></tr>
+          <tr><td>ext_warehouse_05_name</td><td>VARCHAR(200)</td><td>预留扩展仓库 05 名称</td></tr>
+          <tr><td>ext_warehouse_05_available_qty</td><td>DECIMAL(18,2)</td><td>预留扩展仓库 05 可用库存</td></tr>
+          <tr><td>api_request_time</td><td>DATETIME</td><td>接口抓取时间</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>当前业务关注仓库列表</strong> 已按固定字段平铺：</p>
+    <ul>
+      <li><code>美国TK-国内厦门仓</code></li>
+      <li><code>万邑通:USKY3_Warehouse</code></li>
+      <li><code>万邑通:USWC2_Warehouse</code></li>
+      <li><code>万邑通:USWC_Warehouse</code></li>
+      <li><code>美国TK-艾斯特尼-美国谷仓:美西仓库</code></li>
+      <li><code>美国TK-厦门直邮仓</code></li>
+      <li><code>美国TK-艾斯特尼-英国退件仓:英国仓</code></li>
+      <li><code>万邑通:UKTW Warehouse</code></li>
+    </ul>
+    <p>设计原则：现有明确关注的仓库直接铺固定字段，便于库存检查直接比对；后续新增仓库先落入 <code>ext_warehouse_01~05</code> 预留字段，等仓库范围稳定后再决定是否转正式字段。</p>
+
+    <h3 id="tbl-ods-warehouse-list">2.5 ods_inventory_manual_available_warehouse_df</h3>
+    <p>可用仓库列表来源于手动导入，用于统一维护库存模块可识别的仓库清单，支撑仓库映射、仓别过滤和站点归属判断。当前维护范围主要对应“当前业务关注仓库列表”。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>warehouse_name</td><td>VARCHAR(200)</td><td>仓库名</td></tr>
+          <tr><td>warehouse_code</td><td>VARCHAR(100)</td><td>仓库编码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>所属站点名称</td></tr>
+          <tr><td>raw_file_name</td><td>VARCHAR(200)</td><td>原始导入文件名</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>当前业务关注仓库列表</strong></p>
+    <ul>
+      <li><code>美国TK-国内厦门仓</code></li>
+      <li><code>万邑通:USKY3_Warehouse</code></li>
+      <li><code>万邑通:USWC2_Warehouse</code></li>
+      <li><code>万邑通:USWC_Warehouse</code></li>
+      <li><code>美国TK-艾斯特尼-美国谷仓:美西仓库</code></li>
+      <li><code>美国TK-厦门直邮仓</code></li>
+      <li><code>美国TK-艾斯特尼-英国退件仓:英国仓</code></li>
+      <li><code>万邑通:UKTW Warehouse</code></li>
+    </ul>
+
+    <h3 id="tbl-dim-platform-monthly-factor">2.6 dim_platform_inventory_monthly_factor_df</h3>
+    <p>每个月的系数来源于手工导入，调整为平台域 DIM 维表，供缺补货-SPU冗余检视使用。该表按年份维护 1-12 月系数字段，并按月更新一次。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>维度生效日期，YYYYMMDD</td></tr>
+          <tr><td>factor_year</td><td>VARCHAR(4)</td><td>所属年份，格式 YYYY</td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>1 月系数</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>2 月系数</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>3 月系数</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>4 月系数</td></tr>
+          <tr><td>month_05_factor</td><td>DECIMAL(18,4)</td><td>5 月系数</td></tr>
+          <tr><td>month_06_factor</td><td>DECIMAL(18,4)</td><td>6 月系数</td></tr>
+          <tr><td>month_07_factor</td><td>DECIMAL(18,4)</td><td>7 月系数</td></tr>
+          <tr><td>month_08_factor</td><td>DECIMAL(18,4)</td><td>8 月系数</td></tr>
+          <tr><td>month_09_factor</td><td>DECIMAL(18,4)</td><td>9 月系数</td></tr>
+          <tr><td>month_10_factor</td><td>DECIMAL(18,4)</td><td>10 月系数</td></tr>
+          <tr><td>month_11_factor</td><td>DECIMAL(18,4)</td><td>11 月系数</td></tr>
+          <tr><td>month_12_factor</td><td>DECIMAL(18,4)</td><td>12 月系数</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>更新频率建议：<strong>每月更新一次</strong>。若业务按自然月维护，则每月更新当年对应记录；缺补货-SPU冗余检视在计算未来 4 个月时，按当前月份向后读取对应月份字段。该表归属平台域维度表，不作为 ODS 原始落地表使用。</p>
+
+    <h2>三、DWD 层设计</h2>
+    <h3 id="tbl-dwd-stock-check">3.1 dwd_inventory_stock_check_sku_snapshot_1d</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺 ID</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(100)</td><td>PID</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU 名称</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU 名称</td></tr>
+          <tr><td>purchase_qty</td><td>DECIMAL(18,2)</td><td>采购量</td></tr>
+          <tr><td>delivery_in_transit_qty</td><td>DECIMAL(18,2)</td><td>交货在途库存</td></tr>
+          <tr><td>domestic_inventory_qty</td><td>DECIMAL(18,2)</td><td>国内库存</td></tr>
+          <tr><td>third_party_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途量</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT 在途量</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT 可用量</td></tr>
+          <tr><td>warehouse_guchang_1_qty</td><td>DECIMAL(18,2)</td><td>谷仓-1，我们有的库存</td></tr>
+          <tr><td>warehouse_guchang_2_qty</td><td>DECIMAL(18,2)</td><td>谷仓-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_guchang_3_qty</td><td>DECIMAL(18,2)</td><td>谷仓-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_winit_usky3_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-1，我们有的库存</td></tr>
+          <tr><td>warehouse_winit_usky3_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_winit_usky3_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_winit_uswc_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-1，我们有的库存</td></tr>
+          <tr><td>warehouse_winit_uswc_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_winit_uswc_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_winit_uswc2_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-1，我们有的库存</td></tr>
+          <tr><td>warehouse_winit_uswc2_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_winit_uswc2_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_domestic_1_qty</td><td>DECIMAL(18,2)</td><td>国内仓-1，我们有的库存</td></tr>
+          <tr><td>warehouse_domestic_2_qty</td><td>DECIMAL(18,2)</td><td>国内仓-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_domestic_3_qty</td><td>DECIMAL(18,2)</td><td>国内仓-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_fbt_1_qty</td><td>DECIMAL(18,2)</td><td>FBT-1，我们有的库存</td></tr>
+          <tr><td>warehouse_fbt_2_qty</td><td>DECIMAL(18,2)</td><td>FBT-2，店铺后台实际被同步库存，当前预留</td></tr>
+          <tr><td>warehouse_fbt_3_qty</td><td>DECIMAL(18,2)</td><td>FBT-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_fba_1_qty</td><td>DECIMAL(18,2)</td><td>FBA-1，我们有的库存，当前预留</td></tr>
+          <tr><td>warehouse_fba_2_qty</td><td>DECIMAL(18,2)</td><td>FBA-2，店铺后台实际被同步库存，当前预留</td></tr>
+          <tr><td>warehouse_fba_3_qty</td><td>DECIMAL(18,2)</td><td>FBA-3，差异值 = 1 - 2</td></tr>
+          <tr><td>warehouse_uk_return_1_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-1，我们有的库存</td></tr>
+          <tr><td>warehouse_uk_return_2_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-2，店铺后台实际被同步库存</td></tr>
+          <tr><td>warehouse_uk_return_3_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-3，差异值 = 1 - 2</td></tr>
+          <tr><td>oversea_in_transit_qty</td><td>DECIMAL(18,2)</td><td>海外在途库存 = 三方仓在途量 + 国内库存</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外可用库存，按站点汇总仓位可用量</td></tr>
+          <tr><td>total_in_transit_qty</td><td>DECIMAL(18,2)</td><td>总在途库存 = 海外在途库存 + 三方仓在途量 + FBT 在途量 + 交货在途库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存 = 海外可用库存 + 国内库存</td></tr>
+          <tr><td>total_inventory_qty</td><td>DECIMAL(18,2)</td><td>总库存 = 总在途库存 + 总可用库存</td></tr>
+          <tr><td>total_inventory_1_qty</td><td>DECIMAL(18,2)</td><td>总库存-1，我们有的库存汇总</td></tr>
+          <tr><td>total_inventory_2_qty</td><td>DECIMAL(18,2)</td><td>总库存-2，店铺后台实际被同步库存汇总</td></tr>
+          <tr><td>inventory_diff_qty</td><td>DECIMAL(18,2)</td><td>库存差异 = 总库存-1 - 总库存-2</td></tr>
+          <tr><td>inventory_status_code</td><td>VARCHAR(50)</td><td>库存异常状态编码：less_sync / oversold_risk / synced</td></tr>
+          <tr><td>inventory_status_name</td><td>VARCHAR(100)</td><td>库存异常状态名称：少同步 / 超卖风险 / 同步正确</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>处理时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>该表仅服务库存检查需求，按 <code>店铺 + PID + SKU + 日期</code> 粒度统一沉淀原型看板涉及的全部核心字段。字段设计基于 <code>TK库存检查映射表.xlsx</code> 中 sheet <code>映射表</code> 的“映射表 / 源数据表”两列整理，确保 DWD 层即可支撑 SKU 视图原型字段，并可直接向上汇总到 SPU 视图。</p>
+
+    <h3 id="tbl-dwd-replenishment">3.2 dwd_inventory_replenishment_sku_snapshot_1d</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th><th>来源表 / 关联说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td><td>分区字段</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td><td>业务日期</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>标准站点</td><td>按店铺 / 仓库归属统一映射</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td><td>来源于在线商品或仓库站点映射</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td><td><code>ods_inventory_tiktok_product_online_product_df</code></td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td><td>主关联键，贯穿在线商品 / 站点库存 / FBT库存 / 销售表现</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td><td><code>ods_inventory_tiktok_product_online_product_df</code>，按 <code>SKU</code> 关联</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-可用</td><td><code>ods_inventory_tiktok_fbt_stock_df</code>，按 <code>SKU</code> 关联，取可用量</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-在途</td><td><code>ods_inventory_tiktok_fbt_stock_df</code>，按 <code>SKU</code> 关联，取在途量</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td><td><code>fbt_available_qty + fbt_in_transit_qty</code></td></tr>
+          <tr><td>third_warehouse_available_qty</td><td>DECIMAL(18,2)</td><td>三方仓可用库存</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选业务关注三方仓汇总可用量</td></tr>
+          <tr><td>third_warehouse_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途库存</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选业务关注三方仓汇总在途量</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td><td><code>third_warehouse_available_qty + third_warehouse_in_transit_qty</code></td></tr>
+          <tr><td>winit_usky3_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3可用量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USKY3_Warehouse</code></td></tr>
+          <tr><td>winit_usky3_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3在途量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USKY3_Warehouse</code></td></tr>
+          <tr><td>winit_uswc_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC可用量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USWC_Warehouse</code></td></tr>
+          <tr><td>winit_uswc_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC在途量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USWC_Warehouse</code></td></tr>
+          <tr><td>winit_uswc2_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2可用量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USWC2_Warehouse</code></td></tr>
+          <tr><td>winit_uswc2_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2在途量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>万邑通:USWC2_Warehouse</code></td></tr>
+          <tr><td>gucang_available_qty</td><td>DECIMAL(18,2)</td><td>谷仓可用量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>美国TK-艾斯特尼-美国谷仓:美西仓库</code></td></tr>
+          <tr><td>gucang_in_transit_qty</td><td>DECIMAL(18,2)</td><td>谷仓在途量</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>美国TK-艾斯特尼-美国谷仓:美西仓库</code></td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选仓库 <code>美国TK-厦门直邮仓</code>、<code>美国TK-国内厦门仓</code> 的可用量</td></tr>
+          <tr><td>purchase_transit_qty</td><td>DECIMAL(18,2)</td><td>采购+交货在途库存</td><td><code>ods_inventory_tiktok_site_product_stock_df</code>，按 <code>SKU</code> 关联，筛选国内仓，取 <code>在途量 + 采购量</code></td></tr>
+          <tr><td>fba_inventory_qty</td><td>DECIMAL(18,2)</td><td>FBA库存</td><td>原型当前为空，预留字段</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td><td><code>third_warehouse_available_qty + fbt_available_qty</code></td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td><td><code>domestic_available_qty + oversea_available_qty</code></td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td><td><code>domestic_available_qty + third_warehouse_total_qty + fbt_total_qty</code></td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td><td>销售表现表，按 <code>SKU</code> 关联，取前两天往前7天销量 / 7</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td><td>销售表现表，按 <code>SKU</code> 关联，取前两天往前30天销量 / 30</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td><td><code>0.3 * sales_30d_daily_qty + 0.7 * sales_7d_daily_qty</code></td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>第一个月系数</td><td>来自 SPU 冗余检视 / 平台月系数维表，按 <code>SPU</code> 关联</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>第二个月系数</td><td>来自 SPU 冗余检视 / 平台月系数维表，按 <code>SPU</code> 关联</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>第三个月系数</td><td>来自 SPU 冗余检视 / 平台月系数维表，按 <code>SPU</code> 关联</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>第四个月系数</td><td>来自 SPU 冗余检视 / 平台月系数维表，按 <code>SPU</code> 关联</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td><td><code>month_01_factor * weighted_daily_sales</code></td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td><td><code>month_02_factor * weighted_daily_sales</code></td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td><td><code>month_03_factor * weighted_daily_sales</code></td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td><td><code>month_04_factor * weighted_daily_sales</code></td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td><td>基于未来约90天覆盖天数，将 4 个月预估日均按月份天数累计测算</td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态</td><td>如 <code>海外断货</code> / <code>还可以卖X天</code></td></tr>
+          <tr><td>purchase_need_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量</td><td>按映射公式测算采购缺口</td></tr>
+          <tr><td>purchase_need_actual_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量-实际</td><td><code>MAX(-purchase_need_qty, 0)</code></td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td><td><code>oversea_available_qty / weighted_daily_sales</code></td></tr>
+          <tr><td>shipment_need_estimate_qty</td><td>DECIMAL(18,2)</td><td>需要发货的数量-测算</td><td>按国内可用库存与海外缺口取最小值测算</td></tr>
+          <tr><td>fbt_ship_actual_qty</td><td>DECIMAL(18,2)</td><td>FBT-实际要发的库存</td><td>按 <code>shipment_need_estimate_qty</code>、<code>online_shortage_qty</code>、<code>transferable_qty</code> 联合计算</td></tr>
+          <tr><td>fbt_shipping_date</td><td>VARCHAR(10)</td><td>FBT海派时间</td><td>按“当前周下周三 + 32天”规则生成</td></tr>
+          <tr><td>current_date_value</td><td>VARCHAR(10)</td><td>当天时间</td><td>调度当天日期</td></tr>
+          <tr><td>shipping_period_required_qty</td><td>DECIMAL(18,2)</td><td>海派到的时间内需要的库存</td><td>按海派周期覆盖天数和月度预估日均测算</td></tr>
+          <tr><td>online_shortage_qty</td><td>DECIMAL(18,2)</td><td>在线还缺的数量</td><td><code>shipping_period_required_qty - oversea_available_qty</code></td></tr>
+          <tr><td>transferable_qty</td><td>DECIMAL(18,2)</td><td>可调拨数量</td><td>根据国内可用库存和业务口径测算，可支撑发货调拨</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>处理时间</td><td>系统入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>该表仅服务缺补货需求，沉淀发货、补货、SPU冗余分析所需字段，不与库存检查明细底表混用。按映射表核对后，DWD 需覆盖在线商品、站点库存、FBT库存、销售表现、月度系数等来源字段，并保留仓库拆分字段与关键中间测算字段，避免 DWS / ADS 再回头补明细逻辑。</p>
+
+    <h2>四、DWS / ADS 设计</h2>
+    <h3>4.1 库存检查链路</h3>
+    <h3 id="tbl-dws-stock-check-sku">4.1.1 dws_inventory_stock_check_sku_1d</h3>
+    <p>按 <code>店铺 + PID + SKU + 站点 + 日期</code> 粒度输出库存检查 SKU 视图字段。该表字段结构与 <code>dwd_inventory_stock_check_sku_snapshot_1d</code> 基本保持一致，主要承接明细层统一口径，并补充对外查询所需的展示字段，向 ADS 层透传。</p>
+
+    <h3 id="tbl-dws-stock-check-spu">4.1.2 dws_inventory_stock_check_spu_1d</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺 ID</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU 名称</td></tr>
+          <tr><td>purchase_qty</td><td>DECIMAL(18,2)</td><td>采购量</td></tr>
+          <tr><td>delivery_in_transit_qty</td><td>DECIMAL(18,2)</td><td>交货在途库存</td></tr>
+          <tr><td>domestic_inventory_qty</td><td>DECIMAL(18,2)</td><td>国内库存</td></tr>
+          <tr><td>warehouse_domestic_1_qty</td><td>DECIMAL(18,2)</td><td>国内仓-1</td></tr>
+          <tr><td>warehouse_domestic_2_qty</td><td>DECIMAL(18,2)</td><td>国内仓-2</td></tr>
+          <tr><td>warehouse_domestic_3_qty</td><td>DECIMAL(18,2)</td><td>国内仓-3</td></tr>
+          <tr><td>third_party_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途量</td></tr>
+          <tr><td>warehouse_guchang_1_qty</td><td>DECIMAL(18,2)</td><td>谷仓-1</td></tr>
+          <tr><td>warehouse_guchang_2_qty</td><td>DECIMAL(18,2)</td><td>谷仓-2</td></tr>
+          <tr><td>warehouse_guchang_3_qty</td><td>DECIMAL(18,2)</td><td>谷仓-3</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT在途量</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT可用量</td></tr>
+          <tr><td>warehouse_winit_usky3_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-1</td></tr>
+          <tr><td>warehouse_winit_usky3_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-2</td></tr>
+          <tr><td>warehouse_winit_usky3_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-3</td></tr>
+          <tr><td>warehouse_winit_uswc_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-1</td></tr>
+          <tr><td>warehouse_winit_uswc_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-2</td></tr>
+          <tr><td>warehouse_winit_uswc_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-3</td></tr>
+          <tr><td>warehouse_winit_uswc2_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-1</td></tr>
+          <tr><td>warehouse_winit_uswc2_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-2</td></tr>
+          <tr><td>warehouse_winit_uswc2_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-3</td></tr>
+          <tr><td>warehouse_fbt_1_qty</td><td>DECIMAL(18,2)</td><td>FBT-1</td></tr>
+          <tr><td>warehouse_fbt_2_qty</td><td>DECIMAL(18,2)</td><td>FBT-2</td></tr>
+          <tr><td>warehouse_fbt_3_qty</td><td>DECIMAL(18,2)</td><td>FBT-3</td></tr>
+          <tr><td>warehouse_fba_1_qty</td><td>DECIMAL(18,2)</td><td>FBA-1</td></tr>
+          <tr><td>warehouse_fba_2_qty</td><td>DECIMAL(18,2)</td><td>FBA-2</td></tr>
+          <tr><td>warehouse_fba_3_qty</td><td>DECIMAL(18,2)</td><td>FBA-3</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外可用库存</td></tr>
+          <tr><td>oversea_in_transit_qty</td><td>DECIMAL(18,2)</td><td>海外在途库存</td></tr>
+          <tr><td>total_in_transit_qty</td><td>DECIMAL(18,2)</td><td>总在途库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>total_inventory_qty</td><td>DECIMAL(18,2)</td><td>总库存</td></tr>
+          <tr><td>total_inventory_1_qty</td><td>DECIMAL(18,2)</td><td>总库存-1</td></tr>
+          <tr><td>total_inventory_2_qty</td><td>DECIMAL(18,2)</td><td>总库存-2</td></tr>
+          <tr><td>inventory_diff_qty</td><td>DECIMAL(18,2)</td><td>库存差异</td></tr>
+          <tr><td>warehouse_uk_return_1_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-1</td></tr>
+          <tr><td>warehouse_uk_return_2_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-2</td></tr>
+          <tr><td>warehouse_uk_return_3_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-3</td></tr>
+          <tr><td>inventory_status_code</td><td>VARCHAR(50)</td><td>库存异常状态编码</td></tr>
+          <tr><td>inventory_status_name</td><td>VARCHAR(100)</td><td>库存异常状态名称</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>处理时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>基于 SKU 明细按 SPU 聚合，重算库存相关指标，不直接复用明细层判断字段。SPU 视图保留 <code>站点 / 店铺 / SPU / SPU名称</code> 及库存类字段，不再保留 <code>PID / SKU / SKU名称</code>。</p>
+
+    <h3>4.1.3 ads_inventory_stock_check_sku_1d / ads_inventory_stock_check_spu_1d</h3>
+    <p>库存检查 ADS 直接承接库存检查 DWS 结果，分别服务 SKU 视图与 SPU 视图查询。ADS 字段名与接口返回字段一一对应，避免接口层再做字段重命名转换。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ADS 字段名</th><th>接口返回字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>sdt</code></td><td><code>date</code></td><td>接口返回展示日期字段。</td></tr>
+          <tr><td><code>sku_name</code></td><td><code>skuName</code></td><td>SKU 名称。</td></tr>
+          <tr><td><code>spu_name</code></td><td><code>spuName</code></td><td>SPU 名称。</td></tr>
+          <tr><td><code>purchase_qty</code></td><td><code>purchaseQty</code></td><td>采购量。</td></tr>
+          <tr><td><code>delivery_in_transit_qty</code></td><td><code>deliveryInTransitQty</code></td><td>交货在途库存。</td></tr>
+          <tr><td><code>domestic_inventory_qty</code></td><td><code>domesticQty</code></td><td>国内库存。</td></tr>
+          <tr><td><code>warehouse_domestic_1_qty</code></td><td><code>domesticWarehouseOwnQty</code></td><td>国内仓-1。</td></tr>
+          <tr><td><code>warehouse_domestic_2_qty</code></td><td><code>domesticWarehouseSyncQty</code></td><td>国内仓-2。</td></tr>
+          <tr><td><code>warehouse_domestic_3_qty</code></td><td><code>domesticWarehouseDiffQty</code></td><td>国内仓-3。</td></tr>
+          <tr><td><code>third_party_in_transit_qty</code></td><td><code>thirdPartyTransitQty</code></td><td>三方仓在途量。</td></tr>
+          <tr><td><code>warehouse_guchang_1_qty</code></td><td><code>gucangOwnQty</code></td><td>谷仓-1。</td></tr>
+          <tr><td><code>warehouse_guchang_2_qty</code></td><td><code>gucangSyncQty</code></td><td>谷仓-2。</td></tr>
+          <tr><td><code>warehouse_guchang_3_qty</code></td><td><code>gucangDiffQty</code></td><td>谷仓-3。</td></tr>
+          <tr><td><code>fbt_in_transit_qty</code></td><td><code>fbtTransitQty</code></td><td>FBT 在途量。</td></tr>
+          <tr><td><code>fbt_available_qty</code></td><td><code>fbtAvailableQty</code></td><td>FBT 可用量。</td></tr>
+          <tr><td><code>warehouse_winit_usky3_1_qty</code></td><td><code>usky3OwnQty</code></td><td>万邑通USKY3-1。</td></tr>
+          <tr><td><code>warehouse_winit_usky3_2_qty</code></td><td><code>usky3SyncQty</code></td><td>万邑通USKY3-2。</td></tr>
+          <tr><td><code>warehouse_winit_usky3_3_qty</code></td><td><code>usky3DiffQty</code></td><td>万邑通USKY3-3。</td></tr>
+          <tr><td><code>oversea_available_qty</code></td><td><code>overseaAvailableQty</code></td><td>海外可用库存。</td></tr>
+          <tr><td><code>oversea_in_transit_qty</code></td><td><code>overseaTransitQty</code></td><td>海外在途库存。</td></tr>
+          <tr><td><code>total_in_transit_qty</code></td><td><code>totalTransitQty</code></td><td>总在途库存。</td></tr>
+          <tr><td><code>total_available_qty</code></td><td><code>totalAvailableQty</code></td><td>总可用库存。</td></tr>
+          <tr><td><code>total_inventory_qty</code></td><td><code>totalInventoryQty</code></td><td>总库存。</td></tr>
+          <tr><td><code>warehouse_uk_return_1_qty</code></td><td><code>ukReturnOwnQty</code></td><td>英国退货仓-1。</td></tr>
+          <tr><td><code>warehouse_uk_return_2_qty</code></td><td><code>ukReturnSyncQty</code></td><td>英国退货仓-2。</td></tr>
+          <tr><td><code>warehouse_uk_return_3_qty</code></td><td><code>ukReturnDiffQty</code></td><td>英国退货仓-3。</td></tr>
+          <tr><td><code>inventory_status_name</code></td><td><code>inventoryStatus</code></td><td>接口直接返回状态名称，表内同时保留状态编码。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.2 缺补货链路</h3>
+    <h3 id="tbl-dws-redundancy">4.2.1 dws_inventory_replenishment_spu_redundancy_1d</h3>
+    <p>服务缺补货-SPU冗余检视，按 SPU 汇总现有库存、加权日销、各月预估日均和月底冗余量。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU名称</td></tr>
+          <tr><td>current_inventory_qty</td><td>DECIMAL(18,2)</td><td>现有库存</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>第一个月系数</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>第二个月系数</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>第三个月系数</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>第四个月系数</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一个月预估日均</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二个月预估日均</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三个月预估日均</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四个月预估日均</td></tr>
+          <tr><td>month_1_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第一个月底冗余量</td></tr>
+          <tr><td>month_2_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第二个月底冗余量</td></tr>
+          <tr><td>month_3_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第三个月底冗余量</td></tr>
+          <tr><td>month_4_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第四个月底冗余量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-dws-ship">4.2.2 dws_inventory_replenishment_ship_detail_1d</h3>
+    <p>服务缺补货-发货视图，汇总建议发货量、海派到货前缺口、可调拨量等字段。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-可用</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>third_warehouse_available_qty</td><td>DECIMAL(18,2)</td><td>三方仓可用库存</td></tr>
+          <tr><td>winit_usky3_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3可用量</td></tr>
+          <tr><td>winit_uswc_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC可用量</td></tr>
+          <tr><td>winit_uswc2_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2可用量</td></tr>
+          <tr><td>gucang_available_qty</td><td>DECIMAL(18,2)</td><td>谷仓可用量</td></tr>
+          <tr><td>third_warehouse_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途库存</td></tr>
+          <tr><td>winit_usky3_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3在途量</td></tr>
+          <tr><td>winit_uswc_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC在途量</td></tr>
+          <tr><td>winit_uswc2_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2在途量</td></tr>
+          <tr><td>gucang_in_transit_qty</td><td>DECIMAL(18,2)</td><td>谷仓在途量</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>shipment_need_estimate_qty</td><td>DECIMAL(18,2)</td><td>需要发货的数量-测算</td></tr>
+          <tr><td>fbt_ship_actual_qty</td><td>DECIMAL(18,2)</td><td>FBT-实际要发的库存</td></tr>
+          <tr><td>fbt_shipping_date</td><td>VARCHAR(10)</td><td>FBT海派时间</td></tr>
+          <tr><td>shipping_period_required_qty</td><td>DECIMAL(18,2)</td><td>海派到的时间内需要的库存</td></tr>
+          <tr><td>online_shortage_qty</td><td>DECIMAL(18,2)</td><td>在线还缺的数量</td></tr>
+          <tr><td>transferable_qty</td><td>DECIMAL(18,2)</td><td>可调拨数量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-dws-restock">4.2.3 dws_inventory_replenishment_restock_detail_1d</h3>
+    <p>服务缺补货-补货视图，汇总建议采购量、实际采购量、预计断货天数等字段。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>purchase_transit_qty</td><td>DECIMAL(18,2)</td><td>采购+交货在途库存</td></tr>
+          <tr><td>fba_inventory_qty</td><td>DECIMAL(18,2)</td><td>FBA库存</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>purchase_need_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量</td></tr>
+          <tr><td>purchase_need_actual_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量-实际</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-dws-all">4.2.4 dws_inventory_replenishment_all_detail_1d</h3>
+    <p>服务缺补货-发货+补货总和视图，沉淀完整底表字段，供全量查询与导出。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-可用</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-在途</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>third_warehouse_available_qty</td><td>DECIMAL(18,2)</td><td>三方仓可用库存</td></tr>
+          <tr><td>third_warehouse_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途库存</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>winit_usky3_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3可用量</td></tr>
+          <tr><td>winit_usky3_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3在途量</td></tr>
+          <tr><td>winit_uswc_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC可用量</td></tr>
+          <tr><td>winit_uswc_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC在途量</td></tr>
+          <tr><td>winit_uswc2_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2可用量</td></tr>
+          <tr><td>winit_uswc2_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2在途量</td></tr>
+          <tr><td>gucang_available_qty</td><td>DECIMAL(18,2)</td><td>谷仓可用量</td></tr>
+          <tr><td>gucang_in_transit_qty</td><td>DECIMAL(18,2)</td><td>谷仓在途量</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>purchase_transit_qty</td><td>DECIMAL(18,2)</td><td>采购+交货在途库存</td></tr>
+          <tr><td>fba_inventory_qty</td><td>DECIMAL(18,2)</td><td>FBA库存</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>第一个月系数</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>第二个月系数</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>第三个月系数</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>第四个月系数</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态</td></tr>
+          <tr><td>purchase_need_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量</td></tr>
+          <tr><td>purchase_need_actual_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量-实际</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>shipment_need_estimate_qty</td><td>DECIMAL(18,2)</td><td>需要发货的数量-测算</td></tr>
+          <tr><td>fbt_ship_actual_qty</td><td>DECIMAL(18,2)</td><td>FBT-实际要发的库存</td></tr>
+          <tr><td>fbt_shipping_date</td><td>VARCHAR(10)</td><td>FBT海派时间</td></tr>
+          <tr><td>current_date_value</td><td>VARCHAR(10)</td><td>当天时间</td></tr>
+          <tr><td>shipping_period_required_qty</td><td>DECIMAL(18,2)</td><td>海派到的时间内需要的库存</td></tr>
+          <tr><td>online_shortage_qty</td><td>DECIMAL(18,2)</td><td>在线还缺的数量</td></tr>
+          <tr><td>transferable_qty</td><td>DECIMAL(18,2)</td><td>可调拨数量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.2.5 ADS 对应关系</h3>
+    <p>缺补货 ADS 按四个视图独立建表，字段与对应 DWS 保持一致，仅作为面向接口查询的应用层表，不再额外删减字段。</p>
+
+    <h2>五、ADS 层字段设计</h2>
+    <h3 id="tbl-ads-stock-check-sku">5.1 ads_inventory_stock_check_sku_1d</h3>
+    <p>库存检查 SKU 视图查询表，按 PID + SKU 粒度提供看板展示字段。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(100)</td><td>PID</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU名称</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>purchase_qty</td><td>DECIMAL(18,2)</td><td>采购量</td></tr>
+          <tr><td>delivery_in_transit_qty</td><td>DECIMAL(18,2)</td><td>交货在途库存</td></tr>
+          <tr><td>domestic_inventory_qty</td><td>DECIMAL(18,2)</td><td>国内库存</td></tr>
+          <tr><td>warehouse_domestic_1_qty</td><td>DECIMAL(18,2)</td><td>国内仓-1</td></tr>
+          <tr><td>warehouse_domestic_2_qty</td><td>DECIMAL(18,2)</td><td>国内仓-2</td></tr>
+          <tr><td>warehouse_domestic_3_qty</td><td>DECIMAL(18,2)</td><td>国内仓-3</td></tr>
+          <tr><td>third_party_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途量</td></tr>
+          <tr><td>warehouse_guchang_1_qty</td><td>DECIMAL(18,2)</td><td>谷仓-1</td></tr>
+          <tr><td>warehouse_guchang_2_qty</td><td>DECIMAL(18,2)</td><td>谷仓-2</td></tr>
+          <tr><td>warehouse_guchang_3_qty</td><td>DECIMAL(18,2)</td><td>谷仓-3</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT在途量</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT可用量</td></tr>
+          <tr><td>warehouse_winit_usky3_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-1</td></tr>
+          <tr><td>warehouse_winit_usky3_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-2</td></tr>
+          <tr><td>warehouse_winit_usky3_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-3</td></tr>
+          <tr><td>warehouse_winit_uswc_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-1</td></tr>
+          <tr><td>warehouse_winit_uswc_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-2</td></tr>
+          <tr><td>warehouse_winit_uswc_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-3</td></tr>
+          <tr><td>warehouse_winit_uswc2_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-1</td></tr>
+          <tr><td>warehouse_winit_uswc2_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-2</td></tr>
+          <tr><td>warehouse_winit_uswc2_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-3</td></tr>
+          <tr><td>warehouse_fbt_1_qty</td><td>DECIMAL(18,2)</td><td>FBT-1</td></tr>
+          <tr><td>warehouse_fbt_2_qty</td><td>DECIMAL(18,2)</td><td>FBT-2</td></tr>
+          <tr><td>warehouse_fbt_3_qty</td><td>DECIMAL(18,2)</td><td>FBT-3</td></tr>
+          <tr><td>warehouse_fba_1_qty</td><td>DECIMAL(18,2)</td><td>FBA-1</td></tr>
+          <tr><td>warehouse_fba_2_qty</td><td>DECIMAL(18,2)</td><td>FBA-2</td></tr>
+          <tr><td>warehouse_fba_3_qty</td><td>DECIMAL(18,2)</td><td>FBA-3</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外可用库存</td></tr>
+          <tr><td>oversea_in_transit_qty</td><td>DECIMAL(18,2)</td><td>海外在途库存</td></tr>
+          <tr><td>total_in_transit_qty</td><td>DECIMAL(18,2)</td><td>总在途库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>total_inventory_qty</td><td>DECIMAL(18,2)</td><td>总库存</td></tr>
+          <tr><td>total_inventory_1_qty</td><td>DECIMAL(18,2)</td><td>总库存-1</td></tr>
+          <tr><td>total_inventory_2_qty</td><td>DECIMAL(18,2)</td><td>总库存-2</td></tr>
+          <tr><td>inventory_diff_qty</td><td>DECIMAL(18,2)</td><td>库存差异</td></tr>
+          <tr><td>warehouse_uk_return_1_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-1</td></tr>
+          <tr><td>warehouse_uk_return_2_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-2</td></tr>
+          <tr><td>warehouse_uk_return_3_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-3</td></tr>
+          <tr><td>inventory_status_code</td><td>VARCHAR(50)</td><td>库存状态编码</td></tr>
+          <tr><td>inventory_status_name</td><td>VARCHAR(100)</td><td>库存状态名称</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-ads-redundancy">5.2 ads_inventory_spu_redundancy_analysis_1d</h3>
+    <p>缺补货-SPU冗余检视查询表。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU名称</td></tr>
+          <tr><td>current_inventory_qty</td><td>DECIMAL(18,2)</td><td>现有库存</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>第一个月系数</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>第二个月系数</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>第三个月系数</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>第四个月系数</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一个月预估日均</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二个月预估日均</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三个月预估日均</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四个月预估日均</td></tr>
+          <tr><td>month_1_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第一个月底冗余量</td></tr>
+          <tr><td>month_2_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第二个月底冗余量</td></tr>
+          <tr><td>month_3_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第三个月底冗余量</td></tr>
+          <tr><td>month_4_redundancy_qty</td><td>DECIMAL(18,2)</td><td>第四个月底冗余量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-ads-all">5.3 ads_inventory_sku_replenishment_all_1d</h3>
+    <p>缺补货-发货+补货总和查询表。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT可用库存</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT在途库存</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>third_warehouse_available_qty</td><td>DECIMAL(18,2)</td><td>三方仓可用库存</td></tr>
+          <tr><td>third_warehouse_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途库存</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>winit_usky3_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3可用量</td></tr>
+          <tr><td>winit_usky3_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3在途量</td></tr>
+          <tr><td>winit_uswc_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC可用量</td></tr>
+          <tr><td>winit_uswc_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC在途量</td></tr>
+          <tr><td>winit_uswc2_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2可用量</td></tr>
+          <tr><td>winit_uswc2_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2在途量</td></tr>
+          <tr><td>gucang_available_qty</td><td>DECIMAL(18,2)</td><td>谷仓可用量</td></tr>
+          <tr><td>gucang_in_transit_qty</td><td>DECIMAL(18,2)</td><td>谷仓在途量</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>purchase_transit_qty</td><td>DECIMAL(18,2)</td><td>采购+交货在途库存</td></tr>
+          <tr><td>fba_inventory_qty</td><td>DECIMAL(18,2)</td><td>FBA库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_01_factor</td><td>DECIMAL(18,4)</td><td>第一个月系数</td></tr>
+          <tr><td>month_02_factor</td><td>DECIMAL(18,4)</td><td>第二个月系数</td></tr>
+          <tr><td>month_03_factor</td><td>DECIMAL(18,4)</td><td>第三个月系数</td></tr>
+          <tr><td>month_04_factor</td><td>DECIMAL(18,4)</td><td>第四个月系数</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态</td></tr>
+          <tr><td>purchase_need_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量</td></tr>
+          <tr><td>purchase_need_actual_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量-实际</td></tr>
+          <tr><td>shipment_need_estimate_qty</td><td>DECIMAL(18,2)</td><td>需要发货的数量-测算</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>fbt_ship_actual_qty</td><td>DECIMAL(18,2)</td><td>FBT-实际要发的库存</td></tr>
+          <tr><td>fbt_shipping_date</td><td>VARCHAR(10)</td><td>FBT海派时间</td></tr>
+          <tr><td>current_date_value</td><td>VARCHAR(10)</td><td>当天时间</td></tr>
+          <tr><td>shipping_period_required_qty</td><td>DECIMAL(18,2)</td><td>海派到的时间内需要的库存</td></tr>
+          <tr><td>online_shortage_qty</td><td>DECIMAL(18,2)</td><td>在线还缺的数量</td></tr>
+          <tr><td>transferable_qty</td><td>DECIMAL(18,2)</td><td>可调拨数量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-ads-ship">5.4 ads_inventory_sku_replenishment_ship_1d</h3>
+    <p>缺补货-发货视图查询表，字段与 <code>dws_inventory_replenishment_ship_detail_1d</code> 保持一致。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT库存-可用</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>third_warehouse_available_qty</td><td>DECIMAL(18,2)</td><td>三方仓可用库存</td></tr>
+          <tr><td>winit_usky3_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3可用量</td></tr>
+          <tr><td>winit_uswc_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC可用量</td></tr>
+          <tr><td>winit_uswc2_available_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2可用量</td></tr>
+          <tr><td>gucang_available_qty</td><td>DECIMAL(18,2)</td><td>谷仓可用量</td></tr>
+          <tr><td>third_warehouse_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途库存</td></tr>
+          <tr><td>winit_usky3_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3在途量</td></tr>
+          <tr><td>winit_uswc_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC在途量</td></tr>
+          <tr><td>winit_uswc2_in_transit_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2在途量</td></tr>
+          <tr><td>gucang_in_transit_qty</td><td>DECIMAL(18,2)</td><td>谷仓在途量</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>status_name</td><td>VARCHAR(100)</td><td>状态</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>shipment_need_estimate_qty</td><td>DECIMAL(18,2)</td><td>需要发货的数量-测算</td></tr>
+          <tr><td>fbt_ship_actual_qty</td><td>DECIMAL(18,2)</td><td>FBT-实际要发的库存</td></tr>
+          <tr><td>fbt_shipping_date</td><td>VARCHAR(10)</td><td>FBT海派时间</td></tr>
+          <tr><td>shipping_period_required_qty</td><td>DECIMAL(18,2)</td><td>海派到的时间内需要的库存</td></tr>
+          <tr><td>online_shortage_qty</td><td>DECIMAL(18,2)</td><td>在线还缺的数量</td></tr>
+          <tr><td>transferable_qty</td><td>DECIMAL(18,2)</td><td>可调拨数量</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-ads-restock">5.5 ads_inventory_sku_replenishment_restock_1d</h3>
+    <p>缺补货-补货视图查询表，字段与 <code>dws_inventory_replenishment_restock_detail_1d</code> 保持一致。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+          <tr><td>fbt_total_qty</td><td>DECIMAL(18,2)</td><td>FBT总库存</td></tr>
+          <tr><td>third_warehouse_total_qty</td><td>DECIMAL(18,2)</td><td>三方仓总库存</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外仓可用总库存</td></tr>
+          <tr><td>purchase_transit_qty</td><td>DECIMAL(18,2)</td><td>采购+交货在途库存</td></tr>
+          <tr><td>fba_inventory_qty</td><td>DECIMAL(18,2)</td><td>FBA库存</td></tr>
+          <tr><td>domestic_available_qty</td><td>DECIMAL(18,2)</td><td>国内可用库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>current_total_qty</td><td>DECIMAL(18,2)</td><td>当前总库存</td></tr>
+          <tr><td>sales_7d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去7天日销</td></tr>
+          <tr><td>sales_30d_daily_qty</td><td>DECIMAL(18,4)</td><td>过去30天日销</td></tr>
+          <tr><td>weighted_daily_sales</td><td>DECIMAL(18,4)</td><td>加权日销</td></tr>
+          <tr><td>month_1_forecast_daily</td><td>DECIMAL(18,4)</td><td>第一月日均预估</td></tr>
+          <tr><td>month_2_forecast_daily</td><td>DECIMAL(18,4)</td><td>第二月日均预估</td></tr>
+          <tr><td>month_3_forecast_daily</td><td>DECIMAL(18,4)</td><td>第三月日均预估</td></tr>
+          <tr><td>month_4_forecast_daily</td><td>DECIMAL(18,4)</td><td>第四月日均预估</td></tr>
+          <tr><td>required_total_qty</td><td>DECIMAL(18,2)</td><td>所需总库存</td></tr>
+          <tr><td>purchase_need_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量</td></tr>
+          <tr><td>purchase_need_actual_qty</td><td>DECIMAL(18,2)</td><td>需要采购的数量-实际</td></tr>
+          <tr><td>stockout_days</td><td>DECIMAL(18,2)</td><td>预计要断货天数</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="tbl-ads-stock-check-spu">5.6 ads_inventory_stock_check_spu_1d</h3>
+    <p>库存检查-SPU 视图 ADS 表，基于 <code>dws_inventory_stock_check_spu_1d</code> 生成，字段口径与库存检查 SPU 视图一致。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU名称</td></tr>
+          <tr><td>purchase_qty</td><td>DECIMAL(18,2)</td><td>采购量</td></tr>
+          <tr><td>delivery_in_transit_qty</td><td>DECIMAL(18,2)</td><td>交货在途库存</td></tr>
+          <tr><td>domestic_inventory_qty</td><td>DECIMAL(18,2)</td><td>国内库存</td></tr>
+          <tr><td>warehouse_domestic_1_qty</td><td>DECIMAL(18,2)</td><td>国内仓-1</td></tr>
+          <tr><td>warehouse_domestic_2_qty</td><td>DECIMAL(18,2)</td><td>国内仓-2</td></tr>
+          <tr><td>warehouse_domestic_3_qty</td><td>DECIMAL(18,2)</td><td>国内仓-3</td></tr>
+          <tr><td>third_party_in_transit_qty</td><td>DECIMAL(18,2)</td><td>三方仓在途量</td></tr>
+          <tr><td>warehouse_guchang_1_qty</td><td>DECIMAL(18,2)</td><td>谷仓-1</td></tr>
+          <tr><td>warehouse_guchang_2_qty</td><td>DECIMAL(18,2)</td><td>谷仓-2</td></tr>
+          <tr><td>warehouse_guchang_3_qty</td><td>DECIMAL(18,2)</td><td>谷仓-3</td></tr>
+          <tr><td>fbt_in_transit_qty</td><td>DECIMAL(18,2)</td><td>FBT在途量</td></tr>
+          <tr><td>fbt_available_qty</td><td>DECIMAL(18,2)</td><td>FBT可用量</td></tr>
+          <tr><td>warehouse_winit_usky3_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-1</td></tr>
+          <tr><td>warehouse_winit_usky3_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-2</td></tr>
+          <tr><td>warehouse_winit_usky3_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USKY3-3</td></tr>
+          <tr><td>warehouse_winit_uswc_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-1</td></tr>
+          <tr><td>warehouse_winit_uswc_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-2</td></tr>
+          <tr><td>warehouse_winit_uswc_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC-3</td></tr>
+          <tr><td>warehouse_winit_uswc2_1_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-1</td></tr>
+          <tr><td>warehouse_winit_uswc2_2_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-2</td></tr>
+          <tr><td>warehouse_winit_uswc2_3_qty</td><td>DECIMAL(18,2)</td><td>万邑通USWC2-3</td></tr>
+          <tr><td>warehouse_fbt_1_qty</td><td>DECIMAL(18,2)</td><td>FBT-1</td></tr>
+          <tr><td>warehouse_fbt_2_qty</td><td>DECIMAL(18,2)</td><td>FBT-2</td></tr>
+          <tr><td>warehouse_fbt_3_qty</td><td>DECIMAL(18,2)</td><td>FBT-3</td></tr>
+          <tr><td>warehouse_fba_1_qty</td><td>DECIMAL(18,2)</td><td>FBA-1</td></tr>
+          <tr><td>warehouse_fba_2_qty</td><td>DECIMAL(18,2)</td><td>FBA-2</td></tr>
+          <tr><td>warehouse_fba_3_qty</td><td>DECIMAL(18,2)</td><td>FBA-3</td></tr>
+          <tr><td>oversea_available_qty</td><td>DECIMAL(18,2)</td><td>海外可用库存</td></tr>
+          <tr><td>oversea_in_transit_qty</td><td>DECIMAL(18,2)</td><td>海外在途库存</td></tr>
+          <tr><td>total_in_transit_qty</td><td>DECIMAL(18,2)</td><td>总在途库存</td></tr>
+          <tr><td>total_available_qty</td><td>DECIMAL(18,2)</td><td>总可用库存</td></tr>
+          <tr><td>total_inventory_qty</td><td>DECIMAL(18,2)</td><td>总库存</td></tr>
+          <tr><td>total_inventory_1_qty</td><td>DECIMAL(18,2)</td><td>总库存-1</td></tr>
+          <tr><td>total_inventory_2_qty</td><td>DECIMAL(18,2)</td><td>总库存-2</td></tr>
+          <tr><td>inventory_diff_qty</td><td>DECIMAL(18,2)</td><td>库存差异</td></tr>
+          <tr><td>warehouse_uk_return_1_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-1</td></tr>
+          <tr><td>warehouse_uk_return_2_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-2</td></tr>
+          <tr><td>warehouse_uk_return_3_qty</td><td>DECIMAL(18,2)</td><td>英国退货仓-3</td></tr>
+          <tr><td>inventory_status_code</td><td>VARCHAR(50)</td><td>库存状态编码</td></tr>
+          <tr><td>inventory_status_name</td><td>VARCHAR(100)</td><td>库存状态名称</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.7 命名调整说明</h3>
+    <ul>
+      <li><strong>ODS 层</strong>：增加库存模块前缀，统一改为 <code>ods_{模块}_{数据源}_{业务含义}_{增长类型}</code>，并按日全量快照口径使用 <code>df</code>。</li>
+      <li><strong>DWD 层</strong>：统一改为 <code>dwd_{业务域}_{事实类型}_{业务含义}_{时间粒度}</code>。</li>
+      <li><strong>DWD 层</strong>：按需求拆成两条链路，库存检查与缺补货分别建表，不再共用一张统一快照表。</li>
+      <li><strong>DWS 层</strong>：按需求与视图继续拆分，库存检查两张、缺补货四张，避免字段强行整合。</li>
+      <li><strong>ADS 层</strong>：按应用场景和具体视图拆表，不再使用一个总表承接所有缺补货视图。</li>
+      <li><strong>字段命名</strong>：店铺统一使用 <code>store_*</code>，系统时间统一使用 <code>insert_time</code>，状态字段统一为“编码 + 名称”双字段。</li>
+    </ul>
+
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="技术方案.html">技术方案</a> &nbsp; <a href="接口文档.html">接口文档</a></p>
+  </div>
+</body>
+</html>

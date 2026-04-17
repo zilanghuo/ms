@@ -10,8 +10,8 @@
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
     * { box-sizing: border-box; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
-    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 1.5rem 2rem 2.5rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1960px; min-height: calc(100vh - 3rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
     h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
     h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
     h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
@@ -21,7 +21,7 @@
     strong { color: var(--text); }
     hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
     .table-wrap { overflow-x: auto; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 720px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 1520px; }
     th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
     th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
     tr:hover td { background: #f9fafb; }
@@ -30,7 +30,7 @@
     .req-metrics { display: inline-table; margin: 0.5rem 0 1rem; font-size: 0.9rem; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
     .req-metrics th { background: #f1f5f9; padding: 0.35rem 0.75rem; width: 5em; text-align: left; }
     .req-metrics td { padding: 0.35rem 0.75rem; }
-    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 360px; }
+    .tbl-formula { font-size: 0.75rem; white-space: normal; word-break: break-all; max-width: 520px; }
     .todo-note { background: #fefce8; border: 1px solid #fde68a; color: #854d0e; padding: 0.8rem 1rem; border-radius: 6px; margin: 1rem 0; }
     .image-gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
     .image-card { border: 1px solid var(--border); border-radius: 8px; background: #fff; overflow: hidden; }
@@ -71,7 +71,7 @@
       <li>最终输出 SPU 冗余库存检视看板，展示 SPU 当前库存与未来库存消化趋势。</li>
     </ol>
 
-    <h3>1.3 映射表（SPU库存冗余检视）</h3>
+    <h3>1.3 单一合并表（SPU库存冗余检视）</h3>
     <ul>
       <li><strong>最终数据表</strong>：<code>SPU库存冗余检视</code></li>
       <li><strong>规则</strong>：<strong>条件/需求公式为空</strong> → 该目标字段为<strong>映射</strong>；<strong>条件/需求公式有值</strong> → 该目标字段为<strong>计算</strong>。</li>
@@ -85,94 +85,34 @@
           <tr>
             <th>类型</th>
             <th>目标字段</th>
-            <th>计算逻辑（A列）</th>
-            <th>关联字段</th>
             <th>源数据表</th>
             <th>源字段名称</th>
+            <th>关联字段</th>
+            <th>模板公式 / 需求公式</th>
+            <th>业务逻辑拆解</th>
+            <th>字段用途 / 展示位置</th>
             <th>备注 / 可落地情况</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>映射</td><td>SPU</td><td class="tbl-formula">—</td><td>—</td><td>TIKTOK-在线商品</td><td>SPU</td><td>基础维度字段；依赖未登记源数据</td></tr>
-          <tr><td>汇总</td><td>加权日销</td><td class="tbl-formula">总计同一个 SPU 下的发货+补货总和的加权日销</td><td>SPU库存冗余检视的“SPU” = 发货+补货总和的“SPU”</td><td>发货+补货总和</td><td>加权日销</td><td>由需求二底表按 SPU 聚合得到</td></tr>
-          <tr><td>汇总</td><td>现有库存</td><td class="tbl-formula">总计同一个 SPU 下的发货+补货总和的总可用库存</td><td>SPU库存冗余检视的“SPU” = 发货+补货总和的“SPU”</td><td>发货+补货总和</td><td>总可用库存</td><td>由需求二底表按 SPU 聚合得到</td></tr>
-          <tr><td>映射</td><td>第一个月系数</td><td class="tbl-formula">—</td><td>—</td><td>新建飞书表格维护</td><td>第一个月系数</td><td>外部维护字段；当前未形成标准数据源</td></tr>
-          <tr><td>映射</td><td>第二个月系数</td><td class="tbl-formula">—</td><td>—</td><td>新建飞书表格维护</td><td>第二个月系数</td><td>外部维护字段；当前未形成标准数据源</td></tr>
-          <tr><td>映射</td><td>第三个月系数</td><td class="tbl-formula">—</td><td>—</td><td>新建飞书表格维护</td><td>第三个月系数</td><td>外部维护字段；当前未形成标准数据源</td></tr>
-          <tr><td>映射</td><td>第四个月系数</td><td class="tbl-formula">—</td><td>—</td><td>新建飞书表格维护</td><td>第四个月系数</td><td>外部维护字段；当前未形成标准数据源</td></tr>
-          <tr><td>计算</td><td>第一个月预估日均</td><td class="tbl-formula">第一个月预估日均 = 第一个月系数 × 加权日销</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第二个月预估日均</td><td class="tbl-formula">第二个月预估日均 = 第二个月系数 × 加权日销</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第三个月预估日均</td><td class="tbl-formula">第三个月预估日均 = 第三个月系数 × 加权日销</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第四个月预估日均</td><td class="tbl-formula">第四个月预估日均 = 第四个月系数 × 加权日销</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第一个月底的冗余量</td><td class="tbl-formula">现有库存 - 第一个月预估日均 × 当月剩余天数</td><td>—</td><td>—</td><td>—</td><td>纯计算字段；当月剩余天数口径需与业务日期保持一致</td></tr>
-          <tr><td>计算</td><td>第二个月底冗余量</td><td class="tbl-formula">现有库存 - 第一个月预估消耗 - 第二个月预估消耗</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第三个月底冗余量</td><td class="tbl-formula">现有库存 - 前三个月累计预估消耗</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-          <tr><td>计算</td><td>第四个月底冗余量</td><td class="tbl-formula">现有库存 - 前四个月累计预估消耗</td><td>—</td><td>—</td><td>—</td><td>纯计算字段</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3>1.3.1 模板公式拆解（SPU库存冗余检视）</h3>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>字段</th>
-            <th>模板公式</th>
-            <th>业务逻辑</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>加权日销</td>
-            <td class="tbl-formula"><code>=SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!O:O)</code></td>
-            <td>按 <code>SPU</code> 从 <code>发货+补货总和</code> 底表汇总所有 SKU 的 <code>加权日销</code>，得到 SPU 粒度总加权日销。</td>
-          </tr>
-          <tr>
-            <td>现有库存</td>
-            <td class="tbl-formula"><code>=SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!K:K) + SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!J:J)</code></td>
-            <td>按 <code>SPU</code> 汇总底表中的库存字段。模板按两列库存做加总，本质口径是把该 SPU 下所有 SKU 的现有库存统一汇总后，得到 SPU 粒度库存总量。</td>
-          </tr>
-          <tr>
-            <td>第一个月预估日均</td>
-            <td class="tbl-formula"><code>=加权日销 × 第一个月系数</code></td>
-            <td>用 SPU 粒度加权日销乘以第一个月固定系数，得到第一个月预估日均销量。</td>
-          </tr>
-          <tr>
-            <td>第二个月预估日均</td>
-            <td class="tbl-formula"><code>=加权日销 × 第二个月系数</code></td>
-            <td>用同一 SPU 的加权日销乘以第二个月固定系数，得到第二个月预估日均销量。</td>
-          </tr>
-          <tr>
-            <td>第三个月预估日均</td>
-            <td class="tbl-formula"><code>=加权日销 × 第三个月系数</code></td>
-            <td>用同一 SPU 的加权日销乘以第三个月固定系数，得到第三个月预估日均销量。</td>
-          </tr>
-          <tr>
-            <td>第四个月预估日均</td>
-            <td class="tbl-formula"><code>=加权日销 × 第四个月系数</code></td>
-            <td>用同一 SPU 的加权日销乘以第四个月固定系数，得到第四个月预估日均销量。</td>
-          </tr>
-          <tr>
-            <td>第一个月底的冗余量</td>
-            <td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7, 0)</code></td>
-            <td>先用现有库存减去第一个月剩余周期内的预估消耗。模板中第一个月按 <code>7</code> 天计算，再四舍五入取整。</td>
-          </tr>
-          <tr>
-            <td>第二个月底冗余量</td>
-            <td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30, 0)</code></td>
-            <td>在第一个月底冗余量基础上，继续扣减第二个月整月预估消耗，模板中第二个月按 <code>30</code> 天计算。</td>
-          </tr>
-          <tr>
-            <td>第三个月底冗余量</td>
-            <td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30 - 第三个月预估日均 × 31, 0)</code></td>
-            <td>继续扣减第三个月整月预估消耗，模板中第三个月按 <code>31</code> 天计算。</td>
-          </tr>
-          <tr>
-            <td>第四个月底冗余量</td>
-            <td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30 - 第三个月预估日均 × 31 - 第四个月预估日均 × 30, 0)</code></td>
-            <td>继续扣减第四个月整月预估消耗，模板中第四个月按 <code>30</code> 天计算，结果作为四个月末库存冗余量。</td>
-          </tr>
+          <tr><td>映射</td><td>时间</td><td>系统日期 / ADS分区</td><td>统计日期</td><td>—</td><td class="tbl-formula">默认取当前统计日期 / 数据分区日期</td><td>作为 SPU 看板的统计日期字段使用。</td><td>看板展示字段</td><td>建议统一使用看板统计日期口径</td></tr>
+          <tr><td>映射</td><td>站点</td><td>发货+补货总和</td><td>站点</td><td>SPU库存冗余检视的“SPU” = 发货+补货总和的“SPU”</td><td class="tbl-formula">默认取当前 SPU 所属站点</td><td>按 SPU 聚合时保留站点口径，用于前端筛选与展示。</td><td>看板筛选字段</td><td>由需求二底表按 SPU 聚合后直接复用</td></tr>
+          <tr><td>映射</td><td>SPU</td><td>TIKTOK-在线商品</td><td>SPU</td><td>—</td><td class="tbl-formula">—</td><td>SPU 粒度主维度字段。</td><td>看板主键字段</td><td>基础维度字段，依赖商品主数据</td></tr>
+          <tr><td>映射</td><td>SPU名称</td><td>TIKTOK-在线商品</td><td>SPU名称 / 产品名称</td><td>SPU库存冗余检视的“SPU” = 在线商品范围的“SPU”</td><td class="tbl-formula">按 SPU 映射商品名称 / SPU名称</td><td>补齐 SPU 展示名称，便于原型直接呈现。</td><td>看板展示字段</td><td>若源表缺少 SPU名称，可由商品主数据补充</td></tr>
+          <tr><td>汇总</td><td>加权日销</td><td>发货+补货总和</td><td>加权日销</td><td>SPU库存冗余检视的“SPU” = 发货+补货总和的“SPU”</td><td class="tbl-formula"><code>=SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!O:O)</code></td><td>按 <code>SPU</code> 汇总所有 SKU 的加权日销，得到 SPU 粒度总加权日销。</td><td>测算基础字段</td><td>由需求二底表按 SPU 聚合得到</td></tr>
+          <tr><td>汇总</td><td>现有库存</td><td>发货+补货总和</td><td>总可用库存</td><td>SPU库存冗余检视的“SPU” = 发货+补货总和的“SPU”</td><td class="tbl-formula"><code>=SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!K:K) + SUMIF('发货+补货总和'!A:A, 当前SPU, '发货+补货总和'!J:J)</code></td><td>按 <code>SPU</code> 汇总底表库存字段，形成 SPU 粒度库存总量。</td><td>测算基础字段</td><td>由需求二底表按 SPU 聚合得到</td></tr>
+          <tr><td>映射</td><td>第一个月系数</td><td>新建飞书表格维护</td><td>第一个月系数</td><td>—</td><td class="tbl-formula">—</td><td>固定配置项，用于第一个月销量预测。</td><td>配置类字段</td><td>外部维护字段，当前未形成标准数据源</td></tr>
+          <tr><td>映射</td><td>第二个月系数</td><td>新建飞书表格维护</td><td>第二个月系数</td><td>—</td><td class="tbl-formula">—</td><td>固定配置项，用于第二个月销量预测。</td><td>配置类字段</td><td>外部维护字段，当前未形成标准数据源</td></tr>
+          <tr><td>映射</td><td>第三个月系数</td><td>新建飞书表格维护</td><td>第三个月系数</td><td>—</td><td class="tbl-formula">—</td><td>固定配置项，用于第三个月销量预测。</td><td>配置类字段</td><td>外部维护字段，当前未形成标准数据源</td></tr>
+          <tr><td>映射</td><td>第四个月系数</td><td>新建飞书表格维护</td><td>第四个月系数</td><td>—</td><td class="tbl-formula">—</td><td>固定配置项，用于第四个月销量预测。</td><td>配置类字段</td><td>外部维护字段，当前未形成标准数据源</td></tr>
+          <tr><td>计算</td><td>第一个月预估日均</td><td>—</td><td>—</td><td>依赖：第一个月系数、加权日销</td><td class="tbl-formula"><code>=加权日销 × 第一个月系数</code></td><td>用 SPU 粒度加权日销乘以第一个月固定系数，得到第一个月预估日均销量。</td><td>预测结果字段</td><td>计算字段，直接服务后续冗余测算</td></tr>
+          <tr><td>计算</td><td>第二个月预估日均</td><td>—</td><td>—</td><td>依赖：第二个月系数、加权日销</td><td class="tbl-formula"><code>=加权日销 × 第二个月系数</code></td><td>用同一 SPU 的加权日销乘以第二个月固定系数，得到第二个月预估日均销量。</td><td>预测结果字段</td><td>计算字段，直接服务后续冗余测算</td></tr>
+          <tr><td>计算</td><td>第三个月预估日均</td><td>—</td><td>—</td><td>依赖：第三个月系数、加权日销</td><td class="tbl-formula"><code>=加权日销 × 第三个月系数</code></td><td>用同一 SPU 的加权日销乘以第三个月固定系数，得到第三个月预估日均销量。</td><td>预测结果字段</td><td>计算字段，直接服务后续冗余测算</td></tr>
+          <tr><td>计算</td><td>第四个月预估日均</td><td>—</td><td>—</td><td>依赖：第四个月系数、加权日销</td><td class="tbl-formula"><code>=加权日销 × 第四个月系数</code></td><td>用同一 SPU 的加权日销乘以第四个月固定系数，得到第四个月预估日均销量。</td><td>预测结果字段</td><td>计算字段，直接服务后续冗余测算</td></tr>
+          <tr><td>计算</td><td>第一个月底的冗余量</td><td>—</td><td>—</td><td>依赖：现有库存、第一个月预估日均</td><td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7, 0)</code></td><td>先用现有库存减去第一个月剩余周期内的预估消耗。</td><td>结果展示字段</td><td>计算字段，当月剩余天数口径需与业务日期保持一致</td></tr>
+          <tr><td>计算</td><td>第二个月底冗余量</td><td>—</td><td>—</td><td>依赖：现有库存、前两月预估日均</td><td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30, 0)</code></td><td>在第一个月底冗余量基础上，继续扣减第二个月整月预估消耗。</td><td>结果展示字段</td><td>计算字段，直接用于冗余结果展示</td></tr>
+          <tr><td>计算</td><td>第三个月底冗余量</td><td>—</td><td>—</td><td>依赖：现有库存、前三月预估日均</td><td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30 - 第三个月预估日均 × 31, 0)</code></td><td>继续扣减第三个月整月预估消耗。</td><td>结果展示字段</td><td>计算字段，直接用于冗余结果展示</td></tr>
+          <tr><td>计算</td><td>第四个月底冗余量</td><td>—</td><td>—</td><td>依赖：现有库存、前四月预估日均</td><td class="tbl-formula"><code>=ROUND(现有库存 - 第一个月预估日均 × 7 - 第二个月预估日均 × 30 - 第三个月预估日均 × 31 - 第四个月预估日均 × 30, 0)</code></td><td>继续扣减第四个月整月预估消耗，结果作为四个月末库存冗余量。</td><td>结果展示字段</td><td>计算字段，直接用于冗余结果展示</td></tr>
         </tbody>
       </table>
     </div>
@@ -208,7 +148,7 @@
       <li>最终输出既能支撑补货逻辑，也能支撑发货逻辑的 SKU 粒度基础结果表。</li>
     </ol>
 
-    <h3>2.3 映射表（发货+补货总和）</h3>
+    <h3>2.3 单一合并表（发货+补货总和）</h3>
     <ul>
       <li><strong>最终数据表</strong>：<code>发货+补货总和</code></li>
       <li><strong>规则</strong>：映射表中的 <code>补货</code> / <code>发货</code> 列用于标记该字段归属于哪个动作场景；两列均为 <code>R</code> 的字段可视为公共底表字段；若 Excel 中 <code>最终数据表</code> 为空，则默认按 <code>补货+发货总和</code> 处理。</li>
@@ -222,196 +162,65 @@
           <tr>
             <th>类型</th>
             <th>目标字段</th>
-            <th>计算逻辑（A列）</th>
-            <th>关联字段</th>
             <th>源数据表</th>
             <th>源字段名称</th>
+            <th>关联字段</th>
+            <th>模板公式 / 需求公式</th>
+            <th>业务逻辑拆解</th>
+            <th>字段用途 / 展示位置</th>
             <th>备注 / 可落地情况</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>映射</td><td>SPU</td><td class="tbl-formula">—</td><td>—</td><td>TIKTOK-在线商品</td><td>SPU</td><td>公共字段；补货、发货均使用</td></tr>
-          <tr><td>映射</td><td>SKU</td><td class="tbl-formula">—</td><td>—</td><td>TIKTOK-在线商品</td><td>sku</td><td>公共字段；补货、发货均使用</td></tr>
-          <tr><td>映射</td><td>SKU中文名称</td><td class="tbl-formula">—</td><td>发货+补货总和的“SKU” = TIKTOK-在线商品的“SKU”</td><td>TIKTOK-在线商品</td><td>产品名称</td><td>公共字段</td></tr>
-          <tr><td>映射</td><td>FBT库存</td><td class="tbl-formula">按 SKU 汇总 FBT 总库存</td><td>发货+补货总和的“SKU” = FBT库存导出的“SKU”</td><td>FBT库存导出</td><td>FBT总库存列</td><td>模板口径中的 FBT 总库存字段</td></tr>
-          <tr><td>映射</td><td>FBT库存-在途</td><td class="tbl-formula">按 SKU 汇总 FBT 在途库存</td><td>发货+补货总和的“SKU” = FBT库存导出的“SKU”</td><td>FBT库存导出</td><td>FBT在途列</td><td>模板明确使用该字段</td></tr>
-          <tr><td>筛选后映射</td><td>三方仓在库库存</td><td class="tbl-formula">按 SKU 汇总海外库存数据源中的三方仓在库库存</td><td>发货+补货总和的“SKU” = 海外库存数据源的“SKU”</td><td>海外库存数据源</td><td>三方仓在库列</td><td>模板口径字段</td></tr>
-          <tr><td>筛选后映射</td><td>采购在途库存</td><td class="tbl-formula">按 SKU 汇总国内库存数据源中的采购在途库存</td><td>发货+补货总和的“SKU” = 国内库存数据源的“SKU”</td><td>国内库存数据源</td><td>采购在途列</td><td>模板口径字段</td></tr>
-          <tr><td>映射</td><td>FBA库存</td><td class="tbl-formula">按 SKU 从 FBA 国内库存映射表查值，查不到按 0</td><td>发货+补货总和的“SKU” = FBA国内库存的“SKU”</td><td>FBA国内库存</td><td>库存值</td><td>模板明确通过 VLOOKUP 获取</td></tr>
-          <tr><td>筛选后映射</td><td>国内在库库存</td><td class="tbl-formula">按 SKU 汇总国内库存数据源中的国内在库库存</td><td>发货+补货总和的“SKU” = 国内库存数据源的“SKU”</td><td>国内库存数据源</td><td>国内可用库存列</td><td>公共字段；补货、发货均使用</td></tr>
-          <tr><td>计算</td><td>海外仓可用库存</td><td class="tbl-formula">海外仓可用库存 = FBT库存 - FBT库存-在途 + 三方仓在库库存 + FBA库存</td><td>—</td><td>—</td><td>—</td><td>模板实际使用的海外库存口径</td></tr>
-          <tr><td>计算</td><td>当前总的库存</td><td class="tbl-formula">当前总的库存 = FBT库存 + 三方仓在库库存 + 采购在途库存 + 国内在库库存 + FBA库存</td><td>—</td><td>—</td><td>—</td><td>模板实际使用的总库存口径</td></tr>
-          <tr><td>筛选后映射</td><td>过去7天日销</td><td class="tbl-formula">按前两天的前 7 天窗口聚合销量 / 7</td><td>发货+补货总和的“SKU” = 多平台销售表现的“SKU”</td><td>多平台销售表现</td><td>销量</td><td>公共字段</td></tr>
-          <tr><td>筛选后映射</td><td>过去30天日销</td><td class="tbl-formula">按前两天的前 30 天窗口聚合销量 / 30</td><td>发货+补货总和的“SKU” = 多平台销售表现的“SKU”</td><td>多平台销售表现</td><td>销量</td><td>公共字段</td></tr>
-          <tr><td>计算</td><td>加权日销</td><td class="tbl-formula">加权日销 = 0.7 × 过去7天日销 + 0.3 × 过去30天日销</td><td>—</td><td>—</td><td>—</td><td>模板实际使用的 7:3 权重</td></tr>
-          <tr><td>计算</td><td>第一月日均预估</td><td class="tbl-formula">第一月日均预估 = 加权日销</td><td>—</td><td>—</td><td>—</td><td>模板中第一月不再乘额外系数</td></tr>
-          <tr><td>计算</td><td>第二月日均预估</td><td class="tbl-formula">第二月日均预估 = 过去7天日销 × 1.06</td><td>—</td><td>—</td><td>—</td><td>模板固定系数</td></tr>
-          <tr><td>计算</td><td>第三月日均预估</td><td class="tbl-formula">第三月日均预估 = 过去7天日销 × 0.71</td><td>—</td><td>—</td><td>—</td><td>模板固定系数</td></tr>
-          <tr><td>计算</td><td>第四月日均预估</td><td class="tbl-formula">第四月日均预估 = 过去7天日销 × 0.56</td><td>—</td><td>—</td><td>—</td><td>模板固定系数</td></tr>
-          <tr><td>计算</td><td>所需的总库存</td><td class="tbl-formula">所需的总库存 = 第一月日均预估 × 21 + 第二月日均预估 × 30 + 第三月日均预估 × 31 + 第四月日均预估 × 8</td><td>—</td><td>—</td><td>—</td><td>模板采用 21/30/31/8 天窗口累计需求</td></tr>
-          <tr><td>计算</td><td>状态</td><td class="tbl-formula">状态 = IF(海外仓可用库存 &lt;= 0, "海外断货", "还可以卖" &amp; 预计要断货天数 &amp; "天")</td><td>—</td><td>—</td><td>—</td><td>按海外仓可用库存是否小于等于 0 判断；否则展示剩余可售天数</td></tr>
-          <tr><td>计算</td><td>需要采购的数量</td><td class="tbl-formula">需要采购的数量 = 当前总的库存 - 所需的总库存</td><td>—</td><td>—</td><td>—</td><td>若为负，代表库存不足</td></tr>
-          <tr><td>计算</td><td>需要采购的数量-实际</td><td class="tbl-formula">需要采购的数量-实际 = IF(需要采购的数量 &lt; 0, -需要采购的数量, 0)</td><td>—</td><td>—</td><td>—</td><td>将负缺口转换成实际采购量</td></tr>
-          <tr><td>计算</td><td>补货建议值</td><td class="tbl-formula">补货建议值 = ROUND(需要采购的数量-实际 × 0.6, 0)</td><td>—</td><td>—</td><td>—</td><td>模板中的调整后采购建议量</td></tr>
-          <tr><td>计算</td><td>预计要断货天数</td><td class="tbl-formula">预计要断货天数 = IF(加权日销 &gt; 0, ROUND(海外仓可用库存 / 加权日销, 0), "N/A")</td><td>—</td><td>—</td><td>—</td><td>补货、发货均使用</td></tr>
-          <tr><td>计算</td><td>需要发货的数量</td><td class="tbl-formula">需要发货的数量 = IF(国内在库库存 &gt; 0, MIN(国内在库库存, 所需的总库存 - 海外仓可用库存), 0)</td><td>—</td><td>—</td><td>—</td><td>发货量同时受国内库存与海外缺口约束</td></tr>
-          <tr><td>计算</td><td>海派到的时间要的库存</td><td class="tbl-formula">海派到的时间要的库存 = ROUND(18 × 第一月日均预估 + 20 × 第二月日均预估, 0)</td><td>—</td><td>—</td><td>—</td><td>模板采用 18 + 20 天窗口</td></tr>
-          <tr><td>计算</td><td>在线还缺的数量</td><td class="tbl-formula">在线还缺的数量 = 海派到的时间要的库存 - (FBT库存 - FBT库存-在途) - 三方仓在库库存 - FBA库存</td><td>—</td><td>—</td><td>—</td><td>海派到货前的在线库存缺口</td></tr>
-          <tr><td>计算</td><td>可调拨</td><td class="tbl-formula">可调拨 = 国内在库库存 - 在线还缺的数量</td><td>—</td><td>—</td><td>—</td><td>可用于调拨或发货的国内余量</td></tr>
-          <tr><td>计算</td><td>FBT实际发货量</td><td class="tbl-formula">FBT实际发货量 = MAX(0, MIN(需要发货的数量, IF(在线还缺的数量 &lt; 0, 需要发货的数量, 可调拨)))</td><td>—</td><td>—</td><td>—</td><td>最终实际发货建议量</td></tr>
+          <tr><td>映射</td><td>时间</td><td>系统日期 / ADS分区</td><td>统计日期</td><td>—</td><td class="tbl-formula">默认取当前统计日期 / 数据分区日期</td><td>作为统一底表统计日期字段。</td><td>原型固定列</td><td>建议统一使用看板统计日期</td></tr>
+          <tr><td>映射</td><td>站点</td><td>TIKTOK-在线商品</td><td>站点</td><td>发货+补货总和的“SKU” = TIKTOK-在线商品的“SKU”</td><td class="tbl-formula">按 SKU 对应在线商品所属站点映射</td><td>补齐 SKU 所属站点，用于筛选与展示。</td><td>原型固定列</td><td>补货、发货均使用</td></tr>
+          <tr><td>映射</td><td>SPU</td><td>TIKTOK-在线商品</td><td>SPU</td><td>发货+补货总和的“SKU” = TIKTOK-在线商品的“SKU”</td><td class="tbl-formula">直接映射商品主数据中的 SPU</td><td>保留商品归属维度。</td><td>原型固定列</td><td>公共字段；补货、发货均使用</td></tr>
+          <tr><td>映射</td><td>SKU</td><td>TIKTOK-在线商品</td><td>SKU</td><td>发货+补货总和的“SKU” = TIKTOK-在线商品的“SKU”</td><td class="tbl-formula">直接映射商品主数据中的 SKU</td><td>作为统一底表主键字段。</td><td>原型固定列</td><td>公共字段；补货、发货均使用</td></tr>
+          <tr><td>映射</td><td>SKU中文名称</td><td>TIKTOK-在线商品</td><td>产品名称</td><td>发货+补货总和的“SKU” = TIKTOK-在线商品的“SKU”</td><td class="tbl-formula">直接映射商品名称</td><td>便于业务识别具体款式和尺码。</td><td>原型固定列</td><td>公共字段</td></tr>
+          <tr><td>映射</td><td>FBT总库存</td><td>TikTok.FBT库存-自定义导出</td><td>可用量、在途量</td><td>发货+补货总和的“SKU” = TikTok.FBT库存-自定义导出的“SKU”</td><td class="tbl-formula">FBT总库存 = FBT库存-可用 + FBT库存-在途</td><td>汇总 FBT 可用量和在途量，形成平台仓总库存。</td><td>底表展示字段</td><td>原型字段名使用 FBT总库存</td></tr>
+          <tr><td>映射</td><td>FBT库存-可用</td><td>TikTok.FBT库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = TikTok.FBT库存-自定义导出的“SKU”</td><td class="tbl-formula">直接取 FBT 可用量</td><td>体现当前可直接销售或分配的 FBT 库存。</td><td>底表展示字段</td><td>发货视图直接使用</td></tr>
+          <tr><td>映射</td><td>三方仓总库存</td><td>站点产品库存-自定义导出</td><td>可用量、在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”</td><td class="tbl-formula">三方仓总库存 = 三方仓可用库存 + 三方仓在途库存</td><td>汇总三方仓可用与在途，形成三方仓整体库存。</td><td>底表展示字段</td><td>原型字段已展示</td></tr>
+          <tr><td>筛选后映射</td><td>三方仓可用库存</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库在三方仓范围内</td><td class="tbl-formula">按指定海外仓范围汇总可用量</td><td>体现三方仓可立即调配库存。</td><td>底表展示字段</td><td>发货视图直接使用</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USKY3可用量</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USKY3_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总可用量</td><td>定位 USKY3 仓可用库存。</td><td>仓别可用量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USWC可用量</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USWC_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总可用量</td><td>定位 USWC 仓可用库存。</td><td>仓别可用量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USW2可用量</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USWC2_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总可用量</td><td>定位 USW2 仓可用库存。</td><td>仓别可用量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>谷仓可用量</td><td>站点产品库存-自定义导出</td><td>可用量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 谷仓相关仓</td><td class="tbl-formula">按仓别筛选后汇总可用量</td><td>定位谷仓可用库存。</td><td>仓别可用量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>三方仓在途库存</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库在三方仓范围内</td><td class="tbl-formula">按指定海外仓范围汇总在途量</td><td>体现三方仓整体在途库存。</td><td>底表展示字段</td><td>原型字段已展示</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USKY3在途量</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USKY3_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总在途量</td><td>定位 USKY3 仓在途数量。</td><td>仓别在途量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USWC在途量</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USWC_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总在途量</td><td>定位 USWC 仓在途数量。</td><td>仓别在途量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>万邑通USW2在途量</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 万邑通:USWC2_Warehouse</td><td class="tbl-formula">按仓别筛选后汇总在途量</td><td>定位 USW2 仓在途数量。</td><td>仓别在途量明细</td><td>原型展示字段</td></tr>
+          <tr><td>筛选后映射</td><td>谷仓在途量</td><td>站点产品库存-自定义导出</td><td>在途量</td><td>发货+补货总和的“SKU” = 站点产品库存-自定义导出的“SKU”，且仓库 = 谷仓相关仓</td><td class="tbl-formula">按仓别筛选后汇总在途量</td><td>定位谷仓在途数量。</td><td>仓别在途量明细</td><td>原型展示字段</td></tr>
+          <tr><td>计算</td><td>海外仓可用总库存</td><td>发货+补货总和</td><td>FBT库存-可用、三方仓可用库存、FBA库存（空着）</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">FBT库存-可用 + 三方仓可用库存 + FBA库存</td><td>汇总海外端可立刻使用的库存。</td><td>测算基础字段</td><td>状态字段直接引用</td></tr>
+          <tr><td>筛选后映射</td><td>国内可用库存</td><td>站点产品库存-自定义导出</td><td>国内可用库存</td><td>发货+补货总和的“SKU” = 国内库存数据源的“SKU”</td><td class="tbl-formula">按国内仓范围汇总国内可用库存</td><td>体现当前国内可立刻出库的库存。</td><td>测算基础字段</td><td>补货、发货均使用</td></tr>
+          <tr><td>筛选后映射</td><td>采购+交货在途库存</td><td>站点产品库存-自定义导出</td><td>采购在途列、交货在途列</td><td>发货+补货总和的“SKU” = 国内库存数据源的“SKU”</td><td class="tbl-formula">采购在途 + 交货在途库存</td><td>体现采购链路中已在途的国内补货库存。</td><td>测算基础字段</td><td>补货视图直接使用</td></tr>
+          <tr><td>映射</td><td>FBA库存（空着）</td><td>FBA国内库存</td><td>库存值</td><td>发货+补货总和的“SKU” = FBA国内库存的“SKU”</td><td class="tbl-formula">按 SKU 查值，查不到按 0</td><td>补充海外补货相关库存口径。</td><td>底表展示字段</td><td>原型字段命名保留“空着”备注</td></tr>
+          <tr><td>计算</td><td>总可用库存</td><td>发货+补货总和</td><td>海外仓可用总库存、国内可用库存</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">海外仓可用总库存 + 国内可用库存</td><td>汇总国内和海外可用库存后的结果。</td><td>测算基础字段</td><td>需求一按 SPU 汇总时直接使用</td></tr>
+          <tr><td>计算</td><td>当前总的库存</td><td>发货+补货总和</td><td>FBT总库存、三方仓总库存、采购+交货在途库存、国内可用库存、FBA库存（空着）</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">FBT总库存 + 三方仓总库存 + 采购+交货在途库存 + 国内可用库存 + FBA库存</td><td>反映当前所有库存口径汇总结果。</td><td>测算基础字段</td><td>模板实际使用的总库存口径</td></tr>
+          <tr><td>筛选后映射</td><td>过去7天日销</td><td>多平台销售表现</td><td>销量</td><td>发货+补货总和的“SKU” = 多平台销售表现的“SKU”，且日期取前两天的前 7 天</td><td class="tbl-formula">7 天销量汇总 / 7</td><td>反映短周期销量表现。</td><td>测算基础字段</td><td>公共字段</td></tr>
+          <tr><td>筛选后映射</td><td>过去30天日销</td><td>多平台销售表现</td><td>销量</td><td>发货+补货总和的“SKU” = 多平台销售表现的“SKU”，且日期取前两天的前 30 天</td><td class="tbl-formula">30 天销量汇总 / 30</td><td>反映中周期销量表现。</td><td>测算基础字段</td><td>公共字段</td></tr>
+          <tr><td>计算</td><td>加权日销</td><td>发货+补货总和</td><td>过去7天日销、过去30天日销</td><td>依赖统一底表销量字段</td><td class="tbl-formula">0.7 × 过去7天日销 + 0.3 × 过去30天日销</td><td>综合 7 天与 30 天销量后的核心预测底值。</td><td>测算基础字段</td><td>模板实际使用的 7:3 权重</td></tr>
+          <tr><td>计算</td><td>第一月日均预估</td><td>发货+补货总和</td><td>加权日销</td><td>依赖统一底表销量字段</td><td class="tbl-formula">第一月日均预估 = 加权日销</td><td>模板中第一月直接采用加权日销作为预测值。</td><td>预测结果字段</td><td>原型已展示</td></tr>
+          <tr><td>计算</td><td>第二月日均预估</td><td>发货+补货总和</td><td>过去7天日销</td><td>依赖统一底表销量字段</td><td class="tbl-formula">过去7天日销 × 1.06</td><td>用固定系数放大短周期销量，形成第二月预测。</td><td>预测结果字段</td><td>模板固定系数</td></tr>
+          <tr><td>计算</td><td>第三月日均预估</td><td>发货+补货总和</td><td>过去7天日销</td><td>依赖统一底表销量字段</td><td class="tbl-formula">过去7天日销 × 0.71</td><td>用固定系数缩放短周期销量，形成第三月预测。</td><td>预测结果字段</td><td>模板固定系数</td></tr>
+          <tr><td>计算</td><td>第四月日均预估</td><td>发货+补货总和</td><td>过去7天日销</td><td>依赖统一底表销量字段</td><td class="tbl-formula">过去7天日销 × 0.56</td><td>用固定系数缩放短周期销量，形成第四月预测。</td><td>预测结果字段</td><td>模板固定系数</td></tr>
+          <tr><td>计算</td><td>所需的总库存</td><td>发货+补货总和</td><td>各月日均预估</td><td>依赖统一底表预测字段</td><td class="tbl-formula">第一月日均预估 × 21 + 第二月日均预估 × 30 + 第三月日均预估 × 31 + 第四月日均预估 × 8</td><td>按未来 21/30/31/8 天窗口累计库存需求。</td><td>结果展示字段</td><td>模板采用 21/30/31/8 天窗口累计需求</td></tr>
+          <tr><td>计算</td><td>状态</td><td>发货+补货总和</td><td>海外仓可用总库存、预计要断货天数</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">IF(海外仓可用总库存 &lt;= 0, "海外断货", "还可以卖" &amp; 预计要断货天数 &amp; "天")</td><td>按海外仓可用总库存判断是否断货，否则展示剩余可售天数。</td><td>结果展示字段</td><td>补货、发货共用状态描述</td></tr>
+          <tr><td>计算</td><td>需要采购的数量</td><td>发货+补货总和</td><td>当前总的库存、所需的总库存</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">当前总的库存 - 所需的总库存</td><td>先用当前总库存减未来窗口需求，小于 0 代表存在采购缺口。</td><td>结果展示字段</td><td>补货视图直接使用该列</td></tr>
+          <tr><td>计算</td><td>需要采购的数量-实际</td><td>发货+补货总和</td><td>需要采购的数量</td><td>依赖统一底表结果字段</td><td class="tbl-formula">IF(需要采购的数量 &lt; 0, -需要采购的数量, 0)</td><td>将负缺口转换成正向采购量。</td><td>结果展示字段</td><td>补货视图直接使用该列</td></tr>
+          <tr><td>计算</td><td>预计要断货天数</td><td>发货+补货总和</td><td>海外仓可用总库存、加权日销</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">IF(加权日销 &gt; 0, ROUND(海外仓可用总库存 / 加权日销, 0), "N/A")</td><td>反映补货和发货共同使用的断货风险天数。</td><td>结果展示字段</td><td>补货、发货均使用</td></tr>
+          <tr><td>计算</td><td>需要发货的数量-测算</td><td>发货+补货总和</td><td>国内可用库存、所需的总库存、海外仓可用总库存</td><td>依赖统一底表汇总字段</td><td class="tbl-formula">IF(国内可用库存 &gt; 0, MIN(国内可用库存, 所需的总库存 - 海外仓可用总库存), 0)</td><td>先算海外缺口，再受国内库存上限约束，得到建议发货量。</td><td>结果展示字段</td><td>发货量同时受国内库存与海外缺口约束</td></tr>
+          <tr><td>计算</td><td>FBT-实际要发的库存</td><td>发货+补货总和</td><td>需要发货的数量-测算、在线还缺的数量、可调拨</td><td>依赖统一底表结果字段</td><td class="tbl-formula">MAX(0, MIN(需要发货的数量-测算, IF(在线还缺的数量 &lt; 0, 需要发货的数量-测算, 可调拨)))</td><td>在测算发货量基础上叠加在线缺口和可调拨约束，形成最终实际发货建议量。</td><td>结果展示字段</td><td>原型字段名使用“FBT-实际要发的库存”</td></tr>
+          <tr><td>计算</td><td>FBT海派时间</td><td>发货+补货总和</td><td>海派时间规则</td><td>—</td><td class="tbl-formula">按规则取当前周的下周三 + 32 天</td><td>形成发货时效窗口的到货日期。</td><td>辅助信息字段</td><td>发货时效辅助字段，原型已展示</td></tr>
+          <tr><td>计算</td><td>当天时间</td><td>系统时间</td><td>当前日期</td><td>—</td><td class="tbl-formula">TODAY()</td><td>用于与海派时间做时间差计算。</td><td>辅助信息字段</td><td>发货时效辅助字段，原型已展示</td></tr>
+          <tr><td>计算</td><td>海派到的时间内需要的库存</td><td>发货+补货总和</td><td>各月日均预估、FBT海派时间、当天时间</td><td>依赖统一底表预测字段</td><td class="tbl-formula">按 FBT海派时间与当天时间的间隔，结合各月预估日均累计测算</td><td>估算海派到货之前这一段时间内的总库存需求。</td><td>结果展示字段</td><td>模板采用海派时效窗口需求口径</td></tr>
+          <tr><td>计算</td><td>在线还缺的数量</td><td>发货+补货总和</td><td>海派到的时间内需要的库存、海外仓可用总库存</td><td>依赖统一底表结果字段</td><td class="tbl-formula">海派到的时间内需要的库存 - 海外仓可用总库存</td><td>判断海派到货前在线库存仍有多少缺口。</td><td>结果展示字段</td><td>海派到货前的在线库存缺口</td></tr>
+          <tr><td>计算</td><td>可调拨</td><td>发货+补货总和</td><td>国内可用库存、在线还缺的数量</td><td>依赖统一底表结果字段</td><td class="tbl-formula">国内可用库存 - 在线还缺的数量</td><td>测算在满足当前在线缺口后还能调拨的国内余量。</td><td>结果展示字段</td><td>可用于调拨或发货的国内余量</td></tr>
         </tbody>
       </table>
     </div>
 
     <div class="todo-note">
-      当前 Excel 的打钩列可以明确区分“补货字段”“发货字段”和“公共字段”，但个别字段的正式关联键和时间口径仍较粗。例如：<code>SPU库存冗余检视</code> 月系数如何准确关联到 SKU、<code>FBT库存-在途</code> 是否进入正式底表，都建议在开发前再做一次口径确认。
-    </div>
-
-    <h3>2.3.1 模板公式拆解（发货+补货总和）</h3>
-    <p>结合模板文件 <code>发货+补货总和-模板.xlsx</code> 的 <code>发货+补货总和</code> sheet，可确认该底表是以 <code>SKU</code> 为粒度，围绕库存、销量、未来需求、补货测算、发货测算逐步展开。模板中第 2 行是字段标题，第 3 行开始为样例数据，以下逻辑基于第 3 行后的公式整理。</p>
-
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>字段</th>
-            <th>模板公式</th>
-            <th>业务逻辑</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>FBT库存</td>
-            <td class="tbl-formula"><code>=SUMIF(FBT库存导出!SKU列, 当前SKU, FBT总库存列)</code></td>
-            <td>按 <code>SKU</code> 从 FBT 库存导出表汇总 FBT 总库存，作为该 SKU 的 FBT 库存总量。</td>
-          </tr>
-          <tr>
-            <td>FBT库存-在途</td>
-            <td class="tbl-formula"><code>=SUMIF(FBT库存导出!SKU列, 当前SKU, FBT在途列)</code></td>
-            <td>按 <code>SKU</code> 从 FBT 库存导出表汇总在途量，得到该 SKU 当前 FBT 在途库存。</td>
-          </tr>
-          <tr>
-            <td>三方仓在库库存</td>
-            <td class="tbl-formula"><code>=SUMIF(海外库存数据源!SKU列, 当前SKU, 三方仓在库列)</code></td>
-            <td>按 <code>SKU</code> 从海外库存数据源汇总三方仓在库库存，得到海外第三方仓在库量。</td>
-          </tr>
-          <tr>
-            <td>采购在途库存</td>
-            <td class="tbl-formula"><code>=SUMIF(国内库存数据源!SKU列, 当前SKU, 采购在途列)</code></td>
-            <td>按 <code>SKU</code> 从国内库存数据源汇总采购在途数量。</td>
-          </tr>
-          <tr>
-            <td>FBA库存</td>
-            <td class="tbl-formula"><code>=IFERROR(VLOOKUP(当前SKU, FBA国内库存映射表, 2, FALSE), 0)</code></td>
-            <td>按 <code>SKU</code> 从 FBA 国内库存表查找库存值，查不到时按 <code>0</code> 处理。</td>
-          </tr>
-          <tr>
-            <td>国内在库库存</td>
-            <td class="tbl-formula"><code>=SUMIF(国内库存数据源!SKU列, 当前SKU, 国内可用库存列)</code></td>
-            <td>按 <code>SKU</code> 从国内库存数据源汇总国内在库库存。</td>
-          </tr>
-          <tr>
-            <td>海外仓可用库存</td>
-            <td class="tbl-formula"><code>=FBT库存 - FBT库存-在途 + 三方仓在库库存 + FBA库存</code></td>
-            <td>把 FBT 库存扣掉在途部分，再加上三方仓在库库存与 FBA 库存，得到海外仓当前可用库存。</td>
-          </tr>
-          <tr>
-            <td>当前总的库存</td>
-            <td class="tbl-formula"><code>=SUM(FBT库存, 三方仓在库库存, 采购在途库存, 国内在库库存, FBA库存)</code></td>
-            <td>把海外、国内、采购在途等库存口径全部合并，得到该 SKU 的总库存口径。</td>
-          </tr>
-          <tr>
-            <td>过去7天日销</td>
-            <td class="tbl-formula"><code>=SUMIF(近7天日均!SKU列, 当前SKU, 日销列)</code></td>
-            <td>按 <code>SKU</code> 从近 7 天日均表取数，得到该 SKU 的过去 7 天日销。</td>
-          </tr>
-          <tr>
-            <td>过去30天日销</td>
-            <td class="tbl-formula"><code>模板未见公式，作为输入字段参与加权日销计算</code></td>
-            <td>模板公式未直接展示该列来源，但从后续公式可知它作为过去 30 天日销输入项参与加权日销计算。</td>
-          </tr>
-          <tr>
-            <td>加权日销</td>
-            <td class="tbl-formula"><code>=过去7天日销 × 0.7 + 过去30天日销 × 0.3</code></td>
-            <td>以近 7 天销售表现为主、近 30 天为辅，按 <code>7:3</code> 权重计算加权日销。</td>
-          </tr>
-          <tr>
-            <td>第一个月预估日均</td>
-            <td class="tbl-formula"><code>=加权日销</code></td>
-            <td>模板中第一个月直接等于当前加权日销，不再额外乘系数。</td>
-          </tr>
-          <tr>
-            <td>第二个月预估日均</td>
-            <td class="tbl-formula"><code>=过去7天日销 × 1.06</code></td>
-            <td>模板按近 7 天日销乘固定系数 <code>1.06</code> 估算第二个月日均销量。</td>
-          </tr>
-          <tr>
-            <td>第三个月预估日均</td>
-            <td class="tbl-formula"><code>=过去7天日销 × 0.71</code></td>
-            <td>模板按近 7 天日销乘固定系数 <code>0.71</code> 估算第三个月日均销量。</td>
-          </tr>
-          <tr>
-            <td>第四个月预估日均</td>
-            <td class="tbl-formula"><code>=过去7天日销 × 0.56</code></td>
-            <td>模板按近 7 天日销乘固定系数 <code>0.56</code> 估算第四个月日均销量。</td>
-          </tr>
-          <tr>
-            <td>所需的总库存</td>
-            <td class="tbl-formula"><code>=第一个月预估日均 × 21 + 第二个月预估日均 × 30 + 第三个月预估日均 × 31 + 第四个月预估日均 × 8</code></td>
-            <td>按未来四个阶段的固定天数窗口累计预估消耗。模板采用 <code>21 + 30 + 31 + 8</code> 天的组合来估算未来总需求库存。</td>
-          </tr>
-          <tr>
-            <td>状态</td>
-            <td class="tbl-formula"><code>=IF(海外仓可用库存 &lt;= 0, "海外断货", "还可以卖" &amp; 预计要断货天数 &amp; "天")</code></td>
-            <td>若海外仓可用库存为 0 或负数，直接判定为海外断货；否则输出剩余可售天数。</td>
-          </tr>
-          <tr>
-            <td>需要采购的数量</td>
-            <td class="tbl-formula"><code>=当前总的库存 - 所需的总库存</code></td>
-            <td>先比较当前总库存和未来所需库存，若结果为负，说明库存不足，需要采购。</td>
-          </tr>
-          <tr>
-            <td>需要采购的数量-实际</td>
-            <td class="tbl-formula"><code>=IF(需要采购的数量 &lt; 0, -需要采购的数量, 0)</code></td>
-            <td>把负数缺口转成正数采购量；若库存已足够，则实际采购量记为 <code>0</code>。</td>
-          </tr>
-          <tr>
-            <td>补货建议值</td>
-            <td class="tbl-formula"><code>=ROUND(需要采购的数量-实际 × 0.6, 0)</code></td>
-            <td>模板中还有一列按 <code>60%</code> 进行折算并取整，可视为补货建议量或调整后采购量。</td>
-          </tr>
-          <tr>
-            <td>预计要断货天数</td>
-            <td class="tbl-formula"><code>=IF(加权日销 &gt; 0, ROUND(海外仓可用库存 / 加权日销, 0), "N/A")</code></td>
-            <td>以海外仓可用库存除以加权日销，估算库存还能支撑多少天销售；若日销为 0，则返回 <code>N/A</code>。</td>
-          </tr>
-          <tr>
-            <td>需要发货的数量</td>
-            <td class="tbl-formula"><code>=IF(国内在库库存 &gt; 0, MIN(国内在库库存, 所需的总库存 - 海外仓可用库存), 0)</code></td>
-            <td>发货量受两端约束：一端不能超过国内现货，另一端不能超过海外缺口；若国内无库存则不发货。</td>
-          </tr>
-          <tr>
-            <td>海派到的时间要的库存</td>
-            <td class="tbl-formula"><code>=ROUND(18 × 第一个月预估日均 + 20 × 第二个月预估日均, 0)</code></td>
-            <td>模板把海派到货前的需求拆成两个阶段，按 <code>18</code> 天第一个月日均和 <code>20</code> 天第二个月日均累计计算到货前需求库存。</td>
-          </tr>
-          <tr>
-            <td>在线还缺的数量</td>
-            <td class="tbl-formula"><code>=海派到的时间要的库存 - (FBT库存 - FBT库存-在途) - 三方仓在库库存 - FBA库存</code></td>
-            <td>先计算海派到货前总需求，再扣掉当前海外能支撑的库存，得到在线缺口。</td>
-          </tr>
-          <tr>
-            <td>可调拨</td>
-            <td class="tbl-formula"><code>=国内在库库存 - 在线还缺的数量</code></td>
-            <td>用国内可用库存减去在线缺口，判断还有多少库存可以调拨。</td>
-          </tr>
-          <tr>
-            <td>FBT实际发货量</td>
-            <td class="tbl-formula"><code>=MAX(0, MIN(需要发货的数量, IF(在线还缺的数量 &lt; 0, 需要发货的数量, 可调拨)))</code></td>
-            <td>最终 FBT 实际发货量不能为负；如果在线不缺货，则按建议发货量走；如果存在缺口，则再受可调拨量约束。</td>
-          </tr>
-        </tbody>
-      </table>
+      当前 Excel 的打钩列可以明确区分“补货字段”“发货字段”和“公共字段”，但个别字段的正式关联键和时间口径仍较粗。例如：<code>SPU库存冗余检视</code> 月系数如何准确关联到 SKU、<code>FBT总库存 / FBT库存-可用</code> 与三方仓总量/可用量的取数口径是否完全一致，都建议在开发前再做一次口径确认。另一个关键风险点是：<code>TikTok.FBT库存-自定义导出</code> 属于店铺维度数据源，而 <code>发货+补货总和</code> 当前按 <code>SKU + 站点</code> 汇总；若美国站点下存在 3 个店铺，则 FBT 库存可能被合并统计，需确认业务是否接受按站点合并，还是必须保留店铺维度区分。
     </div>
 
     <p>按模板公式可归纳出需求二的主线：<strong>先按 SKU 汇总各来源库存与销量，形成库存现状；再用未来固定时间窗口推算所需库存；最后分别产出补货缺口、发货建议量、海派前缺口与实际可发量</strong>。这也是后续发货视图和补货视图的统一底层计算逻辑。</p>
@@ -424,7 +233,7 @@
     <table class="req-metrics">
       <tr><th>优先级</th><td>—</td></tr>
       <tr><th>影响面</th><td>FBT 发货测算、在线缺货判断、仓间调拨决策</td></tr>
-      <tr><th>价值</th><td>聚焦“发货”动作，输出实际需要发货的数量、海派时间窗口内的缺口，以及可调拨空间。</td></tr>
+      <tr><th>价值</th><td>聚焦“发货”动作，输出实际需要发货的数量-测算、海派时间窗口内的缺口，以及可调拨空间。</td></tr>
     </table>
 
     <h3>3.1 需求描述</h3>
@@ -444,28 +253,61 @@
       <li>最终输出发货-SKU 看板，用于发货优先级与数量判断。</li>
     </ol>
 
-    <h3>3.3 映射表（发货-SKU 看板）</h3>
+    <h3>3.3 单一合并表（发货-SKU 看板）</h3>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>类型</th>
             <th>目标字段</th>
-            <th>计算逻辑（A列）</th>
-            <th>来源</th>
-            <th>说明</th>
+            <th>源数据表</th>
+            <th>源字段名称</th>
+            <th>关联字段</th>
+            <th>模板公式 / 需求公式</th>
+            <th>业务逻辑拆解</th>
+            <th>字段用途 / 展示位置</th>
+            <th>备注 / 可落地情况</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>复用</td><td>FBT库存-可用、三方仓可用库存、三方仓在途库存、国内可用库存、总可用库存、当前总的库存、过去7天日销、过去30天日销、加权日销、预计要断货天数</td><td class="tbl-formula">来自需求二底表</td><td>发货+补货总和</td><td>发货场景基础字段</td></tr>
-          <tr><td>计算</td><td>状态</td><td class="tbl-formula">状态 = IF(海外仓可用总库存 &lt;= 0, "海外断货", "还可以卖" &amp; 预计要断货天数 &amp; "天")</td><td>发货+补货总和</td><td>与原型一致，按海外仓可用总库存判断是否断货，否则显示剩余可售天数</td></tr>
-          <tr><td>计算</td><td>需要发货的数量-测算</td><td class="tbl-formula">IF(国内可用库存 &gt; 0, MIN(国内可用库存, 所需总库存 - 海外仓可用总库存), 0)</td><td>发货+补货总和</td><td>发货测算核心字段</td></tr>
-          <tr><td>计算</td><td>FBT实际发货量</td><td class="tbl-formula">FBT实际发货量 = MAX(0, MIN(需要发货的数量, IF(在线还缺的数量 &lt; 0, 需要发货的数量, 可调拨)))</td><td>发货+补货总和</td><td>与模板口径一致的最终实际发货建议量</td></tr>
-          <tr><td>计算</td><td>FBT海派时间</td><td class="tbl-formula">当前周的下周三 + 32 天</td><td>发货+补货总和</td><td>发货时效字段</td></tr>
-          <tr><td>计算</td><td>当天时间</td><td class="tbl-formula">TODAY()</td><td>系统时间</td><td>辅助计算字段</td></tr>
-          <tr><td>计算</td><td>海派到的时间内需要的库存</td><td class="tbl-formula">按 FBT海派时间到当天的间隔，结合各月预估日均累计测算</td><td>发货+补货总和</td><td>发货时效缺口判断</td></tr>
-          <tr><td>计算</td><td>在线还缺的数量</td><td class="tbl-formula">在线还缺的数量 = 海派到的时间内需要的库存 - 海外仓可用总库存</td><td>发货+补货总和</td><td>发货场景核心字段</td></tr>
-          <tr><td>计算</td><td>可调拨</td><td class="tbl-formula">可调拨 = 国内可用库存 - 在线还缺的数量</td><td>发货+补货总和</td><td>调拨参考字段</td></tr>
+          <tr><td>复用</td><td>时间</td><td>发货+补货总和</td><td>时间</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表时间字段</td><td>记录当前发货看板使用的数据日期。</td><td>原型固定列</td><td>展示顺序在最前</td></tr>
+          <tr><td>复用</td><td>站点</td><td>发货+补货总和</td><td>站点</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表站点字段</td><td>用于筛选站点和列表展示。</td><td>原型固定列</td><td>展示顺序在最前</td></tr>
+          <tr><td>复用</td><td>SPU</td><td>发货+补货总和</td><td>SPU</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SPU</td><td>保留发货分析的商品归属维度。</td><td>原型固定列</td><td>发货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>SKU</td><td>发货+补货总和</td><td>SKU</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SKU</td><td>发货列表的主键字段。</td><td>原型固定列</td><td>发货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>SKU中文名称</td><td>发货+补货总和</td><td>SKU中文名称</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SKU中文名称</td><td>便于业务识别具体款式和尺码。</td><td>原型固定列</td><td>发货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>FBT总库存</td><td>发货+补货总和</td><td>FBT总库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 FBT总库存</td><td>展示当前平台仓总库存规模。</td><td>发货列表字段</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>FBT库存-可用</td><td>发货+补货总和</td><td>FBT库存-可用</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 FBT库存-可用</td><td>体现当前可直接销售或分配的 FBT 库存。</td><td>发货列表字段</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>三方仓总库存</td><td>发货+补货总和</td><td>三方仓总库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 三方仓总库存</td><td>展示三方仓整体库存规模。</td><td>发货列表字段</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>三方仓可用库存</td><td>发货+补货总和</td><td>三方仓可用库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 三方仓可用库存</td><td>体现三方仓可立即调配库存。</td><td>发货列表字段</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>万邑通USKY3可用量</td><td>发货+补货总和</td><td>万邑通USKY3可用量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别可用量字段</td><td>定位 USKY3 仓可用库存。</td><td>仓别可用量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>万邑通USWC可用量</td><td>发货+补货总和</td><td>万邑通USWC可用量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别可用量字段</td><td>定位 USWC 仓可用库存。</td><td>仓别可用量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>万邑通USW2可用量</td><td>发货+补货总和</td><td>万邑通USW2可用量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别可用量字段</td><td>定位 USW2 仓可用库存。</td><td>仓别可用量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>谷仓可用量</td><td>发货+补货总和</td><td>谷仓可用量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别可用量字段</td><td>定位谷仓可用库存。</td><td>仓别可用量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>三方仓在途库存</td><td>发货+补货总和</td><td>三方仓在途库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 三方仓在途库存</td><td>展示三方仓整体在途库存。</td><td>发货列表字段</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>万邑通USKY3在途量</td><td>发货+补货总和</td><td>万邑通USKY3在途量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别在途量字段</td><td>定位 USKY3 仓在途数量。</td><td>仓别在途量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>万邑通USWC在途量</td><td>发货+补货总和</td><td>万邑通USWC在途量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别在途量字段</td><td>定位 USWC 仓在途数量。</td><td>仓别在途量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>万邑通USW2在途量</td><td>发货+补货总和</td><td>万邑通USW2在途量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别在途量字段</td><td>定位 USW2 仓在途数量。</td><td>仓别在途量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>谷仓在途量</td><td>发货+补货总和</td><td>谷仓在途量</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表仓别在途量字段</td><td>定位谷仓在途数量。</td><td>仓别在途量明细</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>海外仓可用总库存</td><td>发货+补货总和</td><td>海外仓可用总库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 海外仓可用总库存</td><td>作为状态判断和发货缺口计算基础。</td><td>发货测算基础值</td><td>状态判断字段</td></tr>
+          <tr><td>复用</td><td>国内可用库存</td><td>发货+补货总和</td><td>国内可用库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 国内可用库存</td><td>作为发货量上限和可调拨判断依据。</td><td>发货测算基础值</td><td>发货量受该字段约束</td></tr>
+          <tr><td>复用</td><td>总可用库存</td><td>发货+补货总和</td><td>总可用库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 总可用库存</td><td>汇总国内和海外可用库存后的结果。</td><td>发货测算基础值</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>当前总的库存</td><td>发货+补货总和</td><td>当前总的库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 当前总的库存</td><td>反映当前所有库存口径汇总结果。</td><td>发货测算基础值</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>过去7天日销</td><td>发货+补货总和</td><td>过去7天日销</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表销量字段</td><td>反映短周期销量表现。</td><td>发货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>过去30天日销</td><td>发货+补货总和</td><td>过去30天日销</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表销量字段</td><td>反映中周期销量表现。</td><td>发货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>加权日销</td><td>发货+补货总和</td><td>加权日销</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 加权日销</td><td>综合 7 天与 30 天销量后的核心预测底值。</td><td>发货预测基础值</td><td>发货场景基础字段</td></tr>
+          <tr><td>复用</td><td>第一月日均预估</td><td>发货+补货总和</td><td>第一月日均预估</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来时间窗口需求测算的月度输入。</td><td>发货预测基础值</td><td>海派到货前库存需求依赖这些字段</td></tr>
+          <tr><td>复用</td><td>第二月日均预估</td><td>发货+补货总和</td><td>第二月日均预估</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来时间窗口需求测算的月度输入。</td><td>发货预测基础值</td><td>海派到货前库存需求依赖这些字段</td></tr>
+          <tr><td>复用</td><td>第三月日均预估</td><td>发货+补货总和</td><td>第三月日均预估</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来时间窗口需求测算的月度输入。</td><td>发货预测基础值</td><td>海派到货前库存需求依赖这些字段</td></tr>
+          <tr><td>复用</td><td>第四月日均预估</td><td>发货+补货总和</td><td>第四月日均预估</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来时间窗口需求测算的月度输入。</td><td>发货预测基础值</td><td>海派到货前库存需求依赖这些字段</td></tr>
+          <tr><td>复用</td><td>所需的总库存</td><td>发货+补货总和</td><td>所需的总库存</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表所需总库存字段</td><td>用于发货缺口和备货需求判断。</td><td>发货预测基础值</td><td>发货缺口计算字段</td></tr>
+          <tr><td>计算</td><td>状态</td><td>发货+补货总和</td><td>海外仓可用总库存、预计要断货天数</td><td>依赖需求二统一底表</td><td class="tbl-formula">IF(海外仓可用总库存 &lt;= 0, "海外断货", "还可以卖" &amp; 预计要断货天数 &amp; "天")</td><td>按海外仓可用总库存判断是否断货，否则展示剩余可售天数。</td><td>状态展示字段</td><td>与原型一致</td></tr>
+          <tr><td>复用</td><td>预计要断货天数</td><td>发货+补货总和</td><td>预计要断货天数</td><td>发货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表预计要断货天数</td><td>给状态描述和优先级排序提供依据。</td><td>状态辅助字段</td><td>状态展示直接引用</td></tr>
+          <tr><td>计算</td><td>需要发货的数量-测算</td><td>发货+补货总和</td><td>国内可用库存、所需总库存、海外仓可用总库存</td><td>依赖需求二统一底表</td><td class="tbl-formula">IF(国内可用库存 &gt; 0, MIN(国内可用库存, 所需总库存 - 海外仓可用总库存), 0)</td><td>先算海外缺口，再受国内库存上限约束，得到建议发货量。</td><td>发货核心结果字段</td><td>发货测算核心字段</td></tr>
+          <tr><td>计算</td><td>FBT-实际要发的库存</td><td>发货+补货总和</td><td>需要发货的数量-测算、在线还缺的数量、可调拨</td><td>依赖需求二统一底表</td><td class="tbl-formula">MAX(0, MIN(需要发货的数量-测算, IF(在线还缺的数量 &lt; 0, 需要发货的数量-测算, 可调拨)))</td><td>在测算发货量基础上，再叠加在线缺口与可调拨约束，形成最终实际发货建议量。</td><td>发货最终结果字段</td><td>原型字段名使用“FBT-实际要发的库存”</td></tr>
+          <tr><td>计算</td><td>FBT海派时间</td><td>发货+补货总和</td><td>海派时间规则</td><td>—</td><td class="tbl-formula">当前周的下周三 + 32 天</td><td>形成发货时效窗口的到货日期。</td><td>发货时效辅助字段</td><td>原型已展示</td></tr>
+          <tr><td>计算</td><td>海派到的时间内需要的库存</td><td>发货+补货总和</td><td>各月预估日均、海派时间窗口</td><td>依赖需求二统一底表</td><td class="tbl-formula">按 FBT海派时间到当天的间隔，结合各月预估日均累计测算</td><td>估算海派到货之前这一段时间内的总库存需求。</td><td>发货时效缺口字段</td><td>发货时效缺口判断</td></tr>
+          <tr><td>计算</td><td>在线还缺的数量</td><td>发货+补货总和</td><td>海派到的时间内需要的库存、海外仓可用总库存</td><td>依赖需求二统一底表</td><td class="tbl-formula">海派到的时间内需要的库存 - 海外仓可用总库存</td><td>判断海派到货前在线库存仍有多少缺口。</td><td>发货时效缺口字段</td><td>发货场景核心字段</td></tr>
+          <tr><td>计算</td><td>可调拨</td><td>发货+补货总和</td><td>国内可用库存、在线还缺的数量</td><td>依赖需求二统一底表</td><td class="tbl-formula">国内可用库存 - 在线还缺的数量</td><td>测算在满足当前在线缺口后还能调拨的国内余量。</td><td>发货时效缺口字段</td><td>调拨参考字段</td></tr>
         </tbody>
       </table>
     </div>
@@ -498,22 +340,47 @@
       <li>结合预计断货天数，形成补货优先级输出。</li>
     </ol>
 
-    <h3>4.3 映射表（补货-SKU 看板）</h3>
+    <h3>4.3 单一合并表（补货-SKU 看板）</h3>
     <div class="table-wrap">
       <table>
         <thead>
           <tr>
             <th>类型</th>
             <th>目标字段</th>
-            <th>计算逻辑（A列）</th>
-            <th>来源</th>
-            <th>说明</th>
+            <th>源数据表</th>
+            <th>源字段名称</th>
+            <th>关联字段</th>
+            <th>模板公式 / 需求公式</th>
+            <th>业务逻辑拆解</th>
+            <th>字段用途 / 展示位置</th>
+            <th>备注 / 可落地情况</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>复用</td><td>SPU、SKU、SKU中文名称、FBT总库存、三方仓总库存、采购+交货在途库存、FBA库存（空着）、国内可用库存、总可用库存、当前总的库存、过去7天日销、过去30天日销、加权日销、第一月~第四月日均预估、所需的总库存、预计要断货天数</td><td class="tbl-formula">来自需求二底表</td><td>发货+补货总和</td><td>补货场景基础字段</td></tr>
-          <tr><td>计算</td><td>需要采购的数量</td><td class="tbl-formula">需要采购的数量 = 所需的总库存 + 当前总的库存</td><td>发货+补货总和</td><td>Excel 口径说明：小于 0 时要采购</td></tr>
-          <tr><td>计算</td><td>需要采购的数量-实际</td><td class="tbl-formula">需要采购的数量-实际 = MAX(-需要采购的数量, 0)</td><td>发货+补货总和</td><td>补货场景核心结果字段</td></tr>
+          <tr><td>复用</td><td>时间</td><td>发货+补货总和</td><td>时间</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表时间字段</td><td>记录当前补货看板使用的数据日期。</td><td>原型固定列</td><td>展示顺序在最前</td></tr>
+          <tr><td>复用</td><td>站点</td><td>发货+补货总和</td><td>站点</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表站点字段</td><td>用于筛选站点和列表展示。</td><td>原型固定列</td><td>展示顺序在最前</td></tr>
+          <tr><td>复用</td><td>SPU</td><td>发货+补货总和</td><td>SPU</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SPU</td><td>保留补货分析的商品归属维度。</td><td>原型固定列</td><td>补货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>SKU</td><td>发货+补货总和</td><td>SKU</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SKU</td><td>补货列表的主键字段。</td><td>原型固定列</td><td>补货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>SKU中文名称</td><td>发货+补货总和</td><td>SKU中文名称</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 SKU中文名称</td><td>便于业务识别具体款式和尺码。</td><td>原型固定列</td><td>补货场景基础维度字段</td></tr>
+          <tr><td>复用</td><td>FBT总库存</td><td>发货+补货总和</td><td>FBT总库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 FBT总库存</td><td>展示当前平台仓总库存规模。</td><td>补货列表字段</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>三方仓总库存</td><td>发货+补货总和</td><td>三方仓总库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 三方仓总库存</td><td>展示三方仓整体库存规模。</td><td>补货列表字段</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>海外仓可用总库存</td><td>发货+补货总和</td><td>海外仓可用总库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 海外仓可用总库存</td><td>作为补货紧急程度和断货风险判断依据。</td><td>补货测算基础值</td><td>补货场景基础字段</td></tr>
+          <tr><td>复用</td><td>采购+交货在途库存</td><td>发货+补货总和</td><td>采购+交货在途库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表采购+交货在途库存</td><td>体现国内采购链路中已经在补货路上的库存。</td><td>补货重点字段</td><td>补货场景重点字段</td></tr>
+          <tr><td>复用</td><td>FBA库存（空着）</td><td>发货+补货总和</td><td>FBA库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 FBA库存</td><td>补充海外补货相关库存口径。</td><td>补货列表字段</td><td>原型字段命名保留“空着”备注</td></tr>
+          <tr><td>复用</td><td>国内可用库存</td><td>发货+补货总和</td><td>国内可用库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 国内可用库存</td><td>体现当前国内可立刻出库的库存。</td><td>补货测算基础值</td><td>补货场景基础字段</td></tr>
+          <tr><td>复用</td><td>总可用库存</td><td>发货+补货总和</td><td>总可用库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 总可用库存</td><td>汇总国内和海外可用库存后的结果。</td><td>补货测算基础值</td><td>补货场景基础字段</td></tr>
+          <tr><td>复用</td><td>当前总的库存</td><td>发货+补货总和</td><td>当前总的库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 当前总的库存</td><td>反映当前所有库存口径汇总结果。</td><td>补货测算基础值</td><td>补货场景核心判断字段</td></tr>
+          <tr><td>复用</td><td>过去7天日销</td><td>发货+补货总和</td><td>过去7天日销</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表销量字段</td><td>反映短周期销量表现。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>过去30天日销</td><td>发货+补货总和</td><td>过去30天日销</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表销量字段</td><td>反映中周期销量表现。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>加权日销</td><td>发货+补货总和</td><td>加权日销</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表 加权日销</td><td>综合 7 天与 30 天销量后的核心预测底值。</td><td>补货预测基础值</td><td>补货场景基础字段</td></tr>
+          <tr><td>复用</td><td>第一月日均预估</td><td>发货+补货总和</td><td>第一月日均预估</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来窗口库存需求测算的月度输入。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>第二月日均预估</td><td>发货+补货总和</td><td>第二月日均预估</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来窗口库存需求测算的月度输入。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>第三月日均预估</td><td>发货+补货总和</td><td>第三月日均预估</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来窗口库存需求测算的月度输入。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>第四月日均预估</td><td>发货+补货总和</td><td>第四月日均预估</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表未来预测字段</td><td>作为未来窗口库存需求测算的月度输入。</td><td>补货预测基础值</td><td>原型已展示</td></tr>
+          <tr><td>复用</td><td>所需的总库存</td><td>发货+补货总和</td><td>所需的总库存</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表所需总库存字段</td><td>用于判断未来窗口内库存是否足够。</td><td>补货核心结果前置字段</td><td>补货场景核心字段</td></tr>
+          <tr><td>计算</td><td>需要采购的数量</td><td>发货+补货总和</td><td>当前总的库存、所需的总库存</td><td>依赖需求二统一底表</td><td class="tbl-formula">当前总的库存 - 所需的总库存</td><td>先用当前总库存减未来窗口需求，小于 0 代表存在采购缺口。</td><td>补货缺口字段</td><td>Excel 口径说明：小于 0 时要采购</td></tr>
+          <tr><td>计算</td><td>需要采购的数量-实际</td><td>发货+补货总和</td><td>需要采购的数量</td><td>依赖需求二统一底表</td><td class="tbl-formula">MAX(-需要采购的数量, 0)</td><td>将负缺口转成正向采购量，方便业务直接使用。</td><td>补货最终结果字段</td><td>补货场景核心结果字段</td></tr>
+          <tr><td>复用</td><td>预计要断货天数</td><td>发货+补货总和</td><td>预计要断货天数</td><td>补货-SKU 的“SKU” = 需求二底表的“SKU”</td><td class="tbl-formula">直接复用需求二底表预计要断货天数</td><td>反映补货紧急程度和断货风险。</td><td>补货优先级字段</td><td>原型已展示</td></tr>
         </tbody>
       </table>
     </div>
@@ -592,6 +459,10 @@
       </div>
     </div>
 
+    <div class="todo-note">
+      风险点 / 待确认口径：<code>TikTok.FBT库存-自定义导出</code> 是按店铺仓库拉取的数据源，天然属于店铺维度；但 <code>发货+补货总和</code> 当前按 <code>SKU + 站点</code> 汇总。如果美国站点下存在 3 个店铺，则这些店铺的 FBT 库存有可能被合并统计。开发前需确认业务是否接受按站点合并，还是必须保留店铺维度单独核算。
+    </div>
+
     <h3>5.4 积加-商品管理-可用库存</h3>
     <div class="table-wrap">
       <table>
@@ -627,6 +498,16 @@
         <img src="./assets/image9.png" alt="多平台销售表现获取路径截图-步骤2" />
         <div class="caption">截图 9：多平台销售表现，步骤 2，自定义导出操作截图。</div>
       </div>
+    </div>
+
+    <h3>5.6 每月系数文件</h3>
+    <div class="table-wrap">
+      <table>
+        <tr><th>项目</th><th>说明</th><th>集成说明</th></tr>
+        <tr><td>来源</td><td>飞书</td><td><strong>初步定义来源于飞书</strong>，当前按外部维护文件口径记录</td></tr>
+        <tr><td>文件内容</td><td>按月维护第一个月系数、第二个月系数、第三个月系数、第四个月系数</td><td>当前与 <code>新建飞书表格维护</code> 口径一致</td></tr>
+        <tr><td>用途</td><td>用于 SPU库存冗余检视中未来 4 个月冗余量测算</td><td>属于系数型外部维护数据，后续可再明确是否沉淀为标准数据源</td></tr>
+      </table>
     </div>
 
     <h2>六、需求与数据对照小结</h2>

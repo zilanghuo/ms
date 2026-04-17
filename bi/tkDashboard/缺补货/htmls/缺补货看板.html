@@ -186,8 +186,8 @@
     }
     .sticky-col-1 { left: 0; min-width: 120px; }
     .sticky-col-2 { left: 120px; min-width: 140px; }
-    .sticky-col-3 { left: 260px; min-width: 180px; }
-    .sticky-col-4 { left: 440px; min-width: 140px; }
+    .sticky-col-3 { left: 260px; min-width: 140px; }
+    .sticky-col-4 { left: 400px; min-width: 180px; }
     .sticky-col-5 { left: 580px; min-width: 160px; }
     .status-tag {
       display: inline-flex;
@@ -344,9 +344,9 @@
       <div class="query-row">
         <div class="tab-group" id="viewTabs">
           <button type="button" class="tab active" data-view="spu">SPU冗余检视</button>
-          <button type="button" class="tab" data-view="all">发货+补货总和</button>
           <button type="button" class="tab" data-view="ship">发货</button>
           <button type="button" class="tab" data-view="restock">补货</button>
+          <button type="button" class="tab" data-view="all">发货+补货总和</button>
         </div>
         <div class="query-item">
           <span class="label">站点</span>
@@ -357,12 +357,6 @@
               <div class="cascade-right" id="cascadeRight"></div>
             </div>
           </div>
-        </div>
-        <div class="query-item">
-          <span class="label">店铺</span>
-          <select id="qStore">
-            <option value="">全部</option>
-          </select>
         </div>
         <div class="query-item">
           <span class="label">搜索</span>
@@ -382,7 +376,7 @@
         </div>
       </div>
       <div class="tip-bar">
-        口径说明：店铺支持独立筛选；也支持先按站点筛选，再联动缩小店铺范围。<code>SPU冗余检视</code> 基于 <code>发货+补货总和</code> 底表按 SPU 聚合，<code>发货</code> 和 <code>补货</code> 视图基于同一底表按打钩字段拆分展示。
+        口径说明：当前原型仅保留站点筛选。<code>SPU冗余检视</code> 基于 <code>发货+补货总和</code> 底表按 SPU 聚合，<code>发货</code> 和 <code>补货</code> 视图基于同一底表按打钩字段拆分展示。
       </div>
     </div>
 
@@ -391,7 +385,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpSpu">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出汇总</button>
+            <button type="button" class="btn btn-secondary">导出数据</button>
           </div>
           <div class="meta-info">
             <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -406,22 +400,17 @@
         <div class="summary-card">
           <div class="summary-label">SPU总数</div>
           <div class="summary-value">186</div>
-          <div class="summary-sub">当前查询范围内</div>
+          <div class="summary-sub">结果口径：当前查询范围内去重后的 SPU 数量。<br />计算逻辑：按时间 + 站点 + SPU 汇总后，对结果集中的 SPU 去重计数。</div>
         </div>
         <div class="summary-card summary-danger">
           <div class="summary-label">高冗余SPU数</div>
           <div class="summary-value">24</div>
-          <div class="summary-sub">未来 4 个月冗余量持续为正</div>
-        </div>
-        <div class="summary-card summary-note">
-          <div class="summary-label">风险SPU数</div>
-          <div class="summary-value">13</div>
-          <div class="summary-sub">冗余量快速下降或转负</div>
+          <div class="summary-sub">结果口径：未来 4 个月月底冗余量持续为正的 SPU 数量。<br />计算逻辑：按 SPU 计算第 1 到第 4 个月底冗余量，若四个月结果均 &gt; 0，则计入高冗余 SPU 数。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">现有库存汇总</div>
           <div class="summary-value">48,260</div>
-          <div class="summary-sub">按 SPU 聚合</div>
+          <div class="summary-sub">结果口径：按 SPU 聚合后的现有库存合计。<br />计算逻辑：先按 SPU 汇总现有库存字段，再对当前筛选范围内所有 SPU 的现有库存求和。</div>
         </div>
       </div>
 
@@ -431,9 +420,9 @@
             <thead>
               <tr>
                 <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">SPU</th>
-                <th class="sticky-col-3">SPU名称</th>
-                <th class="sticky-col-4">站点</th>
+                <th class="sticky-col-2">站点</th>
+                <th class="sticky-col-3">SPU</th>
+                <th class="sticky-col-4">SPU名称</th>
                 <th class="sticky-col-5">现有库存</th>
                 <th>加权日销</th>
                 <th>第一个月系数</th>
@@ -453,9 +442,9 @@
             <tbody>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-W0161</td>
-                <td class="sticky-col-3">Women Lounge Set</td>
-                <td class="sticky-col-4">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-W0161</td>
+                <td class="sticky-col-4">Women Lounge Set</td>
                 <td class="num sticky-col-5">2,560</td>
                 <td class="num">36.8</td>
                 <td class="num">0.90</td>
@@ -473,9 +462,9 @@
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-M2301</td>
-                <td class="sticky-col-3">Men Running Set</td>
-                <td class="sticky-col-4">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-M2301</td>
+                <td class="sticky-col-4">Men Running Set</td>
                 <td class="num sticky-col-5">1,980</td>
                 <td class="num">18.2</td>
                 <td class="num">0.95</td>
@@ -502,7 +491,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpAll">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出底表</button>
+            <button type="button" class="btn btn-secondary">导出数据</button>
           </div>
           <div class="meta-info">
             <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -517,22 +506,17 @@
         <div class="summary-card">
           <div class="summary-label">SKU总数</div>
           <div class="summary-value">1,286</div>
-          <div class="summary-sub">统一底表 SKU 数量</div>
+          <div class="summary-sub">结果口径：统一底表中命中的 SKU 数量。<br />计算逻辑：按当前筛选条件过滤后，对底表结果中的 SKU 明细行直接计数。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">总可用库存</div>
           <div class="summary-value">18,392</div>
-          <div class="summary-sub">国内 + 海外仓可用</div>
+          <div class="summary-sub">结果口径：国内可用库存与海外仓可用总库存的汇总。<br />计算逻辑：按 SKU 取总可用库存字段，再对当前结果集逐行求和。</div>
         </div>
         <div class="summary-card summary-danger">
           <div class="summary-label">缺口SKU数</div>
           <div class="summary-value">76</div>
-          <div class="summary-sub">所需总库存高于现有口径</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">平均加权日销</div>
-          <div class="summary-value">12.4</div>
-          <div class="summary-sub">当前筛选范围均值</div>
+          <div class="summary-sub">结果口径：存在库存缺口的 SKU 数量。<br />计算逻辑：按 SKU 比较所需的总库存与当前总的库存，若所需总库存 &gt; 当前总的库存，则计入缺口 SKU 数。</div>
         </div>
       </div>
 
@@ -542,10 +526,10 @@
             <thead>
               <tr>
                 <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">SPU</th>
-                <th class="sticky-col-3">SKU</th>
-                <th class="sticky-col-4">SKU中文名称</th>
-                <th class="sticky-col-5">站点</th>
+                <th class="sticky-col-2">站点</th>
+                <th class="sticky-col-3">SPU</th>
+                <th class="sticky-col-4">SKU</th>
+                <th class="sticky-col-5">SKU中文名称</th>
                 <th>FBT总库存</th>
                 <th>FBT库存-可用</th>
                 <th>三方仓总库存</th>
@@ -589,10 +573,10 @@
             <tbody>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-W0161</td>
-                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-4">深灰 XL</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-W0161</td>
+                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-5">深灰 XL</td>
                 <td class="num">18</td>
                 <td class="num">14</td>
                 <td class="num">78</td>
@@ -634,10 +618,10 @@
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-M2301</td>
-                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-4">黑色 L</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-M2301</td>
+                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-5">黑色 L</td>
                 <td class="num">9</td>
                 <td class="num">6</td>
                 <td class="num">45</td>
@@ -688,7 +672,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpShip">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出发货清单</button>
+            <button type="button" class="btn btn-secondary">导出数据</button>
           </div>
           <div class="meta-info">
             <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -703,22 +687,22 @@
         <div class="summary-card">
           <div class="summary-label">待发货SKU数</div>
           <div class="summary-value">58</div>
-          <div class="summary-sub">当前建议发货项</div>
+          <div class="summary-sub">结果口径：当前需要进入发货动作的 SKU 数量。<br />计算逻辑：按 SKU 判断需要发货的数量-测算 &gt; 0，满足条件的 SKU 计入待发货数。</div>
         </div>
         <div class="summary-card summary-danger">
           <div class="summary-label">在线还缺SKU数</div>
           <div class="summary-value">21</div>
-          <div class="summary-sub">海派到货前存在缺口</div>
+          <div class="summary-sub">结果口径：海派到货前仍然存在线上缺口的 SKU 数量。<br />计算逻辑：按 SKU 判断在线还缺的数量 &gt; 0，满足条件的 SKU 计入在线还缺数。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">建议发货总量</div>
           <div class="summary-value">4,260</div>
-          <div class="summary-sub">按发货测算口径汇总</div>
+          <div class="summary-sub">结果口径：当前筛选范围内建议发货量合计。<br />计算逻辑：对所有 SKU 的需要发货的数量-测算字段逐行求和。</div>
         </div>
         <div class="summary-card summary-note">
           <div class="summary-label">可调拨SKU数</div>
           <div class="summary-value">17</div>
-          <div class="summary-sub">存在调拨空间</div>
+          <div class="summary-sub">结果口径：存在跨 SKU 或仓间调拨空间的 SKU 数量。<br />计算逻辑：按 SKU 判断可调拨字段 &gt; 0，满足条件的 SKU 计入可调拨数。</div>
         </div>
       </div>
 
@@ -728,10 +712,10 @@
             <thead>
               <tr>
                 <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">SPU</th>
-                <th class="sticky-col-3">SKU</th>
-                <th class="sticky-col-4">SKU中文名称</th>
-                <th class="sticky-col-5">站点</th>
+                <th class="sticky-col-2">站点</th>
+                <th class="sticky-col-3">SPU</th>
+                <th class="sticky-col-4">SKU</th>
+                <th class="sticky-col-5">SKU中文名称</th>
                 <th>FBT总库存</th>
                 <th>FBT库存-可用</th>
                 <th>三方仓总库存</th>
@@ -770,10 +754,10 @@
             <tbody>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-W0161</td>
-                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-4">深灰 XL</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-W0161</td>
+                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-5">深灰 XL</td>
                 <td class="num">18</td>
                 <td class="num">14</td>
                 <td class="num">78</td>
@@ -810,10 +794,10 @@
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-M2301</td>
-                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-4">黑色 L</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-M2301</td>
+                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-5">黑色 L</td>
                 <td class="num">9</td>
                 <td class="num">6</td>
                 <td class="num">45</td>
@@ -859,7 +843,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpRestock">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出补货清单</button>
+            <button type="button" class="btn btn-secondary">导出数据</button>
           </div>
           <div class="meta-info">
             <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -874,22 +858,22 @@
         <div class="summary-card">
           <div class="summary-label">待补货SKU数</div>
           <div class="summary-value">63</div>
-          <div class="summary-sub">当前建议补货项</div>
+          <div class="summary-sub">结果口径：当前需要进入补货动作的 SKU 数量。<br />计算逻辑：按 SKU 判断需要采购的数量-实际 &gt; 0，满足条件的 SKU 计入待补货数。</div>
         </div>
         <div class="summary-card summary-danger">
           <div class="summary-label">紧急补货SKU数</div>
           <div class="summary-value">19</div>
-          <div class="summary-sub">预计断货天数较低</div>
+          <div class="summary-sub">结果口径：预计断货风险较高的 SKU 数量。<br />计算逻辑：按 SKU 判断预计要断货天数低于预设阈值，满足条件的 SKU 计入紧急补货数。</div>
         </div>
         <div class="summary-card">
           <div class="summary-label">建议补货总量</div>
           <div class="summary-value">5,880</div>
-          <div class="summary-sub">按补货测算口径汇总</div>
+          <div class="summary-sub">结果口径：当前筛选范围内建议补货量合计。<br />计算逻辑：对所有 SKU 的需要采购的数量-实际字段逐行求和。</div>
         </div>
         <div class="summary-card summary-note">
           <div class="summary-label">平均断货天数</div>
           <div class="summary-value">12</div>
-          <div class="summary-sub">仅统计待补货项</div>
+          <div class="summary-sub">结果口径：待补货 SKU 的平均断货天数。<br />计算逻辑：仅取需要采购的数量-实际 &gt; 0 的 SKU，对其预计要断货天数字段求平均值。</div>
         </div>
       </div>
 
@@ -899,10 +883,10 @@
             <thead>
               <tr>
                 <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">SPU</th>
-                <th class="sticky-col-3">SKU</th>
-                <th class="sticky-col-4">SKU中文名称</th>
-                <th class="sticky-col-5">站点</th>
+                <th class="sticky-col-2">站点</th>
+                <th class="sticky-col-3">SPU</th>
+                <th class="sticky-col-4">SKU</th>
+                <th class="sticky-col-5">SKU中文名称</th>
                 <th>FBT总库存</th>
                 <th>三方仓总库存</th>
                 <th>海外仓可用总库存</th>
@@ -927,10 +911,10 @@
             <tbody>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-W0161</td>
-                <td class="sticky-col-3">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-4">深灰 XL</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-W0161</td>
+                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-5">深灰 XL</td>
                 <td class="num">18</td>
                 <td class="num">78</td>
                 <td class="num">66</td>
@@ -953,10 +937,10 @@
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">AL-M2301</td>
-                <td class="sticky-col-3">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-4">黑色 L</td>
-                <td class="sticky-col-5">美国站点</td>
+                <td class="sticky-col-2">美国站点</td>
+                <td class="sticky-col-3">AL-M2301</td>
+                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
+                <td class="sticky-col-5">黑色 L</td>
                 <td class="num">9</td>
                 <td class="num">45</td>
                 <td class="num">33</td>
@@ -983,36 +967,38 @@
       </div>
     </div>
 
+    <div class="mini-note">
+      <strong>待确认点：</strong><br />
+      1、是否需要导出明细。<br />
+      2、是否需要图片定时播报。<br />
+      3、关于每个月的系数，这个文件如何维护，通过飞书文档，涉及到飞书 API 权限开通。<br />
+      4、口径待确认：<code>TikTok.FBT库存-自定义导出</code> 属于店铺维度数据源，而 <code>发货+补货总和</code> 按 <code>SKU + 站点</code> 汇总；若美国站点下存在 3 个店铺，则 FBT 库存可能被合并统计。需确认业务是否接受按站点合并，还是必须保留店铺维度区分。
+    </div>
+
     <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
   </div>
 
   <script>
     (function() {
       var regionTree = [
-        { name: '欧洲', children: [{ label: '英国', code: 'GB' }] },
-        { name: '北美洲', children: [{ label: '美国', code: 'US' }] }
+        { name: '欧洲', children: [
+          { label: '德国', code: 'DE' },
+          { label: '西班牙', code: 'ES' },
+          { label: '法国', code: 'FR' },
+          { label: '意大利', code: 'IT' }
+        ]},
+        { name: '北美洲', children: [{ label: '美国', code: 'US' }] },
+        { name: '其它', children: [{ label: 'Global', code: 'Global' }] }
       ];
       var codeToStores = {
-        GB: ['美国TK-艾斯特尼-英国直邮店:GB'],
-        US: ['美国TK-艾斯特尼-美区跨境1店', '美国TK-艾斯特尼-美区跨境2店', '美国TK-艾斯特尼-美区跨境3店']
+        DE: ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
+        ES: ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
+        FR: ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
+        IT: ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
+        US: ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
+        Global: ['美国TK独立站-shopify:Global']
       };
-      var allStores = [];
-      Object.keys(codeToStores).forEach(function(key) {
-        allStores = allStores.concat(codeToStores[key]);
-      });
-      allStores = Array.from(new Set(allStores));
       var cascadeSelection = { region: '', country: '', stores: [] };
-
-      function syncStoreOptions() {
-        var sel = document.getElementById('qStore');
-        var prev = sel.value;
-        var list = cascadeSelection.stores.length ? cascadeSelection.stores : allStores;
-        sel.innerHTML = '<option value="">全部</option>';
-        list.forEach(function(store) {
-          sel.innerHTML += '<option value="' + store + '">' + store + '</option>';
-        });
-        if (list.indexOf(prev) !== -1) sel.value = prev;
-      }
 
       function initCascade() {
         var trigger = document.getElementById('cascadeTrigger');
@@ -1054,7 +1040,6 @@
           } else {
             trigger.innerHTML = '<span class="placeholder">请选择</span>';
           }
-          syncStoreOptions();
           closePanel();
         }
 
@@ -1109,7 +1094,6 @@
       }
 
       initCascade();
-      syncStoreOptions();
 
       var tabs = document.querySelectorAll('#viewTabs .tab');
       var panels = {
@@ -1138,7 +1122,6 @@
 
       document.getElementById('btnReset').addEventListener('click', function() {
         if (window._resetCascadeStore) window._resetCascadeStore();
-        document.getElementById('qStore').value = '';
         document.getElementById('qKeywordType').selectedIndex = 0;
       });
 
