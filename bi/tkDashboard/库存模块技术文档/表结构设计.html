@@ -51,6 +51,7 @@
           <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-online-product">ods_inventory_tiktok_product_online_product_df</a></td><td>TikTok 在线商品日全量快照表</td><td>库存检查、缺补货</td></tr>
           <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-site-stock">ods_inventory_tiktok_site_product_stock_df</a></td><td>站点产品库存-自定义导出日全量原始表</td><td>库存检查、缺补货</td></tr>
           <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-fbt-stock">ods_inventory_tiktok_fbt_stock_df</a></td><td>TikTok FBT库存-自定义导出日全量原始表</td><td>库存检查、缺补货</td></tr>
+          <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-sales-performance">ods_inventory_multi_platform_sales_performance_df</a></td><td>多平台销售表现日全量原始表</td><td>缺补货</td></tr>
           <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-jijia-pid-warehouse-stock">ods_inventory_jijia_pid_warehouse_stock_df</a></td><td>积加 API 店铺PID-仓库库存日全量快照表</td><td>库存检查</td></tr>
           <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods-warehouse-list">ods_inventory_manual_available_warehouse_df</a></td><td>可用仓库列表手动导入日全量表</td><td>库存检查、缺补货</td></tr>
           <tr><td><span class="badge dim">DIM</span></td><td><a class="toc-link" href="#tbl-dim-platform-monthly-factor">dim_platform_inventory_monthly_factor_df</a></td><td>库存平台域月度系数维表</td><td>缺补货</td></tr>
@@ -254,7 +255,52 @@
     </div>
     <p>字段命名按统一规范处理：库存数量统一使用 <code>*_qty</code>，状态字段统一拆成 <code>status_code</code> 与 <code>status_name</code>，时间字段统一拆成平台业务时间与系统入仓时间。数组 / 明细列表字段在 ODS 层以 JSON 字符串形式保留原始结构，便于后续按需解析。</p>
 
-    <h3 id="tbl-ods-jijia-pid-warehouse-stock">2.4 ods_inventory_jijia_pid_warehouse_stock_df</h3>
+    <h3 id="tbl-ods-sales-performance">2.4 ods_inventory_multi_platform_sales_performance_df</h3>
+    <p>来源于积加后台“多平台销售表现”自定义导出，按平台、站点、SPU、SKU、日期沉淀销量明细。该表主要服务缺补货场景下的 7 天 / 30 天销量窗口和加权日销测算。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>业务日期，YYYYMMDD</td></tr>
+          <tr><td>unique_value</td><td>VARCHAR(200)</td><td>唯一标识，对应返回体 <code>uniqueValue</code></td></tr>
+          <tr><td>platform_code</td><td>VARCHAR(50)</td><td>平台编码，对应返回体 <code>platformCode</code></td></tr>
+          <tr><td>platform_name</td><td>VARCHAR(100)</td><td>平台名称，对应返回体 <code>platformName</code></td></tr>
+          <tr><td>market_id</td><td>VARCHAR(50)</td><td>店铺 / 市场 ID，对应返回体 <code>marketId</code></td></tr>
+          <tr><td>market_name</td><td>VARCHAR(200)</td><td>店铺 / 市场名称，对应返回体 <code>marketName</code></td></tr>
+          <tr><td>site_code</td><td>VARCHAR(20)</td><td>站点代码，可由 <code>marketId</code> 或业务映射补充</td></tr>
+          <tr><td>site_name</td><td>VARCHAR(100)</td><td>站点名称，可由 <code>marketName</code> 或业务映射补充</td></tr>
+          <tr><td>store_id</td><td>VARCHAR(100)</td><td>店铺 ID，标准化后字段，可由 <code>marketId</code> 映射</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称，标准化后字段，可由 <code>marketName</code> 映射</td></tr>
+          <tr><td>asin</td><td>VARCHAR(1000)</td><td>ASIN 列表，对应返回体 <code>asin</code></td></tr>
+          <tr><td>brand_name</td><td>VARCHAR(200)</td><td>品牌，对应返回体 <code>brand</code></td></tr>
+          <tr><td>category_name</td><td>VARCHAR(200)</td><td>类目，对应返回体 <code>category</code></td></tr>
+          <tr><td>crawl_title</td><td>VARCHAR(2000)</td><td>抓取标题，对应返回体 <code>crawlTitle</code></td></tr>
+          <tr><td>img_url</td><td>VARCHAR(1000)</td><td>图片地址，对应返回体 <code>imgUrl</code></td></tr>
+          <tr><td>listing_level</td><td>VARCHAR(100)</td><td>Listing层级，对应返回体 <code>listingLevel</code></td></tr>
+          <tr><td>listing_state</td><td>VARCHAR(100)</td><td>Listing状态，对应返回体 <code>listingState</code></td></tr>
+          <tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+          <tr><td>spu_name</td><td>VARCHAR(500)</td><td>SPU名称，对应返回体 <code>spuName</code></td></tr>
+          <tr><td>msku</td><td>VARCHAR(100)</td><td>MSKU，对应返回体 <code>msku</code></td></tr>
+          <tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+          <tr><td>product_name</td><td>VARCHAR(500)</td><td>商品名称，对应返回体 <code>productName</code></td></tr>
+          <tr><td>product_attribute_name</td><td>VARCHAR(500)</td><td>商品属性名称，对应返回体 <code>productAttributeName</code></td></tr>
+          <tr><td>product_manager_name</td><td>VARCHAR(100)</td><td>产品负责人，对应返回体 <code>productManagerName</code></td></tr>
+          <tr><td>selling_manager_name</td><td>VARCHAR(100)</td><td>销售负责人，对应返回体 <code>sellingManagerName</code></td></tr>
+          <tr><td>currency_code</td><td>VARCHAR(20)</td><td>币种编码，对应返回体 <code>currency</code></td></tr>
+          <tr><td>currency_symbol</td><td>VARCHAR(20)</td><td>币种符号，对应返回体 <code>currencySymbol</code></td></tr>
+          <tr><td>avg_price</td><td>DECIMAL(18,2)</td><td>均价，对应返回体 <code>avgPrice</code></td></tr>
+          <tr><td>sale_price</td><td>DECIMAL(18,2)</td><td>售价，对应返回体 <code>salePrice</code></td></tr>
+          <tr><td>units_ordered</td><td>DECIMAL(18,2)</td><td>销量件数，对应返回体 <code>unitsOrdered</code></td></tr>
+          <tr><td>orders</td><td>BIGINT</td><td>订单数，对应返回体 <code>orders</code></td></tr>
+          <tr><td>order_product_sales_amount</td><td>DECIMAL(18,2)</td><td>商品销售额，对应返回体 <code>orderProductSales</code></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>入仓时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>该表按源导出业务字段落库，优先保留平台、店铺、商品、销量、金额等原始信息；站点和店铺标准化字段可在 ODS 入仓时同步补齐，也可在 DWD 层通过 <code>market_id / market_name</code> 做统一映射。后续在 DWD 层按业务日期回溯计算过去 7 天与过去 30 天日销，避免 ODS 层直接写死窗口口径。</p>
+
+    <h3 id="tbl-ods-jijia-pid-warehouse-stock">2.5 ods_inventory_jijia_pid_warehouse_stock_df</h3>
     <p>来源于 Jijia API 接口，按店铺 + PID + SKU 维度汇总多个仓库库存。该表采用“固定仓库字段平铺 + 扩展仓库预留字段”的设计，直接服务库存检查中“店铺后台实际被同步库存”的宽表关联场景。</p>
     <div class="table-wrap">
       <table>
@@ -303,7 +349,7 @@
     </ul>
     <p>设计原则：现有明确关注的仓库直接铺固定字段，便于库存检查直接比对；后续新增仓库先落入 <code>ext_warehouse_01~05</code> 预留字段，等仓库范围稳定后再决定是否转正式字段。</p>
 
-    <h3 id="tbl-ods-warehouse-list">2.5 ods_inventory_manual_available_warehouse_df</h3>
+    <h3 id="tbl-ods-warehouse-list">2.6 ods_inventory_manual_available_warehouse_df</h3>
     <p>可用仓库列表来源于手动导入，用于统一维护库存模块可识别的仓库清单，支撑仓库映射、仓别过滤和站点归属判断。当前维护范围主要对应“当前业务关注仓库列表”。</p>
     <div class="table-wrap">
       <table>
@@ -331,7 +377,7 @@
       <li><code>万邑通:UKTW Warehouse</code></li>
     </ul>
 
-    <h3 id="tbl-dim-platform-monthly-factor">2.6 dim_platform_inventory_monthly_factor_df</h3>
+    <h3 id="tbl-dim-platform-monthly-factor">2.7 dim_platform_inventory_monthly_factor_df</h3>
     <p>每个月的系数来源于手工导入，调整为平台域 DIM 维表，供缺补货-SPU冗余检视使用。该表按年份维护 1-12 月系数字段，并按月更新一次。</p>
     <div class="table-wrap">
       <table>
@@ -420,6 +466,56 @@
       </table>
     </div>
     <p>该表仅服务库存检查需求，按 <code>店铺 + PID + SKU + 日期</code> 粒度统一沉淀原型看板涉及的全部核心字段。字段设计基于 <code>TK库存检查映射表.xlsx</code> 中 sheet <code>映射表</code> 的“映射表 / 源数据表”两列整理，确保 DWD 层即可支撑 SKU 视图原型字段，并可直接向上汇总到 SPU 视图。</p>
+    <h4>3.1.1 来自 ODS 的加工逻辑</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>步骤</th><th>加工逻辑</th><th>输入表</th><th>输出字段 / 结果</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1. 商品范围确定</td>
+            <td>以 TikTok 在线商品作为库存检查的商品基础范围，按业务日期抽取当日在线商品快照；统一标准站点、店铺、PID、SPU、SKU、商品名称等主维度，作为 DWD 主键骨架。</td>
+            <td><code>ods_inventory_tiktok_product_online_product_df</code></td>
+            <td><code>site_code</code>、<code>site_name</code>、<code>store_id</code>、<code>store_name</code>、<code>pid</code>、<code>spu</code>、<code>spu_name</code>、<code>sku</code>、<code>sku_name</code></td>
+          </tr>
+          <tr>
+            <td>2. 站点库存映射</td>
+            <td>按 <code>SKU</code> 关联站点产品库存 ODS，结合手工维护的业务关注仓库列表做仓库归类。国内仓口径筛选 <code>美国TK-厦门直邮仓</code>、<code>美国TK-国内厦门仓</code>；三方仓口径筛选 <code>万邑通:USKY3_Warehouse</code>、<code>万邑通:USWC_Warehouse</code>、<code>万邑通:USWC2_Warehouse</code>、<code>美国TK-艾斯特尼-美国谷仓:美西仓库</code>；英国退货仓口径筛选 <code>万邑通:UKTW Warehouse</code>、<code>美国TK-艾斯特尼-英国退件仓:英国仓</code>。在同一 <code>SKU + 站点</code> 下按仓库汇总采购量、在途量、可用量，并拆成仓库 1/2/3 口径需要的“我们有的库存”基础值。</td>
+            <td><code>ods_inventory_tiktok_site_product_stock_df</code> + <code>ods_inventory_manual_available_warehouse_df</code></td>
+            <td><code>purchase_qty</code>、<code>delivery_in_transit_qty</code>、<code>domestic_inventory_qty</code>、<code>third_party_in_transit_qty</code>、<code>warehouse_guchang_1_qty</code>、<code>warehouse_winit_usky3_1_qty</code>、<code>warehouse_winit_uswc_1_qty</code>、<code>warehouse_winit_uswc2_1_qty</code>、<code>warehouse_domestic_1_qty</code>、<code>warehouse_uk_return_1_qty</code></td>
+          </tr>
+          <tr>
+            <td>3. FBT 库存映射</td>
+            <td>按 <code>SKU</code> 关联 TikTok FBT 库存 ODS，直接补充 FBT 在途量、FBT 可用量；<code>warehouse_fbt_1_qty</code> 取当前可落地的 FBT 可用库存口径，<code>warehouse_fbt_2_qty</code> 保留为店铺后台同步库存预留口径。</td>
+            <td><code>ods_inventory_tiktok_fbt_stock_df</code></td>
+            <td><code>fbt_in_transit_qty</code>、<code>fbt_available_qty</code>、<code>warehouse_fbt_1_qty</code></td>
+          </tr>
+          <tr>
+            <td>4. 店铺后台同步库存映射</td>
+            <td>按 <code>店铺 + PID + SKU</code> 关联积加 API 店铺 PID 仓库库存快照，将仓库字段按业务仓库映射到“店铺后台实际被同步库存”口径。该口径用于仓库 <code>-2</code> 字段和总库存 <code>-2</code> 汇总，解决“我们有的库存”和“实际已同步库存”对比需求。</td>
+            <td><code>ods_inventory_jijia_pid_warehouse_stock_df</code></td>
+            <td><code>warehouse_guchang_2_qty</code>、<code>warehouse_winit_usky3_2_qty</code>、<code>warehouse_winit_uswc_2_qty</code>、<code>warehouse_winit_uswc2_2_qty</code>、<code>warehouse_domestic_2_qty</code>、<code>warehouse_uk_return_2_qty</code>、<code>warehouse_fbt_2_qty</code>、<code>warehouse_fba_2_qty</code></td>
+          </tr>
+          <tr>
+            <td>5. 仓库差异计算</td>
+            <td>仓库 <code>-3</code> 字段统一按“我们有的库存 - 店铺后台实际被同步库存”计算，用于直接展示每个仓位的同步差异。</td>
+            <td>步骤 2、3、4 结果</td>
+            <td><code>warehouse_guchang_3_qty</code>、<code>warehouse_winit_usky3_3_qty</code>、<code>warehouse_winit_uswc_3_qty</code>、<code>warehouse_winit_uswc2_3_qty</code>、<code>warehouse_domestic_3_qty</code>、<code>warehouse_fbt_3_qty</code>、<code>warehouse_fba_3_qty</code>、<code>warehouse_uk_return_3_qty</code></td>
+          </tr>
+          <tr>
+            <td>6. 库存汇总计算</td>
+            <td>按需求文档中的映射口径，先计算海外在途库存、海外可用库存，再计算总在途库存、总可用库存、总库存；同时分别汇总“我们有的库存”和“店铺后台实际被同步库存”两套总库存口径。</td>
+            <td>步骤 2、3、4、5 结果</td>
+            <td><code>oversea_in_transit_qty</code>、<code>oversea_available_qty</code>、<code>total_in_transit_qty</code>、<code>total_available_qty</code>、<code>total_inventory_qty</code>、<code>total_inventory_1_qty</code>、<code>total_inventory_2_qty</code>、<code>inventory_diff_qty</code></td>
+          </tr>
+          <tr>
+            <td>7. 异常状态判断</td>
+            <td>基于总库存差异结果判断库存状态：差异大于 0 定义为少同步，差异小于 0 定义为超卖风险，差异等于 0 定义为同步正确；若后续业务补充“待确认”规则，可在该层统一扩展。</td>
+            <td>步骤 6 结果</td>
+            <td><code>inventory_status_code</code>、<code>inventory_status_name</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="tbl-dwd-replenishment">3.2 dwd_inventory_replenishment_sku_snapshot_1d</h3>
     <div class="table-wrap">
@@ -481,6 +577,74 @@
       </table>
     </div>
     <p>该表仅服务缺补货需求，沉淀发货、补货、SPU冗余分析所需字段，不与库存检查明细底表混用。按映射表核对后，DWD 需覆盖在线商品、站点库存、FBT库存、销售表现、月度系数等来源字段，并保留仓库拆分字段与关键中间测算字段，避免 DWS / ADS 再回头补明细逻辑。</p>
+    <h4>3.2.1 来自 ODS / DIM 的加工逻辑</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>步骤</th><th>加工逻辑</th><th>输入表</th><th>输出字段 / 结果</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>1. 商品范围确定</td>
+            <td>以 TikTok 在线商品作为缺补货统一底表的商品范围，按业务日期抽取在售商品快照，标准化站点、SPU、SKU、商品名称等基础维度，形成后续库存与销量汇总的主键骨架。</td>
+            <td><code>ods_inventory_tiktok_product_online_product_df</code></td>
+            <td><code>site_code</code>、<code>site_name</code>、<code>spu</code>、<code>sku</code>、<code>sku_name</code></td>
+          </tr>
+          <tr>
+            <td>2. 站点库存归类</td>
+            <td>按 <code>SKU</code> 关联站点产品库存 ODS，结合业务关注仓库列表做仓库归类。将海外三方仓、国内仓、谷仓、万邑通各仓分别汇总出可用量和在途量；国内仓口径同时沉淀采购量与交货在途量，用于补货与发货共同底表。</td>
+            <td><code>ods_inventory_tiktok_site_product_stock_df</code> + <code>ods_inventory_manual_available_warehouse_df</code></td>
+            <td><code>third_warehouse_available_qty</code>、<code>third_warehouse_in_transit_qty</code>、<code>third_warehouse_total_qty</code>、<code>winit_usky3_available_qty</code>、<code>winit_usky3_in_transit_qty</code>、<code>winit_uswc_available_qty</code>、<code>winit_uswc_in_transit_qty</code>、<code>winit_uswc2_available_qty</code>、<code>winit_uswc2_in_transit_qty</code>、<code>gucang_available_qty</code>、<code>gucang_in_transit_qty</code>、<code>domestic_available_qty</code>、<code>purchase_transit_qty</code></td>
+          </tr>
+          <tr>
+            <td>3. FBT 库存补充</td>
+            <td>按 <code>SKU</code> 关联 TikTok FBT 库存 ODS，补充 FBT 可用量、FBT 在途量，并进一步计算 FBT 总库存。该部分与站点库存共同构成海外库存结构。</td>
+            <td><code>ods_inventory_tiktok_fbt_stock_df</code></td>
+            <td><code>fbt_available_qty</code>、<code>fbt_in_transit_qty</code>、<code>fbt_total_qty</code></td>
+          </tr>
+          <tr>
+            <td>4. 基础库存汇总</td>
+            <td>在库存结构层先汇总三方仓总库存、海外仓可用总库存、总可用库存、当前总库存。<code>fba_inventory_qty</code> 作为原型预留字段，当前先保留空值口径，不参与已确认库存计算。</td>
+            <td>步骤 2、3 结果</td>
+            <td><code>oversea_available_qty</code>、<code>total_available_qty</code>、<code>current_total_qty</code>、<code>fba_inventory_qty</code></td>
+          </tr>
+          <tr>
+            <td>5. 销量窗口计算</td>
+            <td>按 <code>SKU + 站点</code> 从销售表现 ODS 拉取销量明细，基于业务日期往前回溯统计 <code>units_ordered</code>，分别计算过去 7 天和过去 30 天日销，再按既定权重计算加权日销。销售表现原需求中称为“多平台销售表现”，在数仓落地时统一沉淀到库存模块 ODS 表。</td>
+            <td><code>ods_inventory_multi_platform_sales_performance_df</code></td>
+            <td><code>sales_7d_daily_qty</code>、<code>sales_30d_daily_qty</code>、<code>weighted_daily_sales</code>，其中基础销量字段来自 <code>units_ordered</code></td>
+          </tr>
+          <tr>
+            <td>6. 月度系数映射</td>
+            <td>按 <code>SPU</code> 关联平台域月度系数维表，结合业务日期所属月份，取当前月起连续 4 个月系数，统一映射到底表。该层直接使用维表 <code>dim_platform_inventory_monthly_factor_df</code>，不再依赖上层 SPU 视图反查。</td>
+            <td><code>dim_platform_inventory_monthly_factor_df</code></td>
+            <td><code>month_01_factor</code>、<code>month_02_factor</code>、<code>month_03_factor</code>、<code>month_04_factor</code></td>
+          </tr>
+          <tr>
+            <td>7. 未来销量预测</td>
+            <td>用未来 4 个月系数乘以加权日销，得到 4 个月预估日均；再按未来约 90 天覆盖窗口，将各月预估日均乘对应月份天数累计，得到所需总库存。</td>
+            <td>步骤 5、6 结果</td>
+            <td><code>month_1_forecast_daily</code>、<code>month_2_forecast_daily</code>、<code>month_3_forecast_daily</code>、<code>month_4_forecast_daily</code>、<code>required_total_qty</code></td>
+          </tr>
+          <tr>
+            <td>8. 补货缺口计算</td>
+            <td>基于当前总库存和所需总库存，计算采购缺口；再将负缺口转成正向实际采购量，并根据海外仓可用库存与加权日销测算预计断货天数，用于补货场景判断。</td>
+            <td>步骤 4、5、7 结果</td>
+            <td><code>purchase_need_qty</code>、<code>purchase_need_actual_qty</code>、<code>stockout_days</code></td>
+          </tr>
+          <tr>
+            <td>9. 发货动作计算</td>
+            <td>基于国内可用库存、海外仓可用库存、所需总库存和海派时效规则，计算建议发货数量、海派到货前所需库存、在线缺口、可调拨数量以及 FBT 实际要发库存；同时生成 FBT 海派时间和当天日期展示字段。</td>
+            <td>步骤 4、5、7、8 结果</td>
+            <td><code>shipment_need_estimate_qty</code>、<code>shipping_period_required_qty</code>、<code>online_shortage_qty</code>、<code>transferable_qty</code>、<code>fbt_ship_actual_qty</code>、<code>fbt_shipping_date</code>、<code>current_date_value</code></td>
+          </tr>
+          <tr>
+            <td>10. 状态文案生成</td>
+            <td>根据海外仓可用库存和预计断货天数生成状态文案。当前原型主要使用“海外断货”或“还可以卖 X 天”两类文案，统一在 DWD 层产出，供发货、补货、总和三类视图直接复用。</td>
+            <td>步骤 4、8、9 结果</td>
+            <td><code>status_name</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <h2>四、DWS / ADS 设计</h2>
     <h3>4.1 库存检查链路</h3>

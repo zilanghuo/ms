@@ -20,6 +20,68 @@
     .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 200px; cursor: pointer; }
     .query-item input[type="date"], .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; }
     .query-item input[type="text"] { min-width: 160px; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item select + select { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; border-radius: 0; }
+    .search-query-item .search-fuzzy-input { min-width: 0; width: 170px; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-exact-trigger-wrap { position: relative; display: none; align-items: center; margin-left: -1px; }
+    .search-exact-trigger-wrap.active { display: flex; }
+    .search-exact-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      width: 196px;
+      height: 38px;
+      padding: 0 0.7rem;
+      border: 1px solid var(--input-border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-exact-trigger.active { border-color: #2563eb; box-shadow: 0 0 0 1px rgba(37,99,235,0.1); }
+    .search-exact-trigger .placeholder { color: #94a3b8; }
+    .search-exact-trigger .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; text-align: left; }
+    .search-exact-trigger .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; font-size: 1rem; }
+    .search-exact-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.16);
+      z-index: 220;
+      overflow: hidden;
+    }
+    .search-exact-panel.open { display: block; }
+    .search-exact-body { padding: 0.75rem 0.75rem 0.5rem; }
+    .search-exact-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+    }
+    .search-exact-tip { margin-top: 0.25rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+    .search-exact-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid #e2e8f0; background: #fff; }
+    .search-exact-count { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+    .search-exact-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .search-exact-btn { min-width: 62px; padding: 0.3rem 0.7rem; border-radius: 4px; border: 1px solid var(--input-border); background: #fff; color: var(--text); cursor: pointer; font-size: 0.82rem; }
+    .search-exact-btn:hover { background: #f8fafc; }
+    .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -143,6 +205,9 @@
     .detail-modal-box .analysis-table .col-num-right { text-align: right; font-variant-numeric: tabular-nums; }
     .detail-modal-box .analysis-table tr.row-total td { font-weight: 600; background: #f0fdf4; }
     .detail-modal-box .analysis-table tr.row-total:hover td { background: #dcfce7; }
+    .prompt-block { margin-top: 1rem; padding: 0.9rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; }
+    .prompt-block .prompt-title { margin: 0 0 0.75rem; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
+    .prompt-block pre { margin: 0; padding: 1rem; border-radius: 6px; background: #fff; border: 1px solid #e2e8f0; color: var(--text); font-size: 0.85rem; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
   </style>
 </head>
 <body>
@@ -174,12 +239,36 @@
             <option value="">请选择店铺</option>
           </select>
         </div>
-        <div class="query-item">
-          <select id="qSearchField" style="min-width:80px;">
+        <div class="query-item search-query-item">
+          <select id="qSearchField" class="search-field-select">
             <option value="spu">SPU</option>
             <option value="pid">PID</option>
           </select>
-          <input type="text" id="qSearchVal" placeholder="模糊搜索" title="留空显示全部" style="min-width:160px;" />
+          <select id="qSearchMode" class="search-mode-select">
+            <option value="fuzzy">模糊搜索</option>
+            <option value="exact">精确搜索</option>
+          </select>
+          <input type="text" id="qSearchVal" class="search-fuzzy-input" placeholder="请输入" title="留空显示全部" />
+          <div class="search-exact-trigger-wrap" id="searchExactTriggerWrap">
+            <button type="button" class="search-exact-trigger" id="searchExactTrigger" title="一行一项，按回车键换行">
+              <span class="value placeholder" id="searchExactPreview">请输入</span>
+              <span class="icon">⋯</span>
+            </button>
+            <div class="search-exact-panel" id="searchExactPanel">
+              <div class="search-exact-body">
+                <textarea id="qSearchExactVal" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+              </div>
+              <div class="search-exact-foot">
+                <button type="button" class="search-exact-btn" id="btnExactClear">清空</button>
+                <span class="search-exact-count" id="searchExactCount">0/500行</span>
+                <div class="search-exact-actions">
+                  <button type="button" class="search-exact-btn" id="btnExactCancel">取消</button>
+                  <button type="button" class="search-exact-btn primary" id="btnExactApply">搜索</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="query-item">
           <input type="date" id="qStartDate" />
@@ -237,9 +326,51 @@
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.1 版本说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;">
         <li>1、新增顶部维度切换，支持 <code>SPU汇总</code> / <code>PID明细</code> 两种视图，默认展示 PID明细。</li>
-        <li>2、是否需要导出图片。</li>
-        <li>3、是否需要每日播报图片。</li>
+        <li>2、需要导出图片。</li>
+        <li>3、每日播报的图片，调整为 spu 统计的内容</li>
+        <li>4、关于ai 提示词，除了提示词外， 需要给ai 数据，提供 近7天的数据吗？</li>
       </ul>
+      <div class="prompt-block">
+        <h4 class="prompt-title">AI 提示词模版</h4>
+        <pre>【1. 基础表现分析】
+计算分析周期内的总销量、日均销量。
+识别出销量排名前 5 的 SPU (父项)，并计算其销量占比。
+
+
+【2. 趋势与异常识别】
+描述整体销售趋势（如：稳步增长、高位波动、下滑等）。
+
+请基于以下量化标准描述整体销售趋势，并给出具体数据支撑：
+趋势判定标准：
+稳步增长：计算 7 天移动平均线 (SMA)，若呈上升趋势且日环比多为正值，判定为稳步增长。
+高位波动：若日销量上下波动幅度超过均值的 20%，但均值未见明显下滑，判定为高位波动。
+持续下滑：若最新 3 天均值显著低于 7 天均值，且环比连续下降，判定为下滑。
+异常值检测：
+使用 Z-score 逻辑（偏离均值 2 倍标准差以上）识别异常峰值或谷值。
+识别数据断层（如销量突然归零），并分析是否为统计延迟。
+
+
+识别数据中的异常值（例如：某日销量显著高于均值，或某日数据突然归零/缺失）。
+
+请基于以下数据标准扫描全表，识别并报告所有异常点：
+暴涨/暴跌预警：识别单日销量超过 [均值 + 2σ] 的点（Z-Score 逻辑），并计算其偏离幅度。
+断层/缺失预警：若前 3 日均销量 &gt; 5 但当日突然归零，请立即标记。需区分是“全店系统性延迟”还是“单品业务异常”。
+极端跳跃预警：识别环比增长 &gt; 100% 或 环比下跌 &gt; 50% 的 SPU，并给出预警提示。
+
+
+
+【3. “新开单”产品】
+定义：识别在“最新一天”产生销量，但在其之前的“连续 7 天”销量均为 0 的 SPU。
+输出要求：列出符合上述条件的 SPU 名称及其最新一天的销量。
+
+
+【4. 运营行动建议 (Next Actions)】
+针对核心产品：注意检查库存备货和广告ROI的情况
+针对新开单产品：标记为“待评估”，并提示：“运营评估开单来源 &amp; 库存是否充足&amp;投放确认是否进入投放（注意投放前核实库存情况）”。
+针对低效产品：识别长期无销量的 SPU，建议评估库存风险。
+输出格式要求：
+请使用 Markdown 格式输出，包含清晰的标题、数据对比表格以及分条陈述的建议。</pre>
+      </div>
     </div>
 
     <p class="back"><a href="../需求文档.html">← 返回需求文档</a></p>
@@ -284,6 +415,8 @@
     (function() {
       var curGran = 'day';
       var curView = 'spu';
+      var exactSearchDraft = '';
+      var exactSearchApplied = '';
 
       var regionTree = [
         { name: '欧洲', children: [
@@ -482,13 +615,96 @@
         return { start: document.getElementById('qStartDate').value, end: document.getElementById('qEndDate').value };
       }
 
+      function normalizeExactSearchLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+
+      function getSearchMode() {
+        var el = document.getElementById('qSearchMode');
+        return el ? el.value : 'fuzzy';
+      }
+
+      function updateExactSearchPreview() {
+        var preview = document.getElementById('searchExactPreview');
+        var count = document.getElementById('searchExactCount');
+        var lines = normalizeExactSearchLines(exactSearchDraft);
+        if (count) count.textContent = lines.length + '/500行';
+        if (!preview) return;
+        if (!lines.length) {
+          preview.textContent = '请输入';
+          preview.classList.add('placeholder');
+          return;
+        }
+        preview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        preview.classList.remove('placeholder');
+      }
+
+      function closeExactSearchPanel(restoreDraft) {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        if (restoreDraft) {
+          exactSearchDraft = exactSearchApplied;
+          textarea.value = exactSearchDraft;
+        }
+        panel.classList.remove('open');
+        trigger.classList.remove('active');
+        updateExactSearchPreview();
+      }
+
+      function openExactSearchPanel() {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        exactSearchDraft = exactSearchApplied;
+        textarea.value = exactSearchDraft;
+        updateExactSearchPreview();
+        panel.classList.add('open');
+        trigger.classList.add('active');
+        setTimeout(function() { textarea.focus(); }, 0);
+      }
+
+      function syncSearchModeUI() {
+        var mode = getSearchMode();
+        var fuzzyInput = document.getElementById('qSearchVal');
+        var exactWrap = document.getElementById('searchExactTriggerWrap');
+        if (fuzzyInput) fuzzyInput.style.display = mode === 'exact' ? 'none' : '';
+        if (exactWrap) exactWrap.classList.toggle('active', mode === 'exact');
+        closeExactSearchPanel(true);
+      }
+
       function getFiltered() {
         var store = document.getElementById('qStore').value;
         if (!store || !spusByShop[store]) return null;
         var spus = spusByShop[store];
         var field = document.getElementById('qSearchField').value;
+        var mode = getSearchMode();
         var keyword = (document.getElementById('qSearchVal').value || '').trim().toLowerCase();
-        if (keyword) {
+        var exactValues = normalizeExactSearchLines(exactSearchApplied);
+        var exactMap = {};
+        exactValues.forEach(function(value) { exactMap[value.toLowerCase()] = true; });
+        if (mode === 'exact' && exactValues.length) {
+          if (field === 'spu') {
+            spus = spus.filter(function(s) { return !!exactMap[s.toLowerCase()]; });
+          } else if (field === 'pid') {
+            spus = spus.filter(function(spu) {
+              var pids = pidsBySpu[spu] || [];
+              return pids.some(function(p) { return !!exactMap[p.toLowerCase()]; });
+            });
+          }
+        } else if (keyword) {
           if (field === 'spu') {
             spus = spus.filter(function(s) { return s.toLowerCase().indexOf(keyword) !== -1; });
           } else if (field === 'pid') {
@@ -852,6 +1068,44 @@
       bindTabs('granTabs', function(tab) { curGran = tab.getAttribute('data-gran'); });
       bindTabs('viewTabs', function(tab) { curView = tab.getAttribute('data-view'); });
 
+      document.getElementById('qSearchMode').addEventListener('change', function() {
+        syncSearchModeUI();
+      });
+      document.getElementById('qSearchVal').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') render();
+      });
+      document.getElementById('searchExactTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var panel = document.getElementById('searchExactPanel');
+        if (panel && panel.classList.contains('open')) closeExactSearchPanel(true);
+        else openExactSearchPanel();
+      });
+      document.getElementById('qSearchExactVal').addEventListener('input', function() {
+        exactSearchDraft = this.value;
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactClear').addEventListener('click', function() {
+        exactSearchDraft = '';
+        document.getElementById('qSearchExactVal').value = '';
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactCancel').addEventListener('click', function() {
+        closeExactSearchPanel(true);
+      });
+      document.getElementById('btnExactApply').addEventListener('click', function() {
+        exactSearchApplied = normalizeExactSearchLines(document.getElementById('qSearchExactVal').value).join('\n');
+        exactSearchDraft = exactSearchApplied;
+        closeExactSearchPanel(false);
+        render();
+      });
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('searchExactPanel');
+        var wrap = document.getElementById('searchExactTriggerWrap');
+        if (!panel || !wrap || !panel.classList.contains('open')) return;
+        if (wrap.contains(e.target)) return;
+        closeExactSearchPanel(true);
+      });
+
       document.getElementById('btnQuery').onclick = render;
       document.getElementById('btnReset').onclick = function() {
         if (window._clearCascade) window._clearCascade();
@@ -859,7 +1113,12 @@
         document.getElementById('qStartDate').value = '2025-06-01';
         document.getElementById('qEndDate').value = '2026-03-10';
         document.getElementById('qSearchField').value = 'spu';
+        document.getElementById('qSearchMode').value = 'fuzzy';
         document.getElementById('qSearchVal').value = '';
+        exactSearchDraft = '';
+        exactSearchApplied = '';
+        document.getElementById('qSearchExactVal').value = '';
+        syncSearchModeUI();
         curGran = 'day';
         curView = 'spu';
         document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
@@ -878,6 +1137,8 @@
         ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
+      syncSearchModeUI();
+      updateExactSearchPreview();
       (function() {
         var dm = document.getElementById('detailModal');
         var dmClose = document.getElementById('detailModalClose');

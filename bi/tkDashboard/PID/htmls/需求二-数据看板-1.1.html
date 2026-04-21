@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PID数据看板 1.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; }
     * { box-sizing: border-box; }
@@ -12,6 +13,7 @@
     .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
     .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.75rem; margin-bottom: 1rem; }
     .query-row { display: flex; flex-wrap: wrap; gap: 0.5rem 0.6rem; align-items: center; }
+    .view-switch { display: inline-flex; align-items: center; gap: 0.35rem; flex-shrink: 0; }
     .query-item { display: flex; align-items: center; gap: 0.25rem; flex-shrink: 0; }
     .query-item .label { color: var(--text); font-size: 0.8rem; white-space: nowrap; }
     .query-item .fuzzy { color: var(--muted); font-size: 0.7rem; }
@@ -20,6 +22,67 @@
     .query-item input[type="number"] { min-width: 0; width: 52px; }
     .query-item input[type="text"] { min-width: 0; width: 88px; }
     .query-item select { min-width: 0; width: 90px; cursor: pointer; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select + select { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 92px; border-radius: 0; }
+    .search-query-item .search-fuzzy-input { width: 132px; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-exact-trigger-wrap { position: relative; display: none; align-items: center; margin-left: -1px; }
+    .search-exact-trigger-wrap.active { display: flex; }
+    .search-exact-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      width: 172px;
+      height: 31px;
+      padding: 0 0.55rem;
+      border: 1px solid var(--input-border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-exact-trigger.active { border-color: #2563eb; box-shadow: 0 0 0 1px rgba(37,99,235,0.1); }
+    .search-exact-trigger .placeholder { color: #94a3b8; }
+    .search-exact-trigger .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8rem; }
+    .search-exact-trigger .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.95rem; }
+    .search-exact-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 300px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.16);
+      z-index: 220;
+      overflow: hidden;
+    }
+    .search-exact-panel.open { display: block; }
+    .search-exact-body { padding: 0.75rem 0.75rem 0.5rem; }
+    .search-exact-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+    }
+    .search-exact-tip { margin-top: 0.25rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+    .search-exact-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid #e2e8f0; background: #fff; }
+    .search-exact-count { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+    .search-exact-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .search-exact-btn { min-width: 62px; padding: 0.3rem 0.7rem; border-radius: 4px; border: 1px solid var(--input-border); background: #fff; color: var(--text); cursor: pointer; font-size: 0.82rem; }
+    .search-exact-btn:hover { background: #f8fafc; }
+    .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn { border-radius: 4px; padding: 0.3rem 0.65rem; font-size: 0.8rem; cursor: pointer; border: 1px solid transparent; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
@@ -82,6 +145,10 @@
     thead th.col-sticky-2,
     thead th.col-sticky-3,
     thead th.col-sticky-4 { z-index: 10; }
+    table.view-spu { min-width: 2520px; }
+    table.view-spu .col-sticky-2 { left: 90px; min-width: 280px; }
+    table.view-spu .col-sticky-3 { left: 370px; min-width: 56px; box-shadow: 2px 0 6px rgba(0,0,0,0.08); }
+    table.view-spu thead tr:first-child th.col-sticky-23 { min-width: 336px; width: 336px; }
 
     .cascade-wrap { position: relative; display: inline-block; }
     .cascade-trigger { display: inline-flex; align-items: center; gap: 0.25rem; border: 1px solid var(--input-border); border-radius: 4px; padding: 0.28rem 0.4rem; font-size: 0.8rem; color: var(--text); background: #fff; cursor: pointer; min-width: 100px; max-width: 120px; user-select: none; }
@@ -160,6 +227,40 @@
     .analysis-table tr.row-total:hover td { background: #dcfce7; }
     .analysis-close { padding: 0.25rem; border: none; background: transparent; cursor: pointer; color: var(--muted); font-size: 1.25rem; line-height: 1; border-radius: 4px; }
     .analysis-close:hover { background: #f1f5f9; color: var(--text); }
+    .manage-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .manage-modal-overlay.visible { display: flex; }
+    .manage-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 14px 48px rgba(0,0,0,0.24); width: min(1200px, 96vw); height: min(760px, 92vh); display: flex; flex-direction: column; overflow: hidden; }
+    .manage-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%); }
+    .manage-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .manage-toolbar { padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid var(--border); background: #fff; }
+    .manage-query-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+    .manage-query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .manage-query-item .label { color: var(--text); font-size: 0.88rem; white-space: nowrap; }
+    .manage-query-item input, .manage-query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.88rem; color: var(--text); background: #fff; min-width: 180px; }
+    .manage-query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .manage-body { flex: 1; min-height: 0; padding: 1rem 1.25rem 1.25rem; background: #f8fafc; overflow: auto; }
+    .manage-summary { margin-bottom: 0.75rem; font-size: 0.82rem; color: var(--muted); }
+    .manage-table-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .manage-table-wrap { overflow: auto; }
+    .manage-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 900px; }
+    .manage-table th, .manage-table td { padding: 0.6rem 0.75rem; border: 1px solid var(--border); text-align: left; white-space: nowrap; }
+    .manage-table th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    .manage-table tr:hover td { background: #f9fafb; }
+    .manage-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .manage-action-btn { padding: 0.28rem 0.72rem; font-size: 0.78rem; border: 1px solid var(--accent); border-radius: 4px; background: #fff; color: var(--accent); cursor: pointer; }
+    .manage-action-btn:hover { background: #f0fdfa; }
+    .edit-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1110; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .edit-modal-overlay.visible { display: flex; }
+    .edit-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); width: min(460px, 94vw); overflow: hidden; }
+    .edit-modal-header { padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .edit-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .edit-modal-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem; }
+    .edit-form-item { display: flex; flex-direction: column; gap: 0.35rem; }
+    .edit-form-item label { font-size: 0.84rem; color: var(--muted); }
+    .edit-form-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.5rem 0.65rem; font-size: 0.88rem; color: var(--text); background: #fff; }
+    .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
+    .edit-form-tip { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+    .edit-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0 1rem 1rem; }
   </style>
 </head>
 <body>
@@ -168,6 +269,13 @@
 
     <div class="query-card">
       <div class="query-row">
+        <div class="view-switch">
+          <span class="label">维度</span>
+          <div class="tab-group" id="viewTabs">
+            <button type="button" class="tab" data-view="spu">SPU汇总</button>
+            <button type="button" class="tab active" data-view="pid">PID明细</button>
+          </div>
+        </div>
         <div class="query-item">
           <span class="label">站点</span>
           <div class="cascade-wrap" id="cascadeWrap">
@@ -184,12 +292,36 @@
             <option value="">全部</option>
           </select>
         </div>
-        <div class="query-item">
-          <select id="qSearchField">
+        <div class="query-item search-query-item" id="searchQueryItem">
+          <select id="qSearchField" class="search-field-select">
             <option value="pid">PID</option>
             <option value="spu">SPU</option>
           </select>
-          <input type="text" id="qSearchVal" placeholder="搜索" title="留空显示全部" />
+          <select id="qSearchMode" class="search-mode-select">
+            <option value="fuzzy">模糊搜索</option>
+            <option value="exact">精确搜索</option>
+          </select>
+          <input type="text" id="qSearchVal" class="search-fuzzy-input" placeholder="请输入" title="留空显示全部" />
+          <div class="search-exact-trigger-wrap" id="searchExactTriggerWrap">
+            <button type="button" class="search-exact-trigger" id="searchExactTrigger" title="一行一项，按回车键换行">
+              <span class="value placeholder" id="searchExactPreview">请输入</span>
+              <span class="icon">⋯</span>
+            </button>
+            <div class="search-exact-panel" id="searchExactPanel">
+              <div class="search-exact-body">
+                <textarea id="qSearchExactVal" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+              </div>
+              <div class="search-exact-foot">
+                <button type="button" class="search-exact-btn" id="btnExactClear">清空</button>
+                <span class="search-exact-count" id="searchExactCount">0/500行</span>
+                <div class="search-exact-actions">
+                  <button type="button" class="search-exact-btn" id="btnExactCancel">取消</button>
+                  <button type="button" class="search-exact-btn primary" id="btnExactApply">搜索</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="query-item date-gran-wrap">
           <span class="label" id="dateLabel">日期范围</span>
@@ -231,7 +363,9 @@
       <div class="action-head">
         <div class="btns">
           <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
+          <button type="button" class="btn btn-secondary" id="btnManagePidSpu">PID与主推SPU维护</button>
           <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+          <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
         </div>
         <div class="meta-info">
           <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -246,69 +380,8 @@
     <div class="table-card">
       <div class="table-wrap">
         <table id="resultTable">
-          <thead>
-            <tr>
-              <th class="th-module bg-blue col-sticky-1" colspan="1">日期</th>
-              <th class="th-module bg-yellow col-sticky-23" colspan="3">商品基础信息</th>
-              <th class="th-module bg-blue" colspan="12">GMV情况</th>
-              <th class="th-module bg-yellow" colspan="9">商品卡</th>
-              <th class="th-module bg-blue" colspan="9">短视频</th>
-              <th class="th-module bg-yellow" colspan="6">商务剪辑情况</th>
-              <th class="th-module bg-blue" colspan="11">广告情况</th>
-            </tr>
-            <tr>
-              <th class="th-col col-sticky-1">日期</th>
-              <th class="th-col col-sticky-2">PID</th>
-              <th class="th-col col-sticky-3">主推SPU</th>
-              <th class="th-col col-sticky-4">分析</th>
-              <th class="th-col">客单价</th>
-              <th class="th-col">平均补贴/单</th>
-              <th class="th-col">财务GMV</th>
-              <th class="th-col">商品交易总额</th>
-              <th class="th-col">成交件数</th>
-              <th class="th-col">订单数</th>
-              <th class="th-col">商品卡GMV</th>
-              <th class="th-col">直播GMV</th>
-              <th class="th-col">短视频GMV</th>
-              <th class="th-col">商品卡GMV占比</th>
-              <th class="th-col">直播GMV占比</th>
-              <th class="th-col">短视频GMV占比</th>
-              <th class="th-col">商品卡商品交易总额</th>
-              <th class="th-col">商品卡成交件数</th>
-              <th class="th-col">客单价</th>
-              <th class="th-col">曝光</th>
-              <th class="th-col">商品卡片的页面浏览次数</th>
-              <th class="th-col">去重浏览</th>
-              <th class="th-col">去重客户</th>
-              <th class="th-col">商品卡点击</th>
-              <th class="th-col">商品卡转化</th>
-              <th class="th-col">商品卡短视频商品交易总额</th>
-              <th class="th-col">短视频成交件数</th>
-              <th class="th-col">客单价</th>
-              <th class="th-col">视频曝光次数</th>
-              <th class="th-col">来自视频的页面浏览次数</th>
-              <th class="th-col">来自视频的去重页面浏览次数</th>
-              <th class="th-col">视频去重商品客户数</th>
-              <th class="th-col">视频点击率</th>
-              <th class="th-col">视频转化率</th>
-              <th class="th-col">商务挂车量</th>
-              <th class="th-col">剪辑挂车量</th>
-              <th class="th-col">合计挂车量</th>
-              <th class="th-col">商务开单视频</th>
-              <th class="th-col">剪辑开单视频</th>
-              <th class="th-col">开单视频合计</th>
-              <th class="th-col col-num-right">vas消耗</th>
-              <th class="th-col col-num-right">GMVMAX消耗</th>
-              <th class="th-col col-num-right">广告总消耗</th>
-              <th class="th-col col-num-right">广告单量</th>
-              <th class="th-col col-num-right">广告订单数</th>
-              <th class="th-col col-num-right">广告GMV</th>
-              <th class="th-col col-num-right">总GMV</th>
-              <th class="th-col col-num-right">总ACOAS</th>
-              <th class="th-col col-num-right">广告ROI（测算）</th>
-              <th class="th-col col-num-right">广告AcoAs</th>
-              <th class="th-col col-num-right">广告ROI设置数</th>
-            </tr>
+          <thead id="resultHead">
+            <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>分析</th><th colspan="47"></th></tr>
           </thead>
           <tbody id="resultBody">
             <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
@@ -323,7 +396,11 @@
         <li>1、关于广告的历史数据，1 店和 3 店的数据混合在一起，需要通过 PID 进行区分；PID 在每个店铺内不会发生重复。</li>
         <li>2、关于数值：统一保留两位小数。</li>
         <li>3、关于货币表示：涉及到数值的金额字段，统一使用 <code>$</code> 前缀展示。</li>
-        <li>4、关于三个rpa：视频与直播 的数据，需要通过RPA，进行导出联盟账号的数据（预计430 会进行导入）、联盟订单的数据（暂无资源，待定）、vsa的数据（暂无资源，待定）</li>
+        <li>4、关于三个rpa：视频与直播 的数据，需要通过RPA，进行导出联盟账号的数据（预计430 会进行导入，商务剪辑的情况）、联盟订单的数据（暂无资源，待定）、vsa的数据（暂无资源，待定）</li>
+        <li>5、关于主推spu 处理方式，历史的飞书为 基数，然后支持 手动配置</li>
+        <li>6、关于pid 条件多选问题，可以支持</li>
+        <li>7、支持spu纬度，对应的导出等功能都要有。如果spu纬度的，就没有pid 选项</li>
+
       </ul>
     </div>
 
@@ -344,6 +421,7 @@
               <button type="button" class="tab" data-gran="week">周</button>
               <button type="button" class="tab" data-gran="month">月</button>
             </div>
+            <button type="button" class="btn btn-secondary" id="btnAnalysisExportImg">导出图片</button>
             <button type="button" class="analysis-close" id="analysisClose" title="关闭">×</button>
           </div>
         </div>
@@ -357,14 +435,173 @@
         </div>
       </div>
     </div>
+    <div class="manage-modal-overlay" id="managePidSpuModal" role="dialog" aria-modal="true" aria-labelledby="managePidSpuTitle">
+      <div class="manage-modal-box" onclick="event.stopPropagation()">
+        <div class="manage-header">
+          <span class="manage-title" id="managePidSpuTitle">PID 与主推SPU维护</span>
+          <button type="button" class="analysis-close" id="btnCloseManagePidSpu" title="关闭">×</button>
+        </div>
+        <div class="manage-toolbar">
+          <div class="manage-query-row">
+            <div class="manage-query-item">
+              <span class="label">店铺</span>
+              <select id="manageStore">
+                <option value="">全部店铺</option>
+              </select>
+            </div>
+            <div class="manage-query-item">
+              <span class="label">PID</span>
+              <input type="text" id="managePid" placeholder="请输入 PID" />
+            </div>
+            <div class="manage-query-item">
+              <span class="label">主推SPU</span>
+              <input type="text" id="manageSpu" placeholder="请输入主推SPU" />
+            </div>
+            <div class="manage-query-actions">
+              <button type="button" class="btn btn-query" id="btnQueryManagePidSpu">查询</button>
+              <button type="button" class="btn btn-secondary" id="btnResetManagePidSpu">重置</button>
+            </div>
+          </div>
+        </div>
+        <div class="manage-body">
+          <div class="manage-summary" id="manageSummary">共 0 条记录</div>
+          <div class="manage-table-card">
+            <div class="manage-table-wrap">
+              <table class="manage-table">
+                <thead>
+                  <tr>
+                    <th>店铺</th>
+                    <th>PID</th>
+                    <th>主推SPU</th>
+                    <th>创建时间</th>
+                    <th>更新时间</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="managePidSpuBody">
+                  <tr><td colspan="6" class="manage-empty">暂无数据</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="edit-modal-overlay" id="editPidSpuModal" role="dialog" aria-modal="true" aria-labelledby="editPidSpuTitle">
+      <div class="edit-modal-box" onclick="event.stopPropagation()">
+        <div class="edit-modal-header">
+          <span class="edit-modal-title" id="editPidSpuTitle">编辑主推SPU</span>
+          <button type="button" class="analysis-close" id="btnCloseEditPidSpu" title="关闭">×</button>
+        </div>
+        <div class="edit-modal-body">
+          <div class="edit-form-item">
+            <label for="editStore">店铺</label>
+            <input type="text" id="editStore" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label for="editPid">PID</label>
+            <input type="text" id="editPid" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label for="editSpu">主推SPU</label>
+            <input type="text" id="editSpu" placeholder="请输入主推SPU" />
+          </div>
+          <div class="edit-form-tip">当前原型支持按 PID 维护主推SPU 映射关系，保存后将同步刷新维护列表中的更新时间。</div>
+        </div>
+        <div class="edit-modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnCancelEditPidSpu">取消</button>
+          <button type="button" class="btn btn-query" id="btnSaveEditPidSpu">保存</button>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     (function() {
-      var COLS = 51;
-      var headers = ['日期','PID','主推SPU','分析','客单价','平均补贴/单','财务GMV','商品交易总额','成交件数','订单数','商品卡GMV','直播GMV','短视频GMV','商品卡GMV占比','直播GMV占比','短视频GMV占比','商品卡商品交易总额','商品卡成交件数','客单价','曝光','商品卡片的页面浏览次数','去重浏览','去重客户','商品卡点击','商品卡转化','商品卡短视频商品交易总额','短视频成交件数','客单价','视频曝光次数','来自视频的页面浏览次数','来自视频的去重页面浏览次数','视频去重商品客户数','视频点击率','视频转化率','商务挂车量','剪辑挂车量','合计挂车量','商务开单视频','剪辑开单视频','开单视频合计','vas消耗','GMVMAX消耗','广告总消耗','广告单量','广告订单数','广告GMV','总GMV','总ACOAS','广告ROI（测算）','广告AcoAs','广告ROI设置数'];
-      var MONEY_COLS = { 4: true, 5: true, 6: true, 11: true, 18: true, 20: true, 27: true, 28: true, 29: true, 32: true, 33: true };
-      var PERCENT_COLS = { 7: true, 8: true, 9: true, 17: true, 34: true, 36: true };
-      var TEXT_COLS = { 24: true, 25: true, 26: true, 37: true };
+      var GROUPS = [
+        { title: '日期', cls: 'bg-blue', fields: ['date'] },
+        { title: '商品基础信息', cls: 'bg-yellow', fields: ['pid', 'spu', 'analysis'] },
+        { title: 'GMV情况', cls: 'bg-blue', fields: ['avgOrderAmount', 'avgSubsidyPerOrder', 'financeGmv', 'goodsGrossAmount', 'dealQty', 'orderCount', 'cardGmv', 'liveGmv', 'videoGmv', 'cardGmvRate', 'liveGmvRate', 'videoGmvRate'] },
+        { title: '商品卡', cls: 'bg-yellow', fields: ['cardGoodsGrossAmount', 'cardDealQty', 'cardAvgOrderAmount', 'cardExposure', 'cardPageView', 'cardUniqueView', 'cardUniqueCustomer', 'cardClick', 'cardConversion'] },
+        { title: '短视频', cls: 'bg-blue', fields: ['videoGoodsGrossAmount', 'videoDealQty', 'videoAvgOrderAmount', 'videoExposure', 'videoPageView', 'videoUniqueView', 'videoUniqueCustomer', 'videoClickRate', 'videoConversionRate'] },
+        { title: '商务剪辑情况', cls: 'bg-yellow', fields: ['bizMountCount', 'editMountCount', 'totalMountCount', 'bizOrderVideoCount', 'editOrderVideoCount', 'totalOrderVideoCount'] },
+        { title: '广告情况', cls: 'bg-blue', fields: ['vasConsume', 'gmvMaxConsume', 'adTotalConsume', 'adUnitQty', 'adOrderCount', 'adGmv', 'totalGmv', 'totalAcoas', 'adRoiEst', 'adAcoas', 'adRoiSetting'] }
+      ];
+
+      var ALL_FIELDS = [
+        { key: 'date', label: '日期', type: 'text' },
+        { key: 'pid', label: 'PID', type: 'text' },
+        { key: 'spu', label: '主推SPU', type: 'text' },
+        { key: 'analysis', label: '分析', type: 'text' },
+        { key: 'avgOrderAmount', label: '客单价', type: 'money', formula: function(m) { return safeDivide(m.goodsGrossAmount, m.orderCount); } },
+        { key: 'avgSubsidyPerOrder', label: '平均补贴/单', type: 'money', formula: function(m) { return safeDivide(m.totalSubsidy, m.orderCount); } },
+        { key: 'financeGmv', label: '财务GMV', type: 'money', metric: true },
+        { key: 'goodsGrossAmount', label: '商品交易总额', type: 'money', metric: true },
+        { key: 'dealQty', label: '成交件数', type: 'number', metric: true },
+        { key: 'orderCount', label: '订单数', type: 'number', metric: true },
+        { key: 'cardGmv', label: '商品卡GMV', type: 'money', metric: true },
+        { key: 'liveGmv', label: '直播GMV', type: 'money', metric: true },
+        { key: 'videoGmv', label: '短视频GMV', type: 'money', metric: true },
+        { key: 'cardGmvRate', label: '商品卡GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.cardGmv, m.financeGmv) * 100; } },
+        { key: 'liveGmvRate', label: '直播GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.liveGmv, m.financeGmv) * 100; } },
+        { key: 'videoGmvRate', label: '短视频GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.videoGmv, m.financeGmv) * 100; } },
+        { key: 'cardGoodsGrossAmount', label: '商品卡商品交易总额', type: 'money', metric: true },
+        { key: 'cardDealQty', label: '商品卡成交件数', type: 'number', metric: true },
+        { key: 'cardAvgOrderAmount', label: '客单价', type: 'money', formula: function(m) { return safeDivide(m.cardGoodsGrossAmount, m.cardDealQty); } },
+        { key: 'cardExposure', label: '曝光', type: 'number', metric: true },
+        { key: 'cardPageView', label: '商品卡片的页面浏览次数', type: 'number', metric: true },
+        { key: 'cardUniqueView', label: '去重浏览', type: 'number', metric: true },
+        { key: 'cardUniqueCustomer', label: '去重客户', type: 'number', metric: true },
+        { key: 'cardClick', label: '商品卡点击', type: 'number', metric: true },
+        { key: 'cardConversion', label: '商品卡转化', type: 'percent', formula: function(m) { return safeDivide(m.cardDealQty, m.cardClick) * 100; } },
+        { key: 'videoGoodsGrossAmount', label: '商品卡短视频商品交易总额', type: 'money', metric: true },
+        { key: 'videoDealQty', label: '短视频成交件数', type: 'number', metric: true },
+        { key: 'videoAvgOrderAmount', label: '客单价', type: 'money', formula: function(m) { return safeDivide(m.videoGoodsGrossAmount, m.videoDealQty); } },
+        { key: 'videoExposure', label: '视频曝光次数', type: 'number', metric: true },
+        { key: 'videoPageView', label: '来自视频的页面浏览次数', type: 'number', metric: true },
+        { key: 'videoUniqueView', label: '来自视频的去重页面浏览次数', type: 'number', metric: true },
+        { key: 'videoUniqueCustomer', label: '视频去重商品客户数', type: 'number', metric: true },
+        { key: 'videoClickRate', label: '视频点击率', type: 'percent', formula: function(m) { return safeDivide(m.videoPageView, m.videoExposure) * 100; } },
+        { key: 'videoConversionRate', label: '视频转化率', type: 'percent', formula: function(m) { return safeDivide(m.videoDealQty, m.videoPageView) * 100; } },
+        { key: 'bizMountCount', label: '商务挂车量', type: 'number', metric: true },
+        { key: 'editMountCount', label: '剪辑挂车量', type: 'number', metric: true },
+        { key: 'totalMountCount', label: '合计挂车量', type: 'number', formula: function(m) { return (m.bizMountCount || 0) + (m.editMountCount || 0); } },
+        { key: 'bizOrderVideoCount', label: '商务开单视频', type: 'number', metric: true },
+        { key: 'editOrderVideoCount', label: '剪辑开单视频', type: 'number', metric: true },
+        { key: 'totalOrderVideoCount', label: '开单视频合计', type: 'number', formula: function(m) { return (m.bizOrderVideoCount || 0) + (m.editOrderVideoCount || 0); } },
+        { key: 'vasConsume', label: 'vas消耗', type: 'money', metric: true },
+        { key: 'gmvMaxConsume', label: 'GMVMAX消耗', type: 'money', metric: true },
+        { key: 'adTotalConsume', label: '广告总消耗', type: 'money', formula: function(m) { return (m.vasConsume || 0) + (m.gmvMaxConsume || 0); } },
+        { key: 'adUnitQty', label: '广告单量', type: 'number', metric: true },
+        { key: 'adOrderCount', label: '广告订单数', type: 'number', metric: true },
+        { key: 'adGmv', label: '广告GMV', type: 'money', metric: true },
+        { key: 'totalGmv', label: '总GMV', type: 'money', metric: true },
+        { key: 'totalAcoas', label: '总ACOAS', type: 'percent', formula: function(m) { return safeDivide(m.adTotalConsume, m.financeGmv) * 100; } },
+        { key: 'adRoiEst', label: '广告ROI（测算）', type: 'number', formula: function(m) { return safeDivide(m.adGmv, m.gmvMaxConsume); } },
+        { key: 'adAcoas', label: '广告AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.gmvMaxConsume, m.adGmv) * 100; } },
+        { key: 'adRoiSetting', label: '广告ROI设置数', type: 'text' }
+      ];
+
+      var FIELD_MAP = {};
+      ALL_FIELDS.forEach(function(field) { FIELD_MAP[field.key] = field; });
+      var METRIC_KEYS = ALL_FIELDS.filter(function(field) { return field.metric; }).map(function(field) { return field.key; });
+      var AD_COL_START_KEY = 'vasConsume';
+      var currentView = 'pid';
+      var currentFieldOrder = [];
+      var currentAdColStart = 0;
+      var currentStickyCount = 4;
+      var pidSpuManageData = [
+        { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', pid: '1729439482671567205', mainSpu: 'AL-W0161', createdAt: '2026-03-18 10:22:31', updatedAt: '2026-04-12 16:10:08' },
+        { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', pid: '1729773126172578149', mainSpu: 'AL-W0161', createdAt: '2026-03-18 10:25:16', updatedAt: '2026-04-12 16:10:08' },
+        { store: '美国 TK・艾斯特尼 - 美区特 2 店 US', pid: '1731657241623302501', mainSpu: 'AL-W0180', createdAt: '2026-03-19 09:43:20', updatedAt: '2026-04-12 16:11:32' },
+        { store: '美国 TK・艾斯特尼 - 美区特 2 店 US', pid: '1731657241623302502', mainSpu: 'AL-W0180', createdAt: '2026-03-19 09:44:08', updatedAt: '2026-04-12 16:11:32' },
+        { store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', pid: '1729416165725475173', mainSpu: 'ALYMX-DROPSW', createdAt: '2026-03-20 14:08:45', updatedAt: '2026-04-15 11:36:40' },
+        { store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', pid: '1729380011223344556', mainSpu: 'AL-W0169', createdAt: '2026-03-20 14:10:03', updatedAt: '2026-04-15 11:36:40' },
+        { store: '美国 TK・艾斯特尼 - 欧洲直邮店 IT', pid: '1729355500112233445', mainSpu: 'AL-W0169', createdAt: '2026-03-21 08:31:12', updatedAt: '2026-04-16 09:05:17' },
+        { store: '美国TK独立站-shopify:Global', pid: '1729300000112233443', mainSpu: 'AL-W5558', createdAt: '2026-03-21 08:35:56', updatedAt: '2026-04-16 09:05:17' }
+      ];
+      var editingPidSpuRecord = null;
+      var exactSearchDraft = '';
+      var exactSearchApplied = '';
 
       function fmtFixed(num) {
         return Number(num).toFixed(2);
@@ -374,13 +611,160 @@
         return '$' + fmtFixed(num);
       }
 
-      function fmtByCol(col, val) {
-        if (val === '—' || val === '' || val == null) return '—';
+      function safeDivide(num, den) {
+        num = Number(num);
+        den = Number(den);
+        if (!isFinite(num) || !isFinite(den) || den === 0) return null;
+        return num / den;
+      }
+
+      function fmtByField(fieldKey, val) {
+        var field = FIELD_MAP[fieldKey];
+        if (val === '—' || val === '' || val == null || typeof field === 'undefined') return '—';
+        if (field.type === 'text') return String(val);
         var num = Number(val);
-        if (isNaN(num)) return String(val);
-        if (MONEY_COLS[col]) return fmtMoney(num);
-        if (PERCENT_COLS[col]) return fmtFixed(num) + '%';
+        if (!isFinite(num)) return '—';
+        if (field.type === 'money') return fmtMoney(num);
+        if (field.type === 'percent') return fmtFixed(num) + '%';
         return fmtFixed(num);
+      }
+
+      function escapeHtml(val) {
+        return String(val == null ? '' : val).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function getNowDateTime() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' +
+          String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+      }
+
+      function getVisibleFieldOrder(view) {
+        var hidden = view === 'spu' ? { pid: true } : {};
+        return ALL_FIELDS.filter(function(field) { return !hidden[field.key]; }).map(function(field) { return field.key; });
+      }
+
+      function getFieldIndexMap(order) {
+        var map = {};
+        order.forEach(function(key, idx) { map[key] = idx; });
+        return map;
+      }
+
+      function buildHeaderHtml(view) {
+        var order = getVisibleFieldOrder(view);
+        var indexMap = getFieldIndexMap(order);
+        var stickyFields = view === 'spu' ? ['date', 'spu', 'analysis'] : ['date', 'pid', 'spu', 'analysis'];
+        currentStickyCount = stickyFields.length;
+        currentFieldOrder = order;
+        currentAdColStart = indexMap[AD_COL_START_KEY] != null ? indexMap[AD_COL_START_KEY] : order.length;
+        var firstRow = GROUPS.map(function(group) {
+          var fields = group.fields.filter(function(key) { return indexMap[key] != null; });
+          if (!fields.length) return '';
+          var extraCls = '';
+          if (group.title === '日期') extraCls = ' col-sticky-1';
+          if (group.title === '商品基础信息') extraCls = ' col-sticky-23';
+          return '<th class="th-module ' + group.cls + extraCls + '" colspan="' + fields.length + '">' + group.title + '</th>';
+        }).join('');
+        var secondRow = order.map(function(key) {
+          var idx = indexMap[key];
+          var field = FIELD_MAP[key];
+          var classes = ['th-col'];
+          if (idx < stickyFields.length) classes.push('col-sticky-' + (idx + 1));
+          if (idx >= currentAdColStart) classes.push('col-num-right');
+          return '<th class="' + classes.join(' ') + '">' + field.label + '</th>';
+        }).join('');
+        return '<tr>' + firstRow + '</tr><tr>' + secondRow + '</tr>';
+      }
+
+      function setTableViewClass(view) {
+        var table = document.getElementById('resultTable');
+        table.classList.toggle('view-spu', view === 'spu');
+      }
+
+      function renderTableHead() {
+        document.getElementById('resultHead').innerHTML = buildHeaderHtml(currentView);
+        setTableViewClass(currentView);
+      }
+
+      function createEmptyMetrics() {
+        var metrics = {};
+        METRIC_KEYS.forEach(function(key) { metrics[key] = 0; });
+        metrics.totalSubsidy = 0;
+        return metrics;
+      }
+
+      function cloneMetrics(source) {
+        var copy = createEmptyMetrics();
+        Object.keys(copy).forEach(function(key) {
+          if (source[key] != null) copy[key] = source[key];
+        });
+        return copy;
+      }
+
+      function finalizeMetrics(metrics) {
+        ALL_FIELDS.forEach(function(field) {
+          if (field.formula) metrics[field.key] = field.formula(metrics);
+        });
+        return metrics;
+      }
+
+      function createRecord(base) {
+        return {
+          date: base.date,
+          pid: base.pid,
+          spu: base.spu,
+          analysis: '',
+          store: base.store,
+          metrics: finalizeMetrics(cloneMetrics(base.metrics))
+        };
+      }
+
+      function buildRow(record, fieldOrder) {
+        return fieldOrder.map(function(key) {
+          if (key === 'analysis') return '';
+          if (key === 'date' || key === 'pid' || key === 'spu') return record[key] || '—';
+          return fmtByField(key, record.metrics[key]);
+        });
+      }
+
+      function buildExportRow(record, fieldOrder) {
+        return fieldOrder.map(function(key) {
+          if (key === 'analysis') return '';
+          if (key === 'date' || key === 'pid' || key === 'spu') return record[key] || '';
+          var field = FIELD_MAP[key];
+          var value = record.metrics[key];
+          if (value == null || !isFinite(Number(value))) return '';
+          if (field.type === 'text') return String(value);
+          return fmtFixed(value);
+        });
+      }
+
+      function aggregateRecordList(records, gran, view) {
+        if (gran === 'day') return records.slice();
+        var map = {};
+        records.forEach(function(record) {
+          var periodKey = getPeriodKey(record.date, gran);
+          var groupKey = periodKey + '\x01' + record.store + '\x01' + (view === 'spu' ? record.spu : record.pid) + '\x01' + record.spu;
+          if (!map[groupKey]) {
+            map[groupKey] = {
+              date: periodKey,
+              pid: record.pid,
+              spu: record.spu,
+              store: record.store,
+              metrics: createEmptyMetrics()
+            };
+          }
+          var target = map[groupKey];
+          METRIC_KEYS.forEach(function(key) {
+            target.metrics[key] += Number(record.metrics[key] || 0);
+          });
+          target.metrics.totalSubsidy += Number(record.metrics.totalSubsidy || 0);
+        });
+        return Object.keys(map).sort().map(function(key) {
+          var item = map[key];
+          item.date = getPeriodLabel(item.date, gran);
+          return createRecord(item);
+        });
       }
 
       var regionTree = [
@@ -499,46 +883,148 @@
         if (list.indexOf(prev) !== -1) sel.value = prev; else sel.value = '';
       }
 
+      function initManageStoreOptions() {
+        var sel = document.getElementById('manageStore');
+        if (!sel) return;
+        sel.innerHTML = '<option value="">全部店铺</option>' + allStores.map(function(store) {
+          return '<option value="' + escapeHtml(store) + '">' + escapeHtml(store) + '</option>';
+        }).join('');
+      }
+
+      function getManageFilteredData() {
+        var store = (document.getElementById('manageStore').value || '').trim();
+        var pid = (document.getElementById('managePid').value || '').trim().toLowerCase();
+        var spu = (document.getElementById('manageSpu').value || '').trim().toLowerCase();
+        return pidSpuManageData.filter(function(item) {
+          if (store && item.store !== store) return false;
+          if (pid && item.pid.toLowerCase().indexOf(pid) === -1) return false;
+          if (spu && item.mainSpu.toLowerCase().indexOf(spu) === -1) return false;
+          return true;
+        });
+      }
+
+      function renderManagePidSpuTable() {
+        var rows = getManageFilteredData();
+        var tbody = document.getElementById('managePidSpuBody');
+        var summary = document.getElementById('manageSummary');
+        if (summary) summary.textContent = '共 ' + rows.length + ' 条记录';
+        if (!tbody) return;
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="manage-empty">未匹配到符合条件的 PID 与主推SPU 记录</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(function(item) {
+          return '<tr>' +
+            '<td>' + escapeHtml(item.store) + '</td>' +
+            '<td>' + escapeHtml(item.pid) + '</td>' +
+            '<td>' + escapeHtml(item.mainSpu) + '</td>' +
+            '<td>' + escapeHtml(item.createdAt) + '</td>' +
+            '<td>' + escapeHtml(item.updatedAt) + '</td>' +
+            '<td><button type="button" class="manage-action-btn" data-pid="' + escapeHtml(item.pid) + '" data-store="' + escapeHtml(item.store) + '">编辑</button></td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      function openManagePidSpuModal() {
+        var qStore = document.getElementById('qStore');
+        if (qStore && qStore.value) document.getElementById('manageStore').value = qStore.value;
+        renderManagePidSpuTable();
+        document.getElementById('managePidSpuModal').classList.add('visible');
+      }
+
+      function closeManagePidSpuModal() {
+        document.getElementById('managePidSpuModal').classList.remove('visible');
+      }
+
+      function openEditPidSpuModal(record) {
+        if (!record) return;
+        editingPidSpuRecord = record;
+        document.getElementById('editStore').value = record.store;
+        document.getElementById('editPid').value = record.pid;
+        document.getElementById('editSpu').value = record.mainSpu;
+        document.getElementById('editPidSpuModal').classList.add('visible');
+      }
+
+      function closeEditPidSpuModal() {
+        editingPidSpuRecord = null;
+        document.getElementById('editPidSpuModal').classList.remove('visible');
+      }
+
       initCascade();
       syncStoreOptions();
 
       function fillRow(date, pid, spu, store) {
         var atv = 58 + Math.random() * 20;
         var gmv = 5000 + Math.random() * 50000;
-        var cnt = gmv / atv;
+        var orderCount = Math.max(1, gmv / atv);
+        var dealQty = orderCount * (1.4 + Math.random() * 0.6);
         var cardGmv = gmv * 0.6;
         var liveGmv = gmv * 0.25;
         var videoGmv = gmv - cardGmv - liveGmv;
         var gmvMaxConsume = 200 + Math.random() * 300;
-        var adQty = cnt * 0.18;
-        var adOrders = cnt * 0.15;
+        var adQty = dealQty * 0.18;
+        var adOrders = orderCount * 0.15;
         var adGmv = gmv * 0.12;
         var totalGmv = gmv + Math.random() * 2000;
         var vasConsume = 800 + Math.random() * 500;
-        var adTotalConsume = vasConsume + gmvMaxConsume;
-        var totalAcoas = adTotalConsume > 0 ? (adTotalConsume / gmv * 100) : null;
-        var adRoi = gmvMaxConsume > 0 ? (adGmv / gmvMaxConsume) : null;
-        var adAcoas = adGmv > 0 ? (gmvMaxConsume / adGmv * 100) : null;
-        var raw = [
-          date, pid, spu, '',
-          atv, 2.5 + Math.random() * 3, gmv,
-          60 + Math.random() * 20, 20 + Math.random() * 15, 10 + Math.random() * 10,
-          cnt * 0.62, atv, 12000 + Math.random() * 8000, 8000 + Math.random() * 5000, 6500 + Math.random() * 4000,
-          2200 + Math.random() * 2000, 5 + Math.random() * 4, 3 + Math.random() * 2,
-          videoGmv * 0.95, cnt * 0.22, atv,
-          15 + Math.random() * 20, 8 + Math.random() * 12, 23 + Math.random() * 25,
-          '—', '—', '—',
-          vasConsume, gmvMaxConsume, adTotalConsume,
-          adQty, adOrders, adGmv, totalGmv,
-          totalAcoas, adRoi, adAcoas, '—'
-        ];
-        var row = raw.map(function(val, idx) {
-          if (idx < 4) return val;
-          if (TEXT_COLS[idx]) return val;
-          return fmtByCol(idx, val);
+        var avgSubsidyPerOrder = 2.5 + Math.random() * 3;
+        var cardDealQty = dealQty * 0.62;
+        var cardGoodsGrossAmount = cardDealQty * atv;
+        var cardExposure = 12000 + Math.random() * 8000;
+        var cardPageView = 8000 + Math.random() * 5000;
+        var cardUniqueView = 6500 + Math.random() * 4000;
+        var cardUniqueCustomer = 2200 + Math.random() * 2000;
+        var cardClick = Math.max(cardDealQty * 1.5, 200 + Math.random() * 300);
+        var videoDealQty = dealQty * 0.22;
+        var videoGoodsGrossAmount = videoGmv * 0.95;
+        var videoExposure = 16000 + Math.random() * 6000;
+        var videoPageView = 1500 + Math.random() * 1500;
+        var videoUniqueView = videoPageView * (0.72 + Math.random() * 0.12);
+        var videoUniqueCustomer = videoDealQty * (3 + Math.random() * 1.5);
+        var bizMountCount = 15 + Math.random() * 20;
+        var editMountCount = 8 + Math.random() * 12;
+        var bizOrderVideoCount = 23 + Math.random() * 25;
+        var editOrderVideoCount = 9 + Math.random() * 16;
+        return createRecord({
+          date: date,
+          pid: pid,
+          spu: spu,
+          store: store,
+          metrics: {
+            financeGmv: gmv,
+            goodsGrossAmount: gmv * (1.05 + Math.random() * 0.15),
+            dealQty: dealQty,
+            orderCount: orderCount,
+            cardGmv: cardGmv,
+            liveGmv: liveGmv,
+            videoGmv: videoGmv,
+            cardGoodsGrossAmount: cardGoodsGrossAmount,
+            cardDealQty: cardDealQty,
+            cardExposure: cardExposure,
+            cardPageView: cardPageView,
+            cardUniqueView: cardUniqueView,
+            cardUniqueCustomer: cardUniqueCustomer,
+            cardClick: cardClick,
+            videoGoodsGrossAmount: videoGoodsGrossAmount,
+            videoDealQty: videoDealQty,
+            videoExposure: videoExposure,
+            videoPageView: videoPageView,
+            videoUniqueView: videoUniqueView,
+            videoUniqueCustomer: videoUniqueCustomer,
+            bizMountCount: bizMountCount,
+            editMountCount: editMountCount,
+            bizOrderVideoCount: bizOrderVideoCount,
+            editOrderVideoCount: editOrderVideoCount,
+            vasConsume: vasConsume,
+            gmvMaxConsume: gmvMaxConsume,
+            adUnitQty: adQty,
+            adOrderCount: adOrders,
+            adGmv: adGmv,
+            totalGmv: totalGmv,
+            adRoiSetting: null,
+            totalSubsidy: avgSubsidyPerOrder * orderCount
+          }
         });
-        row._store = store;
-        return row;
       }
 
       var mock = [
@@ -644,54 +1130,44 @@
       }
 
       function aggregateRows(rows) {
-        if (curDateGran === 'day' || !rows.length) return rows;
-        var gran = curDateGran;
-        var map = {};
-        rows.forEach(function(row) {
-          var pk = getPeriodKey(row[0], gran);
-          var gk = pk + '\x01' + (row._store || '') + '\x01' + row[1] + '\x01' + row[2];
-          if (!map[gk]) {
-            map[gk] = { key: pk, store: row._store, pid: row[1], spu: row[2], sums: [], first: row };
+        if (!rows.length) return [];
+        if (currentView === 'pid') return aggregateRecordList(rows, curDateGran, 'pid');
+        var pidDayRows = aggregateRecordList(rows, 'day', 'pid');
+        var grouped = {};
+        pidDayRows.forEach(function(record) {
+          var key = record.date + '\x01' + record.store + '\x01' + record.spu;
+          if (!grouped[key]) {
+            grouped[key] = {
+              date: record.date,
+              pid: '—',
+              spu: record.spu,
+              store: record.store,
+              metrics: createEmptyMetrics()
+            };
           }
-          var g = map[gk];
-          for (var i = 3; i < row.length; i++) {
-            if (i === 3) continue;
-            var v = row[i];
-            var n = parseFloat(v);
-            if (!g.sums[i]) g.sums[i] = isNaN(n) ? 0 : n;
-            else if (!isNaN(n)) g.sums[i] += n;
-          }
+          var target = grouped[key];
+          METRIC_KEYS.forEach(function(metricKey) {
+            target.metrics[metricKey] += Number(record.metrics[metricKey] || 0);
+          });
+          target.metrics.totalSubsidy += Number(record.metrics.totalSubsidy || 0);
         });
-        return Object.keys(map).map(function(k) {
-          var g = map[k];
-          var out = [getPeriodLabel(g.key, gran), g.pid, g.spu, ''];
-          for (var j = 4; j < COLS; j++) {
-            var orig = g.first[j];
-            var n = g.sums[j];
-            if (String(orig).indexOf('%') !== -1 || orig === '—') {
-              out.push(orig);
-            } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
-              out.push(fmtByCol(j, n));
-            } else {
-              out.push(orig !== undefined ? orig : '');
-            }
-          }
-          out._store = g.store;
-          return out;
+        var spuRows = Object.keys(grouped).sort().map(function(key) {
+          return createRecord(grouped[key]);
         });
+        return aggregateRecordList(spuRows, curDateGran, 'spu');
       }
 
       function getDailyRowsForPid(pid, store) {
         var range = getDateRange();
         if (!range.start || !range.end) return [];
         return mock.filter(function(row) {
-          return row[1] === pid && row._store === store && row[0] >= range.start && row[0] <= range.end;
-        }).sort(function(a, b) { return a[0].localeCompare(b[0]); });
+          return row.pid === pid && row.store === store && row.date >= range.start && row.date <= range.end;
+        }).sort(function(a, b) { return a.date.localeCompare(b.date); });
       }
 
       var analysisGran = 'day';
       var currentAnalysisSpu = '';
-      var adColStart = 27;
+      var adColStart = 0;
       function getAnalysisDateRange() {
         var start = (document.getElementById('analysisStartDate') && document.getElementById('analysisStartDate').value) || '';
         var end = (document.getElementById('analysisEndDate') && document.getElementById('analysisEndDate').value) || '';
@@ -700,86 +1176,71 @@
       function getAnalysisRowsMainFormat(spu, gran) {
         var range = getAnalysisDateRange();
         if (!range) return [];
-        var rows = mock.filter(function(row) { return row[2] === spu && row[0] >= range.start && row[0] <= range.end; });
+        var rows = mock.filter(function(row) { return row.spu === spu && row.date >= range.start && row.date <= range.end; });
         if (!rows.length) return [];
-        if (gran === 'day') {
-          return rows.sort(function(a, b) { return a[0].localeCompare(b[0]); }).map(function(row) {
-            return row.slice(0, COLS);
-          });
-        }
         var map = {};
-        rows.forEach(function(row) {
-          var pk = getPeriodKey(row[0], gran);
-          var gk = pk;
-          if (!map[gk]) {
-            map[gk] = { key: pk, sums: [], first: row };
+        rows.forEach(function(record) {
+          var key = record.date + '\x01' + record.store + '\x01' + record.spu;
+          if (!map[key]) {
+            map[key] = { date: record.date, pid: '—', spu: record.spu, store: record.store, metrics: createEmptyMetrics() };
           }
-          var g = map[gk];
-          for (var j = 3; j < row.length; j++) {
-            if (j === 3) continue;
-            var v = row[j];
-            var n = parseFloat(v);
-            if (!g.sums[j]) g.sums[j] = isNaN(n) ? 0 : n;
-            else if (!isNaN(n)) g.sums[j] += n;
-          }
+          var item = map[key];
+          METRIC_KEYS.forEach(function(metricKey) {
+            item.metrics[metricKey] += Number(record.metrics[metricKey] || 0);
+          });
+          item.metrics.totalSubsidy += Number(record.metrics.totalSubsidy || 0);
         });
-        var labelFn = function(key) { return gran === 'day' ? key : getPeriodLabel(key, gran); };
-        return Object.keys(map).sort().map(function(k) {
-          var g = map[k];
-          var out = [labelFn(g.key), '—', spu, ''];
-          for (var j = 4; j < COLS; j++) {
-            var orig = g.first[j];
-            var n = g.sums[j];
-            if (String(orig).indexOf('%') !== -1 || orig === '—') {
-              out.push(orig);
-            } else if (n !== undefined && (typeof orig === 'number' || !isNaN(parseFloat(orig)))) {
-              out.push(fmtByCol(j, n));
-            } else {
-              out.push(orig !== undefined ? orig : '');
-            }
-          }
-          return out;
+        var dailyRows = Object.keys(map).sort().map(function(key) { return createRecord(map[key]); });
+        return aggregateRecordList(dailyRows, gran, 'spu').map(function(record) {
+          return buildRow(record, getVisibleFieldOrder('spu'));
         });
       }
       function renderAnalysisTable(spu) {
+        var analysisFieldOrder = getVisibleFieldOrder('spu');
+        adColStart = analysisFieldOrder.indexOf(AD_COL_START_KEY);
+        var analysisGroups = GROUPS.map(function(group) {
+          var visibleCount = group.fields.filter(function(key) { return analysisFieldOrder.indexOf(key) !== -1; }).length;
+          if (!visibleCount) return '';
+          return '<th class="th-module ' + group.cls + '" colspan="' + visibleCount + '">' + group.title + '</th>';
+        }).join('');
         var thead = document.getElementById('analysisThead');
         thead.innerHTML =
-          '<tr><th class="th-module bg-blue">日期</th><th class="th-module bg-yellow" colspan="3">商品基础信息</th><th class="th-module bg-blue" colspan="6">GMV情况</th><th class="th-module bg-yellow" colspan="8">商品卡</th><th class="th-module bg-blue" colspan="3">短视频</th><th class="th-module bg-yellow" colspan="6">商务剪辑情况</th><th class="th-module bg-blue" colspan="11">广告情况</th></tr>' +
-          '<tr>' + headers.map(function(h, i) {
+          '<tr>' + analysisGroups + '</tr>' +
+          '<tr>' + analysisFieldOrder.map(function(key, i) {
+            var h = FIELD_MAP[key].label;
             var cls = (i >= adColStart) ? ' class="th-col col-num-right"' : ' class="th-col"';
-            return '<th' + cls + '>' + String(h).replace(/</g, '&lt;') + '</th>';
+            return '<th' + cls + '>' + escapeHtml(h) + '</th>';
           }).join('') + '</tr>';
         var tbody = document.getElementById('analysisBody');
         var range = getAnalysisDateRange();
         if (!range) {
-          tbody.innerHTML = '<tr><td colspan="' + COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">请选择时间范围（开始～结束）</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="' + analysisFieldOrder.length + '" style="text-align:center;color:var(--muted);padding:1rem;">请选择时间范围（开始～结束）</td></tr>';
           return;
         }
         var rows = getAnalysisRowsMainFormat(spu, analysisGran);
         if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="' + COLS + '" style="text-align:center;color:var(--muted);padding:1rem;">该时间范围内无数据</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="' + analysisFieldOrder.length + '" style="text-align:center;color:var(--muted);padding:1rem;">该时间范围内无数据</td></tr>';
           return;
         }
         var trs = rows.map(function(row) {
           return '<tr>' + row.map(function(cell, i) {
             var cls = (i >= adColStart) ? ' class="col-num-right"' : '';
-            return '<td' + cls + '>' + String(cell).replace(/</g, '&lt;') + '</td>';
+            return '<td' + cls + '>' + escapeHtml(cell) + '</td>';
           }).join('') + '</tr>';
         });
         var totalCells = [];
-        for (var j = 0; j < COLS; j++) {
+        for (var j = 0; j < analysisFieldOrder.length; j++) {
           var cls = (j >= adColStart) ? ' class="col-num-right"' : '';
           if (j === 0) {
             totalCells.push('<td' + cls + '>合计</td>');
             continue;
           }
-          if (j === 1 || j === 2 || j === 3) {
+          if (analysisFieldOrder[j] === 'spu' || analysisFieldOrder[j] === 'analysis') {
             totalCells.push('<td' + cls + '></td>');
             continue;
           }
-          var sample = rows[0][j];
-          var isPct = sample != null && (String(sample).indexOf('%') !== -1 || sample === '—');
-          if (isPct) {
+          var field = FIELD_MAP[analysisFieldOrder[j]];
+          if (!field || field.type === 'text' || field.type === 'percent') {
             totalCells.push('<td' + cls + '></td>');
             continue;
           }
@@ -804,49 +1265,107 @@
         return (start && end && start <= end) ? { start: start, end: end } : null;
       }
 
+      function normalizeExactSearchLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+
+      function getSearchMode() {
+        var el = document.getElementById('qSearchMode');
+        return el ? el.value : 'fuzzy';
+      }
+
+      function updateExactSearchPreview() {
+        var preview = document.getElementById('searchExactPreview');
+        var count = document.getElementById('searchExactCount');
+        var lines = normalizeExactSearchLines(exactSearchDraft);
+        if (count) count.textContent = lines.length + '/500行';
+        if (!preview) return;
+        if (!lines.length) {
+          preview.textContent = '请输入';
+          preview.classList.add('placeholder');
+          return;
+        }
+        preview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        preview.classList.remove('placeholder');
+      }
+
+      function closeExactSearchPanel(restoreDraft) {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        if (restoreDraft) {
+          exactSearchDraft = exactSearchApplied;
+          textarea.value = exactSearchDraft;
+        }
+        panel.classList.remove('open');
+        trigger.classList.remove('active');
+        updateExactSearchPreview();
+      }
+
+      function openExactSearchPanel() {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        exactSearchDraft = exactSearchApplied;
+        textarea.value = exactSearchDraft;
+        updateExactSearchPreview();
+        panel.classList.add('open');
+        trigger.classList.add('active');
+        setTimeout(function() { textarea.focus(); }, 0);
+      }
+
+      function syncSearchModeUI() {
+        var mode = getSearchMode();
+        var fuzzyInput = document.getElementById('qSearchVal');
+        var exactWrap = document.getElementById('searchExactTriggerWrap');
+        if (fuzzyInput) fuzzyInput.style.display = mode === 'exact' ? 'none' : '';
+        if (exactWrap) exactWrap.classList.toggle('active', mode === 'exact');
+        closeExactSearchPanel(true);
+      }
+
       function getComparisonMap() {
         var range = getCompareRange();
         if (!range) return {};
         var store = document.getElementById('qStore').value;
         var allowedStores = cascadeSelection.stores.length ? cascadeSelection.stores : null;
         var rows = mock.filter(function(row) {
-          if (row[0] < range.start || row[0] > range.end) return false;
-          if (allowedStores && allowedStores.indexOf(row._store) === -1) return false;
-          if (store && row._store !== store) return false;
+          if (row.date < range.start || row.date > range.end) return false;
+          if (allowedStores && allowedStores.indexOf(row.store) === -1) return false;
+          if (store && row.store !== store) return false;
           return true;
         });
         var map = {};
         rows.forEach(function(row) {
-          var key = (row[1] || '') + '\x01' + (row._store || '');
+          var key = (currentView === 'spu' ? (row.spu || '') : (row.pid || '')) + '\x01' + (row.store || '');
           if (!map[key]) {
-            map[key] = { sums: [], count: 0 };
-            for (var c = 0; c < COLS; c++) map[key].sums[c] = c < 4 ? (c === 0 ? '' : row[c]) : 0;
+            map[key] = { metrics: createEmptyMetrics() };
           }
           var g = map[key];
-          g.count++;
-          for (var j = 4; j < COLS; j++) {
-            var v = row[j];
-            var n = parseFloat(String(v).replace('%', ''));
-            if (!isNaN(n)) g.sums[j] += n;
-          }
+          METRIC_KEYS.forEach(function(metricKey) {
+            g.metrics[metricKey] += Number(row.metrics[metricKey] || 0);
+          });
+          g.metrics.totalSubsidy += Number(row.metrics.totalSubsidy || 0);
         });
         return map;
       }
 
       function attachCompareToRows(compareMap) {
         currentRows.forEach(function(row) {
-          var key = (row[1] || '') + '\x01' + (row._store || '');
+          var key = (currentView === 'spu' ? (row.spu || '') : (row.pid || '')) + '\x01' + (row.store || '');
           var g = compareMap[key];
-          if (!g) { row._compare = null; return; }
-          var arr = [];
-          for (var j = 0; j < COLS; j++) {
-            if (j < 4) arr[j] = g.sums[j];
-            else {
-              var isPct = row[j] != null && String(row[j]).indexOf('%') !== -1;
-              arr[j] = isPct && g.count > 0 ? g.sums[j] / g.count : g.sums[j];
-            }
-          }
-          row._compare = arr;
+          row.compareMetrics = g ? finalizeMetrics(cloneMetrics(g.metrics)) : null;
         });
       }
 
@@ -855,16 +1374,23 @@
         var startDate = range.start, endDate = range.end;
         var store = document.getElementById('qStore').value;
         var field = document.getElementById('qSearchField').value;
+        var mode = getSearchMode();
         var keyword = (document.getElementById('qSearchVal').value || '').trim().toLowerCase();
+        var exactValues = normalizeExactSearchLines(exactSearchApplied);
+        var exactMap = {};
+        exactValues.forEach(function(value) { exactMap[value.toLowerCase()] = true; });
         var allowedStores = cascadeSelection.stores.length ? cascadeSelection.stores : null;
         return mock.filter(function(row) {
-          if (startDate && row[0] < startDate) return false;
-          if (endDate && row[0] > endDate) return false;
-          if (allowedStores && allowedStores.indexOf(row._store) === -1) return false;
-          if (store && row._store !== store) return false;
-          if (keyword) {
-            if (field === 'pid' && row[1].toLowerCase().indexOf(keyword) === -1) return false;
-            if (field === 'spu' && String(row[2]).toLowerCase().indexOf(keyword) === -1) return false;
+          if (startDate && row.date < startDate) return false;
+          if (endDate && row.date > endDate) return false;
+          if (allowedStores && allowedStores.indexOf(row.store) === -1) return false;
+          if (store && row.store !== store) return false;
+          if (mode === 'exact' && exactValues.length) {
+            var exactValue = field === 'pid' ? String(row.pid || '') : String(row.spu || '');
+            if (!exactMap[exactValue.trim().toLowerCase()]) return false;
+          } else if (keyword) {
+            if (field === 'pid' && String(row.pid).toLowerCase().indexOf(keyword) === -1) return false;
+            if (field === 'spu' && String(row.spu).toLowerCase().indexOf(keyword) === -1) return false;
           }
           return true;
         });
@@ -907,65 +1433,69 @@
 
       function renderPage() {
         var tbody = document.getElementById('resultBody');
-        var adColStart = 27;
+        var fieldOrder = getVisibleFieldOrder(currentView);
         if (!currentRows.length) {
-          tbody.innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">暂无数据</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="' + fieldOrder.length + '" class="empty-tip">暂无数据</td></tr>';
           return;
         }
 
         var dataHtml = currentRows.map(function(row) {
-          return '<tr>' + row.map(function(cell, i) {
-            var cls = (i < 4) ? ' class="col-sticky-' + (i + 1) + '"' : '';
-            if (i >= adColStart) cls = ' class="col-num-right"';
-            if (i === 1) {
-              cls += ' pid-cell';
-              var storeEsc = (row._store != null ? String(row._store) : '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-              var pidEsc = String(cell).replace(/"/g, '&quot;').replace(/</g, '&lt;');
-              return '<td' + cls + '>' + String(cell) + ' <button type="button" class="pid-expand-btn" data-pid="' + pidEsc + '" data-store="' + storeEsc + '">每日</button></td>';
+          var displayRow = buildRow(row, fieldOrder);
+          return '<tr>' + displayRow.map(function(cell, i) {
+            var key = fieldOrder[i];
+            var classNames = [];
+            if (i < currentStickyCount) classNames.push('col-sticky-' + (i + 1));
+            if (i >= currentAdColStart) classNames.push('col-num-right');
+            if (key === 'pid') {
+              classNames.push('pid-cell');
+              var storeEsc = escapeHtml(row.store || '');
+              var pidEsc = escapeHtml(row.pid || '');
+              return '<td class="' + classNames.join(' ') + '">' + escapeHtml(cell) + ' <button type="button" class="pid-expand-btn" data-pid="' + pidEsc + '" data-store="' + storeEsc + '">每日</button></td>';
             }
-            if (i === 3) {
-              var spuEsc = (row[2] != null ? String(row[2]) : '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
-              return '<td' + cls + '><button type="button" class="spu-analysis-btn" title="SPU 分析" data-spu="' + spuEsc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
+            if (key === 'analysis') {
+              var spuEsc = escapeHtml(row.spu || '');
+              return '<td class="' + classNames.join(' ') + '"><button type="button" class="spu-analysis-btn" title="SPU 分析" data-spu="' + spuEsc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
             }
-            if (i >= 4 && row._compare && row._compare[i] != null && row._compare[i] !== '') {
+            if (FIELD_MAP[key].type !== 'text' && row.compareMetrics && row.compareMetrics[key] != null) {
               var curStr = String(cell);
-              var isPct = curStr.indexOf('%') !== -1;
-              var compareNum = row._compare[i];
-              var compareStr = (typeof compareNum === 'number') ? fmtByCol(i, compareNum) : String(compareNum);
-              var chainHtml = fmtChainCell(cell, compareNum, isPct);
-              cls += ' cell-with-compare';
-              return '<td' + cls + '><span class="cell-main">' + curStr.replace(/</g, '&lt;') + '</span><br><span class="cell-compare">' + compareStr.replace(/</g, '&lt;') + '</span><br><span class="cell-chain">' + chainHtml + '</span></td>';
+              var compareNum = row.compareMetrics[key];
+              var compareStr = fmtByField(key, compareNum);
+              var chainHtml = fmtChainCell(cell, compareNum, FIELD_MAP[key].type === 'percent');
+              classNames.push('cell-with-compare');
+              return '<td class="' + classNames.join(' ') + '"><span class="cell-main">' + escapeHtml(curStr) + '</span><br><span class="cell-compare">' + escapeHtml(compareStr) + '</span><br><span class="cell-chain">' + chainHtml + '</span></td>';
             }
-            return '<td' + cls + '>' + String(cell) + '</td>';
+            return '<td' + (classNames.length ? ' class="' + classNames.join(' ') + '"' : '') + '>' + escapeHtml(cell) + '</td>';
           }).join('') + '</tr>';
         }).join('');
 
         var totalCells = [];
-        for (var j = 0; j < COLS; j++) {
-          var cls = (j < 4) ? ' class="col-sticky-' + (j + 1) + '"' : '';
-          if (j >= adColStart) cls = ' class="col-num-right"';
+        var totalMetrics = createEmptyMetrics();
+        currentRows.forEach(function(row) {
+          METRIC_KEYS.forEach(function(metricKey) {
+            totalMetrics[metricKey] += Number(row.metrics[metricKey] || 0);
+          });
+          totalMetrics.totalSubsidy += Number(row.metrics.totalSubsidy || 0);
+        });
+        totalMetrics = finalizeMetrics(totalMetrics);
+        for (var j = 0; j < fieldOrder.length; j++) {
+          var classNames = [];
+          if (j < currentStickyCount) classNames.push('col-sticky-' + (j + 1));
+          if (j >= currentAdColStart) classNames.push('col-num-right');
+          var cls = classNames.length ? ' class="' + classNames.join(' ') + '"' : '';
+          var fieldKey = fieldOrder[j];
           if (j === 0) {
             totalCells.push('<td' + cls + '>合计</td>');
             continue;
           }
-          if (j === 1 || j === 2 || j === 3) {
+          if (fieldKey === 'pid' || fieldKey === 'spu' || fieldKey === 'analysis') {
             totalCells.push('<td' + cls + '></td>');
             continue;
           }
-          var sample = currentRows[0][j];
-          var isPct = sample != null && (String(sample).indexOf('%') !== -1 || sample === '—');
-          if (isPct) {
+          if (FIELD_MAP[fieldKey].type === 'percent') {
             totalCells.push('<td' + cls + '></td>');
             continue;
           }
-          var sum = 0;
-          var hasNum = false;
-          for (var r = 0; r < currentRows.length; r++) {
-            var v = currentRows[r][j];
-            var n = parseFloat(v);
-            if (!isNaN(n)) { sum += n; hasNum = true; }
-          }
-          var display = hasNum ? fmtByCol(j, sum) : '';
+          var display = fmtByField(fieldKey, totalMetrics[fieldKey]);
           totalCells.push('<td' + cls + '>' + display + '</td>');
         }
         tbody.innerHTML = dataHtml + '<tr class="row-total">' + totalCells.join('') + '</tr>';
@@ -974,8 +1504,9 @@
       function toCSV(rows) {
         var data = rows || currentRows;
         if (!data.length) return '';
+        var headers = currentFieldOrder.map(function(key) { return FIELD_MAP[key].label; });
         var lines = [headers.map(escapeCell).join(',')].concat(data.map(function(row) {
-          return row.map(escapeCell).join(',');
+          return buildExportRow(row, currentFieldOrder).map(escapeCell).join(',');
         }));
         return '\uFEFF' + lines.join('\n');
       }
@@ -993,6 +1524,55 @@
         a.download = '数据看板_' + (range.start || '') + '～' + (range.end || '全部') + '.csv';
         a.click();
         URL.revokeObjectURL(a.href);
+      }
+
+      function doExportImage() {
+        if (!currentRows.length) {
+          alert('当前无数据可导出图片，请先点击「查询」');
+          return;
+        }
+        var card = document.querySelector('.table-card');
+        var wrap = card && card.querySelector('.table-wrap');
+        if (!card || !wrap) {
+          alert('未找到可导出的表格区域');
+          return;
+        }
+        var originalOverflow = wrap.style.overflow;
+        wrap.style.overflow = 'visible';
+        html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(function(canvas) {
+          wrap.style.overflow = originalOverflow;
+          var a = document.createElement('a');
+          var range = getDateRange();
+          a.href = canvas.toDataURL('image/png');
+          a.download = 'PID数据看板_' + (range.start || '') + '～' + (range.end || '全部') + '.png';
+          a.click();
+        }).catch(function() {
+          wrap.style.overflow = originalOverflow;
+          alert('导出图片失败，请重试');
+        });
+      }
+
+      function doAnalysisExportImage() {
+        var table = document.getElementById('analysisTable');
+        var body = document.getElementById('analysisBody');
+        var analysisBody = document.querySelector('.analysis-body');
+        if (!table || !body || !analysisBody || !body.children.length) {
+          alert('当前无明细数据可导出图片');
+          return;
+        }
+        var originalOverflow = analysisBody.style.overflow;
+        analysisBody.style.overflow = 'visible';
+        html2canvas(table, { scale: 2, useCORS: true, backgroundColor: '#fff' }).then(function(canvas) {
+          analysisBody.style.overflow = originalOverflow;
+          var a = document.createElement('a');
+          var spu = currentAnalysisSpu || 'PID明细';
+          a.href = canvas.toDataURL('image/png');
+          a.download = spu + '_PID明细.png';
+          a.click();
+        }).catch(function() {
+          analysisBody.style.overflow = originalOverflow;
+          alert('导出图片失败，请重试');
+        });
       }
 
       function syncDateGranUI() {
@@ -1058,8 +1638,94 @@
         });
       });
       syncDateGranUI();
+      renderTableHead();
+      initManageStoreOptions();
+
+      document.getElementById('viewTabs').querySelectorAll('.tab').forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.remove('active'); });
+          tab.classList.add('active');
+          currentView = tab.getAttribute('data-view');
+          document.getElementById('qSearchField').value = currentView === 'spu' ? 'spu' : 'pid';
+          renderTableHead();
+          render(getFiltered());
+        });
+      });
+
+      document.getElementById('qSearchMode').addEventListener('change', function() {
+        syncSearchModeUI();
+        render(getFiltered());
+      });
+      document.getElementById('qSearchVal').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') render(getFiltered());
+      });
+      document.getElementById('searchExactTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var panel = document.getElementById('searchExactPanel');
+        if (panel && panel.classList.contains('open')) closeExactSearchPanel(true);
+        else openExactSearchPanel();
+      });
+      document.getElementById('qSearchExactVal').addEventListener('input', function() {
+        exactSearchDraft = this.value;
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactClear').addEventListener('click', function() {
+        exactSearchDraft = '';
+        document.getElementById('qSearchExactVal').value = '';
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactCancel').addEventListener('click', function() {
+        closeExactSearchPanel(true);
+      });
+      document.getElementById('btnExactApply').addEventListener('click', function() {
+        exactSearchApplied = normalizeExactSearchLines(document.getElementById('qSearchExactVal').value).join('\n');
+        exactSearchDraft = exactSearchApplied;
+        closeExactSearchPanel(false);
+        render(getFiltered());
+      });
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('searchExactPanel');
+        var wrap = document.getElementById('searchExactTriggerWrap');
+        if (!panel || !wrap || !panel.classList.contains('open')) return;
+        if (wrap.contains(e.target)) return;
+        closeExactSearchPanel(true);
+      });
 
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
+      document.getElementById('btnManagePidSpu').onclick = openManagePidSpuModal;
+      document.getElementById('btnCloseManagePidSpu').onclick = closeManagePidSpuModal;
+      document.getElementById('managePidSpuModal').onclick = function(e) { if (e.target === this) closeManagePidSpuModal(); };
+      document.getElementById('btnQueryManagePidSpu').onclick = renderManagePidSpuTable;
+      document.getElementById('btnResetManagePidSpu').onclick = function() {
+        document.getElementById('manageStore').value = '';
+        document.getElementById('managePid').value = '';
+        document.getElementById('manageSpu').value = '';
+        renderManagePidSpuTable();
+      };
+      document.getElementById('managePidSpuBody').addEventListener('click', function(e) {
+        var btn = e.target.closest('.manage-action-btn');
+        if (!btn) return;
+        var pid = btn.getAttribute('data-pid');
+        var store = btn.getAttribute('data-store');
+        var record = pidSpuManageData.find(function(item) { return item.pid === pid && item.store === store; });
+        openEditPidSpuModal(record);
+      });
+      document.getElementById('btnCloseEditPidSpu').onclick = closeEditPidSpuModal;
+      document.getElementById('btnCancelEditPidSpu').onclick = closeEditPidSpuModal;
+      document.getElementById('editPidSpuModal').onclick = function(e) { if (e.target === this) closeEditPidSpuModal(); };
+      document.getElementById('btnSaveEditPidSpu').onclick = function() {
+        if (!editingPidSpuRecord) return;
+        var newSpu = (document.getElementById('editSpu').value || '').trim();
+        if (!newSpu) {
+          alert('请输入主推SPU');
+          return;
+        }
+        editingPidSpuRecord.mainSpu = newSpu;
+        editingPidSpuRecord.updatedAt = getNowDateTime();
+        renderManagePidSpuTable();
+        closeEditPidSpuModal();
+        alert('主推SPU 已更新');
+      };
       document.getElementById('qCompareEnable').addEventListener('change', function() {
         document.getElementById('compareWrap').style.display = this.checked ? '' : 'none';
         render(getFiltered());
@@ -1083,22 +1749,31 @@
         document.getElementById('qYear').value = '';
         if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
+        currentView = 'pid';
+        document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-view') === 'pid'); });
         document.getElementById('qSearchField').value = 'pid';
+        document.getElementById('qSearchMode').value = 'fuzzy';
         document.getElementById('qSearchVal').value = '';
+        exactSearchDraft = '';
+        exactSearchApplied = '';
+        document.getElementById('qSearchExactVal').value = '';
+        syncSearchModeUI();
+        renderTableHead();
         currentRows = [];
-        document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + COLS + '" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
+        document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + getVisibleFieldOrder(currentView).length + '" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
         document.getElementById('filterSummary').textContent = '';
       };
       document.getElementById('btnMetricHelp').onclick = function() {
         alert([
           '数据统计说明',
-          '1. 本页为 PID 维度综合看板，按日期粒度汇总商品基础信息、GMV、内容投放与广告投放指标。',
-          '2. 支持按站点、店铺、PID/SPU 搜索及时间粒度切换；店铺既可直接筛选，也可通过站点联动收敛列表。',
+          '1. 本页支持 SPU汇总 / PID明细 两种维度，按日期粒度汇总商品基础信息、GMV、内容投放与广告投放指标。',
+          '2. 支持按站点、店铺、PID/SPU 搜索及时间粒度切换；切换到 SPU汇总 时会自动移除 PID 字段并按同日期同 SPU 汇总重算。',
           '3. 勾选对比后，可与指定对比时间段同时展示对比值与环比，用于分析阶段性变化。',
           '4. 主表支持展开查看明细，并可继续进入 SPU 分析弹层查看更细分的趋势表现。'
         ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
+      document.getElementById('btnExportImg').onclick = doExportImage;
 
       document.getElementById('resultBody').addEventListener('click', function(e) {
         var analysisBtn = e.target.closest('.spu-analysis-btn');
@@ -1128,22 +1803,25 @@
           return;
         }
         var dailyRows = getDailyRowsForPid(pid, store);
-        var expandThead = '<thead><tr>' + headers.map(function(h) { return '<th>' + String(h).replace(/</g, '&lt;') + '</th>'; }).join('') + '</tr></thead>';
+        var pidFieldOrder = getVisibleFieldOrder('pid');
+        var expandThead = '<thead><tr>' + pidFieldOrder.map(function(key) { return '<th>' + escapeHtml(FIELD_MAP[key].label) + '</th>'; }).join('') + '</tr></thead>';
         var title = dailyRows.length ? '该时间范围内共 ' + dailyRows.length + ' 天数据' : '该时间范围内无每日明细';
-        var expandAdCol = 40;
+        var expandAdCol = pidFieldOrder.indexOf(AD_COL_START_KEY);
         var expandTbody = '<tbody>' + dailyRows.map(function(row) {
-          return '<tr>' + row.map(function(c, i) {
+          var exportRow = buildRow(row, pidFieldOrder);
+          return '<tr>' + exportRow.map(function(c, i) {
             var cls = (i >= expandAdCol) ? ' class="col-num-right"' : '';
-            return '<td' + cls + '>' + String(c) + '</td>';
+            return '<td' + cls + '>' + escapeHtml(c) + '</td>';
           }).join('') + '</tr>';
         }).join('') + '</tbody>';
-        var expandHtml = '<tr class="row-expand"><td colspan="' + COLS + '"><div class="expand-content"><div class="expand-title">' + title + '</div><table>' + expandThead + expandTbody + '</table></div></td></tr>';
+        var expandHtml = '<tr class="row-expand"><td colspan="' + currentFieldOrder.length + '"><div class="expand-content"><div class="expand-title">' + title + '</div><table>' + expandThead + expandTbody + '</table></div></td></tr>';
         tr.insertAdjacentHTML('afterend', expandHtml);
       });
 
       document.getElementById('analysisClose').onclick = function() {
         document.getElementById('analysisOverlay').classList.remove('open');
       };
+      document.getElementById('btnAnalysisExportImg').onclick = doAnalysisExportImage;
       document.getElementById('analysisOverlay').addEventListener('click', function(e) {
         if (e.target.id === 'analysisOverlay') document.getElementById('analysisOverlay').classList.remove('open');
       });
@@ -1168,6 +1846,8 @@
       document.getElementById('qYearQ').value = '2026';
       document.getElementById('qQuarter').value = '1';
       document.getElementById('qYear').value = '2026';
+      syncSearchModeUI();
+      updateExactSearchPreview();
       render(getFiltered());
 
       (function tryOpenAnalysisFromUrl() {

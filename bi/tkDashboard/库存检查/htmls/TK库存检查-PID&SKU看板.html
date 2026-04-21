@@ -91,6 +91,68 @@
     }
     .query-item input[type="text"] { min-width: 180px; }
     .query-item select { min-width: 150px; cursor: pointer; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item select + select { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; border-radius: 0; }
+    .search-query-item .search-fuzzy-input { min-width: 0; width: 170px; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-exact-trigger-wrap { position: relative; display: none; align-items: center; margin-left: -1px; }
+    .search-exact-trigger-wrap.active { display: flex; }
+    .search-exact-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      width: 196px;
+      height: 38px;
+      padding: 0 0.7rem;
+      border: 1px solid var(--input-border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-exact-trigger.active { border-color: #2563eb; box-shadow: 0 0 0 1px rgba(37,99,235,0.1); }
+    .search-exact-trigger .placeholder { color: #94a3b8; }
+    .search-exact-trigger .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; text-align: left; }
+    .search-exact-trigger .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; font-size: 1rem; }
+    .search-exact-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.16);
+      z-index: 220;
+      overflow: hidden;
+    }
+    .search-exact-panel.open { display: block; }
+    .search-exact-body { padding: 0.75rem 0.75rem 0.5rem; }
+    .search-exact-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+    }
+    .search-exact-tip { margin-top: 0.25rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+    .search-exact-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid #e2e8f0; background: #fff; }
+    .search-exact-count { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+    .search-exact-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .search-exact-btn { min-width: 62px; padding: 0.3rem 0.7rem; border-radius: 4px; border: 1px solid var(--input-border); background: #fff; color: var(--text); cursor: pointer; font-size: 0.82rem; }
+    .search-exact-btn:hover { background: #f8fafc; }
+    .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
     .cascade-wrap { position: relative; display: inline-block; }
     .cascade-trigger {
       display: inline-flex;
@@ -425,22 +487,46 @@
             <option>仅看待确认</option>
           </select>
         </div>
-        <div class="query-item">
+        <div class="query-item search-query-item">
           <span class="label">搜索</span>
-          <select>
-            <option>PID</option>
-            <option>SKU</option>
-            <option>SPU</option>
+          <select id="qSearchField" class="search-field-select">
+            <option value="PID">PID</option>
+            <option value="SKU">SKU</option>
+            <option value="SPU">SPU</option>
           </select>
-          <input type="text" placeholder="请输入关键字" />
+          <select id="qSearchMode" class="search-mode-select">
+            <option value="fuzzy">模糊搜索</option>
+            <option value="exact">精确搜索</option>
+          </select>
+          <input type="text" id="qSearchVal" class="search-fuzzy-input" placeholder="请输入" />
+          <div class="search-exact-trigger-wrap" id="searchExactTriggerWrap">
+            <button type="button" class="search-exact-trigger" id="searchExactTrigger" title="一行一项，按回车键换行">
+              <span class="value placeholder" id="searchExactPreview">请输入</span>
+              <span class="icon">⋯</span>
+            </button>
+            <div class="search-exact-panel" id="searchExactPanel">
+              <div class="search-exact-body">
+                <textarea id="qSearchExactVal" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+              </div>
+              <div class="search-exact-foot">
+                <button type="button" class="search-exact-btn" id="btnExactClear">清空</button>
+                <span class="search-exact-count" id="searchExactCount">0/500行</span>
+                <div class="search-exact-actions">
+                  <button type="button" class="search-exact-btn" id="btnExactCancel">取消</button>
+                  <button type="button" class="search-exact-btn primary" id="btnExactApply">搜索</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="query-item">
           <span class="label">同步日期</span>
           <input type="date" value="2026-04-12" />
         </div>
         <div class="query-actions">
-          <button type="button" class="btn btn-query">查询</button>
-          <button type="button" class="btn btn-secondary">重置</button>
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
         </div>
       </div>
       <div class="tip-bar">
@@ -866,9 +952,11 @@
     <div class="query-card">
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">原型补充说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;">
-        <li><strong>是否需要导出图片</strong>：当前原型已预留导出能力方向，是否需要增加整页或当前查询结果的图片导出能力，需进一步确认。</li>
-        <li><strong>是否需要定时播报</strong>：当前原型以人工查询与排查为主，是否需要基于异常结果增加定时播报能力，需进一步确认。</li>
+        <li><strong>不需要需要导出图片</strong></li>
+        <li><strong>需要定时播报</strong>：默认为当天的数据情况。</li>
         <li><strong>待确认数据项</strong>：<code>FBT-1</code>、<code>FBA</code>、<code>FBT-2（积加4月会上暂时空着）</code> 三个数据项目前存在抓取不到的可能，需要进一步确认接口或数据源是否可获取。</li>
+        <li><strong>涉及到搜索的，需要调整为多选模式</strong></li>
+
       </ul>
     </div>
 
@@ -1010,6 +1098,74 @@
         };
       }
 
+      var exactSearchDraft = '';
+      var exactSearchApplied = '';
+
+      function normalizeExactSearchLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+
+      function updateExactSearchPreview() {
+        var preview = document.getElementById('searchExactPreview');
+        var count = document.getElementById('searchExactCount');
+        var lines = normalizeExactSearchLines(exactSearchDraft);
+        if (count) count.textContent = lines.length + '/500行';
+        if (!preview) return;
+        if (!lines.length) {
+          preview.textContent = '请输入';
+          preview.classList.add('placeholder');
+          return;
+        }
+        preview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        preview.classList.remove('placeholder');
+      }
+
+      function closeExactSearchPanel(restoreDraft) {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        if (restoreDraft) {
+          exactSearchDraft = exactSearchApplied;
+          textarea.value = exactSearchDraft;
+        }
+        panel.classList.remove('open');
+        trigger.classList.remove('active');
+        updateExactSearchPreview();
+      }
+
+      function openExactSearchPanel() {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        exactSearchDraft = exactSearchApplied;
+        textarea.value = exactSearchDraft;
+        updateExactSearchPreview();
+        panel.classList.add('open');
+        trigger.classList.add('active');
+        setTimeout(function() { textarea.focus(); }, 0);
+      }
+
+      function syncSearchModeUI() {
+        var mode = (document.getElementById('qSearchMode') && document.getElementById('qSearchMode').value) || 'fuzzy';
+        var fuzzyInput = document.getElementById('qSearchVal');
+        var exactWrap = document.getElementById('searchExactTriggerWrap');
+        if (fuzzyInput) fuzzyInput.style.display = mode === 'exact' ? 'none' : '';
+        if (exactWrap) exactWrap.classList.toggle('active', mode === 'exact');
+        closeExactSearchPanel(true);
+      }
+
       initCascade();
       syncStoreOptions();
 
@@ -1026,13 +1182,60 @@
           Object.keys(panels).forEach(function(key) {
             panels[key].classList.toggle('active', key === view);
           });
+          var field = document.getElementById('qSearchField');
+          if (field) {
+            field.innerHTML = view === 'spu'
+              ? '<option value="SPU">SPU</option>'
+              : '<option value="PID">PID</option><option value="SKU">SKU</option><option value="SPU">SPU</option>';
+          }
         });
       });
 
-      document.querySelector('.btn-secondary').addEventListener('click', function() {
+      document.getElementById('qSearchMode').addEventListener('change', function() {
+        syncSearchModeUI();
+      });
+      document.getElementById('searchExactTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var panel = document.getElementById('searchExactPanel');
+        if (panel && panel.classList.contains('open')) closeExactSearchPanel(true);
+        else openExactSearchPanel();
+      });
+      document.getElementById('qSearchExactVal').addEventListener('input', function() {
+        exactSearchDraft = this.value;
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactClear').addEventListener('click', function() {
+        exactSearchDraft = '';
+        document.getElementById('qSearchExactVal').value = '';
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactCancel').addEventListener('click', function() {
+        closeExactSearchPanel(true);
+      });
+      document.getElementById('btnExactApply').addEventListener('click', function() {
+        exactSearchApplied = normalizeExactSearchLines(document.getElementById('qSearchExactVal').value).join('\n');
+        exactSearchDraft = exactSearchApplied;
+        closeExactSearchPanel(false);
+      });
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('searchExactPanel');
+        var wrap = document.getElementById('searchExactTriggerWrap');
+        if (!panel || !wrap || !panel.classList.contains('open')) return;
+        if (wrap.contains(e.target)) return;
+        closeExactSearchPanel(true);
+      });
+
+      document.getElementById('btnReset').addEventListener('click', function() {
         if (window._resetCascadeStore) window._resetCascadeStore();
         document.getElementById('qStore').value = '';
         document.getElementById('qStatus').selectedIndex = 0;
+        document.getElementById('qSearchField').selectedIndex = 0;
+        document.getElementById('qSearchMode').value = 'fuzzy';
+        document.getElementById('qSearchVal').value = '';
+        exactSearchDraft = '';
+        exactSearchApplied = '';
+        document.getElementById('qSearchExactVal').value = '';
+        syncSearchModeUI();
       });
 
       document.getElementById('btnMetricHelp').addEventListener('click', function() {
@@ -1042,6 +1245,8 @@
       document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
         alert('数据统计说明：\n1. SPU 视图基于 PID&SKU 底表按 SPU 聚合生成。\n2. SPU 视图不展示 PID、SKU 与店铺字段。\n3. 所有库存类数值默认按 SPU 粒度求和，风险状态按聚合结果重新判断。');
       });
+      syncSearchModeUI();
+      updateExactSearchPreview();
     })();
   </script>
 </body>

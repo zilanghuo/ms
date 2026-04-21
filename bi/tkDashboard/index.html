@@ -149,11 +149,24 @@
       var pageTitle = document.getElementById('pageTitle');
       var breadcrumb = document.getElementById('breadcrumb');
       var navItems = document.querySelectorAll('.sidebar .nav-item');
+      var search = window.location.search || '';
+      var hash = window.location.hash || '';
+
+      function withVersionParams(src) {
+        if (!src) return src;
+        if (!search && !hash) return src;
+        var out = src;
+        if (search) out += (src.indexOf('?') === -1 ? search : '&' + search.replace(/^\?/, ''));
+        if (hash) out += hash;
+        return out;
+      }
 
       function setActive(item) {
         navItems.forEach(function(el) { el.classList.remove('active'); });
         item.classList.add('active');
       }
+
+      frame.src = withVersionParams(frame.getAttribute('src') || '');
 
       document.querySelectorAll('.sidebar .nav-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
@@ -161,7 +174,7 @@
           var src = this.getAttribute('data-src');
           var breadcrumbText = this.getAttribute('data-breadcrumb');
           if (!src) return;
-          frame.src = src;
+          frame.src = withVersionParams(src);
           pageTitle.textContent = this.textContent.trim();
           breadcrumb.textContent = 'tkDashboard / ' + breadcrumbText;
           setActive(this);

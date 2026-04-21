@@ -73,6 +73,68 @@
     }
     .query-item input[type="text"] { min-width: 180px; }
     .query-item select { min-width: 160px; cursor: pointer; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item select + select { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; border-radius: 0; }
+    .search-query-item .search-fuzzy-input { min-width: 0; width: 170px; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-exact-trigger-wrap { position: relative; display: none; align-items: center; margin-left: -1px; }
+    .search-exact-trigger-wrap.active { display: flex; }
+    .search-exact-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      width: 196px;
+      height: 38px;
+      padding: 0 0.7rem;
+      border: 1px solid var(--input-border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-exact-trigger.active { border-color: #2563eb; box-shadow: 0 0 0 1px rgba(37,99,235,0.1); }
+    .search-exact-trigger .placeholder { color: #94a3b8; }
+    .search-exact-trigger .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; text-align: left; }
+    .search-exact-trigger .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; font-size: 1rem; }
+    .search-exact-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.16);
+      z-index: 220;
+      overflow: hidden;
+    }
+    .search-exact-panel.open { display: block; }
+    .search-exact-body { padding: 0.75rem 0.75rem 0.5rem; }
+    .search-exact-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+    }
+    .search-exact-tip { margin-top: 0.25rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+    .search-exact-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid #e2e8f0; background: #fff; }
+    .search-exact-count { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+    .search-exact-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .search-exact-btn { min-width: 62px; padding: 0.3rem 0.7rem; border-radius: 4px; border: 1px solid var(--input-border); background: #fff; color: var(--text); cursor: pointer; font-size: 0.82rem; }
+    .search-exact-btn:hover { background: #f8fafc; }
+    .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
     .btn {
       border-radius: 4px;
@@ -323,6 +385,208 @@
       transition: background 0.1s;
     }
     .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
+    .manage-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .manage-modal-overlay.visible { display: flex; }
+    .manage-modal-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 14px 48px rgba(0,0,0,0.24);
+      width: min(1320px, 96vw);
+      height: min(780px, 92vh);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .manage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%);
+    }
+    .manage-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: #e2e8f0;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .modal-close:hover { background: #cbd5e1; }
+    .manage-toolbar {
+      padding: 1rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .manage-query-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1rem;
+    }
+    .manage-query-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .manage-query-item .label {
+      color: var(--text);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+    .manage-query-item input, .manage-query-item select {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fff;
+      min-width: 180px;
+    }
+    .manage-query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .manage-body {
+      flex: 1;
+      min-height: 0;
+      padding: 1rem 1.25rem 1.25rem;
+      background: #f8fafc;
+      overflow: auto;
+    }
+    .manage-summary {
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .manage-table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .manage-table-wrap { overflow: auto; }
+    .manage-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      min-width: 1680px;
+    }
+    .manage-table th, .manage-table td {
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .manage-table th {
+      background: #f1f5f9;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .manage-table tr:hover td { background: #f9fafb; }
+    .manage-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .manage-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .manage-action-btn {
+      padding: 0.28rem 0.72rem;
+      font-size: 0.78rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .manage-action-btn:hover { background: #f0fdfa; }
+    .edit-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 210;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .edit-modal-overlay.visible { display: flex; }
+    .edit-modal-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      width: min(960px, 96vw);
+      overflow: hidden;
+    }
+    .edit-modal-header {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .edit-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .edit-modal-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .edit-base-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .edit-form-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .edit-form-item label {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .edit-form-item input {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fff;
+    }
+    .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .edit-form-tip {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .edit-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0 1rem 1rem;
+    }
     @media (max-width: 1200px) {
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
@@ -358,13 +622,37 @@
             </div>
           </div>
         </div>
-        <div class="query-item">
+        <div class="query-item search-query-item">
           <span class="label">搜索</span>
-          <select id="qKeywordType">
-            <option>SPU</option>
-            <option>SKU</option>
+          <select id="qKeywordType" class="search-field-select">
+            <option value="SPU">SPU</option>
+            <option value="SKU">SKU</option>
           </select>
-          <input type="text" placeholder="请输入关键字" />
+          <select id="qSearchMode" class="search-mode-select">
+            <option value="fuzzy">模糊搜索</option>
+            <option value="exact">精确搜索</option>
+          </select>
+          <input type="text" id="qSearchVal" class="search-fuzzy-input" placeholder="请输入" />
+          <div class="search-exact-trigger-wrap" id="searchExactTriggerWrap">
+            <button type="button" class="search-exact-trigger" id="searchExactTrigger" title="一行一项，按回车键换行">
+              <span class="value placeholder" id="searchExactPreview">请输入</span>
+              <span class="icon">⋯</span>
+            </button>
+            <div class="search-exact-panel" id="searchExactPanel">
+              <div class="search-exact-body">
+                <textarea id="qSearchExactVal" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+              </div>
+              <div class="search-exact-foot">
+                <button type="button" class="search-exact-btn" id="btnExactClear">清空</button>
+                <span class="search-exact-count" id="searchExactCount">0/500行</span>
+                <div class="search-exact-actions">
+                  <button type="button" class="search-exact-btn" id="btnExactCancel">取消</button>
+                  <button type="button" class="search-exact-btn primary" id="btnExactApply">搜索</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="query-item">
           <span class="label">数据日期</span>
@@ -385,6 +673,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpSpu">数据统计说明</button>
+            <button type="button" class="btn btn-secondary" id="btnManageSpuMonthFactor">SPU月度系数维护</button>
             <button type="button" class="btn btn-secondary">导出数据</button>
           </div>
           <div class="meta-info">
@@ -970,12 +1259,126 @@
     <div class="mini-note">
       <strong>待确认点：</strong><br />
       1、是否需要导出明细。<br />
-      2、是否需要图片定时播报。<br />
-      3、关于每个月的系数，这个文件如何维护，通过飞书文档，涉及到飞书 API 权限开通。<br />
+      2、不需要图片定时播报。<br />
+      3、关于每个月的系数，使用界面进行 配置<br />
+      4、是否支持报表手动更新，需要调研下<br />
       4、口径待确认：<code>TikTok.FBT库存-自定义导出</code> 属于店铺维度数据源，而 <code>发货+补货总和</code> 按 <code>SKU + 站点</code> 汇总；若美国站点下存在 3 个店铺，则 FBT 库存可能被合并统计。需确认业务是否接受按站点合并，还是必须保留店铺维度区分。
     </div>
 
     <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
+  </div>
+  <div class="manage-modal-overlay" id="spuFactorModal" role="dialog" aria-modal="true" aria-labelledby="spuFactorModalTitle">
+    <div class="manage-modal-box" onclick="event.stopPropagation()">
+      <div class="manage-header">
+        <span class="manage-title" id="spuFactorModalTitle">SPU 1月到12月系数维护</span>
+        <button type="button" class="modal-close" id="btnCloseSpuFactorModal" aria-label="关闭">&times;</button>
+      </div>
+      <div class="manage-toolbar">
+        <div class="manage-query-row">
+          <div class="manage-query-item">
+            <span class="label">年份</span>
+            <select id="factorYear">
+              <option value="">全部年份</option>
+            </select>
+          </div>
+          <div class="manage-query-item">
+            <span class="label">站点</span>
+            <select id="factorSite">
+              <option value="">全部站点</option>
+            </select>
+          </div>
+          <div class="manage-query-item">
+            <span class="label">SPU</span>
+            <input type="text" id="factorSpuKeyword" placeholder="请输入 SPU" />
+          </div>
+          <div class="manage-query-actions">
+            <button type="button" class="btn btn-query" id="btnQuerySpuFactor">查询</button>
+            <button type="button" class="btn btn-secondary" id="btnResetSpuFactor">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="factorSummary">共 0 条记录</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table">
+              <thead>
+                <tr>
+                  <th>年份</th>
+                  <th>站点</th>
+                  <th>SPU</th>
+                  <th>SPU名称</th>
+                  <th id="factorMonthHead1">1月系数</th>
+                  <th id="factorMonthHead2">2月系数</th>
+                  <th id="factorMonthHead3">3月系数</th>
+                  <th id="factorMonthHead4">4月系数</th>
+                  <th id="factorMonthHead5">5月系数</th>
+                  <th id="factorMonthHead6">6月系数</th>
+                  <th id="factorMonthHead7">7月系数</th>
+                  <th id="factorMonthHead8">8月系数</th>
+                  <th id="factorMonthHead9">9月系数</th>
+                  <th id="factorMonthHead10">10月系数</th>
+                  <th id="factorMonthHead11">11月系数</th>
+                  <th id="factorMonthHead12">12月系数</th>
+                  <th>更新时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="spuFactorBody">
+                <tr><td colspan="18" class="manage-empty">暂无数据</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="edit-modal-overlay" id="editSpuFactorModal" role="dialog" aria-modal="true" aria-labelledby="editSpuFactorTitle">
+    <div class="edit-modal-box" onclick="event.stopPropagation()">
+      <div class="edit-modal-header">
+        <span class="edit-modal-title" id="editSpuFactorTitle">编辑SPU 1月到12月系数</span>
+        <button type="button" class="modal-close" id="btnCloseEditSpuFactor" aria-label="关闭">&times;</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="edit-base-grid">
+          <div class="edit-form-item">
+            <label for="editFactorYear">年份</label>
+            <input type="text" id="editFactorYear" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label for="editFactorSite">站点</label>
+            <input type="text" id="editFactorSite" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label for="editFactorSpu">SPU</label>
+            <input type="text" id="editFactorSpu" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label for="editFactorSpuName">SPU名称</label>
+            <input type="text" id="editFactorSpuName" readonly />
+          </div>
+        </div>
+        <div class="month-grid">
+          <div class="edit-form-item"><label for="factorMonth1" id="factorMonthLabel1">1月系数</label><input type="number" step="0.01" id="factorMonth1" /></div>
+          <div class="edit-form-item"><label for="factorMonth2" id="factorMonthLabel2">2月系数</label><input type="number" step="0.01" id="factorMonth2" /></div>
+          <div class="edit-form-item"><label for="factorMonth3" id="factorMonthLabel3">3月系数</label><input type="number" step="0.01" id="factorMonth3" /></div>
+          <div class="edit-form-item"><label for="factorMonth4" id="factorMonthLabel4">4月系数</label><input type="number" step="0.01" id="factorMonth4" /></div>
+          <div class="edit-form-item"><label for="factorMonth5" id="factorMonthLabel5">5月系数</label><input type="number" step="0.01" id="factorMonth5" /></div>
+          <div class="edit-form-item"><label for="factorMonth6" id="factorMonthLabel6">6月系数</label><input type="number" step="0.01" id="factorMonth6" /></div>
+          <div class="edit-form-item"><label for="factorMonth7" id="factorMonthLabel7">7月系数</label><input type="number" step="0.01" id="factorMonth7" /></div>
+          <div class="edit-form-item"><label for="factorMonth8" id="factorMonthLabel8">8月系数</label><input type="number" step="0.01" id="factorMonth8" /></div>
+          <div class="edit-form-item"><label for="factorMonth9" id="factorMonthLabel9">9月系数</label><input type="number" step="0.01" id="factorMonth9" /></div>
+          <div class="edit-form-item"><label for="factorMonth10" id="factorMonthLabel10">10月系数</label><input type="number" step="0.01" id="factorMonth10" /></div>
+          <div class="edit-form-item"><label for="factorMonth11" id="factorMonthLabel11">11月系数</label><input type="number" step="0.01" id="factorMonth11" /></div>
+          <div class="edit-form-item"><label for="factorMonth12" id="factorMonthLabel12">12月系数</label><input type="number" step="0.01" id="factorMonth12" /></div>
+        </div>
+        <div class="edit-form-tip">当前原型支持按 SPU 维护 1-12 月系数，用于后续预估日均测算。保存后会同步刷新列表中的更新时间。</div>
+      </div>
+      <div class="edit-modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnCancelEditSpuFactor">取消</button>
+        <button type="button" class="btn btn-query" id="btnSaveSpuFactor">保存</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -998,7 +1401,29 @@
         US: ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
         Global: ['美国TK独立站-shopify:Global']
       };
+      var siteCodeToLabel = { DE: '德国站点', ES: '西班牙站点', FR: '法国站点', IT: '意大利站点', US: '美国站点', Global: 'Global站点' };
       var cascadeSelection = { region: '', country: '', stores: [] };
+      var spuMonthFactorData = [
+        { year: 2025, site: '美国站点', spu: 'AL-W0161', spuName: 'Women Lounge Set', months: [0.88, 0.85, 0.90, 0.96, 1.01, 1.08, 1.14, 1.10, 0.99, 0.95, 0.92, 0.89], updatedAt: '2025-12-28 18:12:05' },
+        { year: 2025, site: '德国站点', spu: 'AL-W0180', spuName: 'Women Knit Dress', months: [0.79, 0.82, 0.88, 0.95, 1.00, 1.05, 1.11, 1.08, 0.97, 0.92, 0.87, 0.83], updatedAt: '2025-12-28 18:15:40' },
+        { year: 2026, site: '美国站点', spu: 'AL-W0161', spuName: 'Women Lounge Set', months: [0.92, 0.88, 0.95, 1.00, 1.06, 1.12, 1.18, 1.15, 1.02, 0.98, 0.94, 0.90], updatedAt: '2026-04-12 16:10:08' },
+        { year: 2026, site: '美国站点', spu: 'AL-M2301', spuName: 'Men Running Set', months: [0.97, 0.94, 0.99, 1.03, 1.08, 1.14, 1.20, 1.17, 1.05, 1.01, 0.96, 0.93], updatedAt: '2026-04-12 16:10:08' },
+        { year: 2026, site: '德国站点', spu: 'AL-W0180', spuName: 'Women Knit Dress', months: [0.84, 0.86, 0.92, 0.98, 1.03, 1.07, 1.12, 1.10, 1.01, 0.95, 0.90, 0.87], updatedAt: '2026-04-13 09:32:41' },
+        { year: 2026, site: '法国站点', spu: 'AL-W0169', spuName: 'Women Yoga Romper', months: [0.89, 0.91, 0.96, 1.01, 1.05, 1.10, 1.14, 1.11, 1.00, 0.97, 0.92, 0.88], updatedAt: '2026-04-13 09:32:41' },
+        { year: 2026, site: '意大利站点', spu: 'AL-W5558', spuName: 'Women Summer Jumpsuit', months: [0.81, 0.83, 0.88, 0.95, 1.02, 1.08, 1.16, 1.13, 1.03, 0.96, 0.91, 0.86], updatedAt: '2026-04-13 09:32:41' },
+        { year: 2026, site: 'Global站点', spu: 'ALYMX-DROPSW', spuName: 'Dropship Warm Set', months: [0.93, 0.90, 0.96, 1.02, 1.07, 1.11, 1.15, 1.12, 1.04, 0.99, 0.95, 0.92], updatedAt: '2026-04-13 10:18:27' }
+      ];
+      var editingSpuFactorRecord = null;
+
+      function escapeHtml(v) {
+        return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      }
+
+      function getNowDateTime() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' +
+          String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
+      }
 
       function initCascade() {
         var trigger = document.getElementById('cascadeTrigger');
@@ -1093,7 +1518,199 @@
         };
       }
 
+      function initFactorSiteOptions() {
+        var sel = document.getElementById('factorSite');
+        if (!sel) return;
+        var siteLabels = Object.keys(codeToStores).map(function(code) { return siteCodeToLabel[code]; });
+        sel.innerHTML = '<option value="">全部站点</option>' + siteLabels.map(function(site) {
+          return '<option value="' + escapeHtml(site) + '">' + escapeHtml(site) + '</option>';
+        }).join('');
+      }
+
+      function initFactorYearOptions() {
+        var sel = document.getElementById('factorYear');
+        if (!sel) return;
+        var years = Array.from(new Set(spuMonthFactorData.map(function(item) { return String(item.year); }))).sort();
+        sel.innerHTML = '<option value="">全部年份</option>' + years.map(function(year) {
+          return '<option value="' + escapeHtml(year) + '">' + escapeHtml(year) + '</option>';
+        }).join('');
+      }
+
+      function getSelectedFactorYear() {
+        var year = (document.getElementById('factorYear').value || '').trim();
+        if (year) return year;
+        if (spuMonthFactorData.length) return String(spuMonthFactorData[spuMonthFactorData.length - 1].year);
+        return '';
+      }
+
+      function syncFactorMonthHeaders() {
+        for (var i = 1; i <= 12; i++) {
+          var th = document.getElementById('factorMonthHead' + i);
+          if (th) th.textContent = i + '月系数';
+        }
+      }
+
+      function syncEditMonthLabels(year) {
+        var title = document.getElementById('editSpuFactorTitle');
+        if (title) title.textContent = year ? ('编辑SPU 1月到12月系数（' + year + '年）') : '编辑SPU 1月到12月系数';
+        for (var i = 1; i <= 12; i++) {
+          var label = document.getElementById('factorMonthLabel' + i);
+          if (label) label.textContent = (year ? year + '年' : '') + i + '月系数';
+        }
+      }
+
+      function getSelectedSiteLabel() {
+        if (!cascadeSelection.country) return '';
+        return siteCodeToLabel[cascadeSelection.country] || '';
+      }
+
+      function getFilteredSpuFactorData() {
+        var year = (document.getElementById('factorYear').value || '').trim();
+        var site = (document.getElementById('factorSite').value || '').trim();
+        var spuKeyword = (document.getElementById('factorSpuKeyword').value || '').trim().toLowerCase();
+        return spuMonthFactorData.filter(function(item) {
+          if (year && String(item.year) !== year) return false;
+          if (site && item.site !== site) return false;
+          if (spuKeyword) {
+            var hitSpu = item.spu.toLowerCase().indexOf(spuKeyword) !== -1;
+            var hitName = item.spuName.toLowerCase().indexOf(spuKeyword) !== -1;
+            if (!hitSpu && !hitName) return false;
+          }
+          return true;
+        });
+      }
+
+      function renderSpuFactorTable() {
+        var rows = getFilteredSpuFactorData();
+        var tbody = document.getElementById('spuFactorBody');
+        var summary = document.getElementById('factorSummary');
+        syncFactorMonthHeaders();
+        if (summary) summary.textContent = '共 ' + rows.length + ' 条记录';
+        if (!tbody) return;
+        if (!rows.length) {
+          tbody.innerHTML = '<tr><td colspan="18" class="manage-empty">未匹配到符合条件的 SPU 月度系数记录</td></tr>';
+          return;
+        }
+        tbody.innerHTML = rows.map(function(item) {
+          var monthCells = item.months.map(function(val) { return '<td class="num">' + Number(val).toFixed(2) + '</td>'; }).join('');
+          return '<tr>' +
+            '<td>' + escapeHtml(item.year) + '</td>' +
+            '<td>' + escapeHtml(item.site) + '</td>' +
+            '<td>' + escapeHtml(item.spu) + '</td>' +
+            '<td>' + escapeHtml(item.spuName) + '</td>' +
+            monthCells +
+            '<td>' + escapeHtml(item.updatedAt) + '</td>' +
+            '<td><button type="button" class="manage-action-btn" data-site="' + escapeHtml(item.site) + '" data-spu="' + escapeHtml(item.spu) + '">编辑</button></td>' +
+            '</tr>';
+        }).join('');
+      }
+
+      function openSpuFactorModal() {
+        var currentSite = getSelectedSiteLabel();
+        var year = getSelectedFactorYear();
+        if (year) document.getElementById('factorYear').value = year;
+        if (currentSite) document.getElementById('factorSite').value = currentSite;
+        renderSpuFactorTable();
+        document.getElementById('spuFactorModal').classList.add('visible');
+      }
+
+      function closeSpuFactorModal() {
+        document.getElementById('spuFactorModal').classList.remove('visible');
+      }
+
+      function openEditSpuFactorModal(record) {
+        if (!record) return;
+        editingSpuFactorRecord = record;
+        document.getElementById('editFactorYear').value = record.year;
+        document.getElementById('editFactorSite').value = record.site;
+        document.getElementById('editFactorSpu').value = record.spu;
+        document.getElementById('editFactorSpuName').value = record.spuName;
+        syncEditMonthLabels(record.year);
+        record.months.forEach(function(val, idx) {
+          var input = document.getElementById('factorMonth' + (idx + 1));
+          if (input) input.value = Number(val).toFixed(2);
+        });
+        document.getElementById('editSpuFactorModal').classList.add('visible');
+      }
+
+      function closeEditSpuFactorModal() {
+        editingSpuFactorRecord = null;
+        document.getElementById('editSpuFactorModal').classList.remove('visible');
+      }
+
+      var exactSearchDraft = '';
+      var exactSearchApplied = '';
+
+      function normalizeExactSearchLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+
+      function updateExactSearchPreview() {
+        var preview = document.getElementById('searchExactPreview');
+        var count = document.getElementById('searchExactCount');
+        var lines = normalizeExactSearchLines(exactSearchDraft);
+        if (count) count.textContent = lines.length + '/500行';
+        if (!preview) return;
+        if (!lines.length) {
+          preview.textContent = '请输入';
+          preview.classList.add('placeholder');
+          return;
+        }
+        preview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        preview.classList.remove('placeholder');
+      }
+
+      function closeExactSearchPanel(restoreDraft) {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        if (restoreDraft) {
+          exactSearchDraft = exactSearchApplied;
+          textarea.value = exactSearchDraft;
+        }
+        panel.classList.remove('open');
+        trigger.classList.remove('active');
+        updateExactSearchPreview();
+      }
+
+      function openExactSearchPanel() {
+        var panel = document.getElementById('searchExactPanel');
+        var trigger = document.getElementById('searchExactTrigger');
+        var textarea = document.getElementById('qSearchExactVal');
+        if (!panel || !trigger || !textarea) return;
+        exactSearchDraft = exactSearchApplied;
+        textarea.value = exactSearchDraft;
+        updateExactSearchPreview();
+        panel.classList.add('open');
+        trigger.classList.add('active');
+        setTimeout(function() { textarea.focus(); }, 0);
+      }
+
+      function syncSearchModeUI() {
+        var mode = (document.getElementById('qSearchMode') && document.getElementById('qSearchMode').value) || 'fuzzy';
+        var fuzzyInput = document.getElementById('qSearchVal');
+        var exactWrap = document.getElementById('searchExactTriggerWrap');
+        if (fuzzyInput) fuzzyInput.style.display = mode === 'exact' ? 'none' : '';
+        if (exactWrap) exactWrap.classList.toggle('active', mode === 'exact');
+        closeExactSearchPanel(true);
+      }
+
       initCascade();
+      initFactorSiteOptions();
+      initFactorYearOptions();
+      syncFactorMonthHeaders();
+      syncEditMonthLabels('');
 
       var tabs = document.querySelectorAll('#viewTabs .tab');
       var panels = {
@@ -1113,16 +1730,56 @@
           });
           var keywordType = document.getElementById('qKeywordType');
           if (view === 'spu') {
-            keywordType.innerHTML = '<option>SPU</option>';
+            keywordType.innerHTML = '<option value="SPU">SPU</option>';
           } else {
-            keywordType.innerHTML = '<option>SKU</option><option>SPU</option>';
+            keywordType.innerHTML = '<option value="SKU">SKU</option><option value="SPU">SPU</option>';
           }
         });
+      });
+
+      document.getElementById('qSearchMode').addEventListener('change', function() {
+        syncSearchModeUI();
+      });
+      document.getElementById('searchExactTrigger').addEventListener('click', function(e) {
+        e.stopPropagation();
+        var panel = document.getElementById('searchExactPanel');
+        if (panel && panel.classList.contains('open')) closeExactSearchPanel(true);
+        else openExactSearchPanel();
+      });
+      document.getElementById('qSearchExactVal').addEventListener('input', function() {
+        exactSearchDraft = this.value;
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactClear').addEventListener('click', function() {
+        exactSearchDraft = '';
+        document.getElementById('qSearchExactVal').value = '';
+        updateExactSearchPreview();
+      });
+      document.getElementById('btnExactCancel').addEventListener('click', function() {
+        closeExactSearchPanel(true);
+      });
+      document.getElementById('btnExactApply').addEventListener('click', function() {
+        exactSearchApplied = normalizeExactSearchLines(document.getElementById('qSearchExactVal').value).join('\n');
+        exactSearchDraft = exactSearchApplied;
+        closeExactSearchPanel(false);
+      });
+      document.addEventListener('click', function(e) {
+        var panel = document.getElementById('searchExactPanel');
+        var wrap = document.getElementById('searchExactTriggerWrap');
+        if (!panel || !wrap || !panel.classList.contains('open')) return;
+        if (wrap.contains(e.target)) return;
+        closeExactSearchPanel(true);
       });
 
       document.getElementById('btnReset').addEventListener('click', function() {
         if (window._resetCascadeStore) window._resetCascadeStore();
         document.getElementById('qKeywordType').selectedIndex = 0;
+        document.getElementById('qSearchMode').value = 'fuzzy';
+        document.getElementById('qSearchVal').value = '';
+        exactSearchDraft = '';
+        exactSearchApplied = '';
+        document.getElementById('qSearchExactVal').value = '';
+        syncSearchModeUI();
       });
 
       document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
@@ -1140,6 +1797,51 @@
       document.getElementById('btnMetricHelpRestock').addEventListener('click', function() {
         alert('数据统计说明：\n1. 补货视图基于统一底表中的补货字段。\n2. 重点输出所需总库存、需要采购的数量、需要采购的数量-实际和预计断货天数。\n3. 用于支持补货决策。');
       });
+
+      document.getElementById('btnManageSpuMonthFactor').addEventListener('click', openSpuFactorModal);
+      document.getElementById('btnCloseSpuFactorModal').addEventListener('click', closeSpuFactorModal);
+      document.getElementById('spuFactorModal').addEventListener('click', function(e) {
+        if (e.target === this) closeSpuFactorModal();
+      });
+      document.getElementById('btnQuerySpuFactor').addEventListener('click', renderSpuFactorTable);
+      document.getElementById('btnResetSpuFactor').addEventListener('click', function() {
+        document.getElementById('factorYear').value = '';
+        document.getElementById('factorSite').value = '';
+        document.getElementById('factorSpuKeyword').value = '';
+        renderSpuFactorTable();
+      });
+      document.getElementById('spuFactorBody').addEventListener('click', function(e) {
+        var btn = e.target.closest('.manage-action-btn');
+        if (!btn) return;
+        var site = btn.getAttribute('data-site');
+        var spu = btn.getAttribute('data-spu');
+        var record = spuMonthFactorData.find(function(item) { return item.site === site && item.spu === spu; });
+        openEditSpuFactorModal(record);
+      });
+      document.getElementById('btnCloseEditSpuFactor').addEventListener('click', closeEditSpuFactorModal);
+      document.getElementById('btnCancelEditSpuFactor').addEventListener('click', closeEditSpuFactorModal);
+      document.getElementById('editSpuFactorModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditSpuFactorModal();
+      });
+      document.getElementById('btnSaveSpuFactor').addEventListener('click', function() {
+        if (!editingSpuFactorRecord) return;
+        var months = [];
+        for (var i = 1; i <= 12; i++) {
+          var val = parseFloat(document.getElementById('factorMonth' + i).value);
+          if (isNaN(val)) {
+            alert('请填写完整的 1-12 月系数');
+            return;
+          }
+          months.push(val);
+        }
+        editingSpuFactorRecord.months = months;
+        editingSpuFactorRecord.updatedAt = getNowDateTime();
+        renderSpuFactorTable();
+        closeEditSpuFactorModal();
+        alert('SPU 月度系数已更新');
+      });
+      syncSearchModeUI();
+      updateExactSearchPreview();
     })();
   </script>
 </body>

@@ -45,6 +45,7 @@
           <tr><td>Base URL</td><td>待定，建议 <code>/api/bi/inventory</code></td></tr>
           <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code></td></tr>
           <tr><td>响应格式</td><td><code>application/json</code>；导出接口返回文件流</td></tr>
+          <tr><td>字段命名</td><td>接口文档中的请求参数、返回参数统一使用驼峰命名（camelCase）；底层 Doris 表字段命名仅在来源说明中使用下划线命名</td></tr>
           <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code></td></tr>
           <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
           <tr><td>鉴权</td><td>待定（Cookie / Token）</td></tr>
@@ -132,30 +133,30 @@
       "sku": "AL-W0161-DARKGRAY-XL",
       "skuName": "深灰 XL",
       "purchaseQty": 120,
-      "domesticQty": 18,
+      "domesticInventoryQty": 18,
       "deliveryInTransitQty": 42,
-      "domesticWarehouseOwnQty": 26,
-      "domesticWarehouseSyncQty": 9,
-      "domesticWarehouseDiffQty": 14,
-      "thirdPartyTransitQty": 68,
-      "gucangOwnQty": 95,
-      "gucangSyncQty": 103,
-      "gucangDiffQty": -8,
-      "fbtTransitQty": 21,
+      "warehouseDomestic1Qty": 26,
+      "warehouseDomestic2Qty": 9,
+      "warehouseDomestic3Qty": 14,
+      "thirdPartyInTransitQty": 68,
+      "warehouseGuchang1Qty": 95,
+      "warehouseGuchang2Qty": 103,
+      "warehouseGuchang3Qty": -8,
+      "fbtInTransitQty": 21,
       "fbtAvailableQty": 18,
-      "usky3OwnQty": 12,
-      "usky3SyncQty": 10,
-      "usky3DiffQty": 2,
+      "warehouseWinitUsky31Qty": 12,
+      "warehouseWinitUsky32Qty": 10,
+      "warehouseWinitUsky33Qty": 2,
       "overseaAvailableQty": 38,
-      "overseaTransitQty": 35,
-      "totalTransitQty": 59,
+      "overseaInTransitQty": 35,
+      "totalInTransitQty": 59,
       "totalAvailableQty": 56,
       "totalInventoryQty": 115,
-      "ukReturnOwnQty": null,
-      "ukReturnSyncQty": null,
-      "ukReturnDiffQty": null,
-      "inventoryStatus": "少同步",
-      "inventoryStatusTag": "abnormal"
+      "warehouseUkReturn1Qty": null,
+      "warehouseUkReturn2Qty": null,
+      "warehouseUkReturn3Qty": null,
+      "inventoryStatusName": "少同步",
+      "inventoryStatusCode": "abnormal"
     }
   ],
   "total": 1286
@@ -166,13 +167,13 @@
         <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>1</td><td>viewType</td><td>string</td><td>当前返回的视图类型</td></tr>
-          <tr><td>1</td><td>syncDate</td><td>string</td><td>本次查询日期</td></tr>
+          <tr><td>1</td><td>syncDate</td><td>string</td><td>本次查询日期，YYYY-MM-DD</td></tr>
           <tr><td>1</td><td>updateTime</td><td>string</td><td>页面右上角“数据更新时间”</td></tr>
           <tr><td>1</td><td>list</td><td>list</td><td>列表数据</td></tr>
           <tr><td>1</td><td>total</td><td>number</td><td>总记录数</td></tr>
           <tr><td>2</td><td>list[].pid / sku / skuName</td><td>string</td><td>SKU 视图主维度字段</td></tr>
           <tr><td>2</td><td>list[].spu / spuName</td><td>string</td><td>SPU 视图主维度字段；SKU 视图下可为空或不返回</td></tr>
-          <tr><td>2</td><td>list[].inventoryStatus</td><td>string</td><td>库存状态：少同步 / 超卖风险 / 正常 / 待确认</td></tr>
+          <tr><td>2</td><td>list[].inventoryStatusName</td><td>string</td><td>库存状态：少同步 / 超卖风险 / 正常 / 待确认</td></tr>
         </tbody>
       </table>
     </div>
@@ -196,7 +197,7 @@
     "abnormalSkuCount": 93,
     "totalInventoryQty": 24560,
     "totalAvailableQty": 18392,
-    "totalTransitQty": 6168
+    "totalInTransitQty": 6168
   }
 }</code></pre>
     <div class="table-wrap">
@@ -208,7 +209,7 @@
           <tr><td>metrics.abnormalSkuCount</td><td>number</td><td>异常SKU数</td></tr>
           <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
           <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>metrics.totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>metrics.totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
         </tbody>
       </table>
     </div>
@@ -232,7 +233,7 @@
     "abnormalSpuCount": 28,
     "totalInventoryQty": 24560,
     "totalAvailableQty": 18392,
-    "totalTransitQty": 6168
+    "totalInTransitQty": 6168
   }
 }</code></pre>
     <div class="table-wrap">
@@ -244,7 +245,7 @@
           <tr><td>metrics.abnormalSpuCount</td><td>number</td><td>异常SPU数</td></tr>
           <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
           <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>metrics.totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>metrics.totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
         </tbody>
       </table>
     </div>
@@ -296,34 +297,34 @@
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
           <tr><td>PID</td><td>pid</td><td>string</td><td>商品 PID</td></tr>
           <tr><td>SKU</td><td>sku</td><td>string</td><td>商品 SKU</td></tr>
           <tr><td>SKU名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
           <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>采购数量</td></tr>
-          <tr><td>国内库存</td><td>domesticQty</td><td>number</td><td>国内可用库存</td></tr>
+          <tr><td>国内库存</td><td>domesticInventoryQty</td><td>number</td><td>国内可用库存</td></tr>
           <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>交货在途库存</td></tr>
-          <tr><td>国内仓-1</td><td>domesticWarehouseOwnQty</td><td>number</td><td>我们有的库存口径</td></tr>
-          <tr><td>国内仓-2</td><td>domesticWarehouseSyncQty</td><td>number</td><td>店铺后台实际同步库存口径</td></tr>
-          <tr><td>国内仓-3</td><td>domesticWarehouseDiffQty</td><td>number</td><td>差异值 = -1 - -2</td></tr>
-          <tr><td>三方仓在途量</td><td>thirdPartyTransitQty</td><td>number</td><td>三方仓在途汇总</td></tr>
-          <tr><td>谷仓-1</td><td>gucangOwnQty</td><td>number</td><td>谷仓我们有的库存</td></tr>
-          <tr><td>谷仓-2</td><td>gucangSyncQty</td><td>number</td><td>谷仓同步库存</td></tr>
-          <tr><td>谷仓-3</td><td>gucangDiffQty</td><td>number</td><td>谷仓差异</td></tr>
-          <tr><td>FBT在途量</td><td>fbtTransitQty</td><td>number</td><td>FBT 在途量</td></tr>
+          <tr><td>国内仓-1</td><td>warehouseDomestic1Qty</td><td>number</td><td>我们有的库存口径</td></tr>
+          <tr><td>国内仓-2</td><td>warehouseDomestic2Qty</td><td>number</td><td>店铺后台实际同步库存口径</td></tr>
+          <tr><td>国内仓-3</td><td>warehouseDomestic3Qty</td><td>number</td><td>差异值 = -1 - -2</td></tr>
+          <tr><td>三方仓在途量</td><td>thirdPartyInTransitQty</td><td>number</td><td>三方仓在途汇总</td></tr>
+          <tr><td>谷仓-1</td><td>warehouseGuchang1Qty</td><td>number</td><td>谷仓我们有的库存</td></tr>
+          <tr><td>谷仓-2</td><td>warehouseGuchang2Qty</td><td>number</td><td>谷仓同步库存</td></tr>
+          <tr><td>谷仓-3</td><td>warehouseGuchang3Qty</td><td>number</td><td>谷仓差异</td></tr>
+          <tr><td>FBT在途量</td><td>fbtInTransitQty</td><td>number</td><td>FBT 在途量</td></tr>
           <tr><td>FBT可用量</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用量</td></tr>
-          <tr><td>万邑通USKY3-1</td><td>usky3OwnQty</td><td>number</td><td>USKY3 我们有的库存</td></tr>
-          <tr><td>万邑通USKY3-2</td><td>usky3SyncQty</td><td>number</td><td>USKY3 同步库存</td></tr>
-          <tr><td>万邑通USKY3-3</td><td>usky3DiffQty</td><td>number</td><td>USKY3 差异</td></tr>
+          <tr><td>万邑通USKY3-1</td><td>warehouseWinitUsky31Qty</td><td>number</td><td>USKY3 我们有的库存</td></tr>
+          <tr><td>万邑通USKY3-2</td><td>warehouseWinitUsky32Qty</td><td>number</td><td>USKY3 同步库存</td></tr>
+          <tr><td>万邑通USKY3-3</td><td>warehouseWinitUsky33Qty</td><td>number</td><td>USKY3 差异</td></tr>
           <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>海外可用库存汇总</td></tr>
-          <tr><td>海外在途库存</td><td>overseaTransitQty</td><td>number</td><td>海外在途库存汇总</td></tr>
-          <tr><td>总在途库存</td><td>totalTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>海外在途库存</td><td>overseaInTransitQty</td><td>number</td><td>海外在途库存汇总</td></tr>
+          <tr><td>总在途库存</td><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
           <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
           <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>英国退货仓-1</td><td>ukReturnOwnQty</td><td>number</td><td>英国退货仓我们有的库存</td></tr>
-          <tr><td>英国退货仓-2</td><td>ukReturnSyncQty</td><td>number</td><td>英国退货仓同步库存</td></tr>
-          <tr><td>英国退货仓-3</td><td>ukReturnDiffQty</td><td>number</td><td>英国退货仓差异</td></tr>
-          <tr><td>库存是否异常</td><td>inventoryStatus</td><td>string</td><td>少同步 / 超卖风险 / 正常 / 待确认</td></tr>
+          <tr><td>英国退货仓-1</td><td>warehouseUkReturn1Qty</td><td>number</td><td>英国退货仓我们有的库存</td></tr>
+          <tr><td>英国退货仓-2</td><td>warehouseUkReturn2Qty</td><td>number</td><td>英国退货仓同步库存</td></tr>
+          <tr><td>英国退货仓-3</td><td>warehouseUkReturn3Qty</td><td>number</td><td>英国退货仓差异</td></tr>
+          <tr><td>库存是否异常</td><td>inventoryStatusName</td><td>string</td><td>少同步 / 超卖风险 / 正常 / 待确认</td></tr>
         </tbody>
       </table>
     </div>
@@ -333,19 +334,33 @@
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
           <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>SPU 维度汇总值</td></tr>
-          <tr><td>国内库存</td><td>domesticQty</td><td>number</td><td>SPU 汇总</td></tr>
+          <tr><td>国内库存</td><td>domesticInventoryQty</td><td>number</td><td>SPU 汇总</td></tr>
           <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>SPU 汇总</td></tr>
-          <tr><td>国内仓-1 ~ 英国退货仓-3</td><td>同 SKU 视图字段</td><td>number</td><td>与 SKU 视图同名字段，口径改为 SPU 聚合后重算/汇总值</td></tr>
+          <tr><td>国内仓-1</td><td>warehouseDomestic1Qty</td><td>number</td><td>SPU 聚合后国内仓-1</td></tr>
+          <tr><td>国内仓-2</td><td>warehouseDomestic2Qty</td><td>number</td><td>SPU 聚合后国内仓-2</td></tr>
+          <tr><td>国内仓-3</td><td>warehouseDomestic3Qty</td><td>number</td><td>SPU 聚合后国内仓-3</td></tr>
+          <tr><td>三方仓在途量</td><td>thirdPartyInTransitQty</td><td>number</td><td>SPU 聚合后三方仓在途量</td></tr>
+          <tr><td>谷仓-1</td><td>warehouseGuchang1Qty</td><td>number</td><td>SPU 聚合后谷仓-1</td></tr>
+          <tr><td>谷仓-2</td><td>warehouseGuchang2Qty</td><td>number</td><td>SPU 聚合后谷仓-2</td></tr>
+          <tr><td>谷仓-3</td><td>warehouseGuchang3Qty</td><td>number</td><td>SPU 聚合后谷仓-3</td></tr>
+          <tr><td>FBT在途量</td><td>fbtInTransitQty</td><td>number</td><td>SPU 聚合后 FBT 在途量</td></tr>
+          <tr><td>FBT可用量</td><td>fbtAvailableQty</td><td>number</td><td>SPU 聚合后 FBT 可用量</td></tr>
+          <tr><td>万邑通USKY3-1</td><td>warehouseWinitUsky31Qty</td><td>number</td><td>SPU 聚合后 USKY3-1</td></tr>
+          <tr><td>万邑通USKY3-2</td><td>warehouseWinitUsky32Qty</td><td>number</td><td>SPU 聚合后 USKY3-2</td></tr>
+          <tr><td>万邑通USKY3-3</td><td>warehouseWinitUsky33Qty</td><td>number</td><td>SPU 聚合后 USKY3-3</td></tr>
           <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>海外在途库存</td><td>overseaTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>总在途库存</td><td>totalTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>海外在途库存</td><td>overseaInTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
+          <tr><td>总在途库存</td><td>totalInTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
           <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
           <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>库存是否异常</td><td>inventoryStatus</td><td>string</td><td>SPU 粒度重新判断结果</td></tr>
+          <tr><td>英国退货仓-1</td><td>warehouseUkReturn1Qty</td><td>number</td><td>SPU 聚合后英国退货仓-1</td></tr>
+          <tr><td>英国退货仓-2</td><td>warehouseUkReturn2Qty</td><td>number</td><td>SPU 聚合后英国退货仓-2</td></tr>
+          <tr><td>英国退货仓-3</td><td>warehouseUkReturn3Qty</td><td>number</td><td>SPU 聚合后英国退货仓-3</td></tr>
+          <tr><td>库存是否异常</td><td>inventoryStatusName</td><td>string</td><td>SPU 粒度重新判断结果</td></tr>
         </tbody>
       </table>
     </div>
@@ -395,16 +410,16 @@
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期，YYYY-MM-DD</td></tr>
           <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
           <tr><td>现有库存</td><td>currentInventoryQty</td><td>number</td><td>SPU 当前库存</td></tr>
           <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
-          <tr><td>第一个月系数</td><td>month1Factor</td><td>number</td><td>第一个月系数</td></tr>
-          <tr><td>第二个月系数</td><td>month2Factor</td><td>number</td><td>第二个月系数</td></tr>
-          <tr><td>第三个月系数</td><td>month3Factor</td><td>number</td><td>第三个月系数</td></tr>
-          <tr><td>第四个月系数</td><td>month4Factor</td><td>number</td><td>第四个月系数</td></tr>
+          <tr><td>第一个月系数</td><td>month01Factor</td><td>number</td><td>第一个月系数</td></tr>
+          <tr><td>第二个月系数</td><td>month02Factor</td><td>number</td><td>第二个月系数</td></tr>
+          <tr><td>第三个月系数</td><td>month03Factor</td><td>number</td><td>第三个月系数</td></tr>
+          <tr><td>第四个月系数</td><td>month04Factor</td><td>number</td><td>第四个月系数</td></tr>
           <tr><td>第一个月预估日均</td><td>month1ForecastDaily</td><td>number</td><td>第一个月预估日均</td></tr>
           <tr><td>第二个月预估日均</td><td>month2ForecastDaily</td><td>number</td><td>第二个月预估日均</td></tr>
           <tr><td>第三个月预估日均</td><td>month3ForecastDaily</td><td>number</td><td>第三个月预估日均</td></tr>
@@ -454,12 +469,12 @@
     <pre><code>POST /api/bi/inventory/replenishment/ship-export</code></pre>
 
     <h3>2.4 列表字段明细：发货视图</h3>
-    <p>发货视图字段基于统一底表裁剪，核心保留发货动作判断字段。</p>
+    <p>发货视图字段基于统一底表裁剪。接口返回字段使用 Java 接口驼峰命名，底层表字段可在技术方案或表结构设计中查看对应关系。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期，YYYY-MM-DD</td></tr>
           <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
@@ -468,34 +483,34 @@
           <tr><td>FBT库存-可用</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用库存</td></tr>
           <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
           <tr><td>三方仓可用库存</td><td>thirdWarehouseAvailableQty</td><td>number</td><td>三方仓可用库存</td></tr>
-          <tr><td>万邑通USKY3可用量</td><td>usky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
-          <tr><td>万邑通USWC可用量</td><td>uswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
-          <tr><td>万邑通USW2可用量</td><td>usw2AvailableQty</td><td>number</td><td>USW2 可用量</td></tr>
+          <tr><td>万邑通USKY3可用量</td><td>winitUsky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
+          <tr><td>万邑通USWC可用量</td><td>winitUswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
+          <tr><td>万邑通USW2可用量</td><td>winitUswc2AvailableQty</td><td>number</td><td>USWC2 可用量</td></tr>
           <tr><td>谷仓可用量</td><td>gucangAvailableQty</td><td>number</td><td>谷仓可用量</td></tr>
-          <tr><td>三方仓在途库存</td><td>thirdWarehouseTransitQty</td><td>number</td><td>三方仓在途</td></tr>
-          <tr><td>万邑通USKY3在途量</td><td>usky3TransitQty</td><td>number</td><td>USKY3 在途</td></tr>
-          <tr><td>万邑通USWC在途量</td><td>uswcTransitQty</td><td>number</td><td>USWC 在途</td></tr>
-          <tr><td>万邑通USW2在途量</td><td>usw2TransitQty</td><td>number</td><td>USW2 在途</td></tr>
-          <tr><td>谷仓在途量</td><td>gucangTransitQty</td><td>number</td><td>谷仓在途</td></tr>
+          <tr><td>三方仓在途库存</td><td>thirdWarehouseInTransitQty</td><td>number</td><td>三方仓在途</td></tr>
+          <tr><td>万邑通USKY3在途量</td><td>winitUsky3InTransitQty</td><td>number</td><td>USKY3 在途</td></tr>
+          <tr><td>万邑通USWC在途量</td><td>winitUswcInTransitQty</td><td>number</td><td>USWC 在途</td></tr>
+          <tr><td>万邑通USW2在途量</td><td>winitUswc2InTransitQty</td><td>number</td><td>USWC2 在途</td></tr>
+          <tr><td>谷仓在途量</td><td>gucangInTransitQty</td><td>number</td><td>谷仓在途</td></tr>
           <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用总库存</td></tr>
           <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
           <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
           <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
-          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
-          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>过去7天日销</td><td>sales7dDailyQty</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>sales30dDailyQty</td><td>number</td><td>近30天日销</td></tr>
           <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
           <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
           <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
           <tr><td>第三月日均预估</td><td>month3ForecastDaily</td><td>number</td><td>第三月日均预估</td></tr>
           <tr><td>第四月日均预估</td><td>month4ForecastDaily</td><td>number</td><td>第四月日均预估</td></tr>
           <tr><td>所需的总库存</td><td>requiredTotalQty</td><td>number</td><td>所需总库存</td></tr>
-          <tr><td>状态</td><td>statusText</td><td>string</td><td>库存状态文案</td></tr>
+          <tr><td>状态</td><td>statusName</td><td>string</td><td>库存状态文案</td></tr>
           <tr><td>预计要断货天数</td><td>stockoutDays</td><td>number</td><td>预计断货天数</td></tr>
           <tr><td>需要发货的数量-测算</td><td>shipmentNeedEstimateQty</td><td>number</td><td>建议发货数量</td></tr>
-          <tr><td>FBT-实际要发的库存</td><td>fbtActualShipmentQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
-          <tr><td>FBT海派时间</td><td>fbtShipmentEta</td><td>string</td><td>FBT 海派到货时间</td></tr>
-          <tr><td>海派到的时间内需要的库存</td><td>neededQtyBeforeArrival</td><td>number</td><td>海派到货前所需库存</td></tr>
-          <tr><td>在线还缺的数量</td><td>onlineShortQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
+          <tr><td>FBT-实际要发的库存</td><td>fbtShipActualQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
+          <tr><td>FBT海派时间</td><td>fbtShippingDate</td><td>string</td><td>FBT 海派到货时间</td></tr>
+          <tr><td>海派到的时间内需要的库存</td><td>shippingPeriodRequiredQty</td><td>number</td><td>海派到货前所需库存</td></tr>
+          <tr><td>在线还缺的数量</td><td>onlineShortageQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
           <tr><td>可调拨</td><td>transferableQty</td><td>number</td><td>可调拨数量</td></tr>
         </tbody>
       </table>
@@ -542,7 +557,7 @@
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期，YYYY-MM-DD</td></tr>
           <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
@@ -551,12 +566,12 @@
           <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
           <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用库存</td></tr>
           <tr><td>采购+交货在途库存</td><td>purchaseTransitQty</td><td>number</td><td>采购+交货在途库存</td></tr>
-          <tr><td>FBA库存（空着）</td><td>fbaQty</td><td>number</td><td>预留字段</td></tr>
+          <tr><td>FBA库存（空着）</td><td>fbaInventoryQty</td><td>number</td><td>预留字段</td></tr>
           <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
           <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
           <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
-          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
-          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>过去7天日销</td><td>sales7dDailyQty</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>sales30dDailyQty</td><td>number</td><td>近30天日销</td></tr>
           <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
           <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
           <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
@@ -610,7 +625,7 @@
       <table>
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期</td></tr>
+          <tr><td>时间</td><td>date</td><td>string</td><td>数据日期，YYYY-MM-DD</td></tr>
           <tr><td>站点</td><td>siteName</td><td>string</td><td>站点名称</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SKU</td><td>sku</td><td>string</td><td>SKU 编码</td></tr>
@@ -619,39 +634,39 @@
           <tr><td>FBT库存-可用</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用库存</td></tr>
           <tr><td>三方仓总库存</td><td>thirdWarehouseTotalQty</td><td>number</td><td>三方仓总库存</td></tr>
           <tr><td>三方仓可用库存</td><td>thirdWarehouseAvailableQty</td><td>number</td><td>三方仓可用库存</td></tr>
-          <tr><td>万邑通USKY3可用量</td><td>usky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
-          <tr><td>万邑通USWC可用量</td><td>uswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
-          <tr><td>万邑通USW2可用量</td><td>usw2AvailableQty</td><td>number</td><td>USW2 可用量</td></tr>
+          <tr><td>万邑通USKY3可用量</td><td>winitUsky3AvailableQty</td><td>number</td><td>USKY3 可用量</td></tr>
+          <tr><td>万邑通USWC可用量</td><td>winitUswcAvailableQty</td><td>number</td><td>USWC 可用量</td></tr>
+          <tr><td>万邑通USW2可用量</td><td>winitUswc2AvailableQty</td><td>number</td><td>USWC2 可用量</td></tr>
           <tr><td>谷仓可用量</td><td>gucangAvailableQty</td><td>number</td><td>谷仓可用量</td></tr>
-          <tr><td>三方仓在途库存</td><td>thirdWarehouseTransitQty</td><td>number</td><td>三方仓在途</td></tr>
-          <tr><td>万邑通USKY3在途量</td><td>usky3TransitQty</td><td>number</td><td>USKY3 在途</td></tr>
-          <tr><td>万邑通USWC在途量</td><td>uswcTransitQty</td><td>number</td><td>USWC 在途</td></tr>
-          <tr><td>万邑通USW2在途量</td><td>usw2TransitQty</td><td>number</td><td>USW2 在途</td></tr>
-          <tr><td>谷仓在途量</td><td>gucangTransitQty</td><td>number</td><td>谷仓在途</td></tr>
+          <tr><td>三方仓在途库存</td><td>thirdWarehouseInTransitQty</td><td>number</td><td>三方仓在途</td></tr>
+          <tr><td>万邑通USKY3在途量</td><td>winitUsky3InTransitQty</td><td>number</td><td>USKY3 在途</td></tr>
+          <tr><td>万邑通USWC在途量</td><td>winitUswcInTransitQty</td><td>number</td><td>USWC 在途</td></tr>
+          <tr><td>万邑通USW2在途量</td><td>winitUswc2InTransitQty</td><td>number</td><td>USWC2 在途</td></tr>
+          <tr><td>谷仓在途量</td><td>gucangInTransitQty</td><td>number</td><td>谷仓在途</td></tr>
           <tr><td>海外仓可用总库存</td><td>overseaAvailableQty</td><td>number</td><td>海外仓可用总库存</td></tr>
           <tr><td>国内可用库存</td><td>domesticAvailableQty</td><td>number</td><td>国内可用库存</td></tr>
           <tr><td>采购+交货在途库存</td><td>purchaseTransitQty</td><td>number</td><td>采购+交货在途库存</td></tr>
-          <tr><td>FBA库存（空着）</td><td>fbaQty</td><td>number</td><td>预留字段</td></tr>
+          <tr><td>FBA库存（空着）</td><td>fbaInventoryQty</td><td>number</td><td>预留字段</td></tr>
           <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
           <tr><td>当前总的库存</td><td>currentTotalQty</td><td>number</td><td>当前总库存</td></tr>
-          <tr><td>过去7天日销</td><td>last7dSales</td><td>number</td><td>近7天日销</td></tr>
-          <tr><td>过去30天日销</td><td>last30dSales</td><td>number</td><td>近30天日销</td></tr>
+          <tr><td>过去7天日销</td><td>sales7dDailyQty</td><td>number</td><td>近7天日销</td></tr>
+          <tr><td>过去30天日销</td><td>sales30dDailyQty</td><td>number</td><td>近30天日销</td></tr>
           <tr><td>加权日销</td><td>weightedDailySales</td><td>number</td><td>加权日销</td></tr>
           <tr><td>第一月日均预估</td><td>month1ForecastDaily</td><td>number</td><td>第一月日均预估</td></tr>
           <tr><td>第二月日均预估</td><td>month2ForecastDaily</td><td>number</td><td>第二月日均预估</td></tr>
           <tr><td>第三月日均预估</td><td>month3ForecastDaily</td><td>number</td><td>第三月日均预估</td></tr>
           <tr><td>第四月日均预估</td><td>month4ForecastDaily</td><td>number</td><td>第四月日均预估</td></tr>
           <tr><td>所需的总库存</td><td>requiredTotalQty</td><td>number</td><td>所需总库存</td></tr>
-          <tr><td>状态</td><td>statusText</td><td>string</td><td>库存状态文案，如还可以卖11天</td></tr>
+          <tr><td>状态</td><td>statusName</td><td>string</td><td>库存状态文案，如还可以卖11天</td></tr>
           <tr><td>需要采购的数量</td><td>purchaseNeedQty</td><td>number</td><td>建议采购数量</td></tr>
           <tr><td>需要采购的数量-实际</td><td>purchaseNeedActualQty</td><td>number</td><td>实际建议采购数量</td></tr>
           <tr><td>预计要断货天数</td><td>stockoutDays</td><td>number</td><td>预计断货天数</td></tr>
           <tr><td>需要发货的数量-测算</td><td>shipmentNeedEstimateQty</td><td>number</td><td>建议发货数量</td></tr>
-          <tr><td>FBT-实际要发的库存</td><td>fbtActualShipmentQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
-          <tr><td>FBT海派时间</td><td>fbtShipmentEta</td><td>string</td><td>FBT 海派到货时间</td></tr>
-          <tr><td>当天时间</td><td>todayDate</td><td>string</td><td>当前日期</td></tr>
-          <tr><td>海派到的时间内需要的库存</td><td>neededQtyBeforeArrival</td><td>number</td><td>海派到货前所需库存</td></tr>
-          <tr><td>在线还缺的数量</td><td>onlineShortQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
+          <tr><td>FBT-实际要发的库存</td><td>fbtShipActualQty</td><td>number</td><td>FBT 实际要发库存</td></tr>
+          <tr><td>FBT海派时间</td><td>fbtShippingDate</td><td>string</td><td>FBT 海派到货时间</td></tr>
+          <tr><td>当天时间</td><td>currentDateValue</td><td>string</td><td>当前日期</td></tr>
+          <tr><td>海派到的时间内需要的库存</td><td>shippingPeriodRequiredQty</td><td>number</td><td>海派到货前所需库存</td></tr>
+          <tr><td>在线还缺的数量</td><td>onlineShortageQty</td><td>number</td><td>海派到货前在线缺口</td></tr>
           <tr><td>可调拨</td><td>transferableQty</td><td>number</td><td>可调拨数量</td></tr>
         </tbody>
       </table>
