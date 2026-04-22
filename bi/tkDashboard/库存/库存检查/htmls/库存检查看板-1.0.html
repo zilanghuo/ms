@@ -594,15 +594,19 @@
               <th class="sticky-col-4 th-group group-base" rowspan="2">SKU</th>
               <th class="sticky-col-5 th-group group-base" rowspan="2">SKU名称</th>
               <th class="th-group group-purchase" colspan="1">采购</th>
-              <th class="th-group group-domestic" colspan="4">国内</th>
-              <th class="th-group group-third" colspan="3">三方</th>
-              <th class="th-group group-fbt" colspan="3">FBT</th>
-              <th class="th-group group-oversea" colspan="2">海外</th>
-              <th class="th-group group-summary" colspan="3">汇总</th>
-              <th class="th-group group-detail" colspan="9">仓明细</th>
+              <th class="th-group group-summary" colspan="4">汇总</th>
+              <th class="th-group group-domestic" colspan="5">国内</th>
+              <th class="th-group group-third" colspan="4">三方</th>
+              <th class="th-group group-fbt" colspan="2">FBT</th>
+              <th class="th-group group-oversea" colspan="5">海外</th>
+              <th class="th-group group-detail" colspan="3">退货仓</th>
             </tr>
             <tr>
               <th>采购量</th>
+              <th>总在途库存</th>
+              <th>总可用库存</th>
+              <th>总库存</th>
+              <th>库存是否异常</th>
               <th>国内库存</th>
               <th>交货在途库存</th>
               <th>国内仓-1</th>
@@ -619,13 +623,9 @@
               <th>万邑通USKY3-3</th>
               <th>海外可用库存</th>
               <th>海外在途库存</th>
-              <th>总在途库存</th>
-              <th>总可用库存</th>
-              <th>总库存</th>
               <th>英国退货仓-1</th>
               <th>英国退货仓-2</th>
               <th>英国退货仓-3</th>
-              <th>库存是否异常</th>
             </tr>
           </thead>
           <tbody>
@@ -636,6 +636,10 @@
               <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
               <td class="sticky-col-5">深灰 XL</td>
               <td class="num">120</td>
+              <td class="num">240</td>
+              <td class="num">21</td>
+              <td class="num">18</td>
+              <td><span class="status-tag status-bad">少同步</span></td>
               <td class="num">18</td>
               <td class="num">42</td>
               <td class="num">26</td>
@@ -652,13 +656,9 @@
               <td class="num">12</td>
               <td class="num">10</td>
               <td class="num">2</td>
-              <td class="num">38</td>
-              <td class="num">35</td>
-              <td class="num">3</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
-              <td><span class="status-tag status-bad">少同步</span></td>
             </tr>
             <tr>
               <td class="sticky-col-1">2026-04-12</td>
@@ -667,6 +667,10 @@
               <td class="sticky-col-4">AL-W0161-DARKGRAY-L</td>
               <td class="sticky-col-5">深灰 L</td>
               <td class="num">95</td>
+              <td class="num">170</td>
+              <td class="num">15</td>
+              <td class="num">15</td>
+              <td><span class="status-tag status-ok">正常</span></td>
               <td class="num">10</td>
               <td class="num">31</td>
               <td class="num">18</td>
@@ -683,13 +687,9 @@
               <td class="num">8</td>
               <td class="num">8</td>
               <td class="num">0</td>
-              <td class="num">24</td>
-              <td class="num">24</td>
-              <td class="num">0</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
-              <td><span class="status-tag status-ok">正常</span></td>
             </tr>
             <tr>
               <td class="sticky-col-1">2026-04-12</td>
@@ -698,6 +698,10 @@
               <td class="sticky-col-4">AL-M2301-BLACK-M</td>
               <td class="sticky-col-5">黑色 M</td>
               <td class="num">66</td>
+              <td class="num">72</td>
+              <td class="num center">—</td>
+              <td class="num center">—</td>
+              <td><span class="status-tag status-warn">待确认</span></td>
               <td class="num">7</td>
               <td class="num">19</td>
               <td class="num">0</td>
@@ -714,13 +718,9 @@
               <td class="num center">—</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
-              <td class="num">19</td>
-              <td class="num">12</td>
-              <td class="num">7</td>
               <td class="num">8</td>
               <td class="num">5</td>
               <td class="num">3</td>
-              <td><span class="status-tag status-warn">待确认</span></td>
             </tr>
             <tr>
               <td class="sticky-col-1">2026-04-12</td>
@@ -729,6 +729,10 @@
               <td class="sticky-col-4">AL-M2301-BLACK-L</td>
               <td class="sticky-col-5">黑色 L</td>
               <td class="num">80</td>
+              <td class="num">127</td>
+              <td class="num">11</td>
+              <td class="num">16</td>
+              <td><span class="status-tag status-bad">超卖风险</span></td>
               <td class="num">15</td>
               <td class="num">20</td>
               <td class="num">12</td>
@@ -745,13 +749,9 @@
               <td class="num">7</td>
               <td class="num">9</td>
               <td class="num">-2</td>
-              <td class="num">26</td>
-              <td class="num">31</td>
-              <td class="num">-5</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
               <td class="num center">—</td>
-              <td><span class="status-tag status-bad">超卖风险</span></td>
             </tr>
           </tbody>
         </table>
@@ -818,15 +818,19 @@
                 <th class="sticky-col-3 th-group group-base" rowspan="2">SPU</th>
                 <th class="sticky-col-4 th-group group-base" rowspan="2">SPU名称</th>
                 <th class="th-group group-purchase" colspan="1">采购</th>
-                <th class="th-group group-domestic" colspan="4">国内</th>
-                <th class="th-group group-third" colspan="3">三方</th>
-                <th class="th-group group-fbt" colspan="3">FBT</th>
-                <th class="th-group group-oversea" colspan="2">海外</th>
-                <th class="th-group group-summary" colspan="3">汇总</th>
-                <th class="th-group group-detail" colspan="9">仓明细</th>
+                <th class="th-group group-summary" colspan="4">汇总</th>
+                <th class="th-group group-domestic" colspan="5">国内</th>
+                <th class="th-group group-third" colspan="4">三方</th>
+                <th class="th-group group-fbt" colspan="2">FBT</th>
+                <th class="th-group group-oversea" colspan="5">海外</th>
+                <th class="th-group group-detail" colspan="3">退货仓</th>
               </tr>
               <tr>
                 <th>采购量</th>
+                <th>总在途库存</th>
+                <th>总可用库存</th>
+                <th>总库存</th>
+                <th>库存是否异常</th>
                 <th>国内库存</th>
                 <th>交货在途库存</th>
                 <th>国内仓-1</th>
@@ -843,13 +847,9 @@
                 <th>万邑通USKY3-3</th>
                 <th>海外可用库存</th>
                 <th>海外在途库存</th>
-                <th>总在途库存</th>
-                <th>总可用库存</th>
-                <th>总库存</th>
                 <th>英国退货仓-1</th>
                 <th>英国退货仓-2</th>
                 <th>英国退货仓-3</th>
-                <th>库存是否异常</th>
               </tr>
             </thead>
             <tbody>
@@ -859,6 +859,10 @@
                 <td class="sticky-col-3">AL-W0161</td>
                 <td class="sticky-col-4">Women Lounge Set</td>
                 <td class="num">1,245</td>
+                <td class="num">1,375</td>
+                <td class="num">2,568</td>
+                <td class="num">56</td>
+                <td><span class="status-tag status-bad">少同步</span></td>
                 <td class="num">168</td>
                 <td class="num">420</td>
                 <td class="num">102</td>
@@ -873,15 +877,9 @@
                 <td class="num">210</td>
                 <td class="num">198</td>
                 <td class="num">12</td>
-                <td class="num">680</td>
-                <td class="num">955</td>
-                <td class="num">1,193</td>
-                <td class="num">1,375</td>
-                <td class="num">2,568</td>
-                <td class="num">56</td>
                 <td class="num">48</td>
                 <td class="num">8</td>
-                <td><span class="status-tag status-bad">少同步</span></td>
+                <td class="num">680</td>
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
@@ -889,6 +887,10 @@
                 <td class="sticky-col-3">AL-M2301</td>
                 <td class="sticky-col-4">Men Running Set</td>
                 <td class="num">860</td>
+                <td class="num">812</td>
+                <td class="num">1,298</td>
+                <td class="num">18</td>
+                <td><span class="status-tag status-ok">正常</span></td>
                 <td class="num">96</td>
                 <td class="num">210</td>
                 <td class="num">64</td>
@@ -903,15 +905,9 @@
                 <td class="num">87</td>
                 <td class="num">96</td>
                 <td class="num">-9</td>
-                <td class="num">342</td>
-                <td class="num">602</td>
-                <td class="num">486</td>
-                <td class="num">812</td>
-                <td class="num">1,298</td>
-                <td class="num">18</td>
                 <td class="num">20</td>
                 <td class="num">-2</td>
-                <td><span class="status-tag status-ok">正常</span></td>
+                <td class="num">342</td>
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
@@ -919,6 +915,10 @@
                 <td class="sticky-col-3">AL-H9902</td>
                 <td class="sticky-col-4">Heavy Hoodie</td>
                 <td class="num">530</td>
+                <td class="num">398</td>
+                <td class="num">630</td>
+                <td class="num">26</td>
+                <td><span class="status-tag status-warn">待确认</span></td>
                 <td class="num">74</td>
                 <td class="num">158</td>
                 <td class="num">0</td>
@@ -933,15 +933,9 @@
                 <td class="num center">—</td>
                 <td class="num center">—</td>
                 <td class="num center">—</td>
-                <td class="num">158</td>
-                <td class="num">240</td>
-                <td class="num">232</td>
-                <td class="num">398</td>
-                <td class="num">630</td>
-                <td class="num">26</td>
                 <td class="num">22</td>
                 <td class="num">4</td>
-                <td><span class="status-tag status-warn">待确认</span></td>
+                <td class="num">158</td>
               </tr>
             </tbody>
           </table>

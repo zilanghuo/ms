@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ms-proj</title>
+  <script>
+    (function() {
+      var target = './bi/tkDashboard/index.html';
+      var search = window.location.search || '';
+      var hash = window.location.hash || '';
+      window.location.replace(target + search + hash);
+    })();
+  </script>
+</head>
+<body>
+  <p>正在跳转到 tkDashboard：<a id="redirectLink" href="./bi/tkDashboard/index.html">bi/tkDashboard/index.html</a></p>
+  <script>
+    (function() {
+      var link = document.getElementById('redirectLink');
+      if (!link) return;
+      var search = window.location.search || '';
+      var hash = window.location.hash || '';
+      link.href = './bi/tkDashboard/index.html' + search + hash;
+    })();
+  </script>
+</body>
+</html>

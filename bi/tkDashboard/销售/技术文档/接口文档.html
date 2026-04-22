@@ -35,7 +35,7 @@
   <div class="doc">
     <h1>tkDashboard 接口文档</h1>
     <p>基于三个前端页面的交互与弹框设计，约定后端接口格式。对应页面：<br />
-    <code>销售数据映射/htmls/店铺统计.html</code>、<code>销售数据映射/htmls/商品统计.html</code>、<code>PID/htmls/需求二-数据看板.html</code>。</p>
+    <code>销售/销售数据/htmls/店铺统计-1.0.html</code>、<code>销售/销售数据/htmls/商品统计-1.0.html</code>、<code>销售/PID/htmls/数据看板-1.0.html</code>。</p>
     <hr />
 
     <h2>通用约定</h2>
@@ -178,7 +178,7 @@
     <hr />
 
     <h2>一、需求一：每日订单数播报（店铺统计）</h2>
-    <p>对应页面：<code>店铺统计.html</code>。无弹框。</p>
+    <p>对应页面：<code>销售/销售数据/htmls/店铺统计-1.0.html</code>。无弹框。</p>
     <h3>1.1 查询条件</h3>
     <ul>
       <li><strong>指标</strong>：销量（qty）/ 销售额（amount）</li>
@@ -295,7 +295,7 @@ Content-Type: application/json</code></pre>
     <hr />
 
     <h2>二、需求二：订单明细与销量趋势（商品统计）</h2>
-    <p>对应页面：<code>商品统计.html</code>。含两个弹框：<strong>AI 分析</strong>、<strong>PID 明细</strong>。</p>
+    <p>对应页面：<code>销售/销售数据/htmls/商品统计-1.0.html</code>。含两个弹框：<strong>AI 分析</strong>、<strong>PID 明细</strong>。</p>
     <h3>2.1 查询条件</h3>
     <ul>
       <li><strong>站点</strong>：级联 → 店铺列表</li>
@@ -409,7 +409,7 @@ Content-Type: application/json</code></pre>
     <p><strong>响应 data</strong>：<code>spu</code>、<code>analysis</code>（文本摘要）。</p>
     <h3>2.4 弹框接口：PID 明细（商品统计 / 数据看板共用）</h3>
     <p>用于商品统计页「分析」、需求三数据看板「分析」按钮。弹框内<strong>固定主推 SPU</strong>（数据看板场景下为当前行的 SPU，对应行仅一个 PID 时可视为固定 PID），用户可在弹框内<strong>再筛选</strong>以刷新明细表。</p>
-    <p><strong>弹框界面要点</strong>（对应 <code>需求二-数据看板.html</code> 内 PID 明细弹框）：</p>
+    <p><strong>弹框界面要点</strong>（对应 <code>销售/PID/htmls/数据看板-1.0.html</code> 内 PID 明细弹框）：</p>
     <ul>
       <li><strong>标题</strong>：PID 明细</li>
       <li><strong>筛选区</strong>：时间范围（开始日期、结束日期）、日期维度（日 / 周 / 月）；修改后前端带新参数重新请求本接口刷新表格</li>
@@ -424,7 +424,7 @@ Content-Type: application/json</code></pre>
     <hr />
 
     <h2>三、需求二：PID 数据看板</h2>
-    <p>对应页面：<code>需求二-数据看板.html</code>。主表支持对比期；弹框为 <strong>PID 明细</strong>（与 2.4 同一接口）。</p>
+    <p>对应页面：<code>销售/PID/htmls/数据看板-1.0.html</code>。主表支持对比期；弹框为 <strong>PID 明细</strong>（与 2.4 同一接口）。</p>
     <h3>3.0 贴源表：ods_traffic_file_tiktok_product_list_di（商品数据分析导出）</h3>
     <p>TikTok Seller Center 「商品数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_product_list_di</code>，为数据看板等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/商品数据分析_美国TK-艾斯特尼-美区跨境1店_2026-03-29.xlsx</code>。</p>
     <p><strong>文件行约定</strong>（以上述示例为准）：第 1 行为统计日期范围（如 <code>2026-03-28 ~ 2026-03-28</code>）；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。店铺名称可由<strong>文件名</strong>或调度参数解析后写入 <code>store_name</code>；业务日期写入 <code>sdt</code>（YYYYMMDD），月分区 <code>smt</code>（YYYYMM）。</p>
@@ -475,7 +475,7 @@ Content-Type: application/json</code></pre>
         </tbody>
       </table>
     </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>技术方案/表结构设计-Doris.html</code>「3.6 ods_traffic_file_tiktok_product_list_di」，与本节字段一致。</p>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>销售/技术文档/表结构设计.html</code>「3.6 ods_traffic_file_tiktok_product_list_di」，与本节字段一致。</p>
     <h3>3.0.1 贴源表：ods_marketing_file_tiktok_campaign_di（实时推广系列数据导出）</h3>
     <p>TikTok Seller Center「实时推广系列数据」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_marketing_file_tiktok_campaign_di</code>，为数据看板广告相关指标（如 GMVMAX 消耗、广告 GMV、ROI 等）提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/实时推广系列数据 2026-03-28 - 2026-03-28.xlsx</code>（工作表可能非 Sheet1，以实际 workbook 为准）。</p>
     <p><strong>文件行约定</strong>：<strong>第 1 行即为列名</strong>；第 2 行起为数据行。文件名或第 1 行附近常见统计日期范围，可与调度参数一起解析 <code>sdt</code>、<code>smt</code>；<code>store_name</code> 由文件名或任务参数补充。</p>
@@ -500,7 +500,7 @@ Content-Type: application/json</code></pre>
         </tbody>
       </table>
     </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>技术方案/表结构设计-Doris.html</code>「3.7 ods_marketing_file_tiktok_campaign_di」，与本节字段一致。</p>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>销售/技术文档/表结构设计.html</code>「3.7 ods_marketing_file_tiktok_campaign_di」，与本节字段一致。</p>
     <h3>3.0.2 贴源表：ods_traffic_file_tiktok_video_performance_di（直播和视频数据分析导出）</h3>
     <p>TikTok Seller Center「直播和视频数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_video_performance_di</code>，为数据看板短视频曝光、互动、挂车与成交等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/直播和视频数据分析_20260330053533.xlsx</code>。</p>
     <p><strong>文件行约定</strong>：第 1 行多为统计日期范围（如 <code>[日期范围]: 2026-03-28 ~ 2026-03-28</code>）；第 2 行可能为空；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。<code>store_name</code>、<code>sdt</code>、<code>smt</code> 由文件名或调度参数解析写入。导出列为美元标价时（如 <code>GMV（视频） ($)</code>），导入时去掉 <code>$</code> 与千分位后按数值落库。</p>
@@ -538,7 +538,7 @@ Content-Type: application/json</code></pre>
         </tbody>
       </table>
     </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。唯一键建议 <code>(smt, sdt, store_name, creator_id, video_id, product_name)</code>，详见 <code>技术方案/表结构设计-Doris.html</code>「3.8 ods_traffic_file_tiktok_video_performance_di」。若历史作业仍使用旧列名（<code>play_count</code>、<code>sku_order_count</code>、<code>click_count</code>、<code>click_rate</code>、<code>convert_rate</code>），需迁移为与上表一致的字段。</p>
+    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。唯一键建议 <code>(smt, sdt, store_name, creator_id, video_id, product_name)</code>，详见 <code>销售/技术文档/表结构设计.html</code>「3.8 ods_traffic_file_tiktok_video_performance_di」。若历史作业仍使用旧列名（<code>play_count</code>、<code>sku_order_count</code>、<code>click_count</code>、<code>click_rate</code>、<code>convert_rate</code>），需迁移为与上表一致的字段。</p>
     <h3>3.1 查询条件</h3>
     <ul>
       <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
@@ -810,6 +810,84 @@ Content-Type: application/json</code></pre>
     <h3>3.5 导出</h3>
     <pre><code>GET /api/bi/tk/pid/dashboard/export</code></pre>
     <p>查询参数同 3.2（不含 page、pageSize），返回 CSV，列与主表一致。</p>
+    <h3>3.6 PID 与主推SPU维护：列表查询</h3>
+    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。点击页面右上角 <strong>PID与主推SPU维护</strong> 按钮后弹出维护弹框，支持按店铺、PID、主推SPU筛选维护记录。</p>
+    <pre><code>GET /api/bi/tk/pid/mainSpuMapping/list</code></pre>
+    <p><strong>查询参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部店铺</td></tr>
+          <tr><td>pid</td><td>string</td><td>否</td><td>PID，支持模糊匹配</td></tr>
+          <tr><td>mainSpu</td><td>string</td><td>否</td><td>主推SPU，支持模糊匹配</td></tr>
+          <tr><td>page</td><td>int</td><td>否</td><td>页码，从 1 开始，默认 1</td></tr>
+          <tr><td>pageSize</td><td>int</td><td>否</td><td>每页条数，默认 20</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "total": 2,
+  "page": 1,
+  "pageSize": 20,
+  "list": [
+    {
+      "storeName": "美国TK-艾斯特尼-美区跨境1店",
+      "pid": "1729773126172578149",
+      "mainSpu": "AL-W0161",
+      "updatedTime": "2026-04-22 14:36:18"
+    },
+    {
+      "storeName": "美国TK-艾斯特尼-美区跨境3店",
+      "pid": "1729439482671567205",
+      "mainSpu": "AL-M2301",
+      "updatedTime": "2026-04-22 11:08:27"
+    }
+  ]
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>total</td><td>number</td><td>符合查询条件的总条数</td></tr>
+          <tr><td>1</td><td>page</td><td>number</td><td>当前页码</td></tr>
+          <tr><td>1</td><td>pageSize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>1</td><td>list</td><td>list</td><td>维护列表</td></tr>
+          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称</td></tr>
+          <tr><td>2</td><td>list[].pid</td><td>string</td><td>PID</td></tr>
+          <tr><td>2</td><td>list[].mainSpu</td><td>string</td><td>主推SPU</td></tr>
+          <tr><td>2</td><td>list[].updatedTime</td><td>string</td><td>更新时间，格式 YYYY-MM-DD HH:mm:ss</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>3.7 PID 与主推SPU维护：更新映射</h3>
+    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。维护列表点击「编辑」后弹出编辑框，仅允许修改主推SPU，店铺和 PID 只读展示。</p>
+    <pre><code>POST /api/bi/tk/pid/mainSpuMapping/update</code></pre>
+    <p><strong>请求体示例</strong></p>
+    <pre><code>{
+  "storeName": "美国TK-艾斯特尼-美区跨境1店",
+  "pid": "1729773126172578149",
+  "mainSpu": "AL-W0161"
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称，和 PID 组成唯一定位键</td></tr>
+          <tr><td>pid</td><td>string</td><td>是</td><td>PID</td></tr>
+          <tr><td>mainSpu</td><td>string</td><td>是</td><td>主推SPU，不能为空</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data</strong></p>
+<pre><code>{
+  "storeName": "美国TK-艾斯特尼-美区跨境1店",
+  "pid": "1729773126172578149",
+  "mainSpu": "AL-W0161",
+  "updatedTime": "2026-04-22 14:36:18"
+}</code></pre>
+    <p>更新成功后前端关闭编辑弹框，并重新调用 <code>GET /api/bi/tk/pid/mainSpuMapping/list</code> 刷新维护列表。</p>
     <hr />
 
     <h2>五、积加对接：全渠道商品接口</h2>
@@ -1378,6 +1456,8 @@ Content-Type: application/json</code></pre>
           <tr><td>10</td><td>需求三 数据看板</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard</code></td></tr>
           <tr><td>11</td><td>需求三 数据看板</td><td>每日明细</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/daily</code></td></tr>
           <tr><td>12</td><td>需求三 数据看板</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/export</code></td></tr>
+          <tr><td>13</td><td>需求三 数据看板 1.1</td><td>PID与主推SPU维护列表</td><td>GET</td><td><code>/api/bi/tk/pid/mainSpuMapping/list</code></td></tr>
+          <tr><td>14</td><td>需求三 数据看板 1.1</td><td>PID与主推SPU维护更新</td><td>POST</td><td><code>/api/bi/tk/pid/mainSpuMapping/update</code></td></tr>
         </tbody>
       </table>
     </div>
@@ -1390,7 +1470,7 @@ Content-Type: application/json</code></pre>
     </ul>
     <hr />
     <p><em>文档版本：按 店铺统计、商品统计、需求二-数据看板 三个 HTML 及其中弹框整理，数据规则以需求文档为准。</em></p>
-    <p class="back"><a href="../index.html">← 返回首页</a></p>
+    <p class="back"><a href="../../index.html">← 返回首页</a></p>
   </div>
 </body>
 </html>
