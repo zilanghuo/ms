@@ -24,6 +24,13 @@
     .back { margin-top: 2rem; font-size: 0.9rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+    .toc { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
+    .toc h2 { margin-top: 0; font-size: 1.05rem; color: var(--muted); }
+    .toc-grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 0.5rem 2rem; }
+    .toc ul { margin: 0; padding-left: 1.1rem; }
+    .toc li { margin: 0.2rem 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
     p { margin: 0.5rem 0 1rem; }
     code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
     pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
@@ -33,11 +40,42 @@
 </head>
 <body>
   <div class="doc">
-    <h1>库存模块 接口文档</h1>
+    <h1 id="top">库存模块 接口文档</h1>
     <p>基于库存模块两个原型页面整理：<code>库存/库存检查/htmls/库存检查看板-1.0.html</code>、<code>库存/缺补货/htmls/缺补货看板-1.0.html</code>。文档格式参考销售数据接口文档，按页面交互、筛选项、汇总区、列表区、导出动作拆解接口。</p>
+    <div class="toc">
+      <h2>目录导航</h2>
+      <div class="toc-grid">
+        <ul>
+          <li><a href="#general-rules">通用约定</a></li>
+          <li><a href="#common-options">零、公共筛选接口</a></li>
+          <li><a href="#inventory-check">一、库存检查</a></li>
+          <li><a href="#inventory-check-page">1.2 主表接口：库存检查列表</a></li>
+          <li><a href="#inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</a></li>
+          <li><a href="#inventory-check-spu-summary">1.4 汇总卡片接口：SPU维度</a></li>
+          <li><a href="#inventory-check-export">1.6 导出接口</a></li>
+          <li><a href="#replenishment-board">二、缺补货看板</a></li>
+          <li><a href="#replenishment-spu">2.1 SPU冗余检视</a></li>
+          <li><a href="#replenishment-ship">2.3 发货视图</a></li>
+          <li><a href="#replenishment-restock">2.5 补货视图</a></li>
+          <li><a href="#replenishment-all">2.7 发货+补货总和</a></li>
+        </ul>
+        <ul>
+          <li><a href="#third-party-jijia">三、第三方积加接口梳理</a></li>
+          <li><a href="#jijia-overview">3.2 积加接口总览</a></li>
+          <li><a href="#jijia-onsale-list">3.3 TIKTOK-在售商品列表</a></li>
+          <li><a href="#jijia-site-shared-inventory">3.4 站点产品库存列表</a></li>
+          <li><a href="#jijia-fbt-normal">3.5 TikTok.FBT库存-正常 列表</a></li>
+          <li><a href="#jijia-onsale-inventory">3.6 TIKTOK-在售商品-库存列表</a></li>
+          <li><a href="#jijia-warehouse-list">3.7 TIKTOK-可用仓库列表</a></li>
+          <li><a href="#jijia-sales-performance">3.8 多平台销售表现-tiktok-列表</a></li>
+          <li><a href="#jijia-bi-mapping">3.9 与 bi 内部接口的衔接建议</a></li>
+          <li><a href="#api-overview">四、接口总览</a></li>
+        </ul>
+      </div>
+    </div>
     <hr />
 
-    <h2>通用约定</h2>
+    <h2 id="general-rules">通用约定</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>项</th><th>说明</th></tr></thead>
@@ -61,7 +99,7 @@
     <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
     <hr />
 
-    <h2>零、公共筛选接口</h2>
+    <h2 id="common-options">零、公共筛选接口</h2>
     <p>当前仅保留搜索类型配置接口；站点、店铺等筛选值由前端固定选项或业务侧直接传值。</p>
 
     <h3>0.1 搜索类型选项</h3>
@@ -77,7 +115,7 @@
 }</code></pre>
     <hr />
 
-    <h2>一、库存检查</h2>
+    <h2 id="inventory-check">一、库存检查</h2>
     <p>对应页面：<code>TK库存检查-PID&amp;SKU看板.html</code>。页面包含两个 Tab：<strong>PID&amp;SKU维度</strong>、<strong>SPU维度</strong>。两个 Tab 共用筛选区，分别有列表、汇总卡片、导出按钮和“数据统计说明”弹框。</p>
 
     <h3>1.1 查询条件</h3>
@@ -89,7 +127,7 @@
       <li><strong>同步日期</strong>：按日期查询当日库存快照</li>
     </ul>
 
-    <h3>1.2 主表接口：库存检查列表</h3>
+    <h3 id="inventory-check-page">1.2 主表接口：库存检查列表</h3>
     <p>根据当前 Tab 返回对应粒度列表。建议一个接口通过 <code>viewType</code> 区分 SKU / SPU 两个视图。</p>
     <pre><code>POST /api/bi/inventory/check/page</code></pre>
     <p><strong>请求体（JSON）</strong></p>
@@ -178,7 +216,7 @@
       </table>
     </div>
 
-    <h3>1.3 汇总卡片接口：PID&amp;SKU维度</h3>
+    <h3 id="inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</h3>
     <p>PID&amp;SKU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
     <pre><code>POST /api/bi/inventory/check/sku-summary</code></pre>
     <p><strong>请求体</strong></p>
@@ -214,7 +252,7 @@
       </table>
     </div>
 
-    <h3>1.4 汇总卡片接口：SPU维度</h3>
+    <h3 id="inventory-check-spu-summary">1.4 汇总卡片接口：SPU维度</h3>
     <p>SPU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
     <pre><code>POST /api/bi/inventory/check/spu-summary</code></pre>
     <p><strong>请求体</strong></p>
@@ -270,7 +308,7 @@
   ]
 }</code></pre>
 
-    <h3>1.6 导出接口：导出明细 / 导出汇总 / 导出异常SPU</h3>
+    <h3 id="inventory-check-export">1.6 导出接口：导出明细 / 导出汇总 / 导出异常SPU</h3>
     <p>原型中 SKU 视图有“导出明细”，SPU 视图有“导出汇总”“导出异常SPU”。建议统一为一个导出接口，通过 <code>exportType</code> 区分。</p>
     <pre><code>POST /api/bi/inventory/check/export</code></pre>
     <p><strong>请求体</strong></p>
@@ -367,10 +405,10 @@
 
     <hr />
 
-    <h2>二、缺补货看板</h2>
+    <h2 id="replenishment-board">二、缺补货看板</h2>
     <p>对应页面：<code>库存/缺补货/htmls/缺补货看板-1.0.html</code>。页面包含四个独立视图：<strong>SPU冗余检视</strong>、<strong>发货</strong>、<strong>补货</strong>、<strong>发货+补货总和</strong>。每个视图单独成立一套接口，不混用。</p>
 
-    <h3>2.1 SPU冗余检视</h3>
+    <h3 id="replenishment-spu">2.1 SPU冗余检视</h3>
     <p>对应原型 Tab：<code>SPU冗余检视</code>。用于查看 SPU 级库存冗余走势。</p>
     <p><strong>查询条件</strong></p>
     <ul>
@@ -432,7 +470,7 @@
       </table>
     </div>
 
-    <h3>2.3 发货视图</h3>
+    <h3 id="replenishment-ship">2.3 发货视图</h3>
     <p>对应原型 Tab：<code>发货</code>。用于查看建议发货量、海派到货前缺口、可调拨空间等。</p>
     <p><strong>查询条件</strong></p>
     <ul>
@@ -516,7 +554,7 @@
       </table>
     </div>
 
-    <h3>2.5 补货视图</h3>
+    <h3 id="replenishment-restock">2.5 补货视图</h3>
     <p>对应原型 Tab：<code>补货</code>。用于查看采购补货建议和断货风险。</p>
     <p><strong>查询条件</strong></p>
     <ul>
@@ -585,7 +623,7 @@
       </table>
     </div>
 
-    <h3>2.7 发货+补货总和</h3>
+    <h3 id="replenishment-all">2.7 发货+补货总和</h3>
     <p>对应原型 Tab：<code>发货+补货总和</code>。该视图是统一底表，既包含补货字段，也包含发货字段，是其他两个动作视图的共同基础。</p>
     <p><strong>查询条件</strong></p>
     <ul>
@@ -687,7 +725,933 @@
 
     <hr />
 
-    <h2>三、接口总览</h2>
+    <h2 id="third-party-jijia">三、第三方积加接口梳理</h2>
+    <p>本章节用于补充 <strong>bi 服务请求第三方积加</strong> 的接口结构，方便后续 Java 代码落地时拆分第三方请求 DTO、响应 DTO、列表对象 DTO 以及字段转换器。当前已对部分核心接口补齐真实请求/响应结构，剩余未补齐部分可继续按同一模板扩展。</p>
+
+    <h3>3.1 章节说明</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>接口来源</td><td>第三方平台：积加</td></tr>
+          <tr><td>调用方向</td><td><code>bi服务 -&gt; 积加接口</code></td></tr>
+          <tr><td>文档目标</td><td>先梳理第三方原始接口结构，再映射到 <code>bi服务 -&gt; 前端</code> 的内部接口口径</td></tr>
+          <tr><td>字段命名约定</td><td>本章节优先保留第三方接口原始命名；若后续需要映射到 Java DTO 或内部返回对象，再补充 camelCase 对应字段</td></tr>
+          <tr><td>返回结构状态</td><td>当前为“部分真实字段 + 部分待补充”的状态；已确认接口优先按真实请求、真实响应、关键字段映射维护</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note">
+      <strong>建议实现方式：</strong>代码层建议将“第三方积加接口对象”与“bi 对前端接口对象”分开建模，中间通过适配/转换层处理，避免第三方字段直接透传到前端，导致后续接口升级时影响页面口径。
+    </div>
+
+    <h3 id="jijia-overview">3.2 积加接口总览</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>序号</th><th>第三方接口名称</th><th>建议业务分类</th><th>主要用途</th><th>对应用途说明</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>TIKTOK-在售商品列表</td><td>商品基础信息</td><td>查询 TikTok 在售商品清单</td><td>用于补充商品/SPU/SKU 基础维度、在售状态范围</td></tr>
+          <tr><td>2</td><td>站点产品库存列表</td><td>库存查询</td><td>查询仓库维度产品库存明细</td><td>用于支撑国内仓库存、可用库存、总库存、在途库存等口径</td></tr>
+          <tr><td>3</td><td>TikTok.FBT库存-正常 列表</td><td>库存查询</td><td>查询 FBT 仓库存明细</td><td>用于补充 FBT 总库存、在途库存、可用库存、预留库存等字段</td></tr>
+          <tr><td>4</td><td>TIKTOK-在售商品-库存列表</td><td>商品库存结合</td><td>查询单商品在各仓库的可用库存分布</td><td>用于补充仓库级可用库存明细</td></tr>
+          <tr><td>5</td><td>TIKTOK-可用仓库列表</td><td>仓库基础信息</td><td>暂不接第三方接口</td><td>改为人工维护仓库映射数据，支撑仓库名称与类型解释</td></tr>
+          <tr><td>6</td><td>多平台销售表现-tiktok-列表</td><td>销售表现</td><td>查询 TikTok 销售表现数据</td><td>用于补充 7 天/30 天销量、加权日销等测算基础</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="jijia-onsale-list">3.3 TIKTOK-在售商品列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>查询 TikTok 平台当前在售商品清单，作为库存模块商品基础资料的候选来源之一，后续可用于补全 <code>spu</code>、<code>sku</code>、商品名称、站点、店铺、在售状态等维度信息。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>bi服务 -> 积加 -> TIKTOK-在售商品列表</code></pre>
+    <p><strong>第三方接口标识</strong></p>
+    <pre><code>接口名称：TIKTOK-在售商品列表
+第三方路径：https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page
+请求方式：POST
+Content-Type：application/json</code></pre>
+    <p><strong>请求参数结构</strong></p>
+    <pre><code>{
+  "pageSize": 20,
+  "pageCurrent": 1,
+  "productStatusList": ["live"],
+  "chargePersonIds": [],
+  "brandCodeList": [],
+  "categoryCodeList": [],
+  "siteIds": [],
+  "shopIds": ["1759046833791422465"],
+  "sort": "platformCreateTime",
+  "order": "desc"
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>pageSize</td><td>number</td><td>是</td><td>每页条数</td></tr>
+          <tr><td>pageCurrent</td><td>number</td><td>是</td><td>当前页码，从 1 开始</td></tr>
+          <tr><td>productStatusList</td><td>list&lt;string&gt;</td><td>否</td><td>商品状态列表；示例值 <code>live</code>，表示在售</td></tr>
+          <tr><td>chargePersonIds</td><td>list&lt;string&gt;</td><td>否</td><td>负责人 ID 列表；为空表示不过滤负责人</td></tr>
+          <tr><td>brandCodeList</td><td>list&lt;string&gt;</td><td>否</td><td>品牌编码列表</td></tr>
+          <tr><td>categoryCodeList</td><td>list&lt;string&gt;</td><td>否</td><td>类目编码列表</td></tr>
+          <tr><td>siteIds</td><td>list&lt;string&gt;</td><td>否</td><td>站点 ID 列表；示例为空数组</td></tr>
+          <tr><td>shopIds</td><td>list&lt;string&gt;</td><td>否</td><td>店铺 ID 列表；示例值 <code>1759046833791422465</code></td></tr>
+          <tr><td>sort</td><td>string</td><td>否</td><td>排序字段；示例按 <code>platformCreateTime</code> 排序</td></tr>
+          <tr><td>order</td><td>string</td><td>否</td><td>排序方向；示例值 <code>desc</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应结果结构</strong></p>
+    <pre><code>{
+  "code": 0,
+  "messages": null,
+  "parsedMessage": null,
+  "data": {
+    "pageCurrent": 1,
+    "pageSize": 20,
+    "total": 6805,
+    "records": [
+      {
+        "id": "120071",
+        "productId": "1732364788425724261",
+        "itemId": "1732364788425789797",
+        "title": "FAIABLE Unisex Vintage Washed Heavyweight Sweatpants ...",
+        "mainImage": "https://...",
+        "sku": "AL-W6680-ZH-L",
+        "spu": "AL-W6680",
+        "spuName": "男女加绒炒洗长裤",
+        "msku": "AL-W6680-ZH-L",
+        "shopId": "1759046833791422465",
+        "shopName": "美国TK-艾斯特尼-美区跨境1店",
+        "siteId": "205009",
+        "siteName": "美国",
+        "productCode": null,
+        "productName": "男女加绒炒洗长裤-赭黑YA80231-L",
+        "categoryCode": null,
+        "categoryName": "女式+卫衣（洗水）",
+        "brandCode": null,
+        "brandName": null,
+        "productStatus": "live",
+        "productStatusName": "在售",
+        "platformCreateTime": "2026-04-24",
+        "platformUpdateTime": "2026-04-27",
+        "inventoryProductTotalNum": "10",
+        "originalPrice": "0",
+        "priceIncludeVat": "79.99",
+        "currency": "USD",
+        "chargePersonIds": null,
+        "chargePersonName": ""
+      }
+    ]
+  },
+  "traceId": null,
+  "other": null,
+  "timestamp": "1777357849580",
+  "success": true
+}</code></pre>
+    <p><strong>响应根字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码；示例为 <code>0</code> 表示成功</td></tr>
+          <tr><td>messages</td><td>string / null</td><td>原始消息体；示例为空</td></tr>
+          <tr><td>parsedMessage</td><td>string / null</td><td>解析后的消息内容；示例为空</td></tr>
+          <tr><td>data</td><td>object</td><td>业务数据主体</td></tr>
+          <tr><td>traceId</td><td>string / null</td><td>链路追踪 ID；示例为空</td></tr>
+          <tr><td>other</td><td>object / null</td><td>预留扩展字段</td></tr>
+          <tr><td>timestamp</td><td>string</td><td>响应时间戳，毫秒字符串</td></tr>
+          <tr><td>success</td><td>boolean</td><td>是否成功；示例为 <code>true</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>data 分页字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.pageCurrent</td><td>number</td><td>当前页码</td></tr>
+          <tr><td>data.pageSize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>data.total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>data.records</td><td>list&lt;object&gt;</td><td>列表数据</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>列表对象字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>是否bi关键字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.records[].id</td><td>string</td><td>否</td><td>记录 ID</td></tr>
+          <tr><td>data.records[].productId</td><td>string</td><td>否</td><td>平台商品 ID</td></tr>
+          <tr><td>data.records[].itemId</td><td>string</td><td>否</td><td>平台子商品 Item ID</td></tr>
+          <tr><td>data.records[].title</td><td>string</td><td>否</td><td>平台商品标题</td></tr>
+          <tr><td>data.records[].mainImage</td><td>string</td><td>否</td><td>商品主图 URL</td></tr>
+          <tr><td>data.records[].sku</td><td>string</td><td>是</td><td>SKU 编码</td></tr>
+          <tr><td>data.records[].spu</td><td>string</td><td>是</td><td>SPU 编码</td></tr>
+          <tr><td>data.records[].spuName</td><td>string</td><td>是</td><td>SPU 名称</td></tr>
+          <tr><td>data.records[].msku</td><td>string</td><td>否</td><td>内部 MSKU 编码</td></tr>
+          <tr><td>data.records[].shopId</td><td>string</td><td>是</td><td>店铺 ID</td></tr>
+          <tr><td>data.records[].shopName</td><td>string</td><td>是</td><td>店铺名称</td></tr>
+          <tr><td>data.records[].siteId</td><td>string</td><td>是</td><td>站点 ID</td></tr>
+          <tr><td>data.records[].siteName</td><td>string</td><td>是</td><td>站点名称</td></tr>
+          <tr><td>data.records[].productCode</td><td>string / null</td><td>否</td><td>商品编码；示例为空</td></tr>
+          <tr><td>data.records[].productName</td><td>string</td><td>是</td><td>商品名称；当前可作为展示名称候选</td></tr>
+          <tr><td>data.records[].categoryCode</td><td>string / null</td><td>否</td><td>类目编码；示例为空</td></tr>
+          <tr><td>data.records[].categoryName</td><td>string</td><td>否</td><td>类目名称</td></tr>
+          <tr><td>data.records[].brandCode</td><td>string / null</td><td>否</td><td>品牌编码；示例为空</td></tr>
+          <tr><td>data.records[].brandName</td><td>string / null</td><td>否</td><td>品牌名称；示例为空</td></tr>
+          <tr><td>data.records[].productStatus</td><td>string</td><td>是</td><td>商品状态编码；示例值 <code>live</code></td></tr>
+          <tr><td>data.records[].productStatusName</td><td>string</td><td>是</td><td>商品状态名称；示例值“在售”</td></tr>
+          <tr><td>data.records[].platformCreateTime</td><td>string</td><td>是</td><td>平台创建时间，当前示例为日期格式</td></tr>
+          <tr><td>data.records[].platformUpdateTime</td><td>string</td><td>是</td><td>平台更新时间，当前示例为日期格式</td></tr>
+          <tr><td>data.records[].inventoryProductTotalNum</td><td>string</td><td>是</td><td>库存数量字段，当前是字符串类型，需确认实际业务口径</td></tr>
+          <tr><td>data.records[].originalPrice</td><td>string</td><td>否</td><td>原价；示例值为字符串</td></tr>
+          <tr><td>data.records[].priceIncludeVat</td><td>string</td><td>否</td><td>含税售价；示例值为字符串</td></tr>
+          <tr><td>data.records[].currency</td><td>string</td><td>否</td><td>币种；示例值 <code>USD</code></td></tr>
+          <tr><td>data.records[].chargePersonIds</td><td>list&lt;string&gt; / null</td><td>否</td><td>负责人 ID 列表；示例为空</td></tr>
+          <tr><td>data.records[].chargePersonName</td><td>string</td><td>否</td><td>负责人名称；示例为空字符串</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>分页结构</strong></p>
+    <p>该接口分页结构已确认使用 <code>data.pageCurrent</code>、<code>data.pageSize</code>、<code>data.total</code>、<code>data.records[]</code>。与当前 <code>bi</code> 内部接口常用的 <code>page/pageSize/total/list</code> 存在命名差异，落地时建议在转换层统一处理。</p>
+    <p><strong>异常返回结构</strong></p>
+    <p>当前仅拿到成功返回样例。后续建议补充至少以下失败样例：鉴权失败、参数错误、店铺 ID 无效、频控限制、第三方网关异常。</p>
+    <p><strong>bi 转换说明</strong></p>
+    <p>该接口建议作为商品主数据补充来源，不直接透传前端。可先转换为库存领域中的商品基础对象，再供库存检查、缺补货等场景复用。若后续库存接口还会结合库存列表、FBT 列表等数据源，建议以 <code>spu + sku + shopId + siteId</code> 作为主要拼接键候选。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>TiktokOnSaleProductListRequest</code>：第三方请求 DTO</li>
+      <li><code>TiktokOnSaleProductListResponse</code>：第三方响应 DTO</li>
+      <li><code>TiktokOnSaleProductItem</code>：第三方列表行 DTO</li>
+      <li><code>InventoryThirdPartyProductConverter</code>：第三方商品对象转内部商品对象</li>
+    </ul>
+
+    <h3 id="jijia-site-shared-inventory">3.4 站点产品库存列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>查询仓库维度的产品库存明细，返回商品、仓库、库存数量、库龄、预留、在途等信息，适合用于库存模块中的国内仓库存、可用库存、总库存、在途库存及库龄分析等口径拆分。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>bi服务 -> 积加 -> 站点产品库存列表</code></pre>
+    <p><strong>第三方接口标识</strong></p>
+    <pre><code>接口名称：站点产品库存列表
+第三方路径：https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery
+请求方式：POST
+Content-Type：application/json</code></pre>
+    <p><strong>请求参数结构</strong></p>
+    <pre><code>{
+  "warehouseIds": [61, 66, 67, 65, 101, 289, 309, 331],
+  "productStatusList": [0],
+  "storageCostAuthority": "fifo",
+  "filterQuantity": true,
+  "skuSummary": false,
+  "page": 1,
+  "pagesize": 20
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>warehouseIds</td><td>list&lt;number&gt;</td><td>否</td><td>仓库 ID 列表；示例传入多个仓库</td></tr>
+          <tr><td>productStatusList</td><td>list&lt;number&gt;</td><td>否</td><td>商品状态列表；示例值 <code>[0]</code>，需确认 0 的业务含义</td></tr>
+          <tr><td>storageCostAuthority</td><td>string</td><td>否</td><td>库存成本权限口径；示例值 <code>fifo</code></td></tr>
+          <tr><td>filterQuantity</td><td>boolean</td><td>否</td><td>是否按库存数量过滤；示例为 <code>true</code></td></tr>
+          <tr><td>skuSummary</td><td>boolean</td><td>否</td><td>是否按 SKU 汇总；示例为 <code>false</code>，表示返回明细</td></tr>
+          <tr><td>page</td><td>number</td><td>是</td><td>当前页码，从 1 开始</td></tr>
+          <tr><td>pagesize</td><td>number</td><td>是</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应结果结构</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "data": {
+    "total": 2026,
+    "rows": [
+      {
+        "id": "1759893804615239240",
+        "warehouseId": 61,
+        "warehouseName": "美国TK-国内厦门仓",
+        "productImageUrl": "https://...",
+        "productName": "男士带帽洗水卫衣-咖啡色-2XL",
+        "sku": "AL-W0150-KF-2XL",
+        "spuName": "男士带帽洗水卫衣",
+        "spu": "AL-W0150",
+        "msku": "AL-W0150-KF-2XL",
+        "marketId": 0,
+        "marketName": "共享",
+        "productStatusName": "正常",
+        "categoryName": "MW105-男式+卫衣（洗水）",
+        "brandName": "未分配品牌",
+        "productTypeName": "成品",
+        "assembly": "",
+        "productManagerAccount": "李思唯",
+        "unit": "件",
+        "singleQuantity": "19",
+        "productDeliveryDays": 35,
+        "purchasePlanQuantity": "0",
+        "assemblePlanQuantity": "0",
+        "planQuantity": "0",
+        "orderQuantity": "0",
+        "lotNoQuantity": "0",
+        "plPoLnQty": "0",
+        "erpWorking": "0",
+        "erpWaitShipped": "0",
+        "erpShipped": "0",
+        "erpReceiving": "0",
+        "inTransitQty": "0",
+        "reservedUnprocessed": "0",
+        "reservedProcessed": "0",
+        "reservationQty": "0",
+        "availableQty": "29",
+        "unsellableQuantity": "0",
+        "fulfillableQuantity": "29",
+        "onHandQty": "29",
+        "totalInventoryQty": "29",
+        "invAge0To30Days": "0",
+        "invAge31To60Days": "0",
+        "invAge61To90Days": "0",
+        "invAge91To180Days": "0",
+        "invAge181To270Days": "0",
+        "invAge271To330Days": "0",
+        "invAge331To365Days": "0",
+        "invAge365PlusDays": "29",
+        "obsoleteQty": "29",
+        "obsoleteRate": 100.00,
+        "createTime": "2024-02-20 18:52:35",
+        "updateTime": "2026-04-25 22:42:26"
+      }
+    ],
+    "footer": null,
+    "from": 0,
+    "size": 20,
+    "page": 1,
+    "pagesize": 20,
+    "condition": {
+      "warehouseIds": [61, 65, 66, 67, 101, 289, 309, 331],
+      "productStatusList": [0],
+      "filterQuantity": true
+    },
+    "sort": "seq",
+    "order": "asc"
+  },
+  "extObj": null,
+  "messages": [],
+  "error": false
+}</code></pre>
+    <p><strong>响应根字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>traceId</td><td>string / null</td><td>链路追踪 ID；示例为空</td></tr>
+          <tr><td>code</td><td>number</td><td>响应码；示例为 <code>0</code> 表示成功</td></tr>
+          <tr><td>success</td><td>number</td><td>成功标记；示例值为 <code>0</code>，需确认是否 0 表示成功</td></tr>
+          <tr><td>data</td><td>object</td><td>业务数据主体</td></tr>
+          <tr><td>extObj</td><td>object / null</td><td>扩展对象；示例为空</td></tr>
+          <tr><td>messages</td><td>list</td><td>消息列表；示例为空数组</td></tr>
+          <tr><td>error</td><td>boolean</td><td>是否错误；示例为 <code>false</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>data 分页字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>data.rows</td><td>list&lt;object&gt;</td><td>列表数据</td></tr>
+          <tr><td>data.footer</td><td>object / null</td><td>页脚汇总；示例为空</td></tr>
+          <tr><td>data.from</td><td>number</td><td>起始偏移量</td></tr>
+          <tr><td>data.size</td><td>number</td><td>当前页返回条数上限</td></tr>
+          <tr><td>data.page</td><td>number</td><td>当前页码</td></tr>
+          <tr><td>data.pagesize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>data.condition</td><td>object</td><td>服务端回显的查询条件</td></tr>
+          <tr><td>data.sort</td><td>string</td><td>排序字段；示例值 <code>seq</code></td></tr>
+          <tr><td>data.order</td><td>string</td><td>排序方向；示例值 <code>asc</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>列表对象字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>是否bi关键字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.rows[].id</td><td>string</td><td>否</td><td>库存记录 ID</td></tr>
+          <tr><td>data.rows[].warehouseId</td><td>number</td><td>是</td><td>仓库 ID</td></tr>
+          <tr><td>data.rows[].warehouseName</td><td>string</td><td>是</td><td>仓库名称</td></tr>
+          <tr><td>data.rows[].productImageUrl</td><td>string</td><td>否</td><td>商品图片 URL</td></tr>
+          <tr><td>data.rows[].productName</td><td>string</td><td>是</td><td>商品名称</td></tr>
+          <tr><td>data.rows[].sku</td><td>string</td><td>是</td><td>SKU 编码</td></tr>
+          <tr><td>data.rows[].spuName</td><td>string</td><td>是</td><td>SPU 名称</td></tr>
+          <tr><td>data.rows[].spu</td><td>string</td><td>是</td><td>SPU 编码</td></tr>
+          <tr><td>data.rows[].msku</td><td>string</td><td>否</td><td>内部 MSKU 编码</td></tr>
+          <tr><td>data.rows[].marketId</td><td>number</td><td>否</td><td>市场 ID；示例值 <code>0</code></td></tr>
+          <tr><td>data.rows[].marketName</td><td>string</td><td>否</td><td>市场名称；示例值“共享”</td></tr>
+          <tr><td>data.rows[].productStatusName</td><td>string</td><td>是</td><td>商品状态名称；示例值“正常”</td></tr>
+          <tr><td>data.rows[].categoryName</td><td>string</td><td>否</td><td>类目名称</td></tr>
+          <tr><td>data.rows[].brandName</td><td>string</td><td>否</td><td>品牌名称</td></tr>
+          <tr><td>data.rows[].productTypeName</td><td>string</td><td>否</td><td>商品类型名称</td></tr>
+          <tr><td>data.rows[].assembly</td><td>string</td><td>否</td><td>组装信息；示例为空字符串</td></tr>
+          <tr><td>data.rows[].productManagerAccount</td><td>string</td><td>否</td><td>商品负责人账号</td></tr>
+          <tr><td>data.rows[].unit</td><td>string</td><td>否</td><td>单位；示例值“件”</td></tr>
+          <tr><td>data.rows[].singleQuantity</td><td>string</td><td>否</td><td>单件数量；字符串类型</td></tr>
+          <tr><td>data.rows[].productDeliveryDays</td><td>number</td><td>否</td><td>交期天数</td></tr>
+          <tr><td>data.rows[].purchasePlanQuantity</td><td>string</td><td>否</td><td>采购计划数量</td></tr>
+          <tr><td>data.rows[].assemblePlanQuantity</td><td>string</td><td>否</td><td>组装计划数量</td></tr>
+          <tr><td>data.rows[].planQuantity</td><td>string</td><td>否</td><td>计划数量</td></tr>
+          <tr><td>data.rows[].orderQuantity</td><td>string</td><td>否</td><td>订单数量</td></tr>
+          <tr><td>data.rows[].lotNoQuantity</td><td>string</td><td>否</td><td>批次数量</td></tr>
+          <tr><td>data.rows[].plPoLnQty</td><td>string</td><td>否</td><td>采购相关数量字段</td></tr>
+          <tr><td>data.rows[].erpWorking</td><td>string</td><td>否</td><td>ERP 处理中数量</td></tr>
+          <tr><td>data.rows[].erpWaitShipped</td><td>string</td><td>否</td><td>ERP 待发货数量</td></tr>
+          <tr><td>data.rows[].erpShipped</td><td>string</td><td>否</td><td>ERP 已发货数量</td></tr>
+          <tr><td>data.rows[].erpReceiving</td><td>string</td><td>否</td><td>ERP 收货中数量</td></tr>
+          <tr><td>data.rows[].inTransitQty</td><td>string</td><td>是</td><td>在途库存数量</td></tr>
+          <tr><td>data.rows[].reservedUnprocessed</td><td>string</td><td>否</td><td>未处理预留数量</td></tr>
+          <tr><td>data.rows[].reservedProcessed</td><td>string</td><td>否</td><td>已处理预留数量</td></tr>
+          <tr><td>data.rows[].reservationQty</td><td>string</td><td>否</td><td>预留数量</td></tr>
+          <tr><td>data.rows[].availableQty</td><td>string</td><td>是</td><td>可用库存数量</td></tr>
+          <tr><td>data.rows[].unsellableQuantity</td><td>string</td><td>否</td><td>不可售数量</td></tr>
+          <tr><td>data.rows[].fulfillableQuantity</td><td>string</td><td>是</td><td>可履约数量</td></tr>
+          <tr><td>data.rows[].onHandQty</td><td>string</td><td>是</td><td>现货库存数量</td></tr>
+          <tr><td>data.rows[].totalInventoryQty</td><td>string</td><td>是</td><td>总库存数量</td></tr>
+          <tr><td>data.rows[].invAge0To30Days</td><td>string</td><td>否</td><td>0 到 30 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge31To60Days</td><td>string</td><td>否</td><td>31 到 60 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge61To90Days</td><td>string</td><td>否</td><td>61 到 90 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge91To180Days</td><td>string</td><td>否</td><td>91 到 180 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge181To270Days</td><td>string</td><td>否</td><td>181 到 270 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge271To330Days</td><td>string</td><td>否</td><td>271 到 330 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge331To365Days</td><td>string</td><td>否</td><td>331 到 365 天库龄数量</td></tr>
+          <tr><td>data.rows[].invAge365PlusDays</td><td>string</td><td>否</td><td>365 天以上库龄数量</td></tr>
+          <tr><td>data.rows[].obsoleteQty</td><td>string</td><td>否</td><td>呆滞数量</td></tr>
+          <tr><td>data.rows[].obsoleteRate</td><td>number</td><td>否</td><td>呆滞率</td></tr>
+          <tr><td>data.rows[].purchaseCost</td><td>number / null</td><td>否</td><td>采购成本；示例为空</td></tr>
+          <tr><td>data.rows[].arriveCost</td><td>number / null</td><td>否</td><td>到货成本；示例为空</td></tr>
+          <tr><td>data.rows[].transferPendingShipmentValue</td><td>number / null</td><td>否</td><td>待发调拨价值；示例为空</td></tr>
+          <tr><td>data.rows[].inTransitValue</td><td>number / null</td><td>否</td><td>在途价值；示例为空</td></tr>
+          <tr><td>data.rows[].goodValue</td><td>number / null</td><td>否</td><td>良品价值；示例为空</td></tr>
+          <tr><td>data.rows[].defectiveValue</td><td>number / null</td><td>否</td><td>次品价值；示例为空</td></tr>
+          <tr><td>data.rows[].onHandValue</td><td>number / null</td><td>否</td><td>现货价值；示例为空</td></tr>
+          <tr><td>data.rows[].obsoleteValue</td><td>number / null</td><td>否</td><td>呆滞价值；示例为空</td></tr>
+          <tr><td>data.rows[].totalValue</td><td>number / null</td><td>否</td><td>总价值；示例为空</td></tr>
+          <tr><td>data.rows[].createTime</td><td>string</td><td>否</td><td>创建时间</td></tr>
+          <tr><td>data.rows[].updateTime</td><td>string</td><td>是</td><td>更新时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>分页结构</strong></p>
+    <p>该接口分页结构已确认使用 <code>data.total</code>、<code>data.rows[]</code>、<code>data.page</code>、<code>data.pagesize</code>，同时返回 <code>data.condition</code>、<code>data.sort</code>、<code>data.order</code> 作为查询回显与排序信息。落地时建议转换为内部统一的 <code>page/pageSize/total/list</code> 结构。</p>
+    <p><strong>异常返回结构</strong></p>
+    <p>当前仅拿到成功返回样例。后续建议补充至少以下失败样例：仓库 ID 非法、状态值无效、分页参数错误、权限不足、第三方库存服务异常。</p>
+    <p><strong>bi 转换说明</strong></p>
+    <p>该接口更适合作为仓库库存快照明细来源，不建议直接透传前端。可优先提取 <code>warehouseId</code>、<code>warehouseName</code>、<code>spu</code>、<code>spuName</code>、<code>sku</code>、<code>availableQty</code>、<code>onHandQty</code>、<code>totalInventoryQty</code>、<code>inTransitQty</code>、<code>updateTime</code> 等字段，作为库存检查与缺补货场景的基础库存来源。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>SiteProductInventoryListRequest</code>：第三方请求 DTO</li>
+      <li><code>SiteProductInventoryListResponse</code>：第三方响应 DTO</li>
+      <li><code>SiteProductInventoryItem</code>：第三方库存行 DTO</li>
+      <li><code>InventoryThirdPartyWarehouseInventoryConverter</code>：仓库库存对象转内部库存对象</li>
+    </ul>
+
+    <h3 id="jijia-fbt-normal">3.5 TikTok.FBT库存-正常 列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>查询 TikTok FBT 仓库存明细，重点关注 FBT 仓、平台仓配送、在途库存、可用库存、预留库存及 FBT 仓编码等字段，是库存检查与发货视图的重要上游来源之一。当前示例来自仓库 <code>美国TK-艾斯特尼-美区跨境1店:US_FBT</code>。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>bi服务 -> 积加 -> TikTok.FBT库存-正常 列表</code></pre>
+    <p><strong>第三方接口标识</strong></p>
+    <pre><code>接口名称：TikTok.FBT库存-正常 列表
+第三方路径：https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery
+请求方式：POST
+Content-Type：application/json</code></pre>
+    <p><strong>请求参数结构</strong></p>
+    <pre><code>{
+  "warehouseIdList": [115],
+  "order": "descend",
+  "page": 1,
+  "pagesize": 20
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>warehouseIdList</td><td>list&lt;number&gt;</td><td>否</td><td>仓库 ID 列表；示例值 <code>[115]</code></td></tr>
+          <tr><td>order</td><td>string</td><td>否</td><td>排序方向；示例值 <code>descend</code></td></tr>
+          <tr><td>page</td><td>number</td><td>是</td><td>当前页码，从 1 开始</td></tr>
+          <tr><td>pagesize</td><td>number</td><td>是</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应结果结构</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "data": {
+    "total": 1941,
+    "rows": [
+      {
+        "id": 3102,
+        "warehouseId": 115,
+        "warehouseName": "美国TK-艾斯特尼-美区跨境1店:US_FBT",
+        "productImageUrl": "",
+        "productName": "双拉链连帽卫衣-复古深蓝87161-M",
+        "sku": "AL-W0161-FGSL-M",
+        "spuName": "双拉链连帽卫衣",
+        "spu": "AL-W0161",
+        "productStatusName": "正常",
+        "status": 1,
+        "statusName": "正常",
+        "fbtWarehouseId": "7553493114708756238",
+        "fbtWarehouseName": "FC14_EWR4",
+        "fbtId": "2034149985884678",
+        "referenceCode": "AL-W0161-FGSL-M",
+        "goodsName": "FAIABLE Men´s Hoodies ...",
+        "fulfillmentChannel": "PFN",
+        "fulfillmentChannelName": "平台仓配送",
+        "totalQuantity": 0,
+        "inTransitQuantity": 21,
+        "availableQuantity": 0,
+        "reservedQuantity": 0,
+        "unfulfillableQuantity": 0,
+        "updateTime": "2026-04-28 14:12:38"
+      }
+    ],
+    "footer": null,
+    "from": 0,
+    "size": 20,
+    "page": 1,
+    "pagesize": 20,
+    "condition": {
+      "warehouseIdList": [115],
+      "order": "descend"
+    },
+    "sort": "seq",
+    "order": "desc"
+  },
+  "extObj": null,
+  "messages": [],
+  "error": false
+}</code></pre>
+    <p><strong>响应根字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>traceId</td><td>string / null</td><td>链路追踪 ID；示例为空</td></tr>
+          <tr><td>code</td><td>number</td><td>响应码；示例为 <code>0</code> 表示成功</td></tr>
+          <tr><td>success</td><td>number</td><td>成功标记；示例值为 <code>0</code>，需确认是否 0 表示成功</td></tr>
+          <tr><td>data</td><td>object</td><td>业务数据主体</td></tr>
+          <tr><td>extObj</td><td>object / null</td><td>扩展对象；示例为空</td></tr>
+          <tr><td>messages</td><td>list</td><td>消息列表；示例为空数组</td></tr>
+          <tr><td>error</td><td>boolean</td><td>是否错误；示例为 <code>false</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>data 分页字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>data.rows</td><td>list&lt;object&gt;</td><td>列表数据</td></tr>
+          <tr><td>data.footer</td><td>object / null</td><td>页脚汇总；示例为空</td></tr>
+          <tr><td>data.from</td><td>number</td><td>起始偏移量</td></tr>
+          <tr><td>data.size</td><td>number</td><td>当前页返回条数上限</td></tr>
+          <tr><td>data.page</td><td>number</td><td>当前页码</td></tr>
+          <tr><td>data.pagesize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>data.condition</td><td>object</td><td>服务端回显的查询条件</td></tr>
+          <tr><td>data.sort</td><td>string</td><td>排序字段；示例值 <code>seq</code></td></tr>
+          <tr><td>data.order</td><td>string</td><td>排序方向；示例值 <code>desc</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>列表对象字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>是否bi关键字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.rows[].id</td><td>number</td><td>否</td><td>记录 ID</td></tr>
+          <tr><td>data.rows[].warehouseId</td><td>number</td><td>是</td><td>仓库 ID</td></tr>
+          <tr><td>data.rows[].warehouseName</td><td>string</td><td>是</td><td>仓库名称</td></tr>
+          <tr><td>data.rows[].productImageUrl</td><td>string</td><td>否</td><td>商品图片 URL</td></tr>
+          <tr><td>data.rows[].productName</td><td>string</td><td>是</td><td>商品名称</td></tr>
+          <tr><td>data.rows[].sku</td><td>string</td><td>是</td><td>SKU 编码</td></tr>
+          <tr><td>data.rows[].spuName</td><td>string</td><td>是</td><td>SPU 名称</td></tr>
+          <tr><td>data.rows[].spu</td><td>string</td><td>是</td><td>SPU 编码</td></tr>
+          <tr><td>data.rows[].productStatusName</td><td>string</td><td>是</td><td>商品状态名称；示例值“正常”</td></tr>
+          <tr><td>data.rows[].status</td><td>number</td><td>否</td><td>状态编码；示例值 <code>1</code></td></tr>
+          <tr><td>data.rows[].statusName</td><td>string</td><td>否</td><td>状态名称；示例值“正常”</td></tr>
+          <tr><td>data.rows[].categoryName</td><td>string</td><td>否</td><td>类目名称</td></tr>
+          <tr><td>data.rows[].brandName</td><td>string</td><td>否</td><td>品牌名称</td></tr>
+          <tr><td>data.rows[].productTypeName</td><td>string</td><td>否</td><td>商品类型名称</td></tr>
+          <tr><td>data.rows[].assembly</td><td>string</td><td>否</td><td>组装信息；示例为空字符串</td></tr>
+          <tr><td>data.rows[].productManagerAccount</td><td>string</td><td>否</td><td>商品负责人账号</td></tr>
+          <tr><td>data.rows[].unit</td><td>string</td><td>否</td><td>单位；示例值“件”</td></tr>
+          <tr><td>data.rows[].singleQuantity</td><td>number / null</td><td>否</td><td>单件数量；示例存在空值和数值两种情况</td></tr>
+          <tr><td>data.rows[].productDeliveryDays</td><td>number</td><td>否</td><td>交期天数</td></tr>
+          <tr><td>data.rows[].sellingManagerNameList</td><td>list</td><td>否</td><td>销售负责人列表；示例为空数组</td></tr>
+          <tr><td>data.rows[].avgUnitsOrdered7Days</td><td>number / null</td><td>否</td><td>近 7 天平均销量</td></tr>
+          <tr><td>data.rows[].avgUnitsOrdered15Days</td><td>number / null</td><td>否</td><td>近 15 天平均销量</td></tr>
+          <tr><td>data.rows[].avgUnitsOrdered30Days</td><td>number / null</td><td>否</td><td>近 30 天平均销量</td></tr>
+          <tr><td>data.rows[].avgUnitsOrdered60Days</td><td>number / null</td><td>否</td><td>近 60 天平均销量</td></tr>
+          <tr><td>data.rows[].avgUnitsOrdered90Days</td><td>number / null</td><td>否</td><td>近 90 天平均销量</td></tr>
+          <tr><td>data.rows[].unitsOrdered7Days</td><td>number / null</td><td>否</td><td>近 7 天销量</td></tr>
+          <tr><td>data.rows[].unitsOrdered15Days</td><td>number / null</td><td>否</td><td>近 15 天销量</td></tr>
+          <tr><td>data.rows[].unitsOrdered30Days</td><td>number / null</td><td>否</td><td>近 30 天销量</td></tr>
+          <tr><td>data.rows[].unitsOrdered60Days</td><td>number / null</td><td>否</td><td>近 60 天销量</td></tr>
+          <tr><td>data.rows[].unitsOrdered90Days</td><td>number / null</td><td>否</td><td>近 90 天销量</td></tr>
+          <tr><td>data.rows[].historicalUnitsOrdered7Days</td><td>number / null</td><td>否</td><td>历史 7 天销量</td></tr>
+          <tr><td>data.rows[].historical7DaysDetailList</td><td>list / null</td><td>否</td><td>历史 7 天销量明细</td></tr>
+          <tr><td>data.rows[].historicalUnitsOrdered30Days</td><td>number / null</td><td>否</td><td>历史 30 天销量</td></tr>
+          <tr><td>data.rows[].historical30DaysDetailList</td><td>list / null</td><td>否</td><td>历史 30 天销量明细</td></tr>
+          <tr><td>data.rows[].createTime</td><td>string</td><td>否</td><td>创建时间</td></tr>
+          <tr><td>data.rows[].updateTime</td><td>string</td><td>是</td><td>更新时间</td></tr>
+          <tr><td>data.rows[].fbtWarehouseId</td><td>string</td><td>是</td><td>FBT 仓库 ID</td></tr>
+          <tr><td>data.rows[].fbtWarehouseName</td><td>string</td><td>是</td><td>FBT 仓库名称</td></tr>
+          <tr><td>data.rows[].fbtId</td><td>string</td><td>否</td><td>FBT 记录 ID</td></tr>
+          <tr><td>data.rows[].referenceCode</td><td>string</td><td>否</td><td>参考编码；当前示例与 SKU 一致</td></tr>
+          <tr><td>data.rows[].goodsName</td><td>string</td><td>否</td><td>平台商品英文名称</td></tr>
+          <tr><td>data.rows[].goodsSku</td><td>string</td><td>否</td><td>平台商品 SKU；示例为空字符串</td></tr>
+          <tr><td>data.rows[].listingState</td><td>string</td><td>否</td><td>刊登状态；示例为空字符串</td></tr>
+          <tr><td>data.rows[].listingLevel</td><td>string</td><td>否</td><td>刊登层级；示例为空字符串</td></tr>
+          <tr><td>data.rows[].fulfillmentChannel</td><td>string</td><td>是</td><td>履约渠道编码；示例值 <code>PFN</code></td></tr>
+          <tr><td>data.rows[].fulfillmentChannelName</td><td>string</td><td>是</td><td>履约渠道名称；示例值“平台仓配送”</td></tr>
+          <tr><td>data.rows[].totalQuantity</td><td>number</td><td>是</td><td>FBT 总库存数量</td></tr>
+          <tr><td>data.rows[].inTransitQuantity</td><td>number</td><td>是</td><td>FBT 在途库存数量</td></tr>
+          <tr><td>data.rows[].availableQuantity</td><td>number</td><td>是</td><td>FBT 可用库存数量</td></tr>
+          <tr><td>data.rows[].reservedQuantity</td><td>number</td><td>是</td><td>FBT 预留库存数量</td></tr>
+          <tr><td>data.rows[].unfulfillableQuantity</td><td>number</td><td>是</td><td>FBT 不可履约库存数量</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>分页结构</strong></p>
+    <p>该接口分页结构已确认使用 <code>data.total</code>、<code>data.rows[]</code>、<code>data.page</code>、<code>data.pagesize</code>，同时返回 <code>data.condition</code>、<code>data.sort</code>、<code>data.order</code> 作为查询回显与排序信息。落地时建议转换为内部统一的 <code>page/pageSize/total/list</code> 结构。</p>
+    <p><strong>异常返回结构</strong></p>
+    <p>当前仅拿到成功返回样例。后续建议补充至少以下失败样例：FBT 仓库 ID 非法、分页参数错误、履约渠道异常、第三方库存服务异常。</p>
+    <p><strong>bi 转换说明</strong></p>
+    <p>该接口建议沉淀为 FBT 库存专题对象，后续统一给库存检查、发货、发货+补货总和等多个视图复用。建议优先提取 <code>warehouseId</code>、<code>warehouseName</code>、<code>fbtWarehouseId</code>、<code>fbtWarehouseName</code>、<code>spu</code>、<code>spuName</code>、<code>sku</code>、<code>totalQuantity</code>、<code>inTransitQuantity</code>、<code>availableQuantity</code>、<code>reservedQuantity</code>、<code>unfulfillableQuantity</code>、<code>fulfillmentChannel</code>、<code>updateTime</code> 等字段。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>TiktokFbtInventoryListRequest</code>：第三方请求 DTO</li>
+      <li><code>TiktokFbtInventoryListResponse</code>：第三方响应 DTO</li>
+      <li><code>TiktokFbtInventoryItem</code>：第三方列表行 DTO</li>
+      <li><code>InventoryThirdPartyFbtConverter</code>：FBT 库存转换器</li>
+    </ul>
+
+    <h3 id="jijia-onsale-inventory">3.6 TIKTOK-在售商品-库存列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>根据在售商品记录 ID 查询该商品在各个 TikTok 可用仓中的可用库存分布，适合作为“单商品库存展开明细”来源，用于补充仓库级可用库存口径。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>bi服务 -> 积加 -> TIKTOK-在售商品-库存列表</code></pre>
+    <p><strong>第三方接口标识</strong></p>
+    <pre><code>接口名称：TIKTOK-在售商品-库存列表
+第三方路径：https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory
+请求方式：POST
+Content-Type：application/json</code></pre>
+    <p><strong>请求参数结构</strong></p>
+    <pre><code>{
+  "id": "120074"
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>id</td><td>string</td><td>是</td><td>在售商品列表中的记录 ID；示例值 <code>120074</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应结果结构</strong></p>
+    <pre><code>{
+  "code": 0,
+  "messages": null,
+  "parsedMessage": null,
+  "data": [
+    {
+      "itemId": "1732364788425724261",
+      "skuId": "1732364788425920869",
+      "warehouseId": "7304864738578581249",
+      "warehouseName": "1店-万邑通USKY3",
+      "availableStock": "0"
+    },
+    {
+      "itemId": "1732364788425724261",
+      "skuId": "1732364788425920869",
+      "warehouseId": "7523903115247224596",
+      "warehouseName": "1店-美国TK厦门直邮仓",
+      "availableStock": "13"
+    }
+  ],
+  "traceId": null,
+  "other": null,
+  "timestamp": "1777360152046",
+  "success": true
+}</code></pre>
+    <p><strong>响应根字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码；示例为 <code>0</code> 表示成功</td></tr>
+          <tr><td>messages</td><td>string / null</td><td>消息体；示例为空</td></tr>
+          <tr><td>parsedMessage</td><td>string / null</td><td>解析后的消息内容；示例为空</td></tr>
+          <tr><td>data</td><td>list&lt;object&gt;</td><td>仓库库存列表数据</td></tr>
+          <tr><td>traceId</td><td>string / null</td><td>链路追踪 ID；示例为空</td></tr>
+          <tr><td>other</td><td>object / null</td><td>扩展字段；示例为空</td></tr>
+          <tr><td>timestamp</td><td>string</td><td>响应时间戳，毫秒字符串</td></tr>
+          <tr><td>success</td><td>boolean</td><td>是否成功；示例为 <code>true</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>列表对象字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>是否bi关键字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data[].itemId</td><td>string</td><td>是</td><td>商品 Item ID</td></tr>
+          <tr><td>data[].skuId</td><td>string</td><td>是</td><td>SKU ID</td></tr>
+          <tr><td>data[].warehouseId</td><td>string</td><td>是</td><td>仓库 ID</td></tr>
+          <tr><td>data[].warehouseName</td><td>string</td><td>是</td><td>仓库名称</td></tr>
+          <tr><td>data[].availableStock</td><td>string</td><td>是</td><td>仓库可用库存；当前返回为字符串类型</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>分页结构</strong></p>
+    <p>该接口不是分页查询，直接返回数组 <code>data[]</code>，表示当前商品在不同仓库下的可用库存分布。</p>
+    <p><strong>异常返回结构</strong></p>
+    <p>当前仅拿到成功返回样例。后续建议补充至少以下失败样例：商品 ID 无效、商品不存在、仓库库存查询失败、第三方网关异常。</p>
+    <p><strong>bi 转换说明</strong></p>
+    <p>该接口更适合作为单商品仓库可用库存明细来源，不建议单独作为主列表接口。建议在已知商品主信息后，再通过该接口补充仓库级可用库存，尤其适用于拆分 <code>USKY3</code>、<code>USWC</code>、<code>USWC2</code>、谷仓、直邮仓、FBA 仓等仓库口径。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>TiktokOnSaleProductInventoryRequest</code>：第三方请求 DTO</li>
+      <li><code>TiktokOnSaleProductInventoryResponse</code>：第三方响应 DTO</li>
+      <li><code>TiktokOnSaleProductInventoryWarehouseItem</code>：第三方仓库库存 DTO</li>
+      <li><code>InventoryThirdPartyProductInventoryConverter</code>：商品库存组合对象转换器</li>
+    </ul>
+
+    <h3 id="jijia-warehouse-list">3.7 TIKTOK-可用仓库列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>查询 TikTok 平台可用仓库列表，用于建立仓库编码、仓库名称、仓库类型与库存模块内仓库展示字段之间的映射关系。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>暂不走积加接口，改为人工手动录入维护</code></pre>
+    <div class="note">
+      <strong>当前约定：</strong>TIKTOK 可用仓库列表暂不对接积加接口，由业务或运营侧通过人工维护方式录入基础仓库映射数据。原因是该部分数据变动频率较低，短期内无需增加第三方接口接入与适配成本。
+    </div>
+    <p><strong>维护方式建议</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>数据来源</td><td>人工手动录入 / 维护</td></tr>
+          <tr><td>维护频率</td><td>按需更新；仓库有新增、停用、改名时再调整</td></tr>
+          <tr><td>建议落地形式</td><td>本地配置表、基础资料表，或固定维护 Excel / 飞书表后导入</td></tr>
+          <tr><td>建议维护字段</td><td>warehouseCode、warehouseName、warehouseType、siteCode、status、displayOrder、remark</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>bi 转换说明</strong></p>
+    <p>建议优先沉淀为仓库维表或缓存映射对象，供库存明细中的谷仓、FBT、万邑通、FBA、直邮仓等仓库展示字段统一解释。后续如果仓库变动频繁，再评估是否补接第三方接口。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>InventoryWarehouseMappingConfig</code>：仓库映射配置对象</li>
+      <li><code>InventoryWarehouseMappingItem</code>：仓库基础资料 DTO</li>
+      <li><code>InventoryWarehouseMappingService</code>：仓库映射读取服务</li>
+      <li><code>InventoryWarehouseNameResolver</code>：仓库展示名称解析器</li>
+    </ul>
+
+    <h3 id="jijia-sales-performance">3.8 多平台销售表现-tiktok-列表</h3>
+    <p><strong>接口用途</strong></p>
+    <p>查询 TikTok 销售表现数据，预计用于支撑库存模块中的近 7 天日销、近 30 天日销、加权日销、销量趋势等测算逻辑。</p>
+    <p><strong>调用方向</strong></p>
+    <pre><code>bi服务 -> 积加 -> 多平台销售表现-tiktok-列表</code></pre>
+    <p><strong>第三方接口标识</strong></p>
+    <pre><code>接口名称：多平台销售表现-tiktok-列表
+第三方路径：https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView
+请求方式：POST
+Content-Type：application/json</code></pre>
+    <p><strong>请求参数结构</strong></p>
+    <pre><code>{
+  "platformType": "MULTI",
+  "platformMarketList": [1000022, 1000046, 1000045, 1000150, 1000146],
+  "currency": "CNY",
+  "beginDate": "2026-04-20",
+  "endDate": "2026-04-26",
+  "viewType": "DAY",
+  "sort": "unitsOrdered",
+  "order": "descend",
+  "page": 1,
+  "pagesize": 20
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>platformType</td><td>string</td><td>是</td><td>平台类型；示例值 <code>MULTI</code></td></tr>
+          <tr><td>platformMarketList</td><td>list&lt;number&gt;</td><td>是</td><td>TikTok 店铺/市场 ID 列表</td></tr>
+          <tr><td>currency</td><td>string</td><td>是</td><td>统计折算币种；示例值 <code>CNY</code></td></tr>
+          <tr><td>beginDate</td><td>string</td><td>是</td><td>开始日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td>viewType</td><td>string</td><td>是</td><td>统计粒度；示例值 <code>DAY</code></td></tr>
+          <tr><td>sort</td><td>string</td><td>否</td><td>排序字段；示例值 <code>unitsOrdered</code></td></tr>
+          <tr><td>order</td><td>string</td><td>否</td><td>排序方向；示例值 <code>descend</code></td></tr>
+          <tr><td>page</td><td>number</td><td>是</td><td>当前页码，从 1 开始</td></tr>
+          <tr><td>pagesize</td><td>number</td><td>是</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应结果结构</strong></p>
+    <pre><code>{
+  "traceId": null,
+  "code": 0,
+  "success": 0,
+  "data": {
+    "total": 672,
+    "rows": [
+      {
+        "uniqueValue": "1000017_AL-W0161-LHH-M_TIKTOK",
+        "marketId": 1000017,
+        "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "platformCode": "TIKTOK",
+        "platformName": "Tiktok自运营",
+        "sku": "AL-W0161-LHH-M",
+        "productName": "双拉链连帽卫衣-硫化黑27-M",
+        "spu": "AL-W0161",
+        "spuName": "双拉链连帽卫衣",
+        "orders": 59,
+        "orderProductSales": 23016.18,
+        "unitsOrdered": 59,
+        "avgPrice": 390.10,
+        "currency": "USD",
+        "salePrice": 483.11,
+        "msku": "AL-W0161-LHH-M"
+      }
+    ],
+    "footer": null,
+    "from": 0,
+    "size": 20,
+    "page": 1,
+    "pagesize": 20,
+    "condition": {
+      "platformType": "MULTI",
+      "platformMarketList": [1000010, 1000022, 1000017],
+      "currency": "CNY",
+      "beginDate": "2026-04-20",
+      "endDate": "2026-04-26",
+      "viewType": "DAY",
+      "monthExchangeRateList": [
+        { "currency": "USD", "destCurrency": "CNY", "convertRate": 6.9025, "monthDate": "2026-04" }
+      ]
+    },
+    "sort": "UNITS_ORDERED",
+    "order": "desc"
+  },
+  "extObj": null,
+  "messages": [],
+  "error": false
+}</code></pre>
+    <p><strong>响应根字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>traceId</td><td>string / null</td><td>链路追踪 ID；示例为空</td></tr>
+          <tr><td>code</td><td>number</td><td>响应码；示例为 <code>0</code> 表示成功</td></tr>
+          <tr><td>success</td><td>number</td><td>成功标记；示例值为 <code>0</code>，需确认是否 0 表示成功</td></tr>
+          <tr><td>data</td><td>object</td><td>业务数据主体</td></tr>
+          <tr><td>extObj</td><td>object / null</td><td>扩展对象；示例为空</td></tr>
+          <tr><td>messages</td><td>list</td><td>消息列表；示例为空数组</td></tr>
+          <tr><td>error</td><td>boolean</td><td>是否错误；示例为 <code>false</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>data 分页字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>data.rows</td><td>list&lt;object&gt;</td><td>列表数据</td></tr>
+          <tr><td>data.footer</td><td>object / null</td><td>页脚汇总；示例为空</td></tr>
+          <tr><td>data.from</td><td>number</td><td>起始偏移量</td></tr>
+          <tr><td>data.size</td><td>number</td><td>当前页返回条数上限</td></tr>
+          <tr><td>data.page</td><td>number</td><td>当前页码</td></tr>
+          <tr><td>data.pagesize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>data.condition</td><td>object</td><td>服务端回显的查询条件，包含时间范围、市场列表、汇率信息等</td></tr>
+          <tr><td>data.condition.monthExchangeRateList</td><td>list&lt;object&gt;</td><td>汇率换算配置列表，字段较多，当前文档不逐项展开</td></tr>
+          <tr><td>data.sort</td><td>string</td><td>排序字段；示例值 <code>UNITS_ORDERED</code></td></tr>
+          <tr><td>data.order</td><td>string</td><td>排序方向；示例值 <code>desc</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>列表对象字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段路径</th><th>类型</th><th>是否bi关键字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>data.rows[].uniqueValue</td><td>string</td><td>否</td><td>唯一值标识；通常由市场、SKU、平台拼接组成</td></tr>
+          <tr><td>data.rows[].marketId</td><td>number</td><td>是</td><td>市场/店铺 ID</td></tr>
+          <tr><td>data.rows[].marketName</td><td>string</td><td>是</td><td>市场/店铺名称</td></tr>
+          <tr><td>data.rows[].crawlTitle</td><td>string</td><td>否</td><td>平台抓取标题</td></tr>
+          <tr><td>data.rows[].platformCode</td><td>string</td><td>否</td><td>平台编码；示例值 <code>TIKTOK</code></td></tr>
+          <tr><td>data.rows[].platformName</td><td>string</td><td>否</td><td>平台名称；示例值“Tiktok自运营”</td></tr>
+          <tr><td>data.rows[].currencySymbol</td><td>string</td><td>否</td><td>币种符号</td></tr>
+          <tr><td>data.rows[].sku</td><td>string</td><td>是</td><td>SKU 编码</td></tr>
+          <tr><td>data.rows[].productAttributeName</td><td>string</td><td>否</td><td>商品属性名称；示例为空字符串</td></tr>
+          <tr><td>data.rows[].productName</td><td>string</td><td>是</td><td>商品名称</td></tr>
+          <tr><td>data.rows[].spu</td><td>string</td><td>是</td><td>SPU 编码</td></tr>
+          <tr><td>data.rows[].spuName</td><td>string</td><td>是</td><td>SPU 名称</td></tr>
+          <tr><td>data.rows[].brand</td><td>string</td><td>否</td><td>品牌名称</td></tr>
+          <tr><td>data.rows[].category</td><td>string</td><td>否</td><td>类目名称</td></tr>
+          <tr><td>data.rows[].sellingManagerName</td><td>string</td><td>否</td><td>销售负责人名称</td></tr>
+          <tr><td>data.rows[].productManagerName</td><td>string</td><td>否</td><td>商品负责人名称</td></tr>
+          <tr><td>data.rows[].listingLevel</td><td>string</td><td>否</td><td>刊登层级</td></tr>
+          <tr><td>data.rows[].listingState</td><td>string</td><td>否</td><td>刊登状态</td></tr>
+          <tr><td>data.rows[].orders</td><td>number</td><td>是</td><td>订单数</td></tr>
+          <tr><td>data.rows[].orderProductSales</td><td>number</td><td>是</td><td>订单销售额；按请求中的目标币种折算</td></tr>
+          <tr><td>data.rows[].unitsOrdered</td><td>number</td><td>是</td><td>销量件数</td></tr>
+          <tr><td>data.rows[].avgPrice</td><td>number</td><td>是</td><td>平均成交价</td></tr>
+          <tr><td>data.rows[].currency</td><td>string</td><td>否</td><td>原始币种；示例存在 <code>USD</code>、<code>JPY</code></td></tr>
+          <tr><td>data.rows[].salePrice</td><td>number</td><td>否</td><td>售价</td></tr>
+          <tr><td>data.rows[].imgUrl</td><td>string</td><td>否</td><td>商品图片 URL</td></tr>
+          <tr><td>data.rows[].msku</td><td>string</td><td>是</td><td>MSKU 编码</td></tr>
+          <tr><td>data.rows[].asin</td><td>string</td><td>否</td><td>平台关联 ID；示例中可能为单值或逗号分隔多值</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>分页结构</strong></p>
+    <p>该接口分页结构已确认使用 <code>data.total</code>、<code>data.rows[]</code>、<code>data.page</code>、<code>data.pagesize</code>，同时返回 <code>data.condition</code>、<code>data.sort</code>、<code>data.order</code> 作为查询回显与排序信息。落地时建议转换为内部统一的 <code>page/pageSize/total/list</code> 结构。</p>
+    <p><strong>异常返回结构</strong></p>
+    <p>当前仅拿到成功返回样例。后续建议补充至少以下失败样例：市场列表为空、时间范围非法、排序字段无效、汇率换算失败、第三方统计服务异常。</p>
+    <p><strong>bi 转换说明</strong></p>
+    <p>该接口可作为销售表现基础数据来源。建议优先提取 <code>marketId</code>、<code>marketName</code>、<code>sku</code>、<code>msku</code>、<code>spu</code>、<code>spuName</code>、<code>orders</code>、<code>unitsOrdered</code>、<code>orderProductSales</code>、<code>avgPrice</code>、<code>currency</code>、<code>productManagerName</code> 等字段。若库存模块还需要近 7 天/30 天日销、加权日销等指标，建议在 <code>bi</code> 内部按时间范围与业务规则做二次计算，不直接依赖第三方最终测算值。</p>
+    <p><strong>Java 落地建议</strong></p>
+    <ul>
+      <li><code>TiktokSalesPerformanceListRequest</code>：第三方请求 DTO</li>
+      <li><code>TiktokSalesPerformanceListResponse</code>：第三方响应 DTO</li>
+      <li><code>TiktokSalesPerformanceItem</code>：第三方销售表现 DTO</li>
+      <li><code>InventoryThirdPartySalesConverter</code>：销售表现转换器</li>
+    </ul>
+
+    <h3 id="jijia-bi-mapping">3.9 与 bi 内部接口的衔接建议</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>第三方接口</th><th>建议沉淀的内部能力</th><th>可能支撑的前端接口</th></tr></thead>
+        <tbody>
+          <tr><td>TIKTOK-在售商品列表</td><td>商品基础信息对象</td><td>库存检查列表、缺补货各视图列表基础维度</td></tr>
+          <tr><td>站点产品库存列表</td><td>仓库库存快照明细对象</td><td>库存检查列表、库存检查汇总、缺补货库存基础数据</td></tr>
+          <tr><td>TikTok.FBT库存-正常 列表</td><td>FBT 库存专题对象</td><td>库存检查、发货、发货+补货总和</td></tr>
+          <tr><td>TIKTOK-在售商品-库存列表</td><td>单商品仓库可用库存明细对象</td><td>库存检查仓库展开明细、仓库库存补充说明</td></tr>
+          <tr><td>TIKTOK-可用仓库列表</td><td>仓库维表/缓存映射</td><td>库存字段解释、仓库展示名称映射、人工维护基础资料</td></tr>
+          <tr><td>多平台销售表现-tiktok-列表</td><td>销售表现基础对象</td><td>SPU 冗余检视、发货、补货、发货+补货总和</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr />
+
+    <h2 id="api-overview">四、接口总览</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>序号</th><th>页面/模块</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
@@ -715,6 +1679,12 @@
           <tr><td>21</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/all-metric-desc</code></td></tr>
           <tr><td>22</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-export</code></td></tr>
           <tr><td>23</td><td>缺补货</td><td>待确认说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/todos</code></td></tr>
+          <tr><td>24</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
+          <tr><td>25</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
+          <tr><td>26</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
+          <tr><td>27</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
+          <tr><td>28</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
+          <tr><td>29</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
         </tbody>
       </table>
     </div>

@@ -811,13 +811,14 @@ Content-Type: application/json</code></pre>
     <pre><code>GET /api/bi/tk/pid/dashboard/export</code></pre>
     <p>查询参数同 3.2（不含 page、pageSize），返回 CSV，列与主表一致。</p>
     <h3>3.6 PID 与主推SPU维护：列表查询</h3>
-    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。点击页面右上角 <strong>PID与主推SPU维护</strong> 按钮后弹出维护弹框，支持按店铺、PID、主推SPU筛选维护记录。</p>
+    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。点击页面右上角 <strong>PID与主推SPU维护</strong> 按钮后弹出维护弹框，支持按店铺、PID、主推SPU筛选维护记录。默认查询 <strong>最新 sdt</strong> 对应的整日全量快照；如后续需要回看历史，可扩展传入 <code>sdt</code> 指定历史快照日期。</p>
     <pre><code>GET /api/bi/tk/pid/mainSpuMapping/list</code></pre>
     <p><strong>查询参数</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
+          <tr><td>sdt</td><td>string</td><td>否</td><td>快照日期，格式 YYYYMMDD；不传时默认取最新 sdt</td></tr>
           <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部店铺</td></tr>
           <tr><td>pid</td><td>string</td><td>否</td><td>PID，支持模糊匹配</td></tr>
           <tr><td>mainSpu</td><td>string</td><td>否</td><td>主推SPU，支持模糊匹配</td></tr>
@@ -833,12 +834,14 @@ Content-Type: application/json</code></pre>
   "pageSize": 20,
   "list": [
     {
+      "sdt": "20260422",
       "storeName": "美国TK-艾斯特尼-美区跨境1店",
       "pid": "1729773126172578149",
       "mainSpu": "AL-W0161",
       "updatedTime": "2026-04-22 14:36:18"
     },
     {
+      "sdt": "20260422",
       "storeName": "美国TK-艾斯特尼-美区跨境3店",
       "pid": "1729439482671567205",
       "mainSpu": "AL-M2301",
@@ -854,6 +857,7 @@ Content-Type: application/json</code></pre>
           <tr><td>1</td><td>page</td><td>number</td><td>当前页码</td></tr>
           <tr><td>1</td><td>pageSize</td><td>number</td><td>每页条数</td></tr>
           <tr><td>1</td><td>list</td><td>list</td><td>维护列表</td></tr>
+          <tr><td>2</td><td>list[].sdt</td><td>string</td><td>快照日期，格式 YYYYMMDD</td></tr>
           <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称</td></tr>
           <tr><td>2</td><td>list[].pid</td><td>string</td><td>PID</td></tr>
           <tr><td>2</td><td>list[].mainSpu</td><td>string</td><td>主推SPU</td></tr>
@@ -882,12 +886,13 @@ Content-Type: application/json</code></pre>
     </div>
     <p><strong>响应 data</strong></p>
 <pre><code>{
+  "sdt": "20260422",
   "storeName": "美国TK-艾斯特尼-美区跨境1店",
   "pid": "1729773126172578149",
   "mainSpu": "AL-W0161",
   "updatedTime": "2026-04-22 14:36:18"
 }</code></pre>
-    <p>更新成功后前端关闭编辑弹框，并重新调用 <code>GET /api/bi/tk/pid/mainSpuMapping/list</code> 刷新维护列表。</p>
+    <p>更新成功后将写入当天 <code>sdt</code> 对应的 DIM 快照，前端关闭编辑弹框，并重新调用 <code>GET /api/bi/tk/pid/mainSpuMapping/list</code> 刷新维护列表。</p>
     <hr />
 
     <h2>五、积加对接：全渠道商品接口</h2>

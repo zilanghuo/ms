@@ -87,7 +87,7 @@
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_traffic_file_tiktok_video_performance_di</td><td>TikTok 视频表现（Video Performance List）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_platform_file_tiktok_account_df</td><td>TikTok 账号信息（达人列表）</td><td>PID 需求二 挂车量区分</td></tr>
           <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_jijia_store_site_df</td><td>积加模块-店铺站点表明细（日全量）</td><td>积加/销售 店铺站点维度</td></tr>
-          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_sales_pid_main_spu_mapping_df</td><td>店铺 + PID 对应主推SPU映射维表（日全量）</td><td>PID 需求二 1.1（PID与主推SPU维护）</td></tr>
+          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_sales_pid_main_spu_mapping_df</td><td>店铺 + PID 对应主推SPU映射维表（按 sdt 保留历史的日全量快照）</td><td>PID 需求二 1.1（PID与主推SPU维护）</td></tr>
           <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_amount_detail_market_realtime</td><td>销售额明细-准实时（约 10 分钟更新）</td><td>准实时订单数/金额、销售需求二</td></tr>
           <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_order_item_market_wide_realtime</td><td>全渠道订单商品大宽表-准实时（以 ASIN 为维度，含下单时间、市场分区，约 10 分钟更新）</td><td>PID 需求一、销售需求一/二</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_market_realtime</td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
@@ -1895,7 +1895,7 @@ PROPERTIES (
 );</code></pre>
 
     <h3>6.3 dim_sales_pid_main_spu_mapping_df</h3>
-    <p>PID 与主推SPU维护映射维表。用于支撑 <code>销售/PID/htmls/数据看板-1.1.html</code> 页面中的「PID与主推SPU维护」弹框，按 <code>店铺 + PID</code> 维护唯一的主推SPU映射关系，并记录最后更新时间。</p>
+    <p>PID 与主推SPU维护映射维表。用于支撑 <code>销售/PID/htmls/数据看板-1.1.html</code> 页面中的「PID与主推SPU维护」弹框。该表按 <code>sdt + 店铺 + PID</code> 保存每日全量快照，因此既能支撑页面默认读取最新快照，也能按 <code>sdt</code> 回看历史映射。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
@@ -1910,7 +1910,7 @@ PROPERTIES (
         </tbody>
       </table>
     </div>
-    <p class="req-ref">UNIQUE KEY(sdt, store_name, pid) | 用途：PID数据看板1.1「PID与主推SPU维护」列表查询与编辑保存；查询当前快照时取最新 <code>sdt</code></p>
+    <p class="req-ref">UNIQUE KEY(sdt, store_name, pid) | 用途：PID数据看板1.1「PID与主推SPU维护」列表查询与编辑保存；每个 <code>sdt</code> 都是一份完整快照，页面默认取最新 <code>sdt</code></p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_sales_pid_main_spu_mapping_df (
     smt                      INT                  COMMENT '月分区，格式：YYYYMM',
@@ -1923,13 +1923,6 @@ PROPERTIES (
 ) ENGINE=OLAP
 UNIQUE KEY(sdt, store_name, pid)
 COMMENT '店铺+PID 对应主推SPU映射维表（日全量），支撑 PID数据看板1.1 的 PID与主推SPU维护'
-PARTITION BY RANGE(smt) (
-    PARTITION p202601 VALUES [("202601"), ("202602")),
-    PARTITION p202602 VALUES [("202602"), ("202603")),
-    PARTITION p202603 VALUES [("202603"), ("202604")),
-    PARTITION p202604 VALUES [("202604"), ("202605")),
-    PARTITION p202605 VALUES [("202605"), ("202606"))
-)
 DISTRIBUTED BY HASH(pid) BUCKETS 8
 PROPERTIES (
     "replication_allocation" = "tag.location.default: 1",
@@ -1992,7 +1985,7 @@ PROPERTIES (
           <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
           <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
           <tr><td>ads_sales_store_site_order_count_realtime</td><td>dws_sales_store_site_market_realtime</td></tr>
-          <tr><td>dim_sales_pid_main_spu_mapping_df</td><td>手工维护或业务后台维护结果（日全量快照）</td></tr>
+          <tr><td>dim_sales_pid_main_spu_mapping_df</td><td>业务后台维护结果（日全量快照，按 sdt 保留历史）</td></tr>
         </tbody>
       </table>
     </div>

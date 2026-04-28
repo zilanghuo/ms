@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>35岁IT阶段复盘与人生幕布重建</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #333;
+      --muted: #666;
+      --accent: #0d9488;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 2rem 3rem 3rem;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .doc {
+      max-width: 1280px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2.5rem 3rem 3rem;
+    }
+    h1 {
+      margin: 0 0 0.6rem;
+      font-size: 1.5rem;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+    h2 {
+      margin: 2rem 0 0.8rem;
+      font-size: 1.2rem;
+    }
+    h3 {
+      margin: 1.4rem 0 0.5rem;
+      font-size: 1.02rem;
+      color: var(--muted);
+    }
+    p { margin: 0.5rem 0 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    code {
+      background: #f1f5f9;
+      padding: 0.1rem 0.3rem;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+    .toc {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .toc h2 {
+      margin-top: 0;
+      font-size: 1.05rem;
+      color: var(--muted);
+    }
+    .toc a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .toc a:hover { text-decoration: underline; }
+    .toc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(280px, 1fr));
+      gap: 0.5rem 2rem;
+    }
+    .toc ul { margin: 0; padding-left: 1.1rem; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table {
+      width: 100%;
+      min-width: 680px;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.6rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f1f5f9;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    tr:hover td { background: #f9fafb; }
+    .note {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.9rem 1rem;
+      margin: 1rem 0;
+    }
+    .tag {
+      display: inline-block;
+      margin-right: 0.4rem;
+      margin-bottom: 0.4rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 999px;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 0.78rem;
+    }
+    .back {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+    }
+    .back a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1 id="top">35岁IT阶段复盘与人生幕布重建</h1>
+    <p>记录时间：<code>2026-04-28</code>。用于沉淀当前阶段的个人背景、状态判断、分析结论、建议路线与后续待继续梳理的问题，方便下一次接着分析，不从头再来。</p>
+
+    <div class="toc">
+      <h2>目录导航</h2>
+      <div class="toc-grid">
+        <ul>
+          <li><a href="#background">一、背景信息</a></li>
+          <li><a href="#current-status">二、当前状态描述</a></li>
+          <li><a href="#core-judgment">三、核心判断</a></li>
+          <li><a href="#cause-analysis">四、原因分析</a></li>
+        </ul>
+        <ul>
+          <li><a href="#route-choice">五、当前路线选择</a></li>
+          <li><a href="#two-year-plan">六、两年重建框架</a></li>
+          <li><a href="#pending-items">七、待继续梳理项</a></li>
+          <li><a href="#next-session">八、下次继续分析建议</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2 id="background">一、背景信息</h2>
+    <div>
+      <span class="tag">35岁</span>
+      <span class="tag">IT行业</span>
+      <span class="tag">已婚有孩</span>
+      <span class="tag">5岁小孩</span>
+      <span class="tag">有房</span>
+      <span class="tag">生活开支压力不大</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>项</th><th>当前情况</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>年龄</td><td>35 岁</td></tr>
+          <tr><td>职业背景</td><td>IT 行业在职</td></tr>
+          <tr><td>家庭结构</td><td>有 1 个 5 岁小孩</td></tr>
+          <tr><td>住房情况</td><td>一套小户型房子</td></tr>
+          <tr><td>经济压力</td><td>生活开支当前压力不大，不属于被经济压垮的状态</td></tr>
+          <tr><td>当前阶段关键词</td><td>稳定、责任较多、工作无趣、缺少新目标、需要重建人生幕布</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="current-status">二、当前状态描述</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>问题项</th><th>当前描述</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>主观感受</td><td>缺乏目标，生活没什么动力</td></tr>
+          <tr><td>最明显痛点</td><td>工作无趣</td></tr>
+          <tr><td>精力状态</td><td>下班和周末可以恢复，不是明显耗竭状态</td></tr>
+          <tr><td>想解决的方向</td><td>想“重建人生幕布”，重新定义下一阶段的生活逻辑</td></tr>
+          <tr><td>当前判断</td><td>问题主要不在经济和体力，而在方向感、工作价值感和生活结构感</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="core-judgment">三、核心判断</h2>
+    <div class="note">
+      <strong>结论：</strong>当前状态更像是进入了一个典型的中年稳定平台期。上一阶段的主要任务已经基本完成，但下一阶段属于自己的目标系统还没有建立起来，导致工作承担了大量时间，却无法提供足够的成就感和方向感。
+    </div>
+    <ul>
+      <li>这不是“完全失败”或“彻底崩溃”，而是“旧目标完成，新目标未形成”的阶段性空心。</li>
+      <li>当前核心问题在工作，不是经济问题，也不是单纯身体耗竭。</li>
+      <li>因为还能恢复，说明问题更偏向“职业型疲惫 + 意义型空心”，而不是重度耗竭或明显抑郁状态。</li>
+      <li>真实诉求不是简单换工作，而是想重新回答“接下来十年按什么逻辑活”。</li>
+    </ul>
+
+    <h2 id="cause-analysis">四、原因分析</h2>
+    <h3>4.1 旧阶段目标基本完成</h3>
+    <ul>
+      <li>找工作、在行业站住脚、成家、有房、有孩子，这些典型阶段目标基本已完成。</li>
+      <li>旧目标完成后，新目标没有自然长出来，会带来“然后呢”的空心感。</li>
+    </ul>
+
+    <h3>4.2 责任很多，但反馈感变少</h3>
+    <ul>
+      <li>上班更多是为了维持收入和稳定，不再直接提供明显成就感。</li>
+      <li>家庭责任、房子、小孩都在运转，但更多是维持系统，不是激发活力。</li>
+      <li>日常像在完成任务，而不是在主动生活。</li>
+    </ul>
+
+    <h3>4.3 IT 行业的中年价值感波动</h3>
+    <ul>
+      <li>IT 行业容易把个人价值绑定在成长速度、学习能力、技术新鲜度和收入增长上。</li>
+      <li>35 岁以后，家庭投入增多、行业内卷持续，工作一旦进入重复和低创造阶段，价值感很容易下降。</li>
+    </ul>
+
+    <h3>4.4 缺的是新主轴，不是简单缺钱</h3>
+    <ul>
+      <li>当前生活开支压力不大，说明问题不在“基本生存焦虑”。</li>
+      <li>更核心的是稳定生活下缺少新的主轴，导致长期缺少自主感、成长感和期待感。</li>
+    </ul>
+
+    <h2 id="route-choice">五、当前路线选择</h2>
+    <h3>5.1 已选路线</h3>
+    <div class="note">
+      <strong>当前更适合的主线：</strong><code>A 稳健积累型</code>
+    </div>
+    <p>选择 A 的原因：</p>
+    <ul>
+      <li>有家庭和小孩，不适合高风险激进折腾。</li>
+      <li>经济压力当前不算大，不需要靠冒险换取生存机会。</li>
+      <li>问题核心在工作和方向感，适合在稳定基础上重建掌控感。</li>
+    </ul>
+
+    <h3>5.2 对 A 路线的正确理解</h3>
+    <ul>
+      <li>不是“麻木熬着”。</li>
+      <li>不是“完全躺平”。</li>
+      <li>而是：在不掀桌子的前提下，重建工作可控性、家庭秩序感和个人生活支点。</li>
+    </ul>
+
+    <h2 id="two-year-plan">六、两年重建框架</h2>
+    <h3>6.1 工作线</h3>
+    <ul>
+      <li>目标不是追求激情，而是把工作从“消耗源”逐步调整成“稳定现金流 + 相对可控的职业位置”。</li>
+      <li>先梳理当前工作到底无趣在哪，再判断是优化当前岗位，还是温和做跳槽准备。</li>
+      <li>未来优先考虑“更适配”，而不是盲目追求更卷、更高风险的职业升级。</li>
+      <li>保留轻微升级口，增强可迁移能力，而不是完全钝化。</li>
+    </ul>
+
+    <h3>6.2 家庭与结构线</h3>
+    <ul>
+      <li>重点不是拼命增加收入，而是看清家庭系统，减少隐形消耗。</li>
+      <li>目标是让家庭从“自动运转”变成“更有秩序、更少摩擦、更容易恢复”的结构。</li>
+      <li>明确固定支出、未来大头开支和时间分配，提升掌控感。</li>
+    </ul>
+
+    <h3>6.3 个人恢复与方向线</h3>
+    <ul>
+      <li>必须恢复一个长期属于自己的支点，不能让人生只剩责任。</li>
+      <li>这个支点不一定赚钱，但必须稳定存在，能持续提供生活感。</li>
+      <li>目标不是立刻找到终极意义，而是恢复每周可期待、每月可推进、每年可变化的状态。</li>
+    </ul>
+
+    <h3>6.4 两年版简化目标</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>维度</th><th>两年目标</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>工作</td><td>找到一个消耗更低、掌控感更强、适合长期持有的职业状态</td></tr>
+          <tr><td>家庭</td><td>维持稳定并减少日常隐形消耗，让家庭成为恢复地而不是第二战场</td></tr>
+          <tr><td>个人</td><td>建立一个至少能持续两年以上的个人生活支点</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="pending-items">七、待继续梳理项</h2>
+    <div class="note">
+      <strong>说明：</strong>以下内容当前还没有完全想清楚，需要下一次继续分析时重点展开。
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>待梳理主题</th><th>当前状态</th><th>下次建议动作</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>工作无趣的具体来源</td>
+            <td>已知道核心痛点在工作，但还没拆清楚到底是内容、环境、管理、成长还是控制感问题</td>
+            <td>按“工作无趣问题梳理模板”补完具体条目</td>
+          </tr>
+          <tr>
+            <td>烦工作还是烦当前这份工作</td>
+            <td>暂未明确</td>
+            <td>补 6 句判断题，明确是否是岗位问题还是职业问题</td>
+          </tr>
+          <tr>
+            <td>工作问题可改善程度</td>
+            <td>暂未判断清楚</td>
+            <td>区分“当前可改善”和“当前难改善”的问题项</td>
+          </tr>
+          <tr>
+            <td>真正想从工作里得到什么</td>
+            <td>暂未明确优先级</td>
+            <td>从“稳定、收入、轻松、掌控感、成长、自由时间”等关键词中选前 2 项</td>
+          </tr>
+          <tr>
+            <td>个人长期支点</td>
+            <td>还未确定具体内容</td>
+            <td>从运动、阅读、写作、长期学习、兴趣输出中先选一个最轻的开始</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="next-session">八、下次继续分析建议</h2>
+    <p>下一次建议直接从以下 3 组问题开始，不再重复背景：</p>
+    <ol>
+      <li>把“工作无趣问题梳理模板”填一版。</li>
+      <li>给工作无趣的 10 个维度打分，并圈出最高的 3 项。</li>
+      <li>明确自己最想从工作中得到的 2 个核心东西，例如：稳定、掌控感、自由时间、成长、意义感。</li>
+    </ol>
+
+    <div class="note">
+      <strong>下次可直接沿用的结论：</strong>
+      当前不是经济压力问题，不是明显耗竭问题，也不是马上要激进转型的问题；当前更适合走 <code>A 稳健积累型</code>，重点在于把工作去魅、把生活理顺、把自己找回来。
+    </div>
+
+    <p class="back"><a href="#top">↑ 返回顶部</a></p>
+  </div>
+</body>
+</html>
