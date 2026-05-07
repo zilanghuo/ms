@@ -105,6 +105,33 @@
     .th-module.bg-blue { background: #cce5ff; color: #004085; }
     .th-module.bg-yellow { background: #fff3cd; color: #856404; }
     .th-col { background: #f9fafb; color: var(--muted); }
+    .th-col.sortable {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      padding-right: 1.3rem;
+    }
+    .th-col.sortable:hover {
+      background: #eef2f7;
+      color: var(--text);
+    }
+    .th-col.sortable::after {
+      content: '⇅';
+      position: absolute;
+      right: 0.42rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    .th-col.sortable.sort-asc::after {
+      content: '↑';
+      color: var(--accent);
+    }
+    .th-col.sortable.sort-desc::after {
+      content: '↓';
+      color: var(--accent);
+    }
     tr:hover td { background: #f9fafb; }
     td { color: var(--text); }
     .empty-tip { padding: 2rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
@@ -589,6 +616,8 @@
       var currentFieldOrder = [];
       var currentAdColStart = 0;
       var currentStickyCount = 4;
+      var currentSortKey = '';
+      var currentSortDirection = '';
       var pidSpuManageData = [
         { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', pid: '1729439482671567205', mainSpu: 'AL-W0161', createdAt: '2026-03-18 10:22:31', updatedAt: '2026-04-12 16:10:08' },
         { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', pid: '1729773126172578149', mainSpu: 'AL-W0161', createdAt: '2026-03-18 10:25:16', updatedAt: '2026-04-12 16:10:08' },
@@ -650,6 +679,41 @@
         return map;
       }
 
+      function isSortableField(fieldKey) {
+        return fieldKey !== 'analysis';
+      }
+
+      function getSortValue(record, fieldKey) {
+        if (fieldKey === 'date' || fieldKey === 'pid' || fieldKey === 'spu') {
+          return record[fieldKey] == null ? '' : String(record[fieldKey]);
+        }
+        if (!record.metrics) return null;
+        var value = record.metrics[fieldKey];
+        return value == null ? null : Number(value);
+      }
+
+      function sortCurrentRows() {
+        if (!currentSortKey || !currentSortDirection) return;
+        currentRows.sort(function(a, b) {
+          var av = getSortValue(a, currentSortKey);
+          var bv = getSortValue(b, currentSortKey);
+          var result = 0;
+          var aNull = av == null || av === '';
+          var bNull = bv == null || bv === '';
+
+          if (aNull && bNull) result = 0;
+          else if (aNull) result = 1;
+          else if (bNull) result = -1;
+          else if (typeof av === 'number' && typeof bv === 'number' && isFinite(av) && isFinite(bv)) {
+            result = av - bv;
+          } else {
+            result = String(av).localeCompare(String(bv), 'zh-CN', { numeric: true, sensitivity: 'base' });
+          }
+
+          return currentSortDirection === 'asc' ? result : -result;
+        });
+      }
+
       function buildHeaderHtml(view) {
         var order = getVisibleFieldOrder(view);
         var indexMap = getFieldIndexMap(order);
@@ -669,9 +733,16 @@
           var idx = indexMap[key];
           var field = FIELD_MAP[key];
           var classes = ['th-col'];
+          var sortAttr = '';
           if (idx < stickyFields.length) classes.push('col-sticky-' + (idx + 1));
           if (idx >= currentAdColStart) classes.push('col-num-right');
-          return '<th class="' + classes.join(' ') + '">' + field.label + '</th>';
+          if (isSortableField(key)) {
+            classes.push('sortable');
+            if (currentSortKey === key && currentSortDirection === 'asc') classes.push('sort-asc');
+            if (currentSortKey === key && currentSortDirection === 'desc') classes.push('sort-desc');
+            sortAttr = ' data-sort-key="' + key + '"';
+          }
+          return '<th class="' + classes.join(' ') + '"' + sortAttr + '>' + field.label + '</th>';
         }).join('');
         return '<tr>' + firstRow + '</tr><tr>' + secondRow + '</tr>';
       }
@@ -1400,6 +1471,7 @@
         currentRows = aggregateRows(rows || []);
         var compareMap = getComparisonMap();
         attachCompareToRows(compareMap);
+        sortCurrentRows();
         var range = getDateRange();
         var summaryEl = document.getElementById('filterSummary');
         if (range.start && range.end) {
@@ -1499,6 +1571,30 @@
           totalCells.push('<td' + cls + '>' + display + '</td>');
         }
         tbody.innerHTML = dataHtml + '<tr class="row-total">' + totalCells.join('') + '</tr>';
+      }
+
+      function bindSortEvents() {
+        document.querySelectorAll('#resultHead th[data-sort-key]').forEach(function(th) {
+          th.addEventListener('click', function() {
+            var key = this.getAttribute('data-sort-key');
+            if (!key) return;
+            if (currentSortKey !== key) {
+              currentSortKey = key;
+              currentSortDirection = 'asc';
+            } else if (currentSortDirection === 'asc') {
+              currentSortDirection = 'desc';
+            } else if (currentSortDirection === 'desc') {
+              currentSortKey = '';
+              currentSortDirection = '';
+            } else {
+              currentSortDirection = 'asc';
+            }
+            renderTableHead();
+            sortCurrentRows();
+            renderPage();
+            bindSortEvents();
+          });
+        });
       }
 
       function toCSV(rows) {
@@ -1639,6 +1735,7 @@
       });
       syncDateGranUI();
       renderTableHead();
+      bindSortEvents();
       initManageStoreOptions();
 
       document.getElementById('viewTabs').querySelectorAll('.tab').forEach(function(tab) {
@@ -1648,6 +1745,7 @@
           currentView = tab.getAttribute('data-view');
           document.getElementById('qSearchField').value = currentView === 'spu' ? 'spu' : 'pid';
           renderTableHead();
+          bindSortEvents();
           render(getFiltered());
         });
       });
@@ -1750,6 +1848,8 @@
         if (window._clearCascade) window._clearCascade();
         document.getElementById('qStore').value = '';
         currentView = 'pid';
+        currentSortKey = '';
+        currentSortDirection = '';
         document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-view') === 'pid'); });
         document.getElementById('qSearchField').value = 'pid';
         document.getElementById('qSearchMode').value = 'fuzzy';
@@ -1759,6 +1859,7 @@
         document.getElementById('qSearchExactVal').value = '';
         syncSearchModeUI();
         renderTableHead();
+        bindSortEvents();
         currentRows = [];
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="' + getVisibleFieldOrder(currentView).length + '" class="empty-tip">请选择查询条件后点击「查询」</td></tr>';
         document.getElementById('filterSummary').textContent = '';

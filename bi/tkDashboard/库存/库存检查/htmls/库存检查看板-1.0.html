@@ -372,6 +372,31 @@
       top: 0;
       z-index: 2;
     }
+    th.sortable-num {
+      position: sticky;
+      padding-right: 1.35rem;
+    }
+    .sort-trigger {
+      position: absolute;
+      right: 0.45rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+      padding: 0.1rem 0.15rem;
+      border-radius: 3px;
+    }
+    .sort-trigger:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    th.sortable-num.sort-asc .sort-trigger,
+    th.sortable-num.sort-desc .sort-trigger {
+      color: var(--accent);
+    }
     .th-group {
       font-size: 0.8rem;
       font-weight: 600;
@@ -389,6 +414,13 @@
     td.num { text-align: right; font-variant-numeric: tabular-nums; }
     td.center { text-align: center; }
     tr:hover td { background: #f9fafb; }
+    tr.row-total td {
+      font-weight: 600;
+      background: #f0fdf4;
+    }
+    tr.row-total:hover td {
+      background: #dcfce7;
+    }
     .sticky-col-1, .sticky-col-2, .sticky-col-3, .sticky-col-4, .sticky-col-5, .sticky-col-6, .sticky-col-7 {
       position: sticky;
       background: var(--card);
@@ -880,6 +912,8 @@
                 <td class="num">48</td>
                 <td class="num">8</td>
                 <td class="num">680</td>
+                <td class="num center">—</td>
+                <td class="num center">—</td>
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
@@ -908,6 +942,8 @@
                 <td class="num">20</td>
                 <td class="num">-2</td>
                 <td class="num">342</td>
+                <td class="num center">—</td>
+                <td class="num center">—</td>
               </tr>
               <tr>
                 <td class="sticky-col-1">2026-04-12</td>
@@ -936,6 +972,8 @@
                 <td class="num">22</td>
                 <td class="num">4</td>
                 <td class="num">158</td>
+                <td class="num center">—</td>
+                <td class="num center">—</td>
               </tr>
             </tbody>
           </table>
@@ -1239,6 +1277,131 @@
       document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
         alert('数据统计说明：\n1. SPU 视图基于 PID&SKU 底表按 SPU 聚合生成。\n2. SPU 视图不展示 PID、SKU 与店铺字段。\n3. 所有库存类数值默认按 SPU 粒度求和，风险状态按聚合结果重新判断。');
       });
+
+      function parseNumericCell(text) {
+        var raw = String(text || '').trim();
+        if (!raw || raw === '—' || raw === '待确认') return null;
+        var normalized = raw.replace(/,/g, '');
+        var num = Number(normalized);
+        return isNaN(num) ? null : num;
+      }
+
+      function initNumericTableSort(table) {
+        if (!table || !table.tHead || !table.tBodies || !table.tBodies[0]) return;
+        var tbody = table.tBodies[0];
+        if (!tbody.rows.length) return;
+        var headerRows = table.tHead.rows;
+        var sortRow = headerRows[headerRows.length - 1];
+        if (!sortRow) return;
+
+        Array.prototype.forEach.call(sortRow.cells, function(th, idx) {
+          if (th.className.indexOf('sticky-col-') !== -1) return;
+          var hasNumericCell = Array.prototype.some.call(tbody.rows, function(row) {
+            var cell = row.cells[idx];
+            return cell && cell.className.indexOf('num') !== -1;
+          });
+          if (!hasNumericCell) return;
+
+          th.classList.add('sortable-num');
+          th.dataset.sortState = '';
+          if (!th.querySelector('.sort-trigger')) {
+            var trigger = document.createElement('span');
+            trigger.className = 'sort-trigger';
+            trigger.textContent = '⇅';
+            th.appendChild(trigger);
+          }
+
+          th.querySelector('.sort-trigger').addEventListener('click', function(e) {
+            e.stopPropagation();
+            var nextState = th.dataset.sortState === 'asc' ? 'desc' : (th.dataset.sortState === 'desc' ? '' : 'asc');
+            Array.prototype.forEach.call(sortRow.cells, function(cell) {
+              cell.dataset.sortState = '';
+              cell.classList.remove('sort-asc', 'sort-desc');
+              var cellTrigger = cell.querySelector('.sort-trigger');
+              if (cellTrigger) cellTrigger.textContent = '⇅';
+            });
+            th.dataset.sortState = nextState;
+            var trigger = th.querySelector('.sort-trigger');
+            if (nextState) {
+              th.classList.add(nextState === 'asc' ? 'sort-asc' : 'sort-desc');
+              if (trigger) trigger.textContent = nextState === 'asc' ? '↑' : '↓';
+            }
+
+            var totalRow = tbody.querySelector('tr.row-total');
+            var rows = Array.prototype.slice.call(tbody.rows).filter(function(row) {
+              return row !== totalRow;
+            }).map(function(row, originalIndex) {
+              return { row: row, originalIndex: originalIndex };
+            });
+
+            if (!nextState) {
+              rows.sort(function(a, b) { return a.originalIndex - b.originalIndex; });
+            } else {
+              rows.sort(function(a, b) {
+                var av = parseNumericCell(a.row.cells[idx] ? a.row.cells[idx].textContent : '');
+                var bv = parseNumericCell(b.row.cells[idx] ? b.row.cells[idx].textContent : '');
+                var aNull = av == null;
+                var bNull = bv == null;
+                if (aNull && bNull) return a.originalIndex - b.originalIndex;
+                if (aNull) return 1;
+                if (bNull) return -1;
+                var result = av - bv;
+                if (result === 0) return a.originalIndex - b.originalIndex;
+                return nextState === 'asc' ? result : -result;
+              });
+            }
+
+            rows.forEach(function(item) { tbody.appendChild(item.row); });
+            if (totalRow) tbody.appendChild(totalRow);
+          });
+        });
+      }
+
+      function appendTableTotalRow(table) {
+        if (!table || !table.tBodies || !table.tBodies[0]) return;
+        var tbody = table.tBodies[0];
+        var sourceRows = Array.prototype.slice.call(tbody.rows).filter(function(row) {
+          return !row.classList.contains('row-total');
+        });
+        if (!sourceRows.length) return;
+        var firstRow = sourceRows[0];
+        var totalRow = document.createElement('tr');
+        totalRow.className = 'row-total';
+
+        Array.prototype.forEach.call(firstRow.cells, function(_, idx) {
+          var td = document.createElement('td');
+          td.className = firstRow.cells[idx].className || '';
+          if (idx === 0) {
+            td.textContent = '合计';
+          } else {
+            var hasNumericCell = sourceRows.some(function(row) {
+              return row.cells[idx] && row.cells[idx].className.indexOf('num') !== -1;
+            });
+            if (hasNumericCell) {
+              var sum = 0;
+              var hasValue = false;
+              sourceRows.forEach(function(row) {
+                var cell = row.cells[idx];
+                if (!cell || cell.className.indexOf('num') === -1) return;
+                var num = parseNumericCell(cell.textContent);
+                if (num == null) return;
+                sum += num;
+                hasValue = true;
+              });
+              if (hasValue) {
+                td.textContent = Number.isInteger(sum) ? String(sum) : sum.toFixed(2);
+                if (td.className.indexOf('num') === -1) td.className += (td.className ? ' ' : '') + 'num';
+              }
+            }
+          }
+          totalRow.appendChild(td);
+        });
+
+        tbody.appendChild(totalRow);
+      }
+
+      document.querySelectorAll('.view-panel table').forEach(appendTableTotalRow);
+      document.querySelectorAll('.view-panel table').forEach(initNumericTableSort);
       syncSearchModeUI();
       updateExactSearchPreview();
     })();

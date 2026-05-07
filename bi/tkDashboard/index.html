@@ -50,13 +50,43 @@
       margin: 0.2rem 0 0.55rem;
     }
     .nav-version-title {
+      position: relative;
       margin: 0.15rem 0.65rem 0.2rem 1.65rem;
-      padding: 0.32rem 0.6rem;
+      padding: 0.32rem 1.8rem 0.32rem 0.6rem;
       color: #cbd5e1;
       font-size: 0.82rem;
       font-weight: 600;
       border-left: 2px solid rgba(148, 163, 184, 0.35);
       line-height: 1.2;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 4px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-version-title:hover {
+      background: rgba(51, 65, 85, 0.55);
+      color: #fff;
+    }
+    .nav-version-title::after {
+      content: '▾';
+      position: absolute;
+      right: 0.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+    .nav-version.collapsed .nav-version-title::after {
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .nav-version-items {
+      overflow: hidden;
+      max-height: 480px;
+      transition: max-height 0.2s ease;
+    }
+    .nav-version.collapsed .nav-version-items {
+      max-height: 0;
     }
     .nav-item {
       display: block;
@@ -91,53 +121,67 @@
         <div class="nav-group">
           <div class="nav-group-title">原型</div>
           <div class="nav-version">
-            <div class="nav-version-title">销售模块 1.0（已交付）</div>
-            <a class="nav-item active" href="#" data-src="销售/销售数据/htmls/店铺统计-1.0.html" data-breadcrumb="店铺统计">店铺统计</a>
-            <a class="nav-item" href="#" data-src="销售/销售数据/htmls/商品统计-1.0.html" data-breadcrumb="商品统计">商品统计</a>
-            <a class="nav-item" href="#" data-src="销售/PID/htmls/数据看板-1.0.html" data-breadcrumb="PID 数据看板">PID数据看板</a>
+            <div class="nav-version-title">销售模块 1.0（0417已交付）</div>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="销售/销售数据/htmls/店铺统计-1.0.html" data-breadcrumb="店铺统计">店铺统计</a>
+              <a class="nav-item" href="#" data-src="销售/销售数据/htmls/商品统计-1.0.html" data-breadcrumb="商品统计">商品统计</a>
+              <a class="nav-item" href="#" data-src="销售/PID/htmls/数据看板-1.0.html" data-breadcrumb="PID 数据看板">PID数据看板</a>
+            </div>
           </div>
           <div class="nav-version">
-            <div class="nav-version-title">销售模块 1.1</div>
-            <a class="nav-item" href="#" data-src="销售/销售数据/htmls/商品统计-1.1.html" data-breadcrumb="商品统计 1.1">商品统计</a>
-            <a class="nav-item" href="#" data-src="销售/PID/htmls/数据看板-1.1.html" data-breadcrumb="PID数据看板 1.1">PID数据看板</a>
+            <div class="nav-version-title">销售模块 1.1（0429已交付）</div>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="销售/销售数据/htmls/商品统计-1.1.html" data-breadcrumb="商品统计 1.1">商品统计</a>
+              <a class="nav-item" href="#" data-src="销售/PID/htmls/数据看板-1.1.html" data-breadcrumb="PID数据看板 1.1">PID数据看板</a>
+            </div>
           </div>
           <div class="nav-version">
             <div class="nav-version-title">库存模块 1.0</div>
-            <a class="nav-item" href="#" data-src="库存/库存检查/htmls/库存检查看板-1.0.html" data-breadcrumb="库存检查看板">库存检查看板</a>
-            <a class="nav-item" href="#" data-src="库存/缺补货/htmls/缺补货看板-1.0.html" data-breadcrumb="缺补货看板">缺补货看板</a>
+            <div class="nav-version-items">
+              <a class="nav-item active" href="#" data-src="库存/库存检查/htmls/库存检查看板-1.0.html" data-breadcrumb="库存检查看板">库存检查看板</a>
+              <a class="nav-item" href="#" data-src="库存/缺补货/htmls/缺补货看板-1.0.html" data-breadcrumb="缺补货看板">缺补货看板</a>
+            </div>
           </div>
         </div>
         <div class="nav-group">
           <div class="nav-group-title">技术文档</div>
           <div class="nav-version">
             <div class="nav-version-title">销售模块</div>
-            <a class="nav-item" href="#" data-src="销售/技术文档/技术方案.html" data-breadcrumb="销售数据&pid / 技术方案">技术方案</a>
-            <a class="nav-item" href="#" data-src="销售/技术文档/表结构设计.html" data-breadcrumb="销售数据&pid / 表结构设计">表结构设计</a>
-            <a class="nav-item" href="#" data-src="销售/技术文档/接口文档.html" data-breadcrumb="销售数据&pid / 接口文档">接口文档</a>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="销售/技术文档/技术方案.html" data-breadcrumb="销售数据&pid / 技术方案">技术方案</a>
+              <a class="nav-item" href="#" data-src="销售/技术文档/表结构设计.html" data-breadcrumb="销售数据&pid / 表结构设计">表结构设计</a>
+              <a class="nav-item" href="#" data-src="销售/技术文档/接口文档.html" data-breadcrumb="销售数据&pid / 接口文档">接口文档</a>
+            </div>
           </div>
           <div class="nav-version">
             <div class="nav-version-title">库存模块</div>
-            <a class="nav-item" href="#" data-src="库存/技术文档/技术方案.html" data-breadcrumb="库存模块 / 技术方案">技术方案</a>
-            <a class="nav-item" href="#" data-src="库存/技术文档/表结构设计.html" data-breadcrumb="库存模块 / 表结构设计">表结构设计</a>
-            <a class="nav-item" href="#" data-src="库存/技术文档/接口文档.html" data-breadcrumb="库存模块 / 接口文档">接口文档</a>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="库存/技术文档/技术方案.html" data-breadcrumb="库存模块 / 技术方案">技术方案</a>
+              <a class="nav-item" href="#" data-src="库存/技术文档/表结构设计.html" data-breadcrumb="库存模块 / 表结构设计">表结构设计</a>
+              <a class="nav-item" href="#" data-src="库存/技术文档/接口文档.html" data-breadcrumb="库存模块 / 接口文档">接口文档</a>
+            </div>
           </div>
           <div class="nav-version">
             <div class="nav-version-title">源数据集成</div>
-            <a class="nav-item" href="#" data-src="数据源相关/源数据统一梳理.html" data-breadcrumb="源数据集成 / 源数据集成列表">源数据集成列表</a>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="数据源相关/源数据统一梳理.html" data-breadcrumb="源数据集成 / 源数据集成列表">源数据集成列表</a>
+            </div>
           </div>
           <div class="nav-version">
             <div class="nav-version-title">现有数仓</div>
-            <a class="nav-item" href="#" data-src="销售/技术文档/已有表明细.html" data-breadcrumb="现有数仓 / 已有表明细">已有表明细</a>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="销售/技术文档/已有表明细.html" data-breadcrumb="现有数仓 / 已有表明细">已有表明细</a>
+            </div>
           </div>
         </div>
       </nav>
     </aside>
     <main class="main-wrap">
       <header class="header">
-        <div class="header-title" id="pageTitle">店铺统计</div>
-        <div class="breadcrumb" id="breadcrumb">tkDashboard / 店铺统计</div>
+        <div class="header-title" id="pageTitle">库存检查看板</div>
+        <div class="breadcrumb" id="breadcrumb">tkDashboard / 库存检查看板</div>
       </header>
-      <iframe class="content-frame" id="contentFrame" src="销售/销售数据/htmls/店铺统计-1.0.html" title="子需求内容"></iframe>
+      <iframe class="content-frame" id="contentFrame" src="库存/库存检查/htmls/库存检查看板-1.0.html" title="子需求内容"></iframe>
     </main>
   </div>
   <script>
@@ -146,8 +190,10 @@
       var pageTitle = document.getElementById('pageTitle');
       var breadcrumb = document.getElementById('breadcrumb');
       var navItems = document.querySelectorAll('.sidebar .nav-item');
+      var navVersions = document.querySelectorAll('.sidebar .nav-version');
       var search = window.location.search || '';
       var hash = window.location.hash || '';
+      var defaultExpandedTitles = ['库存模块 1.0', '库存模块', '源数据集成'];
 
       function withVersionParams(src) {
         if (!src) return src;
@@ -163,18 +209,44 @@
         item.classList.add('active');
       }
 
+      function setVersionCollapsed(versionEl, collapsed) {
+        versionEl.classList.toggle('collapsed', collapsed);
+      }
+
+      function initNavVersions() {
+        navVersions.forEach(function(versionEl) {
+          var titleEl = versionEl.querySelector('.nav-version-title');
+          var hasActiveItem = !!versionEl.querySelector('.nav-item.active');
+          var titleText = titleEl ? titleEl.textContent.trim() : '';
+          var shouldExpand = hasActiveItem || defaultExpandedTitles.indexOf(titleText) !== -1;
+
+          setVersionCollapsed(versionEl, !shouldExpand);
+
+          if (titleEl) {
+            titleEl.addEventListener('click', function() {
+              setVersionCollapsed(versionEl, !versionEl.classList.contains('collapsed'));
+            });
+          }
+        });
+      }
+
       frame.src = withVersionParams(frame.getAttribute('src') || '');
+      initNavVersions();
 
       document.querySelectorAll('.sidebar .nav-item').forEach(function(item) {
         item.addEventListener('click', function(e) {
           e.preventDefault();
           var src = this.getAttribute('data-src');
           var breadcrumbText = this.getAttribute('data-breadcrumb');
+          var parentVersion = this.closest('.nav-version');
           if (!src) return;
           frame.src = withVersionParams(src);
           pageTitle.textContent = this.textContent.trim();
           breadcrumb.textContent = 'tkDashboard / ' + breadcrumbText;
           setActive(this);
+          if (parentVersion) {
+            setVersionCollapsed(parentVersion, false);
+          }
         });
       });
     })();

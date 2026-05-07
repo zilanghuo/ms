@@ -4316,3 +4316,539 @@
 2026-04-28 14:18:01.693 [INFO]     mcp.server.lowlevel.server:727 - Processing request of type ListToolsRequest
 2026-04-28 14:18:01.693 [INFO]     doris_mcp_server.main.DorisServer:362 - Handling tool list request
 2026-04-28 14:18:01.693 [INFO]     doris_mcp_server.main.DorisServer:364 - Returning 25 tools
+2026-04-29 16:42:05.203 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, "Lost connection to MySQL server during query ([Errno 49] Can't assign requested address)")
+2026-04-29 16:42:05.217 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 16:42:05.219 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 16:42:08.228 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 16:42:08.354 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 16:42:08.355 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 16:42:08.553 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 16:56:55.707 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 16:56:55.711 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 16:56:55.711 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 16:56:58.713 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 16:57:03.717 [ERROR]    doris_mcp_server.utils.db:1340 - Pool recovery attempt 1 timed out
+2026-04-29 16:57:03.717 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-04-29 16:57:06.871 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 2
+2026-04-29 16:57:06.872 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 16:57:10.082 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 17:02:11.724 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 17:02:11.725 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 17:02:11.726 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 17:02:14.727 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 17:02:14.838 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 17:02:14.839 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 17:02:15.038 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 18:21:24.601 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 18:21:24.604 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 18:21:24.605 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 18:21:27.608 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 18:21:27.726 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 18:21:27.726 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 18:21:27.958 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 18:37:51.664 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 18:37:51.666 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 18:37:51.667 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 18:37:54.669 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 18:37:54.805 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 18:37:54.806 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 18:37:55.973 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 18:56:24.412 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 18:56:24.413 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 18:56:24.413 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 18:56:24.523 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 18:56:24.524 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 18:56:24.690 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 19:16:58.968 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 19:16:58.970 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 19:16:58.970 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 19:16:59.080 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 19:16:59.080 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 19:16:59.254 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 19:33:39.616 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 19:33:39.618 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 19:33:39.619 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 19:33:42.621 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 19:33:42.796 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 19:33:42.797 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 19:33:42.958 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 19:50:52.487 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 19:50:52.489 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 19:50:52.490 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 19:50:55.492 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 19:50:55.623 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 19:50:55.624 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 20:04:15.393 [WARNING]  doris_mcp_server.utils.db:1334 - Pool warmup timeout, but recovery successful
+2026-04-29 20:20:35.771 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 20:20:35.774 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 20:20:35.774 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 20:20:38.777 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 20:20:38.903 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 20:20:38.903 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 20:20:39.082 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 20:39:05.345 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 20:39:05.347 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 20:39:05.347 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 20:39:05.470 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 20:39:05.470 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 20:39:05.680 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 20:55:54.819 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 20:55:54.822 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 20:55:54.823 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 20:55:54.924 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 20:55:54.924 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 20:55:55.091 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 21:05:44.341 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 21:05:44.343 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 21:05:44.343 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 21:05:44.482 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 21:05:44.483 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 21:05:44.688 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 21:22:26.257 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 21:22:26.258 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 21:22:26.258 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 21:22:29.260 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 21:22:29.357 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 21:22:29.358 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 21:22:29.581 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 21:38:26.688 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 21:38:26.690 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 21:38:26.691 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 21:38:29.693 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 21:38:30.803 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 21:38:30.803 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 21:38:30.991 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 21:56:52.594 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 21:56:52.595 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 21:56:52.595 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 21:56:55.598 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 21:56:55.732 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 21:56:55.733 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 21:56:55.915 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 22:06:48.184 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 22:06:48.186 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 22:06:48.186 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 22:06:48.296 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 22:06:48.296 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 22:06:48.497 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 22:25:26.477 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 22:25:26.479 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 22:25:26.479 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 22:25:26.607 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 22:25:26.608 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 22:25:26.775 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 22:41:16.876 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 22:41:16.878 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 22:41:16.879 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 22:56:34.543 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-29 22:56:34.674 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 22:56:34.675 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 22:56:34.834 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 23:13:03.925 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 23:13:03.929 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 23:13:03.929 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 23:13:04.043 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 23:13:04.043 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 23:13:04.202 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 23:29:16.244 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 23:29:16.247 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 23:29:16.248 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 23:29:16.377 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 23:29:16.378 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 23:29:16.564 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-29 23:46:47.164 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-29 23:46:47.165 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-29 23:46:47.166 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-29 23:46:47.299 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-29 23:46:47.299 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-29 23:46:47.515 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 00:02:41.792 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 00:02:41.794 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 00:02:41.796 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 00:02:44.800 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 00:02:44.923 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 00:02:44.923 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 00:02:45.134 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 00:19:12.375 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 00:19:12.378 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 00:19:12.378 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 00:19:15.381 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 00:19:15.506 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 00:19:15.507 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 00:19:15.700 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 00:35:32.104 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 00:35:32.106 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 00:35:32.107 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 00:35:32.205 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 00:35:32.205 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 00:35:32.349 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 00:52:28.943 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 00:52:28.944 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 00:52:28.945 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 01:08:12.753 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 01:08:12.884 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 01:08:12.884 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 01:08:13.058 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 01:24:51.125 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 01:24:51.127 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 01:24:51.127 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 01:24:54.130 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 01:24:54.231 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 01:24:54.231 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 01:24:54.406 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 01:41:57.500 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 01:41:57.502 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 01:41:57.503 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 01:42:00.504 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 01:42:00.625 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 01:42:00.626 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 01:42:00.808 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 02:01:01.050 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 02:01:01.051 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 02:01:01.052 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 02:01:04.055 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 02:01:04.149 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 02:01:04.149 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 02:01:04.308 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 02:17:21.903 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 02:17:21.905 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 02:17:21.905 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 02:17:24.908 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 02:17:25.015 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 02:17:25.015 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 02:17:25.197 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 02:34:01.307 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 02:34:01.308 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 02:34:01.309 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 02:34:04.312 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 02:34:04.415 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 02:34:04.416 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 02:34:04.598 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 02:49:59.297 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 02:49:59.299 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 02:49:59.300 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 02:49:59.447 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 02:49:59.448 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 02:49:59.617 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 03:06:34.029 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 03:06:34.034 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 03:06:34.035 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 03:06:34.179 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 03:06:34.179 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 03:06:34.336 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 03:24:22.436 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 03:24:22.438 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 03:24:22.438 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 03:24:25.441 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 03:24:25.553 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 03:24:25.553 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 03:24:25.767 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 03:42:05.970 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 03:42:05.973 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 03:42:05.973 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 03:42:08.975 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 03:42:09.072 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 03:42:09.072 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 03:42:09.248 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 03:59:02.319 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 03:59:02.322 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 03:59:02.323 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 03:59:05.330 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 03:59:05.426 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 03:59:05.427 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 03:59:05.601 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 04:15:52.441 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 04:15:52.442 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 04:15:52.443 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 04:15:52.577 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 04:15:52.577 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 04:15:52.746 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 04:32:26.218 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 04:32:26.220 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 04:32:26.220 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 04:32:29.222 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 04:32:29.315 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 04:32:29.315 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 04:32:29.484 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 04:49:59.273 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 04:49:59.276 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 04:49:59.276 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 04:50:02.279 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 04:50:02.401 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 04:50:02.401 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 04:50:02.598 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 05:00:03.944 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 05:00:03.945 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 05:00:03.946 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 05:00:06.949 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 05:00:07.068 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 05:00:07.069 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 05:00:07.270 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 05:18:36.483 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 05:18:36.485 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 05:18:36.485 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 05:18:36.579 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 05:18:36.580 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 05:18:36.741 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 05:36:53.860 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 05:36:53.863 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 05:36:53.863 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 05:36:54.004 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 05:36:54.005 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 05:36:54.179 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 05:52:55.569 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 05:52:55.570 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 05:52:55.571 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 05:52:55.739 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 05:52:55.739 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 05:52:55.954 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 06:00:56.187 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 06:00:56.189 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 06:00:56.189 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 06:00:59.191 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 06:00:59.289 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 06:00:59.290 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 06:00:59.446 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 06:17:32.475 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 06:17:32.476 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 06:17:32.477 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 06:17:35.479 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 06:17:35.626 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 06:17:35.627 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 06:17:35.817 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 06:34:48.458 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 06:34:48.460 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 06:34:48.460 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 06:34:51.463 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 06:34:51.576 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 06:34:51.576 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 06:34:51.792 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 06:51:32.211 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 06:51:32.214 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 06:51:32.214 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 06:51:32.343 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 06:51:32.343 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 06:51:32.505 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 07:02:06.668 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 07:02:06.670 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 07:02:06.671 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 07:02:06.778 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 07:02:06.779 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 07:02:06.964 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 07:19:04.719 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 07:19:04.723 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 07:19:04.724 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 07:19:07.727 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 07:19:07.856 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 07:19:07.857 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 07:19:08.020 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 07:36:43.307 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 07:36:43.309 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 07:36:43.310 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 07:36:46.311 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 07:36:46.413 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 07:36:46.413 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 07:36:46.595 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 07:53:32.116 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 07:53:32.119 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 07:53:32.120 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 07:53:35.123 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 07:53:35.246 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 07:53:35.246 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 07:53:35.418 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 08:03:03.068 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 08:03:03.070 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 08:03:03.071 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 08:03:03.161 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 08:03:03.161 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 08:03:03.317 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 08:20:27.316 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 08:20:27.317 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 08:20:27.318 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 08:20:30.320 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 08:20:30.430 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 08:20:30.431 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 08:20:30.614 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 08:32:28.718 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 08:32:28.719 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 08:32:28.720 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 08:32:31.722 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 08:32:31.874 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 08:32:31.874 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 08:32:32.053 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 08:41:19.298 [INFO]     doris_mcp_server.main.DorisServer:755 - Shutting down Doris MCP Server
+2026-04-30 08:41:19.299 [INFO]     doris_mcp_server.utils.security:138 - DorisSecurityManager shutdown completed
+2026-04-30 08:41:19.299 [INFO]     doris_mcp_server.main.DorisServer:759 - Security manager shutdown completed
+2026-04-30 08:41:19.300 [INFO]     doris_mcp_server.utils.db:1187 - Pool health monitor stopped
+2026-04-30 08:41:19.300 [INFO]     doris_mcp_server.utils.db:1201 - Pool cleanup monitor stopped
+2026-04-30 08:41:19.300 [INFO]     doris_mcp_server.utils.db:1555 - Connection manager closed successfully
+2026-04-30 08:41:19.300 [INFO]     doris_mcp_server.main.DorisServer:762 - Doris MCP Server has been shut down
+2026-04-30 08:41:19.301 [INFO]     doris_mcp_server.logger:516 - Shutting down logging system...
+2026-04-30 08:41:19.303 [INFO]     doris_mcp_server.log_cleanup:171 - Log cleanup scheduler stopped
+2026-04-30 07:47:15.303 [INFO]     doris_mcp_server.log_cleanup:163 - Log cleanup scheduler started - cleanup every 24h, max age 30 days
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:427 - ================================================================================
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:428 - Doris MCP Server Logging System Initialized
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:429 - Log Level: INFO
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:431 - Log Directory: /Users/a1/Documents/Office/code/ms-proj/logs
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:434 - Console Logging: Disabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:435 - File Logging: Enabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:436 - Audit Logging: Enabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:437 - Log Cleanup: Enabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:439 - Cleanup Settings: Max age 30 days, interval 24h
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.logger:443 - ================================================================================
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:948 - Enhanced logging system with cleanup initialized successfully
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:949 - Log directory: logs
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:950 - Log level: INFO
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:951 - Audit logging: Enabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:952 - Log cleanup: Enabled
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.utils.config:954 - Cleanup config: Max age 30 days, interval 24h
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.system:483 - System Information:
+2026-04-30 07:47:15.304 [INFO]     doris_mcp_server.system:484 - Python Version: 3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 17.0.0 (clang-1700.6.3.2)]
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:485 - Platform: darwin
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:486 - Working Directory: /Users/a1/Documents/Office/code/ms-proj
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:487 - Process ID: 1287
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:493 - Environment LOG_LEVEL: Not Set
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:493 - Environment LOG_FILE_PATH: Not Set
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:493 - Environment ENABLE_AUDIT: Not Set
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.system:493 - Environment AUDIT_FILE_PATH: Not Set
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.main:916 - Starting Doris MCP Server...
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.main:917 - Transport: stdio
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.main:918 - Log Level: INFO
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.security:480 - All authentication methods are disabled - anonymous access allowed
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.db:211 - Session  Cache initialized, save system session: False, save user session: False
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.schema_extractor:105 - Loaded excluded database list: ['information_schema', 'mysql', 'performance_schema', 'sys', 'doris_metadata']
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.data_governance_tools:45 - DataGovernanceTools initialized
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.data_exploration_tools:45 - DataExplorationTools initialized
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.data_quality_tools:50 - DataQualityTools initialized with atomic tools
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.security_analytics_tools:39 - SecurityAnalyticsTools initialized
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.dependency_analysis_tools:46 - DependencyAnalysisTools initialized
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.utils.performance_analytics_tools:46 - PerformanceAnalyticsTools initialized
+2026-04-30 07:47:15.305 [INFO]     doris_mcp_server.tools.tools_manager:72 - DorisToolsManager initialized with business logic processors, v0.5.0 analytics tools, and ADBC query tools
+2026-04-30 07:47:15.306 [INFO]     doris_mcp_server.main.DorisServer:428 - Starting Doris MCP Server (stdio mode)
+2026-04-30 07:47:15.306 [INFO]     doris_mcp_server.utils.security:127 - DorisSecurityManager initialized successfully
+2026-04-30 07:47:15.306 [INFO]     doris_mcp_server.main.DorisServer:433 - Security manager initialization completed
+2026-04-30 07:47:15.306 [INFO]     doris_mcp_server.utils.db:950 - stdio mode database config validated: 124.71.61.163:19030
+2026-04-30 07:47:15.306 [INFO]     doris_mcp_server.utils.db:960 - Testing database connectivity for stdio mode...
+2026-04-30 07:47:15.505 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 07:47:15.505 [INFO]     doris_mcp_server.utils.db:1180 - 🩺 Starting pool health monitor
+2026-04-30 07:47:15.505 [INFO]     doris_mcp_server.utils.db:1194 - 🧹 Starting pool cleanup monitor
+2026-04-30 07:47:15.683 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 07:47:15.683 [INFO]     doris_mcp_server.utils.db:986 - Database connection established successfully for stdio mode
+2026-04-30 07:47:15.683 [INFO]     doris_mcp_server.main.DorisServer:450 - Creating stdio_server transport...
+2026-04-30 07:47:15.694 [INFO]     doris_mcp_server.main.DorisServer:456 - stdio_server streams created successfully
+2026-04-30 07:47:15.695 [INFO]     doris_mcp_server.main.DorisServer:466 - Initialization options created successfully
+2026-04-30 07:47:15.695 [INFO]     doris_mcp_server.main.DorisServer:469 - Starting to run MCP server...
+2026-04-30 07:47:15.707 [INFO]     mcp.server.lowlevel.server:727 - Processing request of type ListToolsRequest
+2026-04-30 07:47:15.707 [INFO]     doris_mcp_server.main.DorisServer:362 - Handling tool list request
+2026-04-30 07:47:15.708 [INFO]     doris_mcp_server.main.DorisServer:364 - Returning 25 tools
+2026-04-30 12:06:58.548 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 12:06:58.554 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 12:06:58.555 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 12:06:58.665 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 12:06:58.665 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 12:06:58.860 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 12:24:12.603 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 12:24:12.605 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 12:24:12.606 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 12:24:12.747 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 12:24:12.748 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 12:24:12.925 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 12:41:47.872 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 12:41:47.873 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 12:41:47.874 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 12:41:50.877 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 12:41:50.995 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 12:41:50.995 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 12:41:51.171 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 12:59:09.433 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 12:59:09.434 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 12:59:09.435 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 12:59:12.437 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 12:59:12.569 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 12:59:12.569 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 12:59:12.749 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 13:16:57.154 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 13:16:57.156 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 13:16:57.156 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 13:16:57.291 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 13:16:57.291 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 13:16:57.474 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 13:30:30.095 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 13:30:30.098 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 13:30:30.098 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 13:30:33.100 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 13:30:33.232 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 13:30:33.233 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 13:30:33.400 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 13:54:03.196 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-04-30 13:54:03.198 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-04-30 13:54:03.199 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-04-30 13:54:06.199 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-04-30 13:54:06.296 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-04-30 13:54:06.297 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-04-30 13:54:06.484 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-04-30 14:13:45.580 [INFO]     doris_mcp_server.main.DorisServer:755 - Shutting down Doris MCP Server
+2026-04-30 14:13:45.581 [INFO]     doris_mcp_server.utils.security:138 - DorisSecurityManager shutdown completed
+2026-04-30 14:13:45.581 [INFO]     doris_mcp_server.main.DorisServer:759 - Security manager shutdown completed
+2026-04-30 14:13:45.581 [INFO]     doris_mcp_server.utils.db:1187 - Pool health monitor stopped
+2026-04-30 14:13:45.581 [INFO]     doris_mcp_server.utils.db:1201 - Pool cleanup monitor stopped
+2026-04-30 14:13:45.582 [INFO]     doris_mcp_server.utils.db:1555 - Connection manager closed successfully
+2026-04-30 14:13:45.582 [INFO]     doris_mcp_server.main.DorisServer:762 - Doris MCP Server has been shut down
+2026-04-30 14:13:45.582 [INFO]     doris_mcp_server.logger:516 - Shutting down logging system...
+2026-04-30 14:13:45.582 [INFO]     doris_mcp_server.log_cleanup:171 - Log cleanup scheduler stopped
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.log_cleanup:163 - Log cleanup scheduler started - cleanup every 24h, max age 30 days
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:427 - ================================================================================
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:428 - Doris MCP Server Logging System Initialized
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:429 - Log Level: INFO
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:431 - Log Directory: /Users/a1/Documents/Office/code/ms-proj/logs
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:434 - Console Logging: Disabled
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:435 - File Logging: Enabled
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:436 - Audit Logging: Enabled
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:437 - Log Cleanup: Enabled
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:439 - Cleanup Settings: Max age 30 days, interval 24h
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.logger:443 - ================================================================================
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.utils.config:948 - Enhanced logging system with cleanup initialized successfully
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.utils.config:949 - Log directory: logs
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.utils.config:950 - Log level: INFO
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.utils.config:951 - Audit logging: Enabled
+2026-05-07 08:39:55.366 [INFO]     doris_mcp_server.utils.config:952 - Log cleanup: Enabled
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.utils.config:954 - Cleanup config: Max age 30 days, interval 24h
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:483 - System Information:
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:484 - Python Version: 3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 17.0.0 (clang-1700.6.3.2)]
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:485 - Platform: darwin
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:486 - Working Directory: /Users/a1/Documents/Office/code/ms-proj
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:487 - Process ID: 33589
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:493 - Environment LOG_LEVEL: Not Set
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:493 - Environment LOG_FILE_PATH: Not Set
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:493 - Environment ENABLE_AUDIT: Not Set
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.system:493 - Environment AUDIT_FILE_PATH: Not Set
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.main:916 - Starting Doris MCP Server...
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.main:917 - Transport: stdio
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.main:918 - Log Level: INFO
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.utils.security:480 - All authentication methods are disabled - anonymous access allowed
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.utils.db:211 - Session  Cache initialized, save system session: False, save user session: False
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.utils.schema_extractor:105 - Loaded excluded database list: ['information_schema', 'mysql', 'performance_schema', 'sys', 'doris_metadata']
+2026-05-07 08:39:55.367 [INFO]     doris_mcp_server.utils.data_governance_tools:45 - DataGovernanceTools initialized
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.data_exploration_tools:45 - DataExplorationTools initialized
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.data_quality_tools:50 - DataQualityTools initialized with atomic tools
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.security_analytics_tools:39 - SecurityAnalyticsTools initialized
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.dependency_analysis_tools:46 - DependencyAnalysisTools initialized
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.performance_analytics_tools:46 - PerformanceAnalyticsTools initialized
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.tools.tools_manager:72 - DorisToolsManager initialized with business logic processors, v0.5.0 analytics tools, and ADBC query tools
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.main.DorisServer:428 - Starting Doris MCP Server (stdio mode)
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.security:127 - DorisSecurityManager initialized successfully
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.main.DorisServer:433 - Security manager initialization completed
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.db:950 - stdio mode database config validated: 124.71.61.163:19030
+2026-05-07 08:39:55.368 [INFO]     doris_mcp_server.utils.db:960 - Testing database connectivity for stdio mode...
+2026-05-07 08:39:55.587 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-07 08:39:55.587 [INFO]     doris_mcp_server.utils.db:1180 - 🩺 Starting pool health monitor
+2026-05-07 08:39:55.588 [INFO]     doris_mcp_server.utils.db:1194 - 🧹 Starting pool cleanup monitor
+2026-05-07 08:39:55.794 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-07 08:39:55.794 [INFO]     doris_mcp_server.utils.db:986 - Database connection established successfully for stdio mode
+2026-05-07 08:39:55.795 [INFO]     doris_mcp_server.main.DorisServer:450 - Creating stdio_server transport...
+2026-05-07 08:39:55.797 [INFO]     doris_mcp_server.main.DorisServer:456 - stdio_server streams created successfully
+2026-05-07 08:39:55.798 [INFO]     doris_mcp_server.main.DorisServer:466 - Initialization options created successfully
+2026-05-07 08:39:55.798 [INFO]     doris_mcp_server.main.DorisServer:469 - Starting to run MCP server...
+2026-05-07 08:39:55.803 [INFO]     mcp.server.lowlevel.server:727 - Processing request of type ListToolsRequest
+2026-05-07 08:39:55.803 [INFO]     doris_mcp_server.main.DorisServer:362 - Handling tool list request
+2026-05-07 08:39:55.803 [INFO]     doris_mcp_server.main.DorisServer:364 - Returning 25 tools

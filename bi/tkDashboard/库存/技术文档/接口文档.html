@@ -47,7 +47,7 @@
       <div class="toc-grid">
         <ul>
           <li><a href="#general-rules">通用约定</a></li>
-          <li><a href="#common-options">零、公共筛选接口</a></li>
+          <li><a href="#common-options">零、公共说明</a></li>
           <li><a href="#inventory-check">一、库存检查</a></li>
           <li><a href="#inventory-check-page">1.2 主表接口：库存检查列表</a></li>
           <li><a href="#inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</a></li>
@@ -58,6 +58,7 @@
           <li><a href="#replenishment-ship">2.3 发货视图</a></li>
           <li><a href="#replenishment-restock">2.5 补货视图</a></li>
           <li><a href="#replenishment-all">2.7 发货+补货总和</a></li>
+          <li><a href="#replenishment-factor-maintain">2.9 SPU月度系数维护</a></li>
         </ul>
         <ul>
           <li><a href="#third-party-jijia">三、第三方积加接口梳理</a></li>
@@ -80,11 +81,11 @@
       <table>
         <thead><tr><th>项</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>Base URL</td><td>待定，建议 <code>/api/bi/inventory</code></td></tr>
+          <tr><td>Base URL</td><td>当前代码使用 <code>/tk/inventory</code></td></tr>
           <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code></td></tr>
           <tr><td>响应格式</td><td><code>application/json</code>；导出接口返回文件流</td></tr>
           <tr><td>字段命名</td><td>接口文档中的请求参数、返回参数统一使用驼峰命名（camelCase）；底层 Doris 表字段命名仅在来源说明中使用下划线命名</td></tr>
-          <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code></td></tr>
+          <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code>，列表型接口如需表格底部合计行，使用独立字段 <code>totalRow</code> 返回</td></tr>
           <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
           <tr><td>鉴权</td><td>待定（Cookie / Token）</td></tr>
         </tbody>
@@ -99,12 +100,12 @@
     <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
     <hr />
 
-    <h2 id="common-options">零、公共筛选接口</h2>
-    <p>当前仅保留搜索类型配置接口；站点、店铺等筛选值由前端固定选项或业务侧直接传值。</p>
+    <h2 id="common-options">零、公共说明</h2>
+    <p>当前代码未提供公共筛选接口；站点、店铺、搜索类型等筛选值由前端固定选项或业务侧直接传值。</p>
 
-    <h3>0.1 搜索类型选项</h3>
+    <h3>0.1 搜索类型维护方式</h3>
     <p>原型中库存检查支持 <code>PID / SKU / SPU</code> 搜索，缺补货支持 <code>SPU / SKU</code> 搜索。该接口也可以前端静态写死；若后续需要统一配置，可抽成公共接口。</p>
-    <pre><code>GET /api/bi/inventory/options/search-types?module=inventoryCheck</code></pre>
+    <pre><code>前端静态维护搜索类型，不单独提供后端接口</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "options": [
@@ -129,14 +130,14 @@
 
     <h3 id="inventory-check-page">1.2 主表接口：库存检查列表</h3>
     <p>根据当前 Tab 返回对应粒度列表。建议一个接口通过 <code>viewType</code> 区分 SKU / SPU 两个视图。</p>
-    <pre><code>POST /api/bi/inventory/check/page</code></pre>
+    <pre><code>POST /tk/inventory/check/page</code></pre>
     <p><strong>请求体（JSON）</strong></p>
     <pre><code>{
   "viewType": "sku",
   "siteCodes": ["US"],
   "statusFilter": "all",
-  "keywordType": "sku",
-  "keyword": "",
+  "searchField": "sku",
+  "searchKeyword": "",
   "syncDate": "2026-04-12",
   "page": 1,
   "pageSize": 20
@@ -149,13 +150,16 @@
           <tr><td>viewType</td><td>string</td><td>是</td><td><code>sku</code> / <code>spu</code></td></tr>
           <tr><td>siteCodes</td><td>list&lt;string&gt;</td><td>否</td><td>站点代码列表；支持多选或按区域展开</td></tr>
           <tr><td>statusFilter</td><td>string</td><td>否</td><td><code>all</code> / <code>abnormal</code> / <code>normal</code> / <code>pending</code></td></tr>
-          <tr><td>keywordType</td><td>string</td><td>否</td><td>SKU 视图支持 <code>pid</code>、<code>sku</code>、<code>spu</code>；SPU 视图建议固定为 <code>spu</code></td></tr>
-          <tr><td>keyword</td><td>string</td><td>否</td><td>搜索关键字，支持模糊匹配</td></tr>
+          <tr><td>searchField</td><td>string</td><td>否</td><td>SKU 视图支持 <code>pid</code>、<code>sku</code>、<code>spu</code>；SPU 视图建议固定为 <code>spu</code></td></tr>
+          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>搜索关键字，支持模糊匹配</td></tr>
           <tr><td>syncDate</td><td>string</td><td>是</td><td>同步日期，格式 <code>YYYY-MM-DD</code></td></tr>
           <tr><td>page</td><td>number</td><td>否</td><td>页码，默认 1</td></tr>
           <tr><td>pageSize</td><td>number</td><td>否</td><td>每页条数，默认 20</td></tr>
         </tbody>
       </table>
+    </div>
+    <div class="note">
+      <strong>合计行约定：</strong>参考 <code>com.ms.bi.tkdashboard.controller.TkPidController#getPidDetail</code> 的返回与导出处理方式，库存检查与缺补货列表接口统一使用独立字段 <code>totalRow</code> 返回底部合计行，不混入 <code>list</code>。前端渲染时固定展示在表格最后一行。
     </div>
     <p><strong>响应 data</strong></p>
     <pre><code>{
@@ -165,6 +169,7 @@
   "list": [
     {
       "date": "2026-04-12",
+      "storeName": "美国TK-艾斯特尼-美区跨境1店",
       "pid": "1729439482671567205",
       "spu": null,
       "spuName": null,
@@ -197,7 +202,41 @@
       "inventoryStatusCode": "abnormal"
     }
   ],
-  "total": 1286
+  "total": 1286,
+  "totalRow": {
+    "date": "合计",
+    "storeName": null,
+    "pid": null,
+    "spu": null,
+    "spuName": null,
+    "sku": null,
+    "skuName": null,
+    "purchaseQty": 24560,
+    "domesticInventoryQty": 1830,
+    "deliveryInTransitQty": 4260,
+    "warehouseDomestic1Qty": 1730,
+    "warehouseDomestic2Qty": 1688,
+    "warehouseDomestic3Qty": 42,
+    "thirdPartyInTransitQty": 6168,
+    "warehouseGuchang1Qty": 4280,
+    "warehouseGuchang2Qty": 4218,
+    "warehouseGuchang3Qty": 62,
+    "fbtInTransitQty": 1260,
+    "fbtAvailableQty": 5380,
+    "warehouseWinitUsky31Qty": 2860,
+    "warehouseWinitUsky32Qty": 2788,
+    "warehouseWinitUsky33Qty": 72,
+    "overseaAvailableQty": 16562,
+    "overseaInTransitQty": 4908,
+    "totalInTransitQty": 9168,
+    "totalAvailableQty": 18392,
+    "totalInventoryQty": 27560,
+    "warehouseUkReturn1Qty": 118,
+    "warehouseUkReturn2Qty": 112,
+    "warehouseUkReturn3Qty": 6,
+    "inventoryStatusName": null,
+    "inventoryStatusCode": null
+  }
 }</code></pre>
     <p><strong>data 字段说明（按层级）</strong></p>
     <div class="table-wrap">
@@ -209,88 +248,87 @@
           <tr><td>1</td><td>updateTime</td><td>string</td><td>页面右上角“数据更新时间”</td></tr>
           <tr><td>1</td><td>list</td><td>list</td><td>列表数据</td></tr>
           <tr><td>1</td><td>total</td><td>number</td><td>总记录数</td></tr>
+          <tr><td>1</td><td>totalRow</td><td>object</td><td>底部合计行，单独返回，不计入 <code>list</code> 与 <code>total</code></td></tr>
+          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称；库存检查原型表格固定展示该列</td></tr>
           <tr><td>2</td><td>list[].pid / sku / skuName</td><td>string</td><td>SKU 视图主维度字段</td></tr>
           <tr><td>2</td><td>list[].spu / spuName</td><td>string</td><td>SPU 视图主维度字段；SKU 视图下可为空或不返回</td></tr>
           <tr><td>2</td><td>list[].inventoryStatusName</td><td>string</td><td>库存状态：少同步 / 超卖风险 / 正常 / 待确认</td></tr>
+          <tr><td>2</td><td>totalRow.*</td><td>mixed</td><td>字段结构与当前视图列表行保持一致；维度字段建议首列返回 <code>合计</code>，数值字段按当前筛选结果汇总，状态类字段可返回空</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</h3>
     <p>PID&amp;SKU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
-    <pre><code>POST /api/bi/inventory/check/sku-summary</code></pre>
+    <pre><code>POST /tk/inventory/check/sku/summary</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
   "statusFilter": "all",
-  "keywordType": "sku",
-  "keyword": "",
+  "searchField": "sku",
+  "searchKeyword": "",
   "syncDate": "2026-04-12"
 }</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "skuCount": 1286,
-    "abnormalSkuCount": 93,
-    "totalInventoryQty": 24560,
-    "totalAvailableQty": 18392,
-    "totalInTransitQty": 6168
-  }
+  "skuCount": 1286,
+  "abnormalSkuCount": 93,
+  "totalInventoryQty": 24560,
+  "totalAvailableQty": 18392,
+  "totalInTransitQty": 6168
 }</code></pre>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
-          <tr><td>metrics.skuCount</td><td>number</td><td>SKU总数</td></tr>
-          <tr><td>metrics.abnormalSkuCount</td><td>number</td><td>异常SKU数</td></tr>
-          <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>metrics.totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>skuCount</td><td>number</td><td>SKU总数</td></tr>
+          <tr><td>abnormalSkuCount</td><td>number</td><td>异常SKU数</td></tr>
+          <tr><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
+          <tr><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="inventory-check-spu-summary">1.4 汇总卡片接口：SPU维度</h3>
     <p>SPU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
-    <pre><code>POST /api/bi/inventory/check/spu-summary</code></pre>
+    <pre><code>POST /tk/inventory/check/spu/summary</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
   "statusFilter": "all",
-  "keywordType": "spu",
-  "keyword": "",
+  "searchField": "spu",
+  "searchKeyword": "",
   "syncDate": "2026-04-12"
 }</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "spuCount": 216,
-    "abnormalSpuCount": 28,
-    "totalInventoryQty": 24560,
-    "totalAvailableQty": 18392,
-    "totalInTransitQty": 6168
-  }
+  "spuCount": 216,
+  "abnormalSpuCount": 28,
+  "totalInventoryQty": 24560,
+  "totalAvailableQty": 18392,
+  "totalInTransitQty": 6168
 }</code></pre>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
-          <tr><td>metrics.spuCount</td><td>number</td><td>SPU总数</td></tr>
-          <tr><td>metrics.abnormalSpuCount</td><td>number</td><td>异常SPU数</td></tr>
-          <tr><td>metrics.totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>metrics.totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>metrics.totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td>spuCount</td><td>number</td><td>SPU总数</td></tr>
+          <tr><td>abnormalSpuCount</td><td>number</td><td>异常SPU数</td></tr>
+          <tr><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
+          <tr><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
+          <tr><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3>1.5 数据统计说明接口</h3>
     <p>页面点击“数据统计说明”时，弹出当前视图的统计口径说明。若口径说明固定，也可前端静态写死；这里给出后端配置化方案。</p>
-    <pre><code>GET /api/bi/inventory/check/metric-desc?viewType=sku</code></pre>
+    <pre><code>GET /tk/inventory/check/metric/desc?viewType=sku</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "title": "数据统计说明",
@@ -310,15 +348,15 @@
 
     <h3 id="inventory-check-export">1.6 导出接口：导出明细 / 导出汇总 / 导出异常SPU</h3>
     <p>原型中 SKU 视图有“导出明细”，SPU 视图有“导出汇总”“导出异常SPU”。建议统一为一个导出接口，通过 <code>exportType</code> 区分。</p>
-    <pre><code>POST /api/bi/inventory/check/export</code></pre>
+    <pre><code>POST /tk/inventory/check/export</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "viewType": "spu",
   "exportType": "abnormal",
   "siteCodes": ["US"],
   "statusFilter": "abnormal",
-  "keywordType": "spu",
-  "keyword": "",
+  "searchField": "spu",
+  "searchKeyword": "",
   "syncDate": "2026-04-12"
 }</code></pre>
     <div class="table-wrap">
@@ -336,6 +374,7 @@
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
+          <tr><td>店铺</td><td>storeName</td><td>string</td><td>店铺名称</td></tr>
           <tr><td>PID</td><td>pid</td><td>string</td><td>商品 PID</td></tr>
           <tr><td>SKU</td><td>sku</td><td>string</td><td>商品 SKU</td></tr>
           <tr><td>SKU名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
@@ -373,6 +412,7 @@
         <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
+          <tr><td>店铺</td><td>storeName</td><td>string</td><td>店铺名称</td></tr>
           <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
           <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
           <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>SPU 维度汇总值</td></tr>
@@ -417,31 +457,77 @@
       <li><strong>数据日期</strong>：按天查询快照</li>
     </ul>
     <p><strong>列表接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/spu-page</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/spu/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "keywordType": "spu",
-  "keyword": "",
+  "searchField": "spu",
+  "searchKeyword": "",
   "dataDate": "2026-04-12",
   "page": 1,
   "pageSize": 20
 }</code></pre>
+    <p><strong>列表响应 data</strong></p>
+    <pre><code>{
+  "dataDate": "2026-04-12",
+  "updateTime": "2026-04-13 16:00:20",
+  "list": [
+    {
+      "date": "2026-04-12",
+      "siteName": "美国站",
+      "spu": "AL-W0161",
+      "spuName": "双拉链连帽卫衣",
+      "currentInventoryQty": 1850,
+      "weightedDailySales": 42.5,
+      "month01Factor": 1.1,
+      "month02Factor": 1.05,
+      "month03Factor": 0.96,
+      "month04Factor": 0.92,
+      "month1ForecastDaily": 46.75,
+      "month2ForecastDaily": 44.63,
+      "month3ForecastDaily": 40.80,
+      "month4ForecastDaily": 39.10,
+      "month1RedundancyQty": 447,
+      "month2RedundancyQty": 108,
+      "month3RedundancyQty": -156,
+      "month4RedundancyQty": -329
+    }
+  ],
+  "total": 186,
+  "totalRow": {
+    "date": "合计",
+    "siteName": null,
+    "spu": null,
+    "spuName": null,
+    "currentInventoryQty": 48260,
+    "weightedDailySales": 4268.9,
+    "month01Factor": null,
+    "month02Factor": null,
+    "month03Factor": null,
+    "month04Factor": null,
+    "month1ForecastDaily": 4562.4,
+    "month2ForecastDaily": 4398.2,
+    "month3ForecastDaily": 4210.7,
+    "month4ForecastDaily": 4084.1,
+    "month1RedundancyQty": 11268,
+    "month2RedundancyQty": 6386,
+    "month3RedundancyQty": 2018,
+    "month4RedundancyQty": -1844
+  }
+}</code></pre>
     <p><strong>汇总接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/spu-summary</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/spu/summary</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "spuCount": 186,
-    "highRedundancySpuCount": 24,
-    "currentInventoryQty": 48260
-  }
+  "spuCount": 186,
+  "highRedundancySpuCount": 24,
+  "currentInventoryQty": 48260
 }</code></pre>
     <p><strong>数据统计说明接口</strong></p>
-    <pre><code>GET /api/bi/inventory/replenishment/spu-metric-desc</code></pre>
+    <pre><code>GET /tk/inventory/replenishment/spu/metric/desc</code></pre>
     <p><strong>导出接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/spu-export</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/spu/export</code></pre>
 
     <h3>2.2 列表字段明细：SPU冗余检视</h3>
     <div class="table-wrap">
@@ -479,32 +565,118 @@
       <li><strong>数据日期</strong>：按天查询快照</li>
     </ul>
     <p><strong>列表接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/ship-page</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/ship/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "keywordType": "sku",
-  "keyword": "",
+  "searchField": "sku",
+  "searchKeyword": "",
   "dataDate": "2026-04-12",
   "page": 1,
   "pageSize": 20
 }</code></pre>
+    <p><strong>列表响应 data</strong></p>
+    <pre><code>{
+  "dataDate": "2026-04-12",
+  "updateTime": "2026-04-13 16:00:20",
+  "list": [
+    {
+      "date": "2026-04-12",
+      "siteName": "美国站",
+      "spu": "AL-W0161",
+      "sku": "AL-W0161-LHH-M",
+      "skuName": "双拉链连帽卫衣-硫化黑27-M",
+      "fbtTotalQty": 21,
+      "fbtAvailableQty": 0,
+      "thirdWarehouseTotalQty": 125,
+      "thirdWarehouseAvailableQty": 88,
+      "winitUsky3AvailableQty": 12,
+      "winitUswcAvailableQty": 0,
+      "winitUswc2AvailableQty": 0,
+      "gucangAvailableQty": 0,
+      "thirdWarehouseInTransitQty": 37,
+      "winitUsky3InTransitQty": 18,
+      "winitUswcInTransitQty": 0,
+      "winitUswc2InTransitQty": 0,
+      "gucangInTransitQty": 19,
+      "overseaAvailableQty": 88,
+      "domesticAvailableQty": 56,
+      "totalAvailableQty": 144,
+      "currentTotalQty": 181,
+      "sales7dDailyQty": 8.4,
+      "sales30dDailyQty": 6.9,
+      "weightedDailySales": 7.6,
+      "month1ForecastDaily": 8.1,
+      "month2ForecastDaily": 7.8,
+      "month3ForecastDaily": 7.5,
+      "month4ForecastDaily": 7.2,
+      "requiredTotalQty": 912,
+      "statusName": "还可以卖19天",
+      "stockoutDays": 19,
+      "shipmentNeedEstimateQty": 368,
+      "fbtShipActualQty": 320,
+      "fbtShippingDate": "2026-05-16",
+      "shippingPeriodRequiredQty": 258,
+      "onlineShortageQty": 114,
+      "transferableQty": 56
+    }
+  ],
+  "total": 58,
+  "totalRow": {
+    "date": "合计",
+    "siteName": null,
+    "spu": null,
+    "sku": null,
+    "skuName": null,
+    "fbtTotalQty": 426,
+    "fbtAvailableQty": 138,
+    "thirdWarehouseTotalQty": 11280,
+    "thirdWarehouseAvailableQty": 8426,
+    "winitUsky3AvailableQty": 3160,
+    "winitUswcAvailableQty": 2180,
+    "winitUswc2AvailableQty": 1326,
+    "gucangAvailableQty": 1760,
+    "thirdWarehouseInTransitQty": 2854,
+    "winitUsky3InTransitQty": 820,
+    "winitUswcInTransitQty": 690,
+    "winitUswc2InTransitQty": 514,
+    "gucangInTransitQty": 830,
+    "overseaAvailableQty": 8564,
+    "domesticAvailableQty": 3842,
+    "totalAvailableQty": 12406,
+    "currentTotalQty": 15260,
+    "sales7dDailyQty": 462.8,
+    "sales30dDailyQty": 418.6,
+    "weightedDailySales": 439.5,
+    "month1ForecastDaily": 468.4,
+    "month2ForecastDaily": 451.2,
+    "month3ForecastDaily": 436.7,
+    "month4ForecastDaily": 421.3,
+    "requiredTotalQty": 52860,
+    "statusName": null,
+    "stockoutDays": 612,
+    "shipmentNeedEstimateQty": 4260,
+    "fbtShipActualQty": 3980,
+    "fbtShippingDate": null,
+    "shippingPeriodRequiredQty": 3016,
+    "onlineShortageQty": 1288,
+    "transferableQty": 960
+  }
+}</code></pre>
     <p><strong>汇总接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/ship-summary</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/ship/summary</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "waitShipmentSkuCount": 58,
-    "onlineShortSkuCount": 21,
-    "shipmentQty": 4260,
-    "transferableSkuCount": 17
-  }
+  "waitShipmentSkuCount": 58,
+  "onlineShortSkuCount": 21,
+  "shipmentQty": 4260,
+  "transferableSkuCount": 17
 }</code></pre>
     <p><strong>数据统计说明接口</strong></p>
-    <pre><code>GET /api/bi/inventory/replenishment/ship-metric-desc</code></pre>
+    <pre><code>GET /tk/inventory/replenishment/ship/metric/desc</code></pre>
     <p><strong>导出接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/ship-export</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/ship/export</code></pre>
 
     <h3>2.4 列表字段明细：发货视图</h3>
     <p>发货视图字段基于统一底表裁剪。接口返回字段使用 Java 接口驼峰命名，底层表字段可在技术方案或表结构设计中查看对应关系。</p>
@@ -563,32 +735,90 @@
       <li><strong>数据日期</strong>：按天查询快照</li>
     </ul>
     <p><strong>列表接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/restock-page</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/restock/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "keywordType": "sku",
-  "keyword": "",
+  "searchField": "sku",
+  "searchKeyword": "",
   "dataDate": "2026-04-12",
   "page": 1,
   "pageSize": 20
 }</code></pre>
+    <p><strong>列表响应 data</strong></p>
+    <pre><code>{
+  "dataDate": "2026-04-12",
+  "updateTime": "2026-04-13 16:00:20",
+  "list": [
+    {
+      "date": "2026-04-12",
+      "siteName": "美国站",
+      "spu": "AL-W0161",
+      "sku": "AL-W0161-LHH-M",
+      "skuName": "双拉链连帽卫衣-硫化黑27-M",
+      "fbtTotalQty": 21,
+      "thirdWarehouseTotalQty": 125,
+      "overseaAvailableQty": 88,
+      "purchaseTransitQty": 160,
+      "fbaInventoryQty": 0,
+      "domesticAvailableQty": 56,
+      "totalAvailableQty": 144,
+      "currentTotalQty": 181,
+      "sales7dDailyQty": 8.4,
+      "sales30dDailyQty": 6.9,
+      "weightedDailySales": 7.6,
+      "month1ForecastDaily": 8.1,
+      "month2ForecastDaily": 7.8,
+      "month3ForecastDaily": 7.5,
+      "month4ForecastDaily": 7.2,
+      "requiredTotalQty": 912,
+      "purchaseNeedQty": 520,
+      "purchaseNeedActualQty": 480,
+      "stockoutDays": 19
+    }
+  ],
+  "total": 63,
+  "totalRow": {
+    "date": "合计",
+    "siteName": null,
+    "spu": null,
+    "sku": null,
+    "skuName": null,
+    "fbtTotalQty": 426,
+    "thirdWarehouseTotalQty": 11280,
+    "overseaAvailableQty": 8564,
+    "purchaseTransitQty": 6380,
+    "fbaInventoryQty": 0,
+    "domesticAvailableQty": 3842,
+    "totalAvailableQty": 12406,
+    "currentTotalQty": 18786,
+    "sales7dDailyQty": 486.2,
+    "sales30dDailyQty": 431.9,
+    "weightedDailySales": 452.6,
+    "month1ForecastDaily": 479.1,
+    "month2ForecastDaily": 461.6,
+    "month3ForecastDaily": 446.2,
+    "month4ForecastDaily": 430.5,
+    "requiredTotalQty": 56280,
+    "purchaseNeedQty": 5880,
+    "purchaseNeedActualQty": 5560,
+    "stockoutDays": 756
+  }
+}</code></pre>
     <p><strong>汇总接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/restock-summary</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/restock/summary</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "waitRestockSkuCount": 63,
-    "urgentRestockSkuCount": 19,
-    "restockQty": 5880,
-    "avgStockoutDays": 12
-  }
+  "waitRestockSkuCount": 63,
+  "urgentRestockSkuCount": 19,
+  "restockQty": 5880,
+  "avgStockoutDays": 12
 }</code></pre>
     <p><strong>数据统计说明接口</strong></p>
-    <pre><code>GET /api/bi/inventory/replenishment/restock-metric-desc</code></pre>
+    <pre><code>GET /tk/inventory/replenishment/restock/metric/desc</code></pre>
     <p><strong>导出接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/restock-export</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/restock/export</code></pre>
 
     <h3>2.6 列表字段明细：补货视图</h3>
     <div class="table-wrap">
@@ -632,31 +862,127 @@
       <li><strong>数据日期</strong>：按天查询快照</li>
     </ul>
     <p><strong>列表接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/all-page</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/all/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "keywordType": "sku",
-  "keyword": "",
+  "searchField": "sku",
+  "searchKeyword": "",
   "dataDate": "2026-04-12",
   "page": 1,
   "pageSize": 20
 }</code></pre>
+    <p><strong>列表响应 data</strong></p>
+    <pre><code>{
+  "dataDate": "2026-04-12",
+  "updateTime": "2026-04-13 16:00:20",
+  "list": [
+    {
+      "date": "2026-04-12",
+      "siteName": "美国站",
+      "spu": "AL-W0161",
+      "sku": "AL-W0161-LHH-M",
+      "skuName": "双拉链连帽卫衣-硫化黑27-M",
+      "fbtTotalQty": 21,
+      "fbtAvailableQty": 0,
+      "thirdWarehouseTotalQty": 125,
+      "thirdWarehouseAvailableQty": 88,
+      "winitUsky3AvailableQty": 12,
+      "winitUswcAvailableQty": 0,
+      "winitUswc2AvailableQty": 0,
+      "gucangAvailableQty": 0,
+      "thirdWarehouseInTransitQty": 37,
+      "winitUsky3InTransitQty": 18,
+      "winitUswcInTransitQty": 0,
+      "winitUswc2InTransitQty": 0,
+      "gucangInTransitQty": 19,
+      "overseaAvailableQty": 88,
+      "domesticAvailableQty": 56,
+      "purchaseTransitQty": 160,
+      "fbaInventoryQty": 0,
+      "totalAvailableQty": 144,
+      "currentTotalQty": 181,
+      "sales7dDailyQty": 8.4,
+      "sales30dDailyQty": 6.9,
+      "weightedDailySales": 7.6,
+      "month1ForecastDaily": 8.1,
+      "month2ForecastDaily": 7.8,
+      "month3ForecastDaily": 7.5,
+      "month4ForecastDaily": 7.2,
+      "requiredTotalQty": 912,
+      "statusName": "还可以卖19天",
+      "purchaseNeedQty": 520,
+      "purchaseNeedActualQty": 480,
+      "stockoutDays": 19,
+      "shipmentNeedEstimateQty": 368,
+      "fbtShipActualQty": 320,
+      "fbtShippingDate": "2026-05-16",
+      "currentDateValue": "2026-04-12",
+      "shippingPeriodRequiredQty": 258,
+      "onlineShortageQty": 114,
+      "transferableQty": 56
+    }
+  ],
+  "total": 1286,
+  "totalRow": {
+    "date": "合计",
+    "siteName": null,
+    "spu": null,
+    "sku": null,
+    "skuName": null,
+    "fbtTotalQty": 426,
+    "fbtAvailableQty": 138,
+    "thirdWarehouseTotalQty": 11280,
+    "thirdWarehouseAvailableQty": 8426,
+    "winitUsky3AvailableQty": 3160,
+    "winitUswcAvailableQty": 2180,
+    "winitUswc2AvailableQty": 1326,
+    "gucangAvailableQty": 1760,
+    "thirdWarehouseInTransitQty": 2854,
+    "winitUsky3InTransitQty": 820,
+    "winitUswcInTransitQty": 690,
+    "winitUswc2InTransitQty": 514,
+    "gucangInTransitQty": 830,
+    "overseaAvailableQty": 8564,
+    "domesticAvailableQty": 3842,
+    "purchaseTransitQty": 6380,
+    "fbaInventoryQty": 0,
+    "totalAvailableQty": 12406,
+    "currentTotalQty": 18786,
+    "sales7dDailyQty": 486.2,
+    "sales30dDailyQty": 431.9,
+    "weightedDailySales": 452.6,
+    "month1ForecastDaily": 479.1,
+    "month2ForecastDaily": 461.6,
+    "month3ForecastDaily": 446.2,
+    "month4ForecastDaily": 430.5,
+    "requiredTotalQty": 56280,
+    "statusName": null,
+    "purchaseNeedQty": 5880,
+    "purchaseNeedActualQty": 5560,
+    "stockoutDays": 756,
+    "shipmentNeedEstimateQty": 4260,
+    "fbtShipActualQty": 3980,
+    "fbtShippingDate": null,
+    "currentDateValue": null,
+    "shippingPeriodRequiredQty": 3016,
+    "onlineShortageQty": 1288,
+    "transferableQty": 960
+  }
+}</code></pre>
     <p><strong>汇总接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/all-summary</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/all/summary</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
   "updateTime": "2026-04-13 16:00:20",
-  "metrics": {
-    "skuCount": 1286,
-    "totalAvailableQty": 18392,
-    "gapSkuCount": 76
-  }
+  "skuCount": 1286,
+  "totalAvailableQty": 18392,
+  "gapSkuCount": 76
 }</code></pre>
     <p><strong>数据统计说明接口</strong></p>
-    <pre><code>GET /api/bi/inventory/replenishment/all-metric-desc</code></pre>
+    <pre><code>GET /tk/inventory/replenishment/all/metric/desc</code></pre>
     <p><strong>导出接口</strong></p>
-    <pre><code>POST /api/bi/inventory/replenishment/all-export</code></pre>
+    <pre><code>POST /tk/inventory/replenishment/all/export</code></pre>
 
     <h3>2.8 列表字段明细：发货+补货总和</h3>
     <div class="table-wrap">
@@ -710,18 +1036,98 @@
       </table>
     </div>
 
-    <h3>2.9 待确认说明接口</h3>
-    <p>页面底部有“待确认点”区域，包括导出、图片播报、飞书系数维护、FBT 店铺维度与站点维度汇总口径等内容。若需要在前端动态维护，可增加说明接口。</p>
-    <pre><code>GET /api/bi/inventory/replenishment/todos</code></pre>
+    <h3 id="replenishment-factor-maintain">2.9 SPU月度系数维护</h3>
+    <p>对应原型中的“SPU月度系数维护”按钮、列表弹窗和编辑弹窗。该模块用于维护指定年份、站点、SPU 的 1-12 月系数，供缺补货相关预估日均测算复用。</p>
+    <p><strong>列表接口</strong></p>
+    <pre><code>POST /tk/inventory/replenishment/spu/factor/page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "year": 2026,
+  "siteCode": "US",
+  "spuKeyword": "AL-W0161",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
     <p><strong>响应 data</strong></p>
     <pre><code>{
-  "items": [
-    "是否需要导出明细",
-    "是否需要图片定时播报",
-    "每个月的系数如何维护，是否走飞书 API",
-    "TikTok.FBT库存-自定义导出按店铺维度取数，与发货+补货总和按 SKU+站点汇总是否口径一致"
-  ]
+  "list": [
+    {
+      "year": 2026,
+      "siteName": "美国站点",
+      "spu": "AL-W0161",
+      "spuName": "双拉链连帽卫衣",
+      "month01Factor": 1.10,
+      "month02Factor": 1.05,
+      "month03Factor": 0.96,
+      "month04Factor": 0.92,
+      "month05Factor": 0.95,
+      "month06Factor": 1.02,
+      "month07Factor": 1.08,
+      "month08Factor": 1.12,
+      "month09Factor": 1.00,
+      "month10Factor": 0.98,
+      "month11Factor": 1.16,
+      "month12Factor": 1.22,
+      "updateTime": "2026-04-13 16:00:20"
+    }
+  ],
+  "total": 36
 }</code></pre>
+    <p><strong>字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>year</td><td>number</td><td>年份</td></tr>
+          <tr><td>siteCode</td><td>string</td><td>站点编码</td></tr>
+          <tr><td>spuKeyword</td><td>string</td><td>SPU 搜索关键字，支持模糊匹配</td></tr>
+          <tr><td>page</td><td>number</td><td>页码</td></tr>
+          <tr><td>pageSize</td><td>number</td><td>每页条数</td></tr>
+          <tr><td>list[].siteName</td><td>string</td><td>站点名称</td></tr>
+          <tr><td>list[].spu</td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td>list[].spuName</td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td>list[].month01Factor ~ list[].month12Factor</td><td>number</td><td>1-12 月系数</td></tr>
+          <tr><td>list[].updateTime</td><td>string</td><td>更新时间</td></tr>
+          <tr><td>total</td><td>number</td><td>总记录数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>保存接口</strong></p>
+    <pre><code>POST /tk/inventory/replenishment/spu/factor/update</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "year": 2026,
+  "siteCode": "US",
+  "spu": "AL-W0161",
+  "month01Factor": 1.10,
+  "month02Factor": 1.05,
+  "month03Factor": 0.96,
+  "month04Factor": 0.92,
+  "month05Factor": 0.95,
+  "month06Factor": 1.02,
+  "month07Factor": 1.08,
+  "month08Factor": 1.12,
+  "month09Factor": 1.00,
+  "month10Factor": 0.98,
+  "month11Factor": 1.16,
+  "month12Factor": 1.22
+}</code></pre>
+    <p><strong>响应 data</strong></p>
+    <pre><code>{
+  "success": true,
+  "updateTime": "2026-04-13 16:08:35"
+}</code></pre>
+
+    <h3>2.10 待确认说明维护方式</h3>
+    <p>页面底部有“待确认点”区域，包括导出、图片播报、飞书系数维护、FBT 店铺维度与站点维度汇总口径等内容。若需要在前端动态维护，可增加说明接口。</p>
+    <p>当前代码未提供待确认说明接口，前端如需说明文案请静态维护。</p>
+    <p><strong>说明示例</strong></p>
+    <pre><code>[
+  "是否需要导出明细",
+  "是否需要图片定时播报",
+  "每个月的系数如何维护，是否走飞书 API",
+  "TikTok.FBT库存-自定义导出按店铺维度取数，与发货+补货总和按 SKU+站点汇总是否口径一致"
+]</code></pre>
 
     <hr />
 
@@ -1656,35 +2062,37 @@ Content-Type：application/json</code></pre>
       <table>
         <thead><tr><th>序号</th><th>页面/模块</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>公共</td><td>搜索类型选项</td><td>GET</td><td><code>/api/bi/inventory/options/search-types</code></td></tr>
-          <tr><td>2</td><td>库存检查</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/check/page</code></td></tr>
-          <tr><td>3</td><td>库存检查</td><td>PID&amp;SKU汇总</td><td>POST</td><td><code>/api/bi/inventory/check/sku-summary</code></td></tr>
-          <tr><td>4</td><td>库存检查</td><td>SPU汇总</td><td>POST</td><td><code>/api/bi/inventory/check/spu-summary</code></td></tr>
-          <tr><td>5</td><td>库存检查</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/check/metric-desc</code></td></tr>
-          <tr><td>6</td><td>库存检查</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/check/export</code></td></tr>
-          <tr><td>7</td><td>缺补货-SPU冗余检视</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-page</code></td></tr>
-          <tr><td>8</td><td>缺补货-SPU冗余检视</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-summary</code></td></tr>
-          <tr><td>9</td><td>缺补货-SPU冗余检视</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/spu-metric-desc</code></td></tr>
-          <tr><td>10</td><td>缺补货-SPU冗余检视</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/spu-export</code></td></tr>
-          <tr><td>11</td><td>缺补货-发货</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-page</code></td></tr>
-          <tr><td>12</td><td>缺补货-发货</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-summary</code></td></tr>
-          <tr><td>13</td><td>缺补货-发货</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/ship-metric-desc</code></td></tr>
-          <tr><td>14</td><td>缺补货-发货</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/ship-export</code></td></tr>
-          <tr><td>15</td><td>缺补货-补货</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-page</code></td></tr>
-          <tr><td>16</td><td>缺补货-补货</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-summary</code></td></tr>
-          <tr><td>17</td><td>缺补货-补货</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/restock-metric-desc</code></td></tr>
-          <tr><td>18</td><td>缺补货-补货</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/restock-export</code></td></tr>
-          <tr><td>19</td><td>缺补货-发货+补货总和</td><td>列表查询</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-page</code></td></tr>
-          <tr><td>20</td><td>缺补货-发货+补货总和</td><td>汇总</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-summary</code></td></tr>
-          <tr><td>21</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/all-metric-desc</code></td></tr>
-          <tr><td>22</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/api/bi/inventory/replenishment/all-export</code></td></tr>
-          <tr><td>23</td><td>缺补货</td><td>待确认说明</td><td>GET</td><td><code>/api/bi/inventory/replenishment/todos</code></td></tr>
-          <tr><td>24</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
-          <tr><td>25</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
-          <tr><td>26</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
-          <tr><td>27</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
-          <tr><td>28</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
-          <tr><td>29</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
+          
+          <tr><td>2</td><td>库存检查</td><td>数据最新时间</td><td>GET</td><td><code>/tk/inventory/check/dataLatestTime</code></td></tr>
+          <tr><td>3</td><td>库存检查</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/check/page</code></td></tr>
+          <tr><td>4</td><td>库存检查</td><td>PID&amp;SKU汇总</td><td>POST</td><td><code>/tk/inventory/check/sku/summary</code></td></tr>
+          <tr><td>5</td><td>库存检查</td><td>SPU汇总</td><td>POST</td><td><code>/tk/inventory/check/spu/summary</code></td></tr>
+          <tr><td>6</td><td>库存检查</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/check/metric/desc</code></td></tr>
+          <tr><td>7</td><td>库存检查</td><td>导出</td><td>POST</td><td><code>/tk/inventory/check/export</code></td></tr>
+          <tr><td>8</td><td>缺补货</td><td>数据最新时间</td><td>GET</td><td><code>/tk/inventory/replenishment/dataLatestTime</code></td></tr>
+          <tr><td>9</td><td>缺补货-SPU冗余检视</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/page</code></td></tr>
+          <tr><td>10</td><td>缺补货-SPU冗余检视</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/summary</code></td></tr>
+          <tr><td>11</td><td>缺补货-SPU冗余检视</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/spu/metric/desc</code></td></tr>
+          <tr><td>12</td><td>缺补货-SPU冗余检视</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/export</code></td></tr>
+          <tr><td>13</td><td>缺补货-发货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/page</code></td></tr>
+          <tr><td>14</td><td>缺补货-发货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/summary</code></td></tr>
+          <tr><td>15</td><td>缺补货-发货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/ship/metric/desc</code></td></tr>
+          <tr><td>16</td><td>缺补货-发货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/export</code></td></tr>
+          <tr><td>17</td><td>缺补货-补货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/page</code></td></tr>
+          <tr><td>18</td><td>缺补货-补货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/summary</code></td></tr>
+          <tr><td>19</td><td>缺补货-补货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/restock/metric/desc</code></td></tr>
+          <tr><td>20</td><td>缺补货-补货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/export</code></td></tr>
+          <tr><td>21</td><td>缺补货-发货+补货总和</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/all/page</code></td></tr>
+          <tr><td>22</td><td>缺补货-发货+补货总和</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/all/summary</code></td></tr>
+          <tr><td>23</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/all/metric/desc</code></td></tr>
+          <tr><td>24</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/all/export</code></td></tr>
+          
+          <tr><td>25</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
+          <tr><td>26</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
+          <tr><td>27</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
+          <tr><td>28</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
+          <tr><td>29</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
+          <tr><td>30</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
         </tbody>
       </table>
     </div>
