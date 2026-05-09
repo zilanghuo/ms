@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tkDashboard 表结构设计 — Doris 数据仓库</title>
+  <title>销售模块-表结构设计</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --ods: #3b82f6; --dwd: #8b5cf6; --dws: #0891b2; --ads: #059669; --dim: #64748b; }
     * { box-sizing: border-box; }
@@ -40,6 +40,8 @@
     .toc li { margin: 0.25rem 0; }
     .toc a { color: var(--accent); text-decoration: none; }
     .toc a:hover { text-decoration: underline; }
+    td a { color: var(--accent); text-decoration: none; }
+    td a:hover { text-decoration: underline; }
     .req-ref { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
     .section-card { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.25rem; margin: 1rem 0; }
     .section-card h4 { margin-top: 0; }
@@ -48,7 +50,7 @@
 </head>
 <body>
   <div class="doc">
-    <h1>tkDashboard 表结构设计 — Doris 数据仓库</h1>
+    <h1>销售模块-表结构设计</h1>
     <p>基于《PID 销售趋势映射 — 需求文档》《销售数据映射表 — 需求文档》及技术方案，整理导入 Doris 数据仓库的详细表结构。参考仓库：<code>ms-warehouse-batch-data</code>（ddl/FWVD-1071、docs/FWVD-1071）。</p>
 
     <nav class="toc" id="toc">
@@ -77,26 +79,31 @@
           <tr><th>层级</th><th>表名</th><th>说明</th><th>需求来源</th></tr>
         </thead>
         <tbody>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_di</td><td>TikTok 订单主表（全部笔订单，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_trade_api_tiktok_order_item_di</td><td>TikTok 订单商品明细（SKU 维度，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_product_api_jijia_omnichannel_product_df</td><td>全渠道商品表（积加）</td><td>PID 需求一/二、销售需求二</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_sales_api_jijia_omnichannel_order_di</td><td>全渠道销售订单表（积加/Shopify，支持准实时 10min）</td><td>销售需求一/二</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_sales_api_jijia_omnichannel_order_item_di</td><td>全渠道销售订单明细表（积加，支持准实时 10min）</td><td>销售需求一/二</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_traffic_file_tiktok_product_list_di</td><td>TikTok 商品数据分析（product_list）</td><td>PID 需求二 数据看板</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_marketing_file_tiktok_campaign_di</td><td>TikTok 广告推广（Product campaign data）</td><td>PID 需求二 数据看板</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_traffic_file_tiktok_video_performance_di</td><td>TikTok 视频表现（Video Performance List）</td><td>PID 需求二 数据看板</td></tr>
-          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td>ods_platform_file_tiktok_account_df</td><td>TikTok 账号信息（达人列表）</td><td>PID 需求二 挂车量区分</td></tr>
-          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_jijia_store_site_df</td><td>积加模块-店铺站点表明细（日全量）</td><td>积加/销售 店铺站点维度</td></tr>
-          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td>dim_sales_pid_main_spu_mapping_df</td><td>店铺 + PID 对应主推SPU映射维表（按 sdt 保留历史的日全量快照）</td><td>PID 需求二 1.1（PID与主推SPU维护）</td></tr>
-          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_amount_detail_market_realtime</td><td>销售额明细-准实时（约 10 分钟更新）</td><td>准实时订单数/金额、销售需求二</td></tr>
-          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td>dwd_sales_order_item_market_wide_realtime</td><td>全渠道订单商品大宽表-准实时（以 ASIN 为维度，含下单时间、市场分区，约 10 分钟更新）</td><td>PID 需求一、销售需求一/二</td></tr>
-          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_market_realtime</td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
-          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_store_site_market_realtime</td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
-          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_pid_gmv_realtime</td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
-          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td>dws_sales_pid_gmv_calc_realtime_detail</td><td>PID 维度 GMV 计算明细表（按店铺+PID+日期聚合，含补贴/折扣/运费/实付等口径）</td><td>PID 需求一（GMV计算）/ 需求二（数据看板）</td></tr>
-          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_gmv_calc_realtime</td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
-          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_pid_dashboard_1d</td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
-          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td>ads_sales_store_site_order_count_realtime</td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-trade-api-tiktok-order-di">ods_trade_api_tiktok_order_di</a></td><td>TikTok 订单主表（全部笔订单，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-trade-api-tiktok-order-item-di">ods_trade_api_tiktok_order_item_di</a></td><td>TikTok 订单商品明细（SKU 维度，支持准实时 10min）</td><td>PID 需求一 GMV 计算</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-product-api-jijia-omnichannel-product-df">ods_product_api_jijia_omnichannel_product_df</a></td><td>全渠道商品表（积加）</td><td>PID 需求一/二、销售需求二</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-sales-api-jijia-omnichannel-order-di">ods_sales_api_jijia_omnichannel_order_di</a></td><td>全渠道销售订单表（积加/Shopify，支持准实时 10min）</td><td>销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-sales-api-jijia-omnichannel-order-item-di">ods_sales_api_jijia_omnichannel_order_item_di</a></td><td>全渠道销售订单明细表（积加，支持准实时 10min）</td><td>销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-list-di">ods_traffic_file_tiktok_product_list_di</a></td><td>TikTok 商品数据分析（product_list，老版格式兼容）</td><td>PID 需求二 数据看板</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-all-di">ods_traffic_file_tiktok_product_all_di</a></td><td>TikTok 商品数据分析-全部（新版全部口径，偏美区格式）</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-live-di">ods_traffic_file_tiktok_product_live_di</a></td><td>TikTok 商品数据分析-商家直播</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-video-di">ods_traffic_file_tiktok_product_video_di</a></td><td>TikTok 商品数据分析-商家视频</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-card-di">ods_traffic_file_tiktok_product_card_di</a></td><td>TikTok 商品数据分析-商家商品卡</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-affiliate-di">ods_traffic_file_tiktok_product_affiliate_di</a></td><td>TikTok 商品数据分析-联盟</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-marketing-file-tiktok-campaign-di">ods_marketing_file_tiktok_campaign_di</a></td><td>TikTok 广告推广（Product campaign data）</td><td>PID 需求二 数据看板</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-video-performance-di">ods_traffic_file_tiktok_video_performance_di</a></td><td>TikTok 视频表现（Video Performance List）</td><td>PID 需求二 数据看板</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-platform-file-tiktok-account-df">ods_platform_file_tiktok_account_df</a></td><td>TikTok 账号信息（达人列表）</td><td>PID 需求二 挂车量区分</td></tr>
+          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td><a href="#tbl-dim-jijia-store-site-df">dim_jijia_store_site_df</a></td><td>积加模块-店铺站点表明细（日全量）</td><td>积加/销售 店铺站点维度</td></tr>
+          <tr><td><span class="layer-badge layer-dim">DIM</span></td><td><a href="#tbl-dim-sales-pid-main-spu-mapping-df">dim_sales_pid_main_spu_mapping_df</a></td><td>店铺 + PID 对应主推SPU映射维表（按 sdt 保留历史的日全量快照）</td><td>PID 需求二 1.1（PID与主推SPU维护）</td></tr>
+          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td><a href="#tbl-dwd-sales-amount-detail-market-realtime">dwd_sales_amount_detail_market_realtime</a></td><td>销售额明细-准实时（约 10 分钟更新）</td><td>准实时订单数/金额、销售需求二</td></tr>
+          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td><a href="#tbl-dwd-sales-order-item-market-wide-realtime">dwd_sales_order_item_market_wide_realtime</a></td><td>全渠道订单商品大宽表-准实时（以 ASIN 为维度，含下单时间、市场分区，约 10 分钟更新）</td><td>PID 需求一、销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-market-realtime">dws_sales_store_market_realtime</a></td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-site-market-realtime">dws_sales_store_site_market_realtime</a></td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-realtime">dws_sales_pid_gmv_realtime</a></td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-calc-realtime-detail">dws_sales_pid_gmv_calc_realtime_detail</a></td><td>PID 维度 GMV 计算明细表（按店铺+PID+日期聚合，含补贴/折扣/运费/实付等口径）</td><td>PID 需求一（GMV计算）/ 需求二（数据看板）</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-gmv-calc-realtime">ads_sales_pid_gmv_calc_realtime</a></td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-dashboard-1d">ads_sales_pid_dashboard_1d</a></td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-store-site-order-count-realtime">ads_sales_store_site_order_count_realtime</a></td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
         </tbody>
       </table>
     </div>
@@ -152,7 +159,7 @@
 
     <h2 id="sec-dim">二、DIM 层表结构</h2>
 
-    <h3>2.1 dim_jijia_store_site_df</h3>
+    <h3 id="tbl-dim-jijia-store-site-df">2.1 dim_jijia_store_site_df</h3>
     <p>积加模块-店铺站点表明细，日全量（df）。用于积加/销售域按店铺站点关联时区、货币、ERP 店铺名等维度属性。</p>
     <div class="table-wrap">
       <table>
@@ -206,7 +213,7 @@ PROPERTIES (
 
     <h2 id="sec-2">三、ODS 层表结构</h2>
 
-    <h3>3.1 ods_trade_api_tiktok_order_di</h3>
+    <h3 id="tbl-ods-trade-api-tiktok-order-di">3.1 ods_trade_api_tiktok_order_di</h3>
     <p>全部笔订单主表，TikTok API 对接。用于 PID 需求一 GMV 计算、销售需求一订单数播报；支持准实时，约 30 分钟抽取一次。</p>
     <h4>表实现</h4>
     <p>本表当前实现如下：</p>
@@ -489,7 +496,7 @@ PROPERTIES (
 "enable_mow_light_delete" = "false"
 );</code></pre>
 
-    <h3>3.2 ods_trade_api_tiktok_order_item_di</h3>
+    <h3 id="tbl-ods-trade-api-tiktok-order-item-di">3.2 ods_trade_api_tiktok_order_item_di</h3>
     <p>全部笔订单商品明细（SKU 维度），与订单主表关联；支持准实时，约 10 分钟同步。用于 PID 需求一 GMV 计算（Seller SKU → 父 ASIN）。表结构参考 MySQL tiktok_order_item，Doris 必含 smt、sdt、insert_time。</p>
     <div class="table-wrap">
       <table>
@@ -671,7 +678,7 @@ PROPERTIES (
 "enable_mow_light_delete" = "false"
 );</code></pre>
 
-    <h3>3.3 ods_product_api_jijia_omnichannel_product_df</h3>
+    <h3 id="tbl-ods-product-api-jijia-omnichannel-product-df">3.3 ods_product_api_jijia_omnichannel_product_df</h3>
     <p>全渠道商品表（积加 API）。用于 PID 映射、SPU 关联、销量趋势补 PID/SPU。业务字段与接口文档「导出 Excel / 落库字段」一致。</p>
     <div class="table-wrap">
       <table>
@@ -739,7 +746,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.4 ods_sales_api_jijia_omnichannel_order_di</h3>
+    <h3 id="tbl-ods-sales-api-jijia-omnichannel-order-di">3.4 ods_sales_api_jijia_omnichannel_order_di</h3>
     <p>全渠道销售订单表（积加 API，含 Shopify 等）。用于销售需求一订单数播报、需求二销量趋势；支持准实时，约 10 分钟同步。业务字段与接口文档「落库所需 1. 订单数据」一致。</p>
     <p><strong>订单时间说明</strong>：本表订单时间（<code>purchase_date</code>、<code>payment_market_time</code>）为<strong>北京时间</strong>，格式固定为 <code>yyyy-MM-dd HH:mm:ss</code>（如 <code>2026-01-16 17:55:03</code>），不支持带 <code>T</code> 的 ISO 8601 格式。下游使用时需：① 获取对应的时间标识（如 <code>market_id</code> / <code>time_zone</code> 或维度表中的时区、utc_offset）；② 根据该时间标识判断当前为冬令时或夏令时；③ 将北京时间转换为对应市场本地时间后，再写入 DWD 的 <code>order_time_market</code>、<code>payment_time_market</code> 等字段。</p>
     <div class="table-wrap">
@@ -802,7 +809,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.5 ods_sales_api_jijia_omnichannel_order_item_di</h3>
+    <h3 id="tbl-ods-sales-api-jijia-omnichannel-order-item-di">3.5 ods_sales_api_jijia_omnichannel_order_item_di</h3>
     <p>全渠道销售订单明细表（积加 API，对应接口 data.rows[].itemVoList[]）。用于销量趋势按 SKU/商品维度统计；支持准实时，约 10 分钟同步。业务字段与接口文档「落库所需 2. 订单商品明细」一致。</p>
     <div class="table-wrap">
       <table>
@@ -868,8 +875,8 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.6 ods_traffic_file_tiktok_product_list_di</h3>
-    <p>TikTok 商品数据分析表（product_list，TK 后台导出）。导出 Excel <strong>第 3 行为列名</strong>（共 39 列业务字段）；第 1 行多为统计日期范围，数据自第 4 行起。<code>smt</code>、<code>sdt</code>、<code>store_name</code> 由文件名或调度参数解析写入。字段与 <code>接口设计文档/接口文档.html</code>「3.0 贴源表」一致。</p>
+    <h3 id="tbl-ods-traffic-file-tiktok-product-list-di">3.6 ods_traffic_file_tiktok_product_list_di</h3>
+    <p>TikTok 商品数据分析表（product_list，TK 后台导出）。导出 Excel <strong>第 3 行为列名</strong>（共 39 列业务字段）；第 1 行多为统计日期范围，数据自第 4 行起。<code>smt</code>、<code>sdt</code>、<code>store_name</code> 由文件名或调度参数解析写入。字段与 <code>接口设计文档/接口文档.html</code>「3.0 贴源表」一致。该表对应老版商品数据分析导出结构，当前保留用于历史链路与老格式兼容；新版商品数据分析已拆分为 5 张独立 ODS 表，后续新链路优先对接拆分后的新表。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
@@ -991,7 +998,566 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.7 ods_marketing_file_tiktok_campaign_di</h3>
+    <h3 id="tbl-ods-traffic-file-tiktok-product-all-di">3.7 ods_traffic_file_tiktok_product_all_di</h3>
+    <p>TikTok 商品数据分析-全部（新版全部口径，偏美区格式）。对应文件 <code>bi/tkDashboard/销售/PID/docs/美区-数据分析-新excel/product_list_全部_20260427 (1).xlsx</code>，<strong>第 3 行为列名</strong>，数据自第 4 行起。该表用于承接拆分后的“全部”导出文件，和老表 <code>ods_traffic_file_tiktok_product_list_di</code> 在用途上需要区分；老表继续保留用于旧格式兼容，本表用于后续新版链路建设。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名（Excel：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID（Excel：商品 ID）</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>GMV 区间（Excel：GMV 区间）</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>发品状态（Excel：发品状态）</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断（Excel：VoC 诊断）</td></tr>
+          <tr><td>gmv</td><td>DECIMAL(20,4)</td><td>GMV（Excel：GMV）</td></tr>
+          <tr><td>merchant_live_gmv</td><td>DECIMAL(20,4)</td><td>商家直播归因 GMV</td></tr>
+          <tr><td>merchant_video_gmv</td><td>DECIMAL(20,4)</td><td>商家视频归因 GMV</td></tr>
+          <tr><td>creator_gmv</td><td>DECIMAL(20,4)</td><td>达人归因 GMV</td></tr>
+          <tr><td>creator_live_gmv</td><td>DECIMAL(20,4)</td><td>达人直播归因 GMV</td></tr>
+          <tr><td>affiliate_video_gmv</td><td>DECIMAL(20,4)</td><td>联盟视频归因 GMV</td></tr>
+          <tr><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商家商品卡 GMV</td></tr>
+          <tr><td>order_count</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>sku_order_count</td><td>INT</td><td>SKU 订单数</td></tr>
+          <tr><td>sold_quantity</td><td>INT</td><td>商品成交件数</td></tr>
+          <tr><td>estimated_customer_count</td><td>INT</td><td>预计客户数</td></tr>
+          <tr><td>avg_order_amount</td><td>DECIMAL(20,4)</td><td>平均订单金额（SKU 订单）</td></tr>
+          <tr><td>exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>click_count</td><td>BIGINT</td><td>商品点击量</td></tr>
+          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>商品点击率</td></tr>
+          <tr><td>add_to_cart_count</td><td>BIGINT</td><td>加购次数</td></tr>
+          <tr><td>add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率</td></tr>
+          <tr><td>ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）</td></tr>
+          <tr><td>dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数</td></tr>
+          <tr><td>dedup_click_count</td><td>BIGINT</td><td>去重点击次数</td></tr>
+          <tr><td>dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率</td></tr>
+          <tr><td>added_to_cart_user_count</td><td>BIGINT</td><td>已加购的用户数</td></tr>
+          <tr><td>dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率</td></tr>
+          <tr><td>dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>gmv_with_tax</td><td>DECIMAL(20,4)</td><td>含税 GMV</td></tr>
+          <tr><td>tax_amount</td><td>DECIMAL(20,4)</td><td>税费</td></tr>
+          <tr><td>tiktok_joint_venture_gmv</td><td>DECIMAL(20,4)</td><td>GMV（TikTok 合资）</td></tr>
+          <tr><td>shipping_fee</td><td>DECIMAL(20,4)</td><td>运费</td></tr>
+          <tr><td>refund_amount</td><td>DECIMAL(20,4)</td><td>退款金额</td></tr>
+          <tr><td>refunded_item_quantity</td><td>INT</td><td>已退款的商品件数</td></tr>
+          <tr><td>refund_customer_count</td><td>INT</td><td>退款客户数</td></tr>
+          <tr><td>mall_exposure_count</td><td>BIGINT</td><td>商城页商品曝光次数</td></tr>
+          <tr><td>mall_click_count</td><td>BIGINT</td><td>商城页商品点击量</td></tr>
+          <tr><td>mall_dedup_click_count</td><td>BIGINT</td><td>商城页去重商品点击量</td></tr>
+          <tr><td>mall_estimated_customer_count</td><td>INT</td><td>预计商城页客户数</td></tr>
+          <tr><td>mall_click_rate</td><td>DECIMAL(10,4)</td><td>商城页点击率</td></tr>
+          <tr><td>mall_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>商城页点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>mall_gmv</td><td>DECIMAL(20,4)</td><td>商城页 GMV</td></tr>
+          <tr><td>mall_sold_quantity</td><td>INT</td><td>商城页商品成交件数</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_all_di (
+    smt                         INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                         VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                  VARCHAR(200)         COMMENT '店铺',
+    product_name                STRING               COMMENT '商品名',
+    product_id                  VARCHAR(200)         COMMENT '商品 ID',
+    gmv_range                   VARCHAR(200)         COMMENT 'GMV 区间',
+    product_status              VARCHAR(64)          COMMENT '发品状态',
+    voc_diagnosis               VARCHAR(200)         COMMENT 'VoC 诊断',
+    gmv                         DECIMAL(20,4)        COMMENT 'GMV',
+    merchant_live_gmv           DECIMAL(20,4)        COMMENT '商家直播归因 GMV',
+    merchant_video_gmv          DECIMAL(20,4)        COMMENT '商家视频归因 GMV',
+    creator_gmv                 DECIMAL(20,4)        COMMENT '达人归因 GMV',
+    creator_live_gmv            DECIMAL(20,4)        COMMENT '达人直播归因 GMV',
+    affiliate_video_gmv         DECIMAL(20,4)        COMMENT '联盟视频归因 GMV',
+    product_card_gmv            DECIMAL(20,4)        COMMENT '商家商品卡 GMV',
+    order_count                 INT                  COMMENT '订单数',
+    sku_order_count             INT                  COMMENT 'SKU 订单数',
+    sold_quantity               INT                  COMMENT '商品成交件数',
+    estimated_customer_count    INT                  COMMENT '预计客户数',
+    avg_order_amount            DECIMAL(20,4)        COMMENT '平均订单金额（SKU 订单）',
+    exposure_count              BIGINT               COMMENT '商品曝光次数',
+    click_count                 BIGINT               COMMENT '商品点击量',
+    click_rate                  DECIMAL(10,4)        COMMENT '商品点击率',
+    add_to_cart_count           BIGINT               COMMENT '加购次数',
+    add_to_cart_rate            DECIMAL(10,4)        COMMENT '加购率',
+    ctor_sku_order              DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）',
+    dedup_exposure_count        BIGINT               COMMENT '去重商品曝光次数',
+    dedup_click_count           BIGINT               COMMENT '去重点击次数',
+    dedup_click_rate            DECIMAL(10,4)        COMMENT '去重点击率',
+    added_to_cart_user_count    BIGINT               COMMENT '已加购的用户数',
+    dedup_add_to_cart_rate      DECIMAL(10,4)        COMMENT '去重加购率',
+    dedup_click_to_order_rate   DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）',
+    gmv_with_tax                DECIMAL(20,4)        COMMENT '含税 GMV',
+    tax_amount                  DECIMAL(20,4)        COMMENT '税费',
+    tiktok_joint_venture_gmv    DECIMAL(20,4)        COMMENT 'GMV（TikTok 合资）',
+    shipping_fee                DECIMAL(20,4)        COMMENT '运费',
+    refund_amount               DECIMAL(20,4)        COMMENT '退款金额',
+    refunded_item_quantity      INT                  COMMENT '已退款的商品件数',
+    refund_customer_count       INT                  COMMENT '退款客户数',
+    mall_exposure_count         BIGINT               COMMENT '商城页商品曝光次数',
+    mall_click_count            BIGINT               COMMENT '商城页商品点击量',
+    mall_dedup_click_count      BIGINT               COMMENT '商城页去重商品点击量',
+    mall_estimated_customer_count INT                COMMENT '预计商城页客户数',
+    mall_click_rate             DECIMAL(10,4)        COMMENT '商城页点击率',
+    mall_click_to_order_rate    DECIMAL(10,4)        COMMENT '商城页点击成交转化率（SKU 订单）',
+    mall_gmv                    DECIMAL(20,4)        COMMENT '商城页 GMV',
+    mall_sold_quantity          INT                  COMMENT '商城页商品成交件数',
+    insert_time                 DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析全部表 ODS 层表（流量域，文件数据源，日增量，新版全部口径/偏美区格式）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ods-traffic-file-tiktok-product-live-di">3.8 ods_traffic_file_tiktok_product_live_di</h3>
+    <p>TikTok 商品数据分析-商家直播。对应文件 <code>bi/tkDashboard/销售/PID/docs/美区-数据分析-新excel/product_list_商家直播_20260419.xlsx</code>，<strong>第 3 行为列名</strong>，数据自第 4 行起。该表用于承接拆分后的商家直播导出文件，作为 PID 需求二数据看板的 ODS 输入之一。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名（Excel：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>GMV 区间</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>发品状态</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断</td></tr>
+          <tr><td>attributed_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
+          <tr><td>attributed_order_count</td><td>INT</td><td>归因订单数</td></tr>
+          <tr><td>attributed_sku_order_count</td><td>INT</td><td>归因 SKU 订单数</td></tr>
+          <tr><td>attributed_sold_quantity</td><td>INT</td><td>归因成交件数</td></tr>
+          <tr><td>estimated_customer_count</td><td>INT</td><td>预计客户数</td></tr>
+          <tr><td>attributed_aov</td><td>DECIMAL(20,4)</td><td>AOV（归因 SKU 订单）</td></tr>
+          <tr><td>new_live_session_count</td><td>INT</td><td>新直播场次</td></tr>
+          <tr><td>exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>click_count</td><td>BIGINT</td><td>商品点击量</td></tr>
+          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>商品点击率</td></tr>
+          <tr><td>add_to_cart_count</td><td>BIGINT</td><td>加购次数</td></tr>
+          <tr><td>add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率</td></tr>
+          <tr><td>ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）</td></tr>
+          <tr><td>dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数</td></tr>
+          <tr><td>dedup_click_count</td><td>BIGINT</td><td>去重点击次数</td></tr>
+          <tr><td>dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率</td></tr>
+          <tr><td>added_to_cart_user_count</td><td>BIGINT</td><td>已加购的用户数</td></tr>
+          <tr><td>dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率</td></tr>
+          <tr><td>dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_live_di (
+    smt                         INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                         VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                  VARCHAR(200)         COMMENT '店铺',
+    product_name                STRING               COMMENT '商品名',
+    product_id                  VARCHAR(200)         COMMENT '商品 ID',
+    gmv_range                   VARCHAR(200)         COMMENT 'GMV 区间',
+    product_status              VARCHAR(64)          COMMENT '发品状态',
+    voc_diagnosis               VARCHAR(200)         COMMENT 'VoC 诊断',
+    attributed_gmv              DECIMAL(20,4)        COMMENT '归因 GMV',
+    attributed_order_count      INT                  COMMENT '归因订单数',
+    attributed_sku_order_count  INT                  COMMENT '归因 SKU 订单数',
+    attributed_sold_quantity    INT                  COMMENT '归因成交件数',
+    estimated_customer_count    INT                  COMMENT '预计客户数',
+    attributed_aov              DECIMAL(20,4)        COMMENT 'AOV（归因 SKU 订单）',
+    new_live_session_count      INT                  COMMENT '新直播场次',
+    exposure_count              BIGINT               COMMENT '商品曝光次数',
+    click_count                 BIGINT               COMMENT '商品点击量',
+    click_rate                  DECIMAL(10,4)        COMMENT '商品点击率',
+    add_to_cart_count           BIGINT               COMMENT '加购次数',
+    add_to_cart_rate            DECIMAL(10,4)        COMMENT '加购率',
+    ctor_sku_order              DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）',
+    dedup_exposure_count        BIGINT               COMMENT '去重商品曝光次数',
+    dedup_click_count           BIGINT               COMMENT '去重点击次数',
+    dedup_click_rate            DECIMAL(10,4)        COMMENT '去重点击率',
+    added_to_cart_user_count    BIGINT               COMMENT '已加购的用户数',
+    dedup_add_to_cart_rate      DECIMAL(10,4)        COMMENT '去重加购率',
+    dedup_click_to_order_rate   DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）',
+    insert_time                 DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析商家直播表 ODS 层表（流量域，文件数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ods-traffic-file-tiktok-product-video-di">3.9 ods_traffic_file_tiktok_product_video_di</h3>
+    <p>TikTok 商品数据分析-商家视频。对应文件 <code>bi/tkDashboard/销售/PID/docs/美区-数据分析-新excel/product_list_商家视频_20260419.xlsx</code>，<strong>第 3 行为列名</strong>，数据自第 4 行起。该表用于承接拆分后的商家视频导出文件，作为 PID 需求二数据看板的 ODS 输入之一。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名（Excel：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>GMV 区间</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>发品状态</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断</td></tr>
+          <tr><td>attributed_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
+          <tr><td>attributed_order_count</td><td>INT</td><td>归因订单数</td></tr>
+          <tr><td>attributed_sku_order_count</td><td>INT</td><td>归因 SKU 订单数</td></tr>
+          <tr><td>attributed_sold_quantity</td><td>INT</td><td>归因成交件数</td></tr>
+          <tr><td>estimated_customer_count</td><td>INT</td><td>预计客户数</td></tr>
+          <tr><td>attributed_aov</td><td>DECIMAL(20,4)</td><td>AOV（归因 SKU 订单）</td></tr>
+          <tr><td>new_video_count</td><td>INT</td><td>新视频数</td></tr>
+          <tr><td>exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>click_count</td><td>BIGINT</td><td>商品点击量</td></tr>
+          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>商品点击率</td></tr>
+          <tr><td>add_to_cart_count</td><td>BIGINT</td><td>加购次数</td></tr>
+          <tr><td>add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率</td></tr>
+          <tr><td>ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）</td></tr>
+          <tr><td>dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数</td></tr>
+          <tr><td>dedup_click_count</td><td>BIGINT</td><td>去重点击次数</td></tr>
+          <tr><td>dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率</td></tr>
+          <tr><td>added_to_cart_user_count</td><td>BIGINT</td><td>已加购的用户数</td></tr>
+          <tr><td>dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率</td></tr>
+          <tr><td>dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_video_di (
+    smt                         INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                         VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                  VARCHAR(200)         COMMENT '店铺',
+    product_name                STRING               COMMENT '商品名',
+    product_id                  VARCHAR(200)         COMMENT '商品 ID',
+    gmv_range                   VARCHAR(200)         COMMENT 'GMV 区间',
+    product_status              VARCHAR(64)          COMMENT '发品状态',
+    voc_diagnosis               VARCHAR(200)         COMMENT 'VoC 诊断',
+    attributed_gmv              DECIMAL(20,4)        COMMENT '归因 GMV',
+    attributed_order_count      INT                  COMMENT '归因订单数',
+    attributed_sku_order_count  INT                  COMMENT '归因 SKU 订单数',
+    attributed_sold_quantity    INT                  COMMENT '归因成交件数',
+    estimated_customer_count    INT                  COMMENT '预计客户数',
+    attributed_aov              DECIMAL(20,4)        COMMENT 'AOV（归因 SKU 订单）',
+    new_video_count             INT                  COMMENT '新视频数',
+    exposure_count              BIGINT               COMMENT '商品曝光次数',
+    click_count                 BIGINT               COMMENT '商品点击量',
+    click_rate                  DECIMAL(10,4)        COMMENT '商品点击率',
+    add_to_cart_count           BIGINT               COMMENT '加购次数',
+    add_to_cart_rate            DECIMAL(10,4)        COMMENT '加购率',
+    ctor_sku_order              DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）',
+    dedup_exposure_count        BIGINT               COMMENT '去重商品曝光次数',
+    dedup_click_count           BIGINT               COMMENT '去重点击次数',
+    dedup_click_rate            DECIMAL(10,4)        COMMENT '去重点击率',
+    added_to_cart_user_count    BIGINT               COMMENT '已加购的用户数',
+    dedup_add_to_cart_rate      DECIMAL(10,4)        COMMENT '去重加购率',
+    dedup_click_to_order_rate   DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）',
+    insert_time                 DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析商家视频表 ODS 层表（流量域，文件数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ods-traffic-file-tiktok-product-card-di">3.10 ods_traffic_file_tiktok_product_card_di</h3>
+    <p>TikTok 商品数据分析-商家商品卡。对应文件 <code>bi/tkDashboard/销售/PID/docs/美区-数据分析-新excel/product_list_商家商品卡_20260427 (1).xlsx</code>，<strong>第 3 行为列名</strong>，数据自第 4 行起。该表用于承接拆分后的商家商品卡导出文件，作为 PID 需求二数据看板的 ODS 输入之一。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名（Excel：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>GMV 区间</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>发品状态</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断</td></tr>
+          <tr><td>attributed_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
+          <tr><td>attributed_order_count</td><td>INT</td><td>归因订单数</td></tr>
+          <tr><td>attributed_sku_order_count</td><td>INT</td><td>归因 SKU 订单数</td></tr>
+          <tr><td>attributed_sold_quantity</td><td>INT</td><td>归因成交件数</td></tr>
+          <tr><td>estimated_customer_count</td><td>INT</td><td>预计客户数</td></tr>
+          <tr><td>attributed_aov</td><td>DECIMAL(20,4)</td><td>AOV（归因 SKU 订单）</td></tr>
+          <tr><td>exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>click_count</td><td>BIGINT</td><td>商品点击量</td></tr>
+          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>商品点击率</td></tr>
+          <tr><td>add_to_cart_count</td><td>BIGINT</td><td>加购次数</td></tr>
+          <tr><td>add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率</td></tr>
+          <tr><td>ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）</td></tr>
+          <tr><td>dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数</td></tr>
+          <tr><td>dedup_click_count</td><td>BIGINT</td><td>去重点击次数</td></tr>
+          <tr><td>dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率</td></tr>
+          <tr><td>added_to_cart_user_count</td><td>BIGINT</td><td>已加购的用户数</td></tr>
+          <tr><td>dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率</td></tr>
+          <tr><td>dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_card_di (
+    smt                         INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                         VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                  VARCHAR(200)         COMMENT '店铺',
+    product_name                STRING               COMMENT '商品名',
+    product_id                  VARCHAR(200)         COMMENT '商品 ID',
+    gmv_range                   VARCHAR(200)         COMMENT 'GMV 区间',
+    product_status              VARCHAR(64)          COMMENT '发品状态',
+    voc_diagnosis               VARCHAR(200)         COMMENT 'VoC 诊断',
+    attributed_gmv              DECIMAL(20,4)        COMMENT '归因 GMV',
+    attributed_order_count      INT                  COMMENT '归因订单数',
+    attributed_sku_order_count  INT                  COMMENT '归因 SKU 订单数',
+    attributed_sold_quantity    INT                  COMMENT '归因成交件数',
+    estimated_customer_count    INT                  COMMENT '预计客户数',
+    attributed_aov              DECIMAL(20,4)        COMMENT 'AOV（归因 SKU 订单）',
+    exposure_count              BIGINT               COMMENT '商品曝光次数',
+    click_count                 BIGINT               COMMENT '商品点击量',
+    click_rate                  DECIMAL(10,4)        COMMENT '商品点击率',
+    add_to_cart_count           BIGINT               COMMENT '加购次数',
+    add_to_cart_rate            DECIMAL(10,4)        COMMENT '加购率',
+    ctor_sku_order              DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）',
+    dedup_exposure_count        BIGINT               COMMENT '去重商品曝光次数',
+    dedup_click_count           BIGINT               COMMENT '去重点击次数',
+    dedup_click_rate            DECIMAL(10,4)        COMMENT '去重点击率',
+    added_to_cart_user_count    BIGINT               COMMENT '已加购的用户数',
+    dedup_add_to_cart_rate      DECIMAL(10,4)        COMMENT '去重加购率',
+    dedup_click_to_order_rate   DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）',
+    insert_time                 DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析商家商品卡表 ODS 层表（流量域，文件数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ods-traffic-file-tiktok-product-affiliate-di">3.11 ods_traffic_file_tiktok_product_affiliate_di</h3>
+    <p>TikTok 商品数据分析-联盟。对应文件 <code>bi/tkDashboard/销售/PID/docs/美区-数据分析-新excel/product_list_联盟_20260427 (1).xlsx</code>，<strong>第 3 行为列名</strong>，数据自第 4 行起。该表用于承接拆分后的联盟导出文件，作为 PID 需求二数据看板的 ODS 输入之一。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>商品名（Excel：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>GMV 区间</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>发品状态</td></tr>
+          <tr><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>VoC 诊断</td></tr>
+          <tr><td>attributed_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
+          <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播归因 GMV</td></tr>
+          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>视频归因 GMV</td></tr>
+          <tr><td>attributed_order_count</td><td>INT</td><td>归因订单数</td></tr>
+          <tr><td>attributed_sku_order_count</td><td>INT</td><td>归因 SKU 订单数</td></tr>
+          <tr><td>attributed_sold_quantity</td><td>INT</td><td>归因成交件数</td></tr>
+          <tr><td>estimated_customer_count</td><td>INT</td><td>预计客户数</td></tr>
+          <tr><td>attributed_aov</td><td>DECIMAL(20,4)</td><td>AOV（归因 SKU 订单）</td></tr>
+          <tr><td>promoting_creators_metric_name_short_ui</td><td>INT</td><td>推广达人数量（Excel：promoting_creators_metric_name_short_ui）</td></tr>
+          <tr><td>new_live_session_count</td><td>INT</td><td>新直播场次</td></tr>
+          <tr><td>new_video_count</td><td>INT</td><td>新视频数</td></tr>
+          <tr><td>exposure_count</td><td>BIGINT</td><td>商品曝光次数</td></tr>
+          <tr><td>click_count</td><td>BIGINT</td><td>商品点击量</td></tr>
+          <tr><td>click_rate</td><td>DECIMAL(10,4)</td><td>商品点击率</td></tr>
+          <tr><td>add_to_cart_count</td><td>BIGINT</td><td>加购次数</td></tr>
+          <tr><td>add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率</td></tr>
+          <tr><td>ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）</td></tr>
+          <tr><td>dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数</td></tr>
+          <tr><td>dedup_click_count</td><td>BIGINT</td><td>去重点击次数</td></tr>
+          <tr><td>dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率</td></tr>
+          <tr><td>added_to_cart_user_count</td><td>BIGINT</td><td>已加购的用户数</td></tr>
+          <tr><td>dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率</td></tr>
+          <tr><td>dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）</td></tr>
+          <tr><td>live_exposure_count</td><td>BIGINT</td><td>商品曝光次数（直播）</td></tr>
+          <tr><td>live_click_count</td><td>BIGINT</td><td>商品点击量（直播）</td></tr>
+          <tr><td>live_ctr</td><td>DECIMAL(10,4)</td><td>CTR（直播）</td></tr>
+          <tr><td>live_add_to_cart_count</td><td>BIGINT</td><td>加购次数（直播）</td></tr>
+          <tr><td>live_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率（直播）</td></tr>
+          <tr><td>live_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）（直播）</td></tr>
+          <tr><td>live_dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数（直播）</td></tr>
+          <tr><td>live_dedup_click_count</td><td>BIGINT</td><td>去重点击次数（直播）</td></tr>
+          <tr><td>live_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率（直播）</td></tr>
+          <tr><td>live_atc_user_count</td><td>BIGINT</td><td>ATC 用户数（直播）</td></tr>
+          <tr><td>live_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率（直播）</td></tr>
+          <tr><td>live_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）（直播）</td></tr>
+          <tr><td>video_exposure_count</td><td>BIGINT</td><td>商品曝光次数（视频）</td></tr>
+          <tr><td>video_click_count</td><td>BIGINT</td><td>商品点击量（视频）</td></tr>
+          <tr><td>video_ctr</td><td>DECIMAL(10,4)</td><td>CTR（视频）</td></tr>
+          <tr><td>video_add_to_cart_count</td><td>BIGINT</td><td>加购次数（视频）</td></tr>
+          <tr><td>video_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>加购率（视频）</td></tr>
+          <tr><td>video_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>CTOR（SKU 订单）（视频）</td></tr>
+          <tr><td>video_dedup_exposure_count</td><td>BIGINT</td><td>去重商品曝光次数（视频）</td></tr>
+          <tr><td>video_dedup_click_count</td><td>BIGINT</td><td>去重点击次数（视频）</td></tr>
+          <tr><td>video_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>去重点击率（视频）</td></tr>
+          <tr><td>video_atc_user_count</td><td>BIGINT</td><td>ATC 用户数（视频）</td></tr>
+          <tr><td>video_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>去重加购率（视频）</td></tr>
+          <tr><td>video_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>去重点击成交转化率（SKU 订单）（视频）</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id)</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_affiliate_di (
+    smt                              INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                              VARCHAR(8)           COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                       VARCHAR(200)         COMMENT '店铺',
+    product_name                     STRING               COMMENT '商品名',
+    product_id                       VARCHAR(200)         COMMENT '商品 ID',
+    gmv_range                        VARCHAR(200)         COMMENT 'GMV 区间',
+    product_status                   VARCHAR(64)          COMMENT '发品状态',
+    voc_diagnosis                    VARCHAR(200)         COMMENT 'VoC 诊断',
+    attributed_gmv                   DECIMAL(20,4)        COMMENT '归因 GMV',
+    live_gmv                         DECIMAL(20,4)        COMMENT '直播归因 GMV',
+    video_gmv                        DECIMAL(20,4)        COMMENT '视频归因 GMV',
+    attributed_order_count           INT                  COMMENT '归因订单数',
+    attributed_sku_order_count       INT                  COMMENT '归因 SKU 订单数',
+    attributed_sold_quantity         INT                  COMMENT '归因成交件数',
+    estimated_customer_count         INT                  COMMENT '预计客户数',
+    attributed_aov                   DECIMAL(20,4)        COMMENT 'AOV（归因 SKU 订单）',
+    promoting_creators_metric_name_short_ui INT           COMMENT '推广达人数量',
+    new_live_session_count           INT                  COMMENT '新直播场次',
+    new_video_count                  INT                  COMMENT '新视频数',
+    exposure_count                   BIGINT               COMMENT '商品曝光次数',
+    click_count                      BIGINT               COMMENT '商品点击量',
+    click_rate                       DECIMAL(10,4)        COMMENT '商品点击率',
+    add_to_cart_count                BIGINT               COMMENT '加购次数',
+    add_to_cart_rate                 DECIMAL(10,4)        COMMENT '加购率',
+    ctor_sku_order                   DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）',
+    dedup_exposure_count             BIGINT               COMMENT '去重商品曝光次数',
+    dedup_click_count                BIGINT               COMMENT '去重点击次数',
+    dedup_click_rate                 DECIMAL(10,4)        COMMENT '去重点击率',
+    added_to_cart_user_count         BIGINT               COMMENT '已加购的用户数',
+    dedup_add_to_cart_rate           DECIMAL(10,4)        COMMENT '去重加购率',
+    dedup_click_to_order_rate        DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）',
+    live_exposure_count              BIGINT               COMMENT '商品曝光次数（直播）',
+    live_click_count                 BIGINT               COMMENT '商品点击量（直播）',
+    live_ctr                         DECIMAL(10,4)        COMMENT 'CTR（直播）',
+    live_add_to_cart_count           BIGINT               COMMENT '加购次数（直播）',
+    live_add_to_cart_rate            DECIMAL(10,4)        COMMENT '加购率（直播）',
+    live_ctor_sku_order              DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）（直播）',
+    live_dedup_exposure_count        BIGINT               COMMENT '去重商品曝光次数（直播）',
+    live_dedup_click_count           BIGINT               COMMENT '去重点击次数（直播）',
+    live_dedup_click_rate            DECIMAL(10,4)        COMMENT '去重点击率（直播）',
+    live_atc_user_count              BIGINT               COMMENT 'ATC 用户数（直播）',
+    live_dedup_add_to_cart_rate      DECIMAL(10,4)        COMMENT '去重加购率（直播）',
+    live_dedup_click_to_order_rate   DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）（直播）',
+    video_exposure_count             BIGINT               COMMENT '商品曝光次数（视频）',
+    video_click_count                BIGINT               COMMENT '商品点击量（视频）',
+    video_ctr                        DECIMAL(10,4)        COMMENT 'CTR（视频）',
+    video_add_to_cart_count          BIGINT               COMMENT '加购次数（视频）',
+    video_add_to_cart_rate           DECIMAL(10,4)        COMMENT '加购率（视频）',
+    video_ctor_sku_order             DECIMAL(10,4)        COMMENT 'CTOR（SKU 订单）（视频）',
+    video_dedup_exposure_count       BIGINT               COMMENT '去重商品曝光次数（视频）',
+    video_dedup_click_count          BIGINT               COMMENT '去重点击次数（视频）',
+    video_dedup_click_rate           DECIMAL(10,4)        COMMENT '去重点击率（视频）',
+    video_atc_user_count             BIGINT               COMMENT 'ATC 用户数（视频）',
+    video_dedup_add_to_cart_rate     DECIMAL(10,4)        COMMENT '去重加购率（视频）',
+    video_dedup_click_to_order_rate  DECIMAL(10,4)        COMMENT '去重点击成交转化率（SKU 订单）（视频）',
+    insert_time                      DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析联盟表 ODS 层表（流量域，文件数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ods-marketing-file-tiktok-campaign-di">3.12 ods_marketing_file_tiktok_campaign_di</h3>
     <p>TikTok「实时推广系列数据」导出（Product campaign）。导出 Excel <strong>第 1 行为列名</strong>（共 12 列），数据自第 2 行起。示例：<code>bi/tkDashboard/PID/docs/实时推广系列数据 2026-03-28 - 2026-03-28.xlsx</code>。<code>smt</code>、<code>sdt</code>、<code>store_name</code> 由文件名或调度写入。广告计划名称以 <code>-</code> 分段时，<strong>末段为数字</strong>可视为 PID，与商品数据分析表 <code>product_id</code> 关联。字段与 <code>接口设计文档/接口文档.html</code>「3.0.1 贴源表」一致。</p>
     <div class="table-wrap">
       <table>
@@ -1064,7 +1630,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.8 ods_traffic_file_tiktok_video_performance_di</h3>
+    <h3 id="tbl-ods-traffic-file-tiktok-video-performance-di">3.13 ods_traffic_file_tiktok_video_performance_di</h3>
     <p>TikTok「直播和视频数据分析」导出（Video Performance）。导出 Excel <strong>第 3 行为列名</strong>（共 25 列），第 1 行多为日期范围，数据自第 4 行起。示例：<code>bi/tkDashboard/PID/docs/直播和视频数据分析_20260330053533.xlsx</code>。<code>商品</code> 与全渠道商品标题对齐做挂车；<code>creator_id</code> 与 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 关联区分商务/剪辑挂车。字段与 <code>接口设计文档/接口文档.html</code>「3.0.2 贴源表」一致。</p>
     <div class="table-wrap">
       <table>
@@ -1163,7 +1729,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>3.9 ods_platform_file_tiktok_account_df</h3>
+    <h3 id="tbl-ods-platform-file-tiktok-account-df">3.14 ods_platform_file_tiktok_account_df</h3>
     <p>TikTok 账号信息（达人列表，手动导入/飞书 API）。用于区分商务挂车与剪辑挂车。</p>
     <div class="table-wrap">
       <table>
@@ -1198,7 +1764,7 @@ PROPERTIES (
 
     <h2 id="sec-3">四、DWD 层表结构</h2>
 
-    <h3>4.1 dwd_sales_amount_detail_market_realtime</h3>
+    <h3 id="tbl-dwd-sales-amount-detail-market-realtime">4.1 dwd_sales_amount_detail_market_realtime</h3>
     <p>销售额明细表-准实时，TikTok 与积加全渠道订单由准实时任务（约 10 分钟）写入本表；准实时 DWS/ADS 及销量趋势均从本表取数。分区字段 <code>smt</code>、<code>sdt</code>、<code>sht</code> 从 <code>order_date_market</code> / <code>order_time_market</code> 计算；含 <code>insert_time</code>，UNIQUE KEY 合并时使用 <code>function_column.sequence_col = "last_update_time"</code>。</p>
 
     <h4>DDL</h4>
@@ -1317,7 +1883,7 @@ PROPERTIES (
     <h4>表实现（TikTok + Shopify 合并写入）</h4>
     <p>实现参考 <code>ms-warehouse-batch-data/hours/sales/dwd/dwd_sales_amount_detail_market_hour_di.sql</code> 的 TikTok 逻辑，目标表改为 <code>dwd_sales_amount_detail_market_realtime</code>，并与积加全渠道（Shopify）分支 <code>UNION ALL</code> 后一次写入。参数：<code>currentMonthPrev</code>、<code>currentMonth</code>、<code>currentDatePrev</code>、<code>currentDate</code>、<code>currentHourPrev</code>、<code>currentHourCurr</code>。TikTok 来源表为 ODS <code>ods_trade_api_tiktok_order_di</code>，<code>data_source=2</code>；Shopify 使用 <code>ods_sales_api_jijia_omnichannel_order_di</code>，<code>data_source=1</code>。</p>
 
-    <h3>4.2 dwd_sales_order_item_market_wide_realtime</h3>
+    <h3 id="tbl-dwd-sales-order-item-market-wide-realtime">4.2 dwd_sales_order_item_market_wide_realtime</h3>
     <p>全渠道订单商品大宽表-准实时，以 <strong>ASIN</strong> 为维度，由 <code>ods_sales_api_jijia_omnichannel_order_item_di</code> 关联订单表、商品表产出。含订单下单时间、市场分区（smt/sdt 从下单时间推导）、市场/店铺、商品层级（PID/SPU）等，约 10 分钟刷新，供销量趋势、GMV 计算等下游使用。</p>
     <div class="table-wrap">
       <table>
@@ -1398,7 +1964,7 @@ PROPERTIES (
     <h2 id="sec-dws">五、DWS 层表结构</h2>
     <p>店铺汇总中间层：<code>dws_sales_store_market_realtime</code> 为准实时店铺汇总，<code>dws_sales_store_site_market_realtime</code> 为准实时店铺站点汇总（站点粒度）。<code>dws_sales_pid_gmv_realtime</code> 为 PID 维度 GMV 日汇总，对应 ads_sales_pid_gmv_calc_realtime。</p>
 
-    <h3>5.1 dws_sales_store_market_realtime（准实时）</h3>
+    <h3 id="tbl-dws-sales-store-market-realtime">5.1 dws_sales_store_market_realtime（准实时）</h3>
     <p>店铺销售额准实时汇总表，用于准实时看板/播报，约 10 分钟刷新。</p>
     <div class="table-wrap">
       <table>
@@ -1488,7 +2054,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>5.2 dws_sales_store_site_market_realtime（店铺站点准实时）</h3>
+    <h3 id="tbl-dws-sales-store-site-market-realtime">5.2 dws_sales_store_site_market_realtime（店铺站点准实时）</h3>
     <p>店铺站点销售额准实时汇总表，参考 <code>dws_sales_store_market_realtime</code>，粒度到<strong>店铺站点</strong>（store_site）。按店铺+站点+项目+平台+数据来源+日期汇总订单数、支付订单数、各金额指标等，约 10 分钟刷新。来源：dwd_sales_amount_detail_market_realtime 按 sdt+store_site 维度聚合。</p>
     <div class="table-wrap">
       <table>
@@ -1586,7 +2152,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>5.3 dws_sales_pid_gmv_realtime（准实时）</h3>
+    <h3 id="tbl-dws-sales-pid-gmv-realtime">5.3 dws_sales_pid_gmv_realtime（准实时）</h3>
     <p>PID 维度 GMV 准实时汇总表，约 10 分钟刷新，对应 <code>ads_sales_pid_gmv_calc_realtime</code>。由 <code>dwd_sales_order_item_market_wide_realtime</code> 按 market_id、pid、sdt 聚合，产出 order_quantity、sale_qty、paid_amount、atv 等。ADS 层直接使用本表或基于本表做轻量加工。</p>
     <div class="table-wrap">
       <table>
@@ -1636,7 +2202,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>5.4 dws_sales_pid_gmv_calc_realtime_detail（准实时 / GMV 计算明细）</h3>
+    <h3 id="tbl-dws-sales-pid-gmv-calc-realtime-detail">5.4 dws_sales_pid_gmv_calc_realtime_detail（准实时 / GMV 计算明细）</h3>
     <p>PID 维度 GMV 计算明细表，按店铺 + PID + 日期聚合，补齐 GMV 计算表所需的营业总额/折扣/运费/实付等口径字段，供数据看板引用。实现逻辑见 <code>bi/tkDashboard/PID/需求文档.html</code>「需求一：GMV 计算表」映射规则。</p>
     <div class="table-wrap">
       <table>
@@ -1708,7 +2274,7 @@ PROPERTIES (
 
     <h2 id="sec-4">六、ADS 层表结构</h2>
 
-    <h3>6.1 ads_sales_pid_gmv_calc_realtime（准实时）</h3>
+    <h3 id="tbl-ads-sales-pid-gmv-calc-realtime">6.1 ads_sales_pid_gmv_calc_realtime（准实时）</h3>
     <p>PID 维度 GMV 计算表，准实时约 10 分钟刷新。需求一产出，供数据看板使用。业务字段与《销售数据映射 — 需求文档》TK-独立站数据销量趋势数据映射一致，来源 <code>dws_sales_pid_gmv_realtime</code>。</p>
     <div class="table-wrap">
       <table>
@@ -1759,7 +2325,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>6.2 ads_sales_pid_dashboard_1d</h3>
+    <h3 id="tbl-ads-sales-pid-dashboard-1d">6.2 ads_sales_pid_dashboard_1d</h3>
     <p>PID 维度数据看板。需求二产出，支持按日期、店铺、PID 筛选。业务字段与接口文档 3.2 主表 <code>list[]</code> 及<code>需求二-数据看板.html</code>表头 51 列一致（序号 1～51，4 为分析操作列不落库），snake_case 命名。</p>
     <div class="table-wrap">
       <table>
@@ -1894,7 +2460,7 @@ PROPERTIES (
     "replication_allocation" = "tag.location.default: 1"
 );</code></pre>
 
-    <h3>6.3 dim_sales_pid_main_spu_mapping_df</h3>
+    <h3 id="tbl-dim-sales-pid-main-spu-mapping-df">6.3 dim_sales_pid_main_spu_mapping_df</h3>
     <p>PID 与主推SPU维护映射维表。用于支撑 <code>销售/PID/htmls/数据看板-1.1.html</code> 页面中的「PID与主推SPU维护」弹框。该表按 <code>sdt + 店铺 + PID</code> 保存每日全量快照，因此既能支撑页面默认读取最新快照，也能按 <code>sdt</code> 回看历史映射。</p>
     <div class="table-wrap">
       <table>
@@ -1929,7 +2495,7 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3>6.4 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
+    <h3 id="tbl-ads-sales-store-site-order-count-realtime">6.4 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
     <p>按店铺站点维度的订单数与金额准实时播报表，<strong>播报为站点层级</strong>，直接使用本表。约 10 分钟刷新，保留历史数据；每日播报与准实时看板均按 sdt 取当日各站点 order_count、valid_order_count、sample_order_count、paid_amount。</p>
     <div class="table-wrap">
       <table>
@@ -1983,7 +2549,7 @@ PROPERTIES (
           <tr><td>ads_sales_pid_gmv_calc_realtime</td><td>dws_sales_pid_gmv_realtime</td></tr>
           <tr><td>dws_sales_pid_gmv_realtime</td><td>dwd_sales_order_item_market_wide_realtime</td></tr>
           <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
-          <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
+          <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
           <tr><td>ads_sales_store_site_order_count_realtime</td><td>dws_sales_store_site_market_realtime</td></tr>
           <tr><td>dim_sales_pid_main_spu_mapping_df</td><td>业务后台维护结果（日全量快照，按 sdt 保留历史）</td></tr>
         </tbody>
@@ -2038,9 +2604,10 @@ PROPERTIES (
       <p class="meta">产出表：<code>ads_sales_pid_dashboard_1d</code>（见第六节 6.2）</p>
       <h4>规则</h4>
       <ul>
-        <li><strong>底表</strong>：product_list（ID 即 PID）</li>
+        <li><strong>底表</strong>：老版使用 <code>ods_traffic_file_tiktok_product_list_di</code>（product_list，兼容旧格式）；新版拆分为 <code>ods_traffic_file_tiktok_product_all_di</code>、<code>ods_traffic_file_tiktok_product_live_di</code>、<code>ods_traffic_file_tiktok_product_video_di</code>、<code>ods_traffic_file_tiktok_product_card_di</code>、<code>ods_traffic_file_tiktok_product_affiliate_di</code></li>
         <li><strong>关联</strong>：全渠道商品表、GMV 计算表、Product campaign data、Video Performance List、tk 账号信息</li>
       </ul>
+      <p class="meta">说明：本次先在表结构设计文档中补齐 5 张新增 ODS 的命名与占位说明，字段结构和 DDL 后续再补充。</p>
       <h4>挂车量</h4>
       <ul>
         <li><strong>商务挂车</strong>：video.product_name = product.product_title，且 creator_id 不在达人列表</li>
