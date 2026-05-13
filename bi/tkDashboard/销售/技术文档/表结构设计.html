@@ -97,10 +97,12 @@
           <tr><td><span class="layer-badge layer-dim">DIM</span></td><td><a href="#tbl-dim-sales-pid-main-spu-mapping-df">dim_sales_pid_main_spu_mapping_df</a></td><td>店铺 + PID 对应主推SPU映射维表（按 sdt 保留历史的日全量快照）</td><td>PID 需求二 1.1（PID与主推SPU维护）</td></tr>
           <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td><a href="#tbl-dwd-sales-amount-detail-market-realtime">dwd_sales_amount_detail_market_realtime</a></td><td>销售额明细-准实时（约 10 分钟更新）</td><td>准实时订单数/金额、销售需求二</td></tr>
           <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td><a href="#tbl-dwd-sales-order-item-market-wide-realtime">dwd_sales_order_item_market_wide_realtime</a></td><td>全渠道订单商品大宽表-准实时（以 ASIN 为维度，含下单时间、市场分区，约 10 分钟更新）</td><td>PID 需求一、销售需求一/二</td></tr>
+          <tr><td><span class="layer-badge layer-dwd">DWD</span></td><td><a href="#tbl-dwd-sales-pid-dashboard-wide-di">dwd_sales_pid_dashboard_wide_di</a></td><td>PID 维度数据看板大宽表（日增量）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-market-realtime">dws_sales_store_market_realtime</a></td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-site-market-realtime">dws_sales_store_site_market_realtime</a></td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-realtime">dws_sales_pid_gmv_realtime</a></td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-calc-realtime-detail">dws_sales_pid_gmv_calc_realtime_detail</a></td><td>PID 维度 GMV 计算明细表（按店铺+PID+日期聚合，含补贴/折扣/运费/实付等口径）</td><td>PID 需求一（GMV计算）/ 需求二（数据看板）</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-dashboard-1d">dws_sales_pid_dashboard_1d</a></td><td>PID 维度数据看板 DWS 层（日粒度）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-gmv-calc-realtime">ads_sales_pid_gmv_calc_realtime</a></td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-dashboard-1d">ads_sales_pid_dashboard_1d</a></td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-store-site-order-count-realtime">ads_sales_store_site_order_count_realtime</a></td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
@@ -1959,6 +1961,175 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
+    <h3 id="tbl-dwd-sales-pid-dashboard-wide-di">4.3 dwd_sales_pid_dashboard_wide_di</h3>
+    <p>PID 维度数据看板大宽表（日增量）。该表以 <code>product_list</code> 口径为底，关联商品映射、GMV 计算、广告推广、视频表现、账号信息等数据源，作为 <code>dws_sales_pid_dashboard_1d</code> 与 <code>ads_sales_pid_dashboard_1d</code> 的上游宽表。现有正式 DDL 参考 <code>ms-warehouse-batch-data/ddl/sales/dwd/dwd_sales_pid_dashboard_wide_di.sql</code>。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（product_list.product_id）</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
+          <tr><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
+          <tr><td>deal_qty</td><td>INT</td><td>成交件数</td></tr>
+          <tr><td>order_qty</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
+          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
+          <tr><td>card_gmv_ratio</td><td>VARCHAR(20)</td><td>商品卡 GMV 占比</td></tr>
+          <tr><td>live_gmv_ratio</td><td>VARCHAR(20)</td><td>直播 GMV 占比</td></tr>
+          <tr><td>video_gmv_ratio</td><td>VARCHAR(20)</td><td>短视频 GMV 占比</td></tr>
+          <tr><td>card_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡商品交易总额</td></tr>
+          <tr><td>card_deal_qty</td><td>INT</td><td>商品卡成交件数</td></tr>
+          <tr><td>card_atv</td><td>DECIMAL(20,2)</td><td>商品卡客单价</td></tr>
+          <tr><td>card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
+          <tr><td>card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
+          <tr><td>card_uv_view</td><td>BIGINT</td><td>商品卡去重浏览</td></tr>
+          <tr><td>card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
+          <tr><td>card_click_rate</td><td>DECIMAL(20,4)</td><td>商品卡点击率</td></tr>
+          <tr><td>card_convert_rate</td><td>DECIMAL(20,4)</td><td>商品卡转化率</td></tr>
+          <tr><td>card_video_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡短视频商品交易总额</td></tr>
+          <tr><td>video_deal_qty</td><td>INT</td><td>短视频成交件数</td></tr>
+          <tr><td>video_atv</td><td>DECIMAL(20,2)</td><td>短视频客单价</td></tr>
+          <tr><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
+          <tr><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
+          <tr><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
+          <tr><td>video_click_rate</td><td>VARCHAR(20)</td><td>视频点击率</td></tr>
+          <tr><td>video_convert_rate</td><td>VARCHAR(20)</td><td>视频转化率</td></tr>
+          <tr><td>biz_hanger_qty</td><td>INT</td><td>商务挂车量</td></tr>
+          <tr><td>edit_hanger_qty</td><td>INT</td><td>剪辑挂车量</td></tr>
+          <tr><td>total_hanger_qty</td><td>INT</td><td>合计挂车量</td></tr>
+          <tr><td>biz_open_video_qty</td><td>INT</td><td>商务开单视频</td></tr>
+          <tr><td>edit_open_video_qty</td><td>INT</td><td>剪辑开单视频</td></tr>
+          <tr><td>total_open_video_qty</td><td>INT</td><td>开单视频合计</td></tr>
+          <tr><td>vas_consume</td><td>DECIMAL(20,4)</td><td>VSA 消耗</td></tr>
+          <tr><td>gmvmax_consume</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
+          <tr><td>ad_total_consume</td><td>DECIMAL(20,4)</td><td>广告总消耗（VSA 消耗 + GMVMAX 消耗）</td></tr>
+          <tr><td>ad_order_count</td><td>INT</td><td>实际单量（DWD 默认 0）</td></tr>
+          <tr><td>ad_order_qty</td><td>INT</td><td>广告订单数</td></tr>
+          <tr><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
+          <tr><td>ad_roi</td><td>DECIMAL(20,4)</td><td>广告 ROI（测算）</td></tr>
+          <tr><td>ad_acoas</td><td>DECIMAL(20,4)</td><td>广告 AcoAs（广告总消耗/广告 GMV*100%）</td></tr>
+          <tr><td>ad_roi_setting_count</td><td>INT</td><td>广告 ROI 设置数</td></tr>
+          <tr><td>expert_video_gmv</td><td>DECIMAL(20,4)</td><td>达人视频 GMV；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_exposure</td><td>BIGINT</td><td>直播总曝光次数；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_exposure</td><td>BIGINT</td><td>达人直播曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_exposure</td><td>BIGINT</td><td>达人视频曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_click_rate</td><td>VARCHAR(20)</td><td>直播总点击率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_click_rate</td><td>VARCHAR(20)</td><td>达人直播点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_click_rate</td><td>VARCHAR(20)</td><td>达人视频点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_convert_rate</td><td>VARCHAR(20)</td><td>直播总转化率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_convert_rate</td><td>VARCHAR(20)</td><td>达人直播转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_convert_rate</td><td>VARCHAR(20)</td><td>达人视频转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, pid) | 来源：product_list + 全渠道商品 + ads_sales_pid_gmv_calc_realtime + Product campaign data + Video Performance + TikTok 账号；1.2 新增字段仅美区店铺生效，非美区沿用原直播/短视频口径</p>
+    <p class="meta">原始 DDL 文件：<code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl/sales/dwd/dwd_sales_pid_dashboard_wide_di.sql</code>。本节在原始字段基础上补充 1.2 美区新增字段，便于与页面 <code>销售/PID/htmls/数据看板-1.2.html</code> 对齐。</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dwd.dwd_sales_pid_dashboard_wide_di (
+    smt                      INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                      VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
+    store_name               VARCHAR(200)         COMMENT '店铺名称',
+    pid                      VARCHAR(200)         COMMENT 'PID（product_list.product_id）',
+    spu                      VARCHAR(200)         COMMENT '主推 SPU',
+    trade_amount             DECIMAL(20,4)        COMMENT '商品交易总额',
+    deal_qty                 INT                  COMMENT '成交件数',
+    order_qty                INT                  COMMENT '订单数',
+    card_gmv                 DECIMAL(20,4)        COMMENT '商品卡 GMV',
+    live_gmv                 DECIMAL(20,4)        COMMENT '直播 GMV',
+    video_gmv                DECIMAL(20,4)        COMMENT '短视频 GMV',
+    card_gmv_ratio           VARCHAR(20)          COMMENT '商品卡 GMV 占比',
+    live_gmv_ratio           VARCHAR(20)          COMMENT '直播 GMV 占比',
+    video_gmv_ratio          VARCHAR(20)          COMMENT '短视频 GMV 占比',
+    card_trade_amount        DECIMAL(20,4)        COMMENT '商品卡商品交易总额',
+    card_deal_qty            INT                  COMMENT '商品卡成交件数',
+    card_atv                 DECIMAL(20,2)        COMMENT '商品卡-客单价',
+    card_exposure            BIGINT               COMMENT '商品卡曝光',
+    card_page_view           BIGINT               COMMENT '商品卡页面浏览次数',
+    card_uv_view             BIGINT               COMMENT '商品卡去重浏览',
+    card_uv_user             BIGINT               COMMENT '商品卡去重客户',
+    card_click_rate          DECIMAL(20,4)        COMMENT '商品卡点击率',
+    card_convert_rate        DECIMAL(20,4)        COMMENT '商品卡转化率',
+    card_video_trade_amount  DECIMAL(20,4)        COMMENT '商品卡短视频商品交易总额',
+    video_deal_qty           INT                  COMMENT '短视频成交件数',
+    video_atv                DECIMAL(20,2)        COMMENT '短视频-客单价',
+    video_exposure           BIGINT               COMMENT '视频曝光次数',
+    video_page_view          BIGINT               COMMENT '来自视频的页面浏览次数',
+    video_uv_view            BIGINT               COMMENT '来自视频的去重页面浏览次数',
+    video_uv_user            BIGINT               COMMENT '视频去重商品客户数',
+    video_click_rate         VARCHAR(20)          COMMENT '视频点击率',
+    video_convert_rate       VARCHAR(20)          COMMENT '视频转化率',
+    biz_hanger_qty           INT                  COMMENT '商务挂车量',
+    edit_hanger_qty          INT                  COMMENT '剪辑挂车量',
+    total_hanger_qty         INT                  COMMENT '合计挂车量',
+    biz_open_video_qty       INT                  COMMENT '商务开单视频',
+    edit_open_video_qty      INT                  COMMENT '剪辑开单视频',
+    total_open_video_qty     INT                  COMMENT '开单视频合计',
+    vas_consume              DECIMAL(20,4)        COMMENT 'VSA 消耗',
+    gmvmax_consume           DECIMAL(20,4)        COMMENT 'GMVMAX 消耗',
+    ad_total_consume         DECIMAL(20,4)        COMMENT '广告总消耗（VSA 消耗 + GMVMAX 消耗）',
+    ad_order_count           INT                  COMMENT '实际单量（DWD 默认 0）',
+    ad_order_qty             INT                  COMMENT '广告订单数',
+    ad_gmv                   DECIMAL(20,4)        COMMENT '广告 GMV',
+    ad_roi                   DECIMAL(20,4)        COMMENT '广告 ROI（测算）',
+    ad_acoas                 DECIMAL(20,4)        COMMENT '广告 AcoAs（广告总消耗/广告 GMV*100%）',
+    ad_roi_setting_count     INT                  COMMENT '广告 ROI 设置数',
+    expert_video_gmv         DECIMAL(20,4)        COMMENT '达人视频 GMV（1.2 新增，仅美区店铺生效）',
+    live_total_exposure      BIGINT               COMMENT '直播总曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_live_exposure     BIGINT               COMMENT '达人直播曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_video_exposure    BIGINT               COMMENT '达人视频曝光次数（1.2 新增，仅美区店铺生效）',
+    live_total_click_rate    VARCHAR(20)          COMMENT '直播总点击率（1.2 新增，仅美区店铺生效）',
+    expert_live_click_rate   VARCHAR(20)          COMMENT '达人直播点击率（1.2 新增，仅美区店铺生效）',
+    expert_video_click_rate  VARCHAR(20)          COMMENT '达人视频点击率（1.2 新增，仅美区店铺生效）',
+    live_total_convert_rate  VARCHAR(20)          COMMENT '直播总转化率（1.2 新增，仅美区店铺生效）',
+    expert_live_convert_rate VARCHAR(20)          COMMENT '达人直播转化率（1.2 新增，仅美区店铺生效）',
+    expert_video_convert_rate VARCHAR(20)         COMMENT '达人视频转化率（1.2 新增，仅美区店铺生效）',
+    insert_time              DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, pid)
+COMMENT 'PID 维度数据看板大宽表（销售域，以 product_list 为底表，关联商品/GMV/广告/视频/账号，供 dws_sales_pid_dashboard_1d 与 ads_sales_pid_dashboard_1d 使用）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202401 VALUES [("202401"), ("202402")),
+    PARTITION p202402 VALUES [("202402"), ("202403")),
+    PARTITION p202403 VALUES [("202403"), ("202404")),
+    PARTITION p202404 VALUES [("202404"), ("202405")),
+    PARTITION p202405 VALUES [("202405"), ("202406")),
+    PARTITION p202406 VALUES [("202406"), ("202407")),
+    PARTITION p202407 VALUES [("202407"), ("202408")),
+    PARTITION p202408 VALUES [("202408"), ("202409")),
+    PARTITION p202409 VALUES [("202409"), ("202410")),
+    PARTITION p202410 VALUES [("202410"), ("202411")),
+    PARTITION p202411 VALUES [("202411"), ("202412")),
+    PARTITION p202412 VALUES [("202412"), ("202501")),
+    PARTITION p202501 VALUES [("202501"), ("202502")),
+    PARTITION p202502 VALUES [("202502"), ("202503")),
+    PARTITION p202503 VALUES [("202503"), ("202504")),
+    PARTITION p202504 VALUES [("202504"), ("202505")),
+    PARTITION p202505 VALUES [("202505"), ("202506")),
+    PARTITION p202506 VALUES [("202506"), ("202507")),
+    PARTITION p202507 VALUES [("202507"), ("202508")),
+    PARTITION p202508 VALUES [("202508"), ("202509")),
+    PARTITION p202509 VALUES [("202509"), ("202510")),
+    PARTITION p202510 VALUES [("202510"), ("202511")),
+    PARTITION p202511 VALUES [("202511"), ("202512")),
+    PARTITION p202512 VALUES [("202512"), ("202601")),
+    PARTITION p202601 VALUES [("202601"), ("202602")),
+    PARTITION p202602 VALUES [("202602"), ("202603")),
+    PARTITION p202603 VALUES [("202603"), ("202604")),
+    PARTITION p202604 VALUES [("202604"), ("202605")),
+    PARTITION p202605 VALUES [("202605"), ("202606"))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
     <hr />
 
     <h2 id="sec-dws">五、DWS 层表结构</h2>
@@ -2270,6 +2441,173 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
+    <h3 id="tbl-dws-sales-pid-dashboard-1d">5.5 dws_sales_pid_dashboard_1d</h3>
+    <p>PID 维度数据看板 DWS 层（日粒度）。该表作为 ADS 数据看板主表的中间层，结构与 <code>ads_sales_pid_dashboard_1d</code> 保持一致。现有正式 DDL 参考 <code>ms-warehouse-batch-data/ddl/sales/dws/dws_sales_pid_dashboard_1d.sql</code>；本次同时补充 1.2 美区新增字段设计。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，格式：YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
+          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价</td></tr>
+          <tr><td>subsidy_per</td><td>DECIMAL(20,4)</td><td>平均补贴/单</td></tr>
+          <tr><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务 GMV</td></tr>
+          <tr><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
+          <tr><td>deal_qty</td><td>INT</td><td>成交件数</td></tr>
+          <tr><td>order_qty</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
+          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
+          <tr><td>card_gmv_ratio</td><td>VARCHAR(20)</td><td>商品卡 GMV 占比</td></tr>
+          <tr><td>live_gmv_ratio</td><td>VARCHAR(20)</td><td>直播 GMV 占比</td></tr>
+          <tr><td>video_gmv_ratio</td><td>VARCHAR(20)</td><td>短视频 GMV 占比</td></tr>
+          <tr><td>card_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡商品交易总额</td></tr>
+          <tr><td>card_deal_qty</td><td>INT</td><td>商品卡成交件数</td></tr>
+          <tr><td>card_atv</td><td>DECIMAL(20,2)</td><td>商品卡客单价</td></tr>
+          <tr><td>card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
+          <tr><td>card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
+          <tr><td>card_uv_view</td><td>BIGINT</td><td>商品卡去重浏览</td></tr>
+          <tr><td>card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
+          <tr><td>card_click_rate</td><td>DECIMAL(20,4)</td><td>商品卡点击率</td></tr>
+          <tr><td>card_convert_rate</td><td>DECIMAL(20,4)</td><td>商品卡转化率</td></tr>
+          <tr><td>card_video_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡短视频商品交易总额</td></tr>
+          <tr><td>video_deal_qty</td><td>INT</td><td>短视频成交件数</td></tr>
+          <tr><td>video_atv</td><td>DECIMAL(20,2)</td><td>短视频客单价</td></tr>
+          <tr><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
+          <tr><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
+          <tr><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
+          <tr><td>video_click_rate</td><td>VARCHAR(20)</td><td>视频点击率</td></tr>
+          <tr><td>video_convert_rate</td><td>VARCHAR(20)</td><td>视频转化率</td></tr>
+          <tr><td>biz_hanger_qty</td><td>INT</td><td>商务挂车量</td></tr>
+          <tr><td>edit_hanger_qty</td><td>INT</td><td>剪辑挂车量</td></tr>
+          <tr><td>total_hanger_qty</td><td>INT</td><td>合计挂车量</td></tr>
+          <tr><td>biz_open_video_qty</td><td>INT</td><td>商务开单视频</td></tr>
+          <tr><td>edit_open_video_qty</td><td>INT</td><td>剪辑开单视频</td></tr>
+          <tr><td>total_open_video_qty</td><td>INT</td><td>开单视频合计</td></tr>
+          <tr><td>vas_consume</td><td>DECIMAL(20,4)</td><td>VSA 消耗</td></tr>
+          <tr><td>gmvmax_consume</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
+          <tr><td>ad_total_consume</td><td>DECIMAL(20,4)</td><td>广告总消耗（VSA 消耗 + GMVMAX 消耗）</td></tr>
+          <tr><td>ad_order_count</td><td>INT</td><td>实际单量</td></tr>
+          <tr><td>ad_order_qty</td><td>INT</td><td>广告订单数</td></tr>
+          <tr><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
+          <tr><td>total_gmv</td><td>DECIMAL(20,4)</td><td>总 GMV</td></tr>
+          <tr><td>total_acoas</td><td>DECIMAL(20,4)</td><td>实际 ACOAS</td></tr>
+          <tr><td>ad_roi</td><td>DECIMAL(20,4)</td><td>广告 ROI（测算）</td></tr>
+          <tr><td>ad_acoas</td><td>DECIMAL(20,4)</td><td>广告 AcoAs（广告总消耗/广告 GMV*100%）</td></tr>
+          <tr><td>ad_roi_setting_count</td><td>INT</td><td>广告 ROI 设置数</td></tr>
+          <tr><td>expert_video_gmv</td><td>DECIMAL(20,4)</td><td>达人视频 GMV；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_exposure</td><td>BIGINT</td><td>直播总曝光次数；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_exposure</td><td>BIGINT</td><td>达人直播曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_exposure</td><td>BIGINT</td><td>达人视频曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_click_rate</td><td>VARCHAR(20)</td><td>直播总点击率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_click_rate</td><td>VARCHAR(20)</td><td>达人直播点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_click_rate</td><td>VARCHAR(20)</td><td>达人视频点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_convert_rate</td><td>VARCHAR(20)</td><td>直播总转化率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_convert_rate</td><td>VARCHAR(20)</td><td>达人直播转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_convert_rate</td><td>VARCHAR(20)</td><td>达人视频转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, pid) | 结构与 ads_sales_pid_dashboard_1d 一致；1.2 新增字段仅美区店铺生效，非美区沿用原直播/短视频口径</p>
+    <p class="meta">原始 DDL 文件：<code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl/sales/dws/dws_sales_pid_dashboard_1d.sql</code>。本节在原始字段基础上补充 1.2 美区新增字段，作为 ADS 入湖前中间层字段口径说明。</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_pid_dashboard_1d (
+    smt                      INT                  COMMENT '月分区，格式：YYYYMM',
+    sdt                      VARCHAR(8)           COMMENT '日期，格式：YYYYMMDD',
+    store_name               VARCHAR(200)         COMMENT '店铺名称',
+    pid                      VARCHAR(200)         COMMENT 'PID',
+    spu                      VARCHAR(200)         COMMENT '主推 SPU',
+    atv                      DECIMAL(20,2)        COMMENT '客单价',
+    subsidy_per              DECIMAL(20,4)        COMMENT '平均补贴/单',
+    financial_gmv            DECIMAL(20,4)        COMMENT '财务 GMV',
+    trade_amount             DECIMAL(20,4)        COMMENT '商品交易总额',
+    deal_qty                 INT                  COMMENT '成交件数',
+    order_qty                INT                  COMMENT '订单数',
+    card_gmv                 DECIMAL(20,4)        COMMENT '商品卡 GMV',
+    live_gmv                 DECIMAL(20,4)        COMMENT '直播 GMV',
+    video_gmv                DECIMAL(20,4)        COMMENT '短视频 GMV',
+    card_gmv_ratio           VARCHAR(20)          COMMENT '商品卡 GMV 占比',
+    live_gmv_ratio           VARCHAR(20)          COMMENT '直播 GMV 占比',
+    video_gmv_ratio          VARCHAR(20)          COMMENT '短视频 GMV 占比',
+    card_trade_amount        DECIMAL(20,4)        COMMENT '商品卡商品交易总额',
+    card_deal_qty            INT                  COMMENT '商品卡成交件数',
+    card_atv                 DECIMAL(20,2)        COMMENT '商品卡-客单价',
+    card_exposure            BIGINT               COMMENT '商品卡曝光',
+    card_page_view           BIGINT               COMMENT '商品卡页面浏览次数',
+    card_uv_view             BIGINT               COMMENT '商品卡去重浏览',
+    card_uv_user             BIGINT               COMMENT '商品卡去重客户',
+    card_click_rate          DECIMAL(20,4)        COMMENT '商品卡点击率',
+    card_convert_rate        DECIMAL(20,4)        COMMENT '商品卡转化率',
+    card_video_trade_amount  DECIMAL(20,4)        COMMENT '商品卡短视频商品交易总额',
+    video_deal_qty           INT                  COMMENT '短视频成交件数',
+    video_atv                DECIMAL(20,2)        COMMENT '短视频-客单价',
+    video_exposure           BIGINT               COMMENT '视频曝光次数',
+    video_page_view          BIGINT               COMMENT '来自视频的页面浏览次数',
+    video_uv_view            BIGINT               COMMENT '来自视频的去重页面浏览次数',
+    video_uv_user            BIGINT               COMMENT '视频去重商品客户数',
+    video_click_rate         VARCHAR(20)          COMMENT '视频点击率',
+    video_convert_rate       VARCHAR(20)          COMMENT '视频转化率',
+    biz_hanger_qty           INT                  COMMENT '商务挂车量',
+    edit_hanger_qty          INT                  COMMENT '剪辑挂车量',
+    total_hanger_qty         INT                  COMMENT '合计挂车量',
+    biz_open_video_qty       INT                  COMMENT '商务开单视频',
+    edit_open_video_qty      INT                  COMMENT '剪辑开单视频',
+    total_open_video_qty     INT                  COMMENT '开单视频合计',
+    vas_consume              DECIMAL(20,4)        COMMENT 'VSA 消耗',
+    gmvmax_consume           DECIMAL(20,4)        COMMENT 'GMVMAX 消耗',
+    ad_total_consume         DECIMAL(20,4)        COMMENT '广告总消耗（VSA 消耗 + GMVMAX 消耗）',
+    ad_order_count           INT                  COMMENT '实际单量',
+    ad_order_qty             INT                  COMMENT '广告订单数',
+    ad_gmv                   DECIMAL(20,4)        COMMENT '广告 GMV',
+    total_gmv                DECIMAL(20,4)        COMMENT '总 GMV',
+    total_acoas              DECIMAL(20,4)        COMMENT '实际 ACOAS',
+    ad_roi                   DECIMAL(20,4)        COMMENT '广告 ROI（测算）',
+    ad_acoas                 DECIMAL(20,4)        COMMENT '广告 AcoAs（广告总消耗/广告 GMV*100%）',
+    ad_roi_setting_count     INT                  COMMENT '广告 ROI 设置数',
+    expert_video_gmv         DECIMAL(20,4)        COMMENT '达人视频 GMV（1.2 新增，仅美区店铺生效）',
+    live_total_exposure      BIGINT               COMMENT '直播总曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_live_exposure     BIGINT               COMMENT '达人直播曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_video_exposure    BIGINT               COMMENT '达人视频曝光次数（1.2 新增，仅美区店铺生效）',
+    live_total_click_rate    VARCHAR(20)          COMMENT '直播总点击率（1.2 新增，仅美区店铺生效）',
+    expert_live_click_rate   VARCHAR(20)          COMMENT '达人直播点击率（1.2 新增，仅美区店铺生效）',
+    expert_video_click_rate  VARCHAR(20)          COMMENT '达人视频点击率（1.2 新增，仅美区店铺生效）',
+    live_total_convert_rate  VARCHAR(20)          COMMENT '直播总转化率（1.2 新增，仅美区店铺生效）',
+    expert_live_convert_rate VARCHAR(20)          COMMENT '达人直播转化率（1.2 新增，仅美区店铺生效）',
+    expert_video_convert_rate VARCHAR(20)         COMMENT '达人视频转化率（1.2 新增，仅美区店铺生效）',
+    insert_time              DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, pid)
+COMMENT 'PID 维度数据看板 DWS（日粒度，结构与 ads_sales_pid_dashboard_1d 一致）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202501 VALUES [(202501), (202502)),
+    PARTITION p202502 VALUES [(202502), (202503)),
+    PARTITION p202503 VALUES [(202503), (202504)),
+    PARTITION p202504 VALUES [(202504), (202505)),
+    PARTITION p202505 VALUES [(202505), (202506)),
+    PARTITION p202506 VALUES [(202506), (202507)),
+    PARTITION p202507 VALUES [(202507), (202508)),
+    PARTITION p202508 VALUES [(202508), (202509)),
+    PARTITION p202509 VALUES [(202509), (202510)),
+    PARTITION p202510 VALUES [(202510), (202511)),
+    PARTITION p202511 VALUES [(202511), (202512)),
+    PARTITION p202512 VALUES [(202512), (202601)),
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
+)
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
     <hr />
 
     <h2 id="sec-4">六、ADS 层表结构</h2>
@@ -2326,69 +2664,79 @@ PROPERTIES (
 );</code></pre>
 
     <h3 id="tbl-ads-sales-pid-dashboard-1d">6.2 ads_sales_pid_dashboard_1d</h3>
-    <p>PID 维度数据看板。需求二产出，支持按日期、店铺、PID 筛选。业务字段与接口文档 3.2 主表 <code>list[]</code> 及<code>需求二-数据看板.html</code>表头 51 列一致（序号 1～51，4 为分析操作列不落库），snake_case 命名。</p>
+    <p>PID 维度数据看板。需求二产出，支持按日期、店铺、PID 筛选。该表是接口与前端页面的主取数表。现有正式 DDL 参考 <code>ms-warehouse-batch-data/ddl/sales/ads/ads_sales_pid_dashboard_1d.sql</code>；本次同时补充 1.2 美区新增字段，并在备注中标识字段来源与适用范围。</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>—</td><td>smt</td><td>INT</td><td>月分区，格式 YYYYMM（公用必选）</td></tr>
-          <tr><td>1</td><td>sdt</td><td>VARCHAR(8)</td><td>日期，YYYYMMDD（公用必选）</td></tr>
-          <tr><td>2</td><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
-          <tr><td>3</td><td>pid</td><td>VARCHAR(200)</td><td>PID</td></tr>
-          <tr><td>4</td><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
-          <tr><td>5</td><td>product_level</td><td>VARCHAR(100)</td><td>产品阶段（商品层级）</td></tr>
-          <tr><td>6</td><td>atv</td><td>DECIMAL(20,2)</td><td>客单价</td></tr>
-          <tr><td>7</td><td>subsidy_per</td><td>DECIMAL(20,4)</td><td>平均补贴/单</td></tr>
-          <tr><td>8</td><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务 GMV</td></tr>
-          <tr><td>9</td><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
-          <tr><td>10</td><td>deal_qty</td><td>INT</td><td>成交件数</td></tr>
-          <tr><td>11</td><td>order_qty</td><td>INT</td><td>订单数</td></tr>
-          <tr><td>12</td><td>card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
-          <tr><td>13</td><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
-          <tr><td>14</td><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
-          <tr><td>15</td><td>card_gmv_ratio</td><td>VARCHAR(20)</td><td>商品卡 GMV 占比</td></tr>
-          <tr><td>16</td><td>live_gmv_ratio</td><td>VARCHAR(20)</td><td>直播 GMV 占比</td></tr>
-          <tr><td>17</td><td>video_gmv_ratio</td><td>VARCHAR(20)</td><td>短视频 GMV 占比</td></tr>
-          <tr><td>18</td><td>card_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡商品交易总额</td></tr>
-          <tr><td>19</td><td>card_deal_qty</td><td>INT</td><td>商品卡成交件数</td></tr>
-          <tr><td>20</td><td>card_atv</td><td>DECIMAL(20,2)</td><td>商品卡-客单价</td></tr>
-          <tr><td>21</td><td>card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
-          <tr><td>22</td><td>card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
-          <tr><td>23</td><td>card_uv_view</td><td>BIGINT</td><td>商品卡去重浏览</td></tr>
-          <tr><td>24</td><td>card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
-          <tr><td>25</td><td>card_click</td><td>BIGINT</td><td>商品卡点击</td></tr>
-          <tr><td>26</td><td>card_convert</td><td>BIGINT</td><td>商品卡转化</td></tr>
-          <tr><td>27</td><td>card_video_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡短视频商品交易总额</td></tr>
-          <tr><td>28</td><td>video_deal_qty</td><td>INT</td><td>短视频成交件数</td></tr>
-          <tr><td>29</td><td>video_atv</td><td>DECIMAL(20,2)</td><td>短视频-客单价</td></tr>
-          <tr><td>30</td><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
-          <tr><td>31</td><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
-          <tr><td>32</td><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
-          <tr><td>33</td><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
-          <tr><td>34</td><td>video_click_rate</td><td>VARCHAR(20)</td><td>视频点击率</td></tr>
-          <tr><td>35</td><td>video_convert_rate</td><td>VARCHAR(20)</td><td>视频转化率</td></tr>
-          <tr><td>36</td><td>biz_hanger_qty</td><td>INT</td><td>商务挂车量</td></tr>
-          <tr><td>37</td><td>edit_hanger_qty</td><td>INT</td><td>剪辑挂车量</td></tr>
-          <tr><td>38</td><td>total_hanger_qty</td><td>INT</td><td>合计挂车量</td></tr>
-          <tr><td>39</td><td>biz_open_video_qty</td><td>INT</td><td>商务开单视频</td></tr>
-          <tr><td>40</td><td>edit_open_video_qty</td><td>INT</td><td>剪辑开单视频</td></tr>
-          <tr><td>41</td><td>total_open_video_qty</td><td>INT</td><td>开单视频合计</td></tr>
-          <tr><td>42</td><td>vas_consume</td><td>DECIMAL(20,4)</td><td>vas 消耗</td></tr>
-          <tr><td>43</td><td>gmvmax_consume</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
-          <tr><td>44</td><td>ad_total_consume</td><td>DECIMAL(20,4)</td><td>广告总消耗</td></tr>
-          <tr><td>45</td><td>ad_order_count</td><td>INT</td><td>广告单量</td></tr>
-          <tr><td>46</td><td>ad_order_qty</td><td>INT</td><td>广告订单数</td></tr>
-          <tr><td>47</td><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
-          <tr><td>48</td><td>total_gmv</td><td>DECIMAL(20,4)</td><td>总 GMV</td></tr>
-          <tr><td>49</td><td>total_acoas</td><td>DECIMAL(20,4)</td><td>总 ACoAS</td></tr>
-          <tr><td>50</td><td>ad_roi</td><td>DECIMAL(20,4)</td><td>广告 ROI（测算）</td></tr>
-          <tr><td>51</td><td>ad_acoas</td><td>DECIMAL(20,4)</td><td>广告 AcoAs</td></tr>
-          <tr><td>52</td><td>ad_roi_setting_count</td><td>INT</td><td>广告 ROI 设置数</td></tr>
-          <tr><td>—</td><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式 YYYYMM</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期，YYYYMMDD</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>主推 SPU</td></tr>
+          <tr><td>atv</td><td>DECIMAL(20,2)</td><td>客单价</td></tr>
+          <tr><td>subsidy_per</td><td>DECIMAL(20,4)</td><td>平均补贴/单</td></tr>
+          <tr><td>financial_gmv</td><td>DECIMAL(20,4)</td><td>财务 GMV</td></tr>
+          <tr><td>trade_amount</td><td>DECIMAL(20,4)</td><td>商品交易总额</td></tr>
+          <tr><td>deal_qty</td><td>INT</td><td>成交件数</td></tr>
+          <tr><td>order_qty</td><td>INT</td><td>订单数</td></tr>
+          <tr><td>card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
+          <tr><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
+          <tr><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
+          <tr><td>card_gmv_ratio</td><td>VARCHAR(20)</td><td>商品卡 GMV 占比</td></tr>
+          <tr><td>live_gmv_ratio</td><td>VARCHAR(20)</td><td>直播 GMV 占比</td></tr>
+          <tr><td>video_gmv_ratio</td><td>VARCHAR(20)</td><td>短视频 GMV 占比</td></tr>
+          <tr><td>card_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡商品交易总额</td></tr>
+          <tr><td>card_deal_qty</td><td>INT</td><td>商品卡成交件数</td></tr>
+          <tr><td>card_atv</td><td>DECIMAL(20,2)</td><td>商品卡客单价</td></tr>
+          <tr><td>card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
+          <tr><td>card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数</td></tr>
+          <tr><td>card_uv_view</td><td>BIGINT</td><td>商品卡去重浏览</td></tr>
+          <tr><td>card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
+          <tr><td>card_click_rate</td><td>DECIMAL(20,4)</td><td>商品卡点击率</td></tr>
+          <tr><td>card_convert_rate</td><td>DECIMAL(20,4)</td><td>商品卡转化率</td></tr>
+          <tr><td>card_video_trade_amount</td><td>DECIMAL(20,4)</td><td>商品卡短视频商品交易总额</td></tr>
+          <tr><td>video_deal_qty</td><td>INT</td><td>短视频成交件数</td></tr>
+          <tr><td>video_atv</td><td>DECIMAL(20,2)</td><td>短视频客单价</td></tr>
+          <tr><td>video_exposure</td><td>BIGINT</td><td>视频曝光次数</td></tr>
+          <tr><td>video_page_view</td><td>BIGINT</td><td>来自视频的页面浏览次数</td></tr>
+          <tr><td>video_uv_view</td><td>BIGINT</td><td>来自视频的去重页面浏览次数</td></tr>
+          <tr><td>video_uv_user</td><td>BIGINT</td><td>视频去重商品客户数</td></tr>
+          <tr><td>video_click_rate</td><td>VARCHAR(20)</td><td>视频点击率</td></tr>
+          <tr><td>video_convert_rate</td><td>VARCHAR(20)</td><td>视频转化率</td></tr>
+          <tr><td>biz_hanger_qty</td><td>INT</td><td>商务挂车量</td></tr>
+          <tr><td>edit_hanger_qty</td><td>INT</td><td>剪辑挂车量</td></tr>
+          <tr><td>total_hanger_qty</td><td>INT</td><td>合计挂车量</td></tr>
+          <tr><td>biz_open_video_qty</td><td>INT</td><td>商务开单视频</td></tr>
+          <tr><td>edit_open_video_qty</td><td>INT</td><td>剪辑开单视频</td></tr>
+          <tr><td>total_open_video_qty</td><td>INT</td><td>开单视频合计</td></tr>
+          <tr><td>vas_consume</td><td>DECIMAL(20,4)</td><td>vas 消耗</td></tr>
+          <tr><td>gmvmax_consume</td><td>DECIMAL(20,4)</td><td>GMVMAX 消耗</td></tr>
+          <tr><td>ad_total_consume</td><td>DECIMAL(20,4)</td><td>广告总消耗（VSA 消耗 + GMVMAX 消耗）</td></tr>
+          <tr><td>ad_order_count</td><td>INT</td><td>实际单量</td></tr>
+          <tr><td>ad_order_qty</td><td>INT</td><td>广告订单数</td></tr>
+          <tr><td>ad_gmv</td><td>DECIMAL(20,4)</td><td>广告 GMV</td></tr>
+          <tr><td>total_gmv</td><td>DECIMAL(20,4)</td><td>总 GMV</td></tr>
+          <tr><td>total_acoas</td><td>DECIMAL(20,4)</td><td>实际 ACOAS</td></tr>
+          <tr><td>ad_roi</td><td>DECIMAL(20,4)</td><td>广告 ROI（测算）</td></tr>
+          <tr><td>ad_acoas</td><td>DECIMAL(20,4)</td><td>广告 AcoAs（广告总消耗/广告 GMV*100%）</td></tr>
+          <tr><td>ad_roi_setting_count</td><td>INT</td><td>广告 ROI 设置数</td></tr>
+          <tr><td>expert_video_gmv</td><td>DECIMAL(20,4)</td><td>达人视频 GMV；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_exposure</td><td>BIGINT</td><td>直播总曝光次数；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_exposure</td><td>BIGINT</td><td>达人直播曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_exposure</td><td>BIGINT</td><td>达人视频曝光次数；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_click_rate</td><td>VARCHAR(20)</td><td>直播总点击率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_click_rate</td><td>VARCHAR(20)</td><td>达人直播点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_click_rate</td><td>VARCHAR(20)</td><td>达人视频点击率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>live_total_convert_rate</td><td>VARCHAR(20)</td><td>直播总转化率；来源 <code>product_list_联盟 + product_list_商家直播</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_live_convert_rate</td><td>VARCHAR(20)</td><td>达人直播转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>expert_video_convert_rate</td><td>VARCHAR(20)</td><td>达人视频转化率；来源 <code>product_list_联盟</code>；<strong>1.2 新增，仅美区店铺生效</strong></td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="req-ref">与接口文档 3.2 list[]、需求二-数据看板.html 表头 51 列顺序一致（分析列为前端操作，不落库）。来源：product_list + 全渠道商品 + GMV 计算表 + campaign + video_performance + tk 账号</p>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, pid) | 来源：dws_sales_pid_dashboard_1d；1.2 新增字段仅美区店铺生效，非美区沿用原直播/短视频口径</p>
+    <p class="meta">原始 DDL 文件：<code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl/sales/ads/ads_sales_pid_dashboard_1d.sql</code>。本节在原始字段基础上补充 1.2 美区新增字段，用于与页面 <code>销售/PID/htmls/数据看板-1.2.html</code> 对齐。</p>
     <h4>DDL</h4>
     <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_pid_dashboard_1d (
     smt                      INT                  COMMENT '月分区，格式：YYYYMM',
@@ -2396,7 +2744,6 @@ PROPERTIES (
     store_name               VARCHAR(200)         COMMENT '店铺名称',
     pid                      VARCHAR(200)         COMMENT 'PID',
     spu                      VARCHAR(200)         COMMENT '主推 SPU',
-    product_level            VARCHAR(100)         COMMENT '产品阶段（商品层级）',
     atv                      DECIMAL(20,2)        COMMENT '客单价',
     subsidy_per              DECIMAL(20,4)        COMMENT '平均补贴/单',
     financial_gmv            DECIMAL(20,4)        COMMENT '财务 GMV',
@@ -2416,8 +2763,8 @@ PROPERTIES (
     card_page_view           BIGINT               COMMENT '商品卡页面浏览次数',
     card_uv_view             BIGINT               COMMENT '商品卡去重浏览',
     card_uv_user             BIGINT               COMMENT '商品卡去重客户',
-    card_click               BIGINT               COMMENT '商品卡点击',
-    card_convert             BIGINT               COMMENT '商品卡转化',
+    card_click_rate          DECIMAL(20,4)        COMMENT '商品卡点击率',
+    card_convert_rate        DECIMAL(20,4)        COMMENT '商品卡转化率',
     card_video_trade_amount  DECIMAL(20,4)        COMMENT '商品卡短视频商品交易总额',
     video_deal_qty           INT                  COMMENT '短视频成交件数',
     video_atv                DECIMAL(20,2)        COMMENT '短视频-客单价',
@@ -2433,31 +2780,42 @@ PROPERTIES (
     biz_open_video_qty       INT                  COMMENT '商务开单视频',
     edit_open_video_qty      INT                  COMMENT '剪辑开单视频',
     total_open_video_qty     INT                  COMMENT '开单视频合计',
-    vas_consume              DECIMAL(20,4)        COMMENT 'vas 消耗',
+    vas_consume              DECIMAL(20,4)        COMMENT 'VSA 消耗',
     gmvmax_consume           DECIMAL(20,4)        COMMENT 'GMVMAX 消耗',
-    ad_total_consume         DECIMAL(20,4)        COMMENT '广告总消耗',
-    ad_order_count           INT                  COMMENT '广告单量',
+    ad_total_consume         DECIMAL(20,4)        COMMENT '广告总消耗（VSA 消耗 + GMVMAX 消耗）',
+    ad_order_count           INT                  COMMENT '实际单量',
     ad_order_qty             INT                  COMMENT '广告订单数',
     ad_gmv                   DECIMAL(20,4)        COMMENT '广告 GMV',
     total_gmv                DECIMAL(20,4)        COMMENT '总 GMV',
-    total_acoas              DECIMAL(20,4)        COMMENT '总 ACoAS',
+    total_acoas              DECIMAL(20,4)        COMMENT '实际 ACOAS',
     ad_roi                   DECIMAL(20,4)        COMMENT '广告 ROI（测算）',
-    ad_acoas                 DECIMAL(20,4)        COMMENT '广告 AcoAs',
+    ad_acoas                 DECIMAL(20,4)        COMMENT '广告 AcoAs（广告总消耗/广告 GMV*100%）',
     ad_roi_setting_count     INT                  COMMENT '广告 ROI 设置数',
+    expert_video_gmv         DECIMAL(20,4)        COMMENT '达人视频 GMV（1.2 新增，仅美区店铺生效）',
+    live_total_exposure      BIGINT               COMMENT '直播总曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_live_exposure     BIGINT               COMMENT '达人直播曝光次数（1.2 新增，仅美区店铺生效）',
+    expert_video_exposure    BIGINT               COMMENT '达人视频曝光次数（1.2 新增，仅美区店铺生效）',
+    live_total_click_rate    VARCHAR(20)          COMMENT '直播总点击率（1.2 新增，仅美区店铺生效）',
+    expert_live_click_rate   VARCHAR(20)          COMMENT '达人直播点击率（1.2 新增，仅美区店铺生效）',
+    expert_video_click_rate  VARCHAR(20)          COMMENT '达人视频点击率（1.2 新增，仅美区店铺生效）',
+    live_total_convert_rate  VARCHAR(20)          COMMENT '直播总转化率（1.2 新增，仅美区店铺生效）',
+    expert_live_convert_rate VARCHAR(20)          COMMENT '达人直播转化率（1.2 新增，仅美区店铺生效）',
+    expert_video_convert_rate VARCHAR(20)         COMMENT '达人视频转化率（1.2 新增，仅美区店铺生效）',
     insert_time              DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
 ) ENGINE=OLAP
-DUPLICATE KEY(smt, sdt, store_name, pid)
-COMMENT 'PID 维度数据看板（需求二，与接口 3.2 list[]、需求二-数据看板 51 列一致）'
+UNIQUE KEY(smt, sdt, store_name, pid)
+COMMENT 'PID 维度数据看板 ADS（日粒度，接口使用主表）'
 PARTITION BY RANGE(smt) (
-    PARTITION p202601 VALUES [("202601"), ("202602")),
-    PARTITION p202602 VALUES [("202602"), ("202603")),
-    PARTITION p202603 VALUES [("202603"), ("202604")),
-    PARTITION p202604 VALUES [("202604"), ("202605")),
-    PARTITION p202605 VALUES [("202605"), ("202606"))
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
 )
 DISTRIBUTED BY HASH(pid) BUCKETS 16
 PROPERTIES (
-    "replication_allocation" = "tag.location.default: 1"
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
     <h3 id="tbl-dim-sales-pid-main-spu-mapping-df">6.3 dim_sales_pid_main_spu_mapping_df</h3>
@@ -2549,7 +2907,9 @@ PROPERTIES (
           <tr><td>ads_sales_pid_gmv_calc_realtime</td><td>dws_sales_pid_gmv_realtime</td></tr>
           <tr><td>dws_sales_pid_gmv_realtime</td><td>dwd_sales_order_item_market_wide_realtime</td></tr>
           <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
-          <tr><td>ads_sales_pid_dashboard_1d</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
+          <tr><td>dwd_sales_pid_dashboard_wide_di</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
+          <tr><td>dws_sales_pid_dashboard_1d</td><td>dwd_sales_pid_dashboard_wide_di</td></tr>
+          <tr><td>ads_sales_pid_dashboard_1d</td><td>dws_sales_pid_dashboard_1d</td></tr>
           <tr><td>ads_sales_store_site_order_count_realtime</td><td>dws_sales_store_site_market_realtime</td></tr>
           <tr><td>dim_sales_pid_main_spu_mapping_df</td><td>业务后台维护结果（日全量快照，按 sdt 保留历史）</td></tr>
         </tbody>

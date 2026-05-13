@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TikTok 达人订单判定方案</title>
+  <style>
+    :root {
+      --bg: #f6f4ee;
+      --paper: #fffdf8;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #ded7c8;
+      --accent: #9a3412;
+      --accent-soft: #f97316;
+      --chip: #fff1e8;
+      --ok: #166534;
+      --warn: #92400e;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: linear-gradient(180deg, #efe9db 0%, var(--bg) 28%, #f8f6f1 100%);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    .wrap {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 48px 32px 84px;
+    }
+    .hero {
+      background: radial-gradient(circle at top left, rgba(249, 115, 22, 0.18), transparent 34%), var(--paper);
+      border: 1px solid rgba(154, 52, 18, 0.16);
+      border-radius: 28px;
+      padding: 44px 44px 34px;
+      box-shadow: 0 20px 60px rgba(31, 41, 55, 0.08);
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--chip);
+      color: var(--accent);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      margin: 18px 0 12px;
+      font-size: 46px;
+      line-height: 1.2;
+    }
+    .lead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 19px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 26px;
+      margin-top: 24px;
+    }
+    .card {
+      grid-column: span 12;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 34px;
+      box-shadow: 0 14px 40px rgba(31, 41, 55, 0.05);
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 30px;
+    }
+    .card h3 {
+      margin: 22px 0 10px;
+      font-size: 22px;
+    }
+    .muted { color: var(--muted); }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #f3efe6;
+      border: 1px solid #e6dece;
+      font-size: 15px;
+      color: #4b5563;
+    }
+    .decision {
+      border-left: 4px solid var(--accent-soft);
+      padding-left: 16px;
+      margin: 16px 0;
+    }
+    ul, ol {
+      padding-left: 26px;
+      margin: 12px 0;
+    }
+    li { margin: 8px 0; }
+    code {
+      background: #f4efe7;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 1em;
+    }
+    pre {
+      background: #1f2937;
+      color: #f9fafb;
+      padding: 22px 24px;
+      border-radius: 18px;
+      overflow-x: auto;
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    th, td {
+      padding: 16px 16px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 16px;
+    }
+    th {
+      background: #f7f1e6;
+      color: #7c2d12;
+      font-weight: 700;
+    }
+    tr:last-child td { border-bottom: none; }
+    .ok { color: var(--ok); font-weight: 700; }
+    .warn { color: var(--warn); font-weight: 700; }
+    a { color: var(--accent); word-break: break-all; }
+    .footer {
+      margin-top: 24px;
+      color: var(--muted);
+      font-size: 15px;
+      text-align: right;
+    }
+    @media (min-width: 900px) {
+      .span-6 { grid-column: span 6; }
+      .span-7 { grid-column: span 7; }
+      .span-5 { grid-column: span 5; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="eyebrow">TikTok Shop / 订单判定方案</span>
+      <h1>联盟达人单、商家达人单、普通单判定方案</h1>
+      <p class="lead">
+        目标是为业务系统沉淀一套可执行、可回溯、可扩展的订单来源分类口径，输出
+        <code>NORMAL</code>、<code>ALLIANCE_CREATOR</code>、<code>MERCHANT_CREATOR</code>
+        三类结果，并列出对应 TikTok Shop 官方 API 能力。
+      </p>
+      <div class="chips">
+        <span class="chip">普通订单接口不能直接判断达人归因</span>
+        <span class="chip">联盟订单接口是达人单判定主依据</span>
+        <span class="chip">商家达人单通常是业务派生口径</span>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card span-6">
+        <h2>一、核心结论</h2>
+        <div class="decision">
+          <p><strong>不要只依赖普通订单接口判断达人来源。</strong></p>
+          <p class="muted">
+            普通订单详情通常只覆盖支付、履约、收件人、商品明细等信息，缺少达人归因、联盟活动、佣金来源等关键字段。
+          </p>
+        </div>
+        <ol>
+          <li>先用普通订单接口拿全量订单底表。</li>
+          <li>再用联盟订单接口判断是否为达人单。</li>
+          <li>对已识别的达人单，再结合达人合作活动 / campaign 信息细分为商家达人单或联盟达人单。</li>
+          <li>最后在业务系统中沉淀统一分类字段，而不是直接信任单一接口原始返回。</li>
+        </ol>
+      </section>
+
+      <section class="card span-6">
+        <h2>二、推荐分类口径</h2>
+        <h3>1. 普通单</h3>
+        <ul>
+          <li>订单存在于普通订单表。</li>
+          <li>订单不存在于 <code>Search Seller Affiliate Orders</code> 结果中。</li>
+          <li>输出：<code>order_source_type = NORMAL</code></li>
+        </ul>
+        <h3>2. 联盟达人单</h3>
+        <ul>
+          <li>订单命中 <code>Search Seller Affiliate Orders</code>。</li>
+          <li>但无法证明其属于商家自建/定向合作活动。</li>
+          <li>输出：<code>order_source_type = ALLIANCE_CREATOR</code></li>
+        </ul>
+        <h3>3. 商家达人单</h3>
+        <ul>
+          <li>订单命中 <code>Search Seller Affiliate Orders</code>。</li>
+          <li>且能关联到商家自己的 <code>Affiliate Partner Campaign</code> 或活动商品清单。</li>
+          <li>输出：<code>order_source_type = MERCHANT_CREATOR</code></li>
+        </ul>
+      </section>
+
+      <section class="card span-7">
+        <h2>三、推荐判定流程</h2>
+        <pre>Step 1: 普通订单接口
+  -> 拉取订单列表 / 订单详情
+  -> 形成订单底表（全量）
+
+Step 2: 联盟订单接口
+  -> Search Seller Affiliate Orders
+  -> 按 order_id 或 line_item_id 做关联
+  -> 命中则先标记为达人单
+
+Step 3: 达人合作活动接口
+  -> Get Affiliate Partner Campaign Detail
+  -> Get Affiliate Partner Campaign Product List
+  -> 判断订单商品 / 订单归因是否属于商家合作计划
+
+Step 4: 输出业务分类
+  -> NORMAL
+  -> ALLIANCE_CREATOR
+  -> MERCHANT_CREATOR</pre>
+        <p class="muted">
+          推荐以 <code>order_id</code> 为主关联键；如果联盟侧或活动侧返回的是更细粒度数据，再补充使用
+          <code>line_item_id</code> / <code>sku_id</code> / <code>product_id</code> 作为辅助关联条件。
+        </p>
+      </section>
+
+      <section class="card span-5">
+        <h2>四、为什么订单详情不够</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>字段类型</th>
+              <th>能否直接判达人归因</th>
+              <th>说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>order_type</code></td>
+              <td class="warn">不能</td>
+              <td>这是订单业务类型，不是达人来源类型。</td>
+            </tr>
+            <tr>
+              <td><code>is_sample_order</code></td>
+              <td class="warn">不能</td>
+              <td>最多说明是否样品单，不能区分联盟达人单或商家达人单。</td>
+            </tr>
+            <tr>
+              <td><code>seller_sku</code> / <code>product_id</code></td>
+              <td class="warn">不能</td>
+              <td>只是商品维度信息，不是归因维度。</td>
+            </tr>
+            <tr>
+              <td>支付 / 履约字段</td>
+              <td class="warn">不能</td>
+              <td>仅描述订单状态、支付状态、物流状态。</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card">
+        <h2>五、API 清单与用途</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>优先级</th>
+              <th>API / 文档</th>
+              <th>用途</th>
+              <th>在判定中的角色</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>必须</td>
+              <td>
+                普通订单接口<br />
+                <a href="https://partner.tiktokshop.com/docv2/page/order-api-overview">Order API Overview</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/order-api-overview">https://partner.tiktokshop.com/docv2/page/order-api-overview</a>
+              </td>
+              <td>拉取全量订单底表</td>
+              <td>所有分类的基础数据来源</td>
+            </tr>
+            <tr>
+              <td>必须</td>
+              <td>
+                <code>Search Seller Affiliate Orders</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/search-seller-affiliate-orders">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/search-seller-affiliate-orders">https://partner.tiktokshop.com/docv2/page/search-seller-affiliate-orders</a>
+              </td>
+              <td>识别订单是否属于达人/联盟订单</td>
+              <td class="ok">达人单主判据</td>
+            </tr>
+            <tr>
+              <td>建议</td>
+              <td>
+                <code>Get Affiliate Partner Campaign Detail</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-detail-202405">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-detail-202405">https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-detail-202405</a>
+              </td>
+              <td>查看商家合作活动详情</td>
+              <td>细分商家达人单的重要辅助依据</td>
+            </tr>
+            <tr>
+              <td>建议</td>
+              <td>
+                <code>Get Affiliate Partner Campaign Product List</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-product-list">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-product-list">https://partner.tiktokshop.com/docv2/page/get-affiliate-partner-campaign-product-list</a>
+              </td>
+              <td>查看活动下的商品清单</td>
+              <td>判断订单商品是否属于商家活动范围</td>
+            </tr>
+            <tr>
+              <td>辅助</td>
+              <td>
+                <code>Create Affiliate Partner Campaign</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/create-affiliate-partner-campaign">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/create-affiliate-partner-campaign">https://partner.tiktokshop.com/docv2/page/create-affiliate-partner-campaign</a>
+              </td>
+              <td>如果商家系统自己创建活动，可反向保存活动关系</td>
+              <td>增强商家达人单可追溯性</td>
+            </tr>
+            <tr>
+              <td>辅助</td>
+              <td>
+                <code>Review Affiliate Partner Campaign Product</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/review-affiliate-partner-campaign-product-202405">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/review-affiliate-partner-campaign-product-202405">https://partner.tiktokshop.com/docv2/page/review-affiliate-partner-campaign-product-202405</a>
+              </td>
+              <td>审核活动商品</td>
+              <td>辅助建立商品与商家活动关系</td>
+            </tr>
+            <tr>
+              <td>辅助验证</td>
+              <td>
+                <code>Search Creator Affiliate Orders</code><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/search-creator-affiliate-orders">文档链接</a><br />
+                <a href="https://partner.tiktokshop.com/docv2/page/search-creator-affiliate-orders">https://partner.tiktokshop.com/docv2/page/search-creator-affiliate-orders</a>
+              </td>
+              <td>创作者侧视角查询联盟订单</td>
+              <td>对账 / 排查使用，不建议作为卖家主口径</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="card span-6">
+        <h2>六、最终判定规则</h2>
+        <h3>规则 1：普通单</h3>
+        <pre>if order in normal_orders
+  and order not in seller_affiliate_orders
+then NORMAL</pre>
+
+        <h3>规则 2：联盟达人单</h3>
+        <pre>if order in seller_affiliate_orders
+  and order not linked to merchant partner campaign
+then ALLIANCE_CREATOR</pre>
+
+        <h3>规则 3：商家达人单</h3>
+        <pre>if order in seller_affiliate_orders
+  and order linked to merchant partner campaign
+then MERCHANT_CREATOR</pre>
+      </section>
+
+      <section class="card span-6">
+        <h2>七、系统字段建议</h2>
+        <ul>
+          <li><code>is_affiliate_order</code>：<code>0 / 1</code></li>
+          <li><code>order_source_type</code>：<code>NORMAL</code> / <code>ALLIANCE_CREATOR</code> / <code>MERCHANT_CREATOR</code></li>
+          <li><code>affiliate_campaign_id</code></li>
+          <li><code>affiliate_campaign_type</code></li>
+          <li><code>affiliate_creator_id</code></li>
+          <li><code>affiliate_creator_name</code></li>
+          <li><code>affiliate_match_source</code>：<code>seller_affiliate_orders</code> / <code>partner_campaign_mapping</code> / <code>manual_rule</code></li>
+          <li><code>affiliate_match_confidence</code>：<code>HIGH</code> / <code>MEDIUM</code> / <code>LOW</code></li>
+        </ul>
+        <p class="muted">
+          不建议只存一个中文标签。保留来源、证据、置信度，后续复盘和排查会容易很多。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>八、落地建议</h2>
+        <h3>阶段一：先做稳定版</h3>
+        <ul>
+          <li>落普通订单底表</li>
+          <li>接入 <code>Search Seller Affiliate Orders</code></li>
+          <li>先输出 <code>普通单 / 达人单</code></li>
+        </ul>
+
+        <h3>阶段二：再细分达人单</h3>
+        <ul>
+          <li>补接 <code>Get Affiliate Partner Campaign Detail</code></li>
+          <li>补接 <code>Get Affiliate Partner Campaign Product List</code></li>
+          <li>再输出 <code>联盟达人单 / 商家达人单</code></li>
+        </ul>
+
+        <div class="decision">
+          <p><strong>当前最稳的现实结论：</strong></p>
+          <p>
+            官方公开能力中，能确认存在“联盟订单查询”API；但“商家达人单”通常不是一个单独公开 API 直接返回的原生类型，
+            更适合作为你们业务系统在订单 + 联盟订单 + 活动关系三层数据之上派生出来的分类结果。
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">生成时间：2026-05-12</div>
+  </div>
+</body>
+</html>
