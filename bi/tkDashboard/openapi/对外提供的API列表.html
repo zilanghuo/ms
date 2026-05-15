@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>对外提供的 API 列表</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --soft: #f8fafc; --warn: #b45309; --info: #2563eb; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2.5rem 3.5rem 3.5rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1500px; min-height: calc(100vh - 5rem); margin: 0 auto; background: var(--card); padding: 3rem 3.5rem 3.5rem; border-radius: 10px; border: 1px solid var(--border); }
+    h1 { font-size: 2rem; margin: 0 0 0.75rem; color: var(--text); border-bottom: 3px solid var(--accent); padding-bottom: 0.75rem; }
+    h2 { font-size: 1.45rem; margin: 2.4rem 0 0.9rem; color: var(--text); }
+    h3 { font-size: 1.2rem; margin: 1.8rem 0 0.65rem; color: var(--muted); }
+    p { margin: 0.55rem 0; }
+    ul { margin: 0.5rem 0 1rem 1.25rem; padding: 0; }
+    li { margin: 0.25rem 0; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    code { background: #f1f5f9; padding: 0.12rem 0.38rem; border-radius: 4px; font-size: 0.9em; }
+    pre { background: #f8fafc; color: #1e293b; padding: 1.2rem 1.4rem; border-radius: 8px; overflow-x: auto; font-size: 0.95rem; line-height: 1.7; border: 1px solid #e2e8f0; }
+    pre code { background: transparent; padding: 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 1180px; }
+    th, td { padding: 0.7rem 0.85rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .meta { color: var(--muted); font-size: 0.9rem; }
+    .note { background: #fffbeb; border: 1px solid #fde68a; color: #78350f; padding: 1rem 1.15rem; border-radius: 8px; margin: 1.2rem 0; }
+    .card { background: var(--soft); border: 1px solid #e2e8f0; border-radius: 10px; padding: 1.2rem 1.4rem; margin: 1.2rem 0; }
+    .badge { display: inline-block; padding: 0.14rem 0.55rem; border-radius: 999px; font-size: 0.82rem; font-weight: 600; }
+    .get { background: #dbeafe; color: #1d4ed8; }
+    .post { background: #dcfce7; color: #15803d; }
+    .todo { background: #fef3c7; color: #92400e; }
+    .toc-link { color: var(--accent); text-decoration: none; font-weight: 600; }
+    .toc-link:hover { text-decoration: underline; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>对外提供的 API 列表</h1>
+    <p class="meta">版本：v1.0 ｜ 日期：2026-05-15 ｜ 编制：IT 部 ｜ 适用范围：对外服务商 API 接入</p>
+    <p class="meta">参考资料：<code>业务应用API接入规范-TikTok内容中台.pdf</code>（作为接入规范参考之一）</p>
+    <hr />
+
+    <h2>一、文档目的</h2>
+    <p>本文用于沉淀需要提供给外部服务商使用的 API 列表、接入边界、鉴权要求和数据责任口径。当前先形成接口清单 HTML 草稿，后续接口字段、请求示例和错误码可继续在本文件中补齐。</p>
+    <div class="note">
+      <strong>当前约定：</strong>外部服务商不直接访问 TikTok Shop API、积加 ERP Open API 或底层 Supabase 数据库，统一通过 IT API 网关访问内容中台开放接口。
+    </div>
+
+    <h2>二、接入边界</h2>
+    <div class="card">
+      <ul>
+        <li><strong>数据来源：</strong>内容中台已同步和维护的数据，包括 TikTok Shop API 自动同步数据、积加 ERP API 自动同步数据、运营人工维护数据。</li>
+        <li><strong>访问方式：</strong>外部服务商通过 HTTPS 调用 IT API 网关，由网关完成鉴权、审计、限流和权限控制。</li>
+        <li><strong>数据范围：</strong>默认只开放服务商业务所需的只读查询接口；涉及新增、修改、删除类接口需单独评审。</li>
+        <li><strong>字段口径：</strong>接口入参和出参使用 camelCase，底层表字段或内部字段仍按数仓规范使用小写下划线。</li>
+      </ul>
+    </div>
+
+    <h2 id="api-list">三、API 接口清单</h2>
+    <p>以下为拟开放给外部服务商使用的 API 清单。接口路径、鉴权方式、请求字段和返回字段在服务商范围确认后继续细化。</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>序号</th>
+            <th>接口名称</th>
+            <th>接口路径</th>
+            <th>方法</th>
+            <th>接口用途</th>
+            <th>使用的业务模块</th>
+            <th>数据来源</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td><a class="toc-link" href="#api-products-list">商品列表查询</a></td>
+            <td><code>/openapi/tiktok-content/products</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>按站点、店铺、商品状态、关键词等条件分页查询内容中台商品基础资料。</td>
+            <td>tk商品维护</td>
+            <td>TikTok Shop API 同步商品数据 + 内容中台商品维护数据</td>
+            <td>用于服务商获取可处理的商品范围；需确认是否返回图片、标题、SPU/SKU、店铺等字段。</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td><a class="toc-link" href="#api-product-detail">商品详情查询</a></td>
+            <td><code>/openapi/tiktok-content/product/detail</code></td>
+            <td><span class="badge post">POST</span></td>
+            <td>根据商品 ID 查询单个商品详情，包括商品基础信息、站点店铺信息、状态和内容字段。</td>
+            <td>tk商品维护</td>
+            <td>TikTok Shop API 同步商品数据 + 内容中台商品维护数据</td>
+            <td>请求体传入 <code>productId</code> + <code>shopName</code>，避免中文店铺名放在 URL 参数中产生转义问题。</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a class="toc-link" href="#api-product-materials">商品内容素材查询</a></td>
+            <td><code>/openapi/tiktok-content/products/{productId}/materials</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>查询商品关联的图片、标题、卖点、描述、视频或其他内容素材。</td>
+            <td>tk商品维护</td>
+            <td>内容中台人工维护数据 + 商品内容资产</td>
+            <td>需确认素材 URL 是否需要临时签名、有效期和防盗链策略。</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td><a class="toc-link" href="#api-task-list">任务列表查询</a></td>
+            <td><code>/openapi/tiktok-content/tasks</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>分页查询分配给服务商的内容处理任务。</td>
+            <td>tk商品维护</td>
+            <td>内容中台任务数据</td>
+            <td>如服务商接入场景包含图片处理、标题优化、翻译或内容审核，建议开放该接口。</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a class="toc-link" href="#api-task-result">任务结果回传</a></td>
+            <td><code>/openapi/tiktok-content/tasks/{taskId}/result</code></td>
+            <td><span class="badge post">POST</span></td>
+            <td>服务商完成内容处理后，回传处理结果、素材地址、状态和异常原因。</td>
+            <td>tk商品维护</td>
+            <td>外部服务商回传数据</td>
+            <td>写入类接口需单独确认幂等键、签名校验、字段校验和回滚策略。</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><a class="toc-link" href="#api-dictionaries">枚举字典查询</a></td>
+            <td><code>/openapi/tiktok-content/dictionaries</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>查询站点、店铺、商品状态、任务状态、内容类型等服务商需要使用的枚举字典。</td>
+            <td>tk商品维护</td>
+            <td>内容中台配置数据</td>
+            <td>用于减少接口字段硬编码，建议作为通用基础接口。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="api-products-list">3.1 商品列表查询</h3>
+    <p><strong>对外接口说明</strong></p>
+    <p>该接口面向外部服务商提供商品列表分页查询能力。对外请求参数参考 TikTok Shop Search Products 接口口径，仅保留当前业务可用筛选项，并将字段统一转换为驼峰命名。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数，对应 TikTok 原始字段 <code>page_size</code>；建议默认 20，最大值需由网关或服务端限制。</td></tr>
+          <tr><td>pageNum</td><td>number</td><td>是</td><td><code>1</code></td><td>页码，从 1 开始；对外使用页码分页，内部如需对接 TikTok 游标分页，由服务端负责转换。</td></tr>
+          <tr><td>status</td><td>string</td><td>否</td><td><code>ACTIVATE</code></td><td>商品状态，对应 TikTok 原始字段 <code>status</code>；用于筛选在售、下架等状态商品，枚举值以后续实际接入为准。</td></tr>
+          <tr><td>createTimeGe</td><td>number</td><td>否</td><td><code>1714521600</code></td><td>创建时间起始值，对应 TikTok 原始字段 <code>create_time_ge</code>；Unix 秒级时间戳，表示查询创建时间大于等于该值的商品。</td></tr>
+          <tr><td>createTimeLe</td><td>number</td><td>否</td><td><code>1717199999</code></td><td>创建时间结束值，对应 TikTok 原始字段 <code>create_time_le</code>；Unix 秒级时间戳，表示查询创建时间小于等于该值的商品。</td></tr>
+          <tr><td>auditStatus</td><td>string</td><td>否</td><td><code>AUDITING</code></td><td>审核状态，对应 TikTok 原始字段 <code>audit_status</code>；用于筛选审核中、审核通过、审核失败等商品。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外请求示例</strong></p>
+    <pre><code>GET /openapi/tiktok-content/products?pageNum=1&amp;pageSize=20&amp;status=ACTIVATE&amp;createTimeGe=1714521600&amp;createTimeLe=1717199999&amp;auditStatus=AUDITING</code></pre>
+
+    <p><strong>对外响应示例</strong></p>
+    <pre><code>{
+  "code": 0,
+  "data": {
+    "pageNum": 1,
+    "pageSize": 20,
+    "totalCount": 200,
+    "products": [
+      {
+        "id": "1729592969712207008",
+        "title": "Short Boat Invisible Socks",
+        "status": "ACTIVATE",
+        "skus": [
+          {
+            "id": "1729592969712207012",
+            "sellerSku": "Color-Red-XM01",
+            "price": {
+              "currency": "USD",
+              "taxExclusivePrice": "111.01",
+              "salePrice": "121.11"
+            },
+            "inventory": [
+              {
+                "warehouseId": "7068517275539719942",
+                "quantity": 999,
+                "backorderQuantity": 888,
+                "handlingTime": 5
+              }
+            ],
+            "listPrice": {
+              "amount": "1",
+              "currency": "USD"
+            },
+            "externalListPrices": [
+              {
+                "source": "SHOPIFY_COMPARE_AT_PRICE",
+                "amount": "1",
+                "currency": "USD"
+              }
+            ],
+            "preSale": {
+              "type": "PRE_ORDER",
+              "fulfillmentType": {
+                "handlingDurationDays": 7,
+                "releaseDate": 1619611761
+              }
+            },
+            "statusInfo": {
+              "status": "DEACTIVATED",
+              "deactivationSource": "PLATFORM"
+            },
+            "fees": [
+              {
+                "type": "PFAND",
+                "amount": "1.01",
+                "additionalAttribute": "SINGLE_USE"
+              }
+            ]
+          }
+        ],
+        "salesRegions": ["US"],
+        "createTime": 1234567890,
+        "updateTime": 1234567800,
+        "productSyncFailReasons": ["The required qualification is missed."],
+        "isNotForSale": true,
+        "recommendedCategories": [
+          {
+            "id": "853000",
+            "localName": "Botol &amp; Stoples Penyimpanan"
+          }
+        ],
+        "listingQualityTier": "POOR",
+        "integratedPlatformStatuses": [
+          {
+            "platform": "TOKOPEDIA",
+            "status": "PLATFORM_DEACTIVATED"
+          }
+        ],
+        "audit": {
+          "status": "AUDITING",
+          "preApprovedReasons": ["KYC_PENDING"]
+        },
+        "productFamilies": [
+          {
+            "id": "1000592969712207000",
+            "products": [
+              { "id": "1729592969712207008" }
+            ]
+          }
+        ],
+        "hasDraft": true,
+        "scheduledSale": {
+          "isEnabledScheduledSale": false,
+          "scheduleSaleTime": 1768899145000
+        }
+      }
+    ]
+  },
+  "message": "Success",
+  "requestId": "202203070749000101890810281E8C70B7"
+}</code></pre>
+    <p><strong>对外响应字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码，<code>0</code> 表示成功。</td></tr>
+          <tr><td>message</td><td>string</td><td>响应消息。</td></tr>
+          <tr><td>requestId</td><td>string</td><td>请求 ID，用于排查问题和链路追踪。</td></tr>
+          <tr><td>data.pageNum</td><td>number</td><td>当前页码。</td></tr>
+          <tr><td>data.pageSize</td><td>number</td><td>每页条数。</td></tr>
+          <tr><td>data.totalCount</td><td>number</td><td>符合条件的商品总数。</td></tr>
+          <tr><td>data.products[].id</td><td>string</td><td>商品 ID。</td></tr>
+          <tr><td>data.products[].title</td><td>string</td><td>商品标题。</td></tr>
+          <tr><td>data.products[].status</td><td>string</td><td>商品状态。</td></tr>
+          <tr><td>data.products[].skus[]</td><td>list&lt;object&gt;</td><td>商品 SKU 列表，包含 SKU ID、商家 SKU、价格、库存、预售、状态和费用等信息。</td></tr>
+          <tr><td>data.products[].salesRegions[]</td><td>list&lt;string&gt;</td><td>商品销售区域。</td></tr>
+          <tr><td>data.products[].createTime</td><td>number</td><td>商品创建时间，Unix 时间戳。</td></tr>
+          <tr><td>data.products[].updateTime</td><td>number</td><td>商品更新时间，Unix 时间戳。</td></tr>
+          <tr><td>data.products[].audit</td><td>object</td><td>商品审核状态与预审核原因。</td></tr>
+          <tr><td>data.products[].hasDraft</td><td>boolean</td><td>是否存在草稿。</td></tr>
+          <tr><td>data.products[].scheduledSale</td><td>object</td><td>定时销售配置。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>内部对接第三方接口参数</strong></p>
+    <p>内部服务根据对外驼峰参数转换为 TikTok Search Products 原始业务请求体。此处仅记录 JSON Body 中的业务参数，鉴权、店铺、签名、分页游标等 Query/Header 参数由内部接入层统一处理，不在本文档展开。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>内部参数</th><th>类型</th><th>来源对外参数 / 系统来源</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Body</td><td>status</td><td>string</td><td><code>status</code></td><td><code>ALL</code></td><td>商品状态；对外未传时可默认 <code>ALL</code>。</td></tr>
+          <tr><td>Body</td><td>seller_skus</td><td>list&lt;string&gt;</td><td>后续对外可扩展 <code>sellerSkus</code></td><td><code>["Color-Red-XM001"]</code></td><td>商家 SKU 列表，当前对外暂未开放，内部能力保留。</td></tr>
+          <tr><td>Body</td><td>create_time_ge</td><td>number</td><td><code>createTimeGe</code></td><td><code>1694309208</code></td><td>商品创建时间起始值，Unix 秒级时间戳。</td></tr>
+          <tr><td>Body</td><td>create_time_le</td><td>number</td><td><code>createTimeLe</code></td><td><code>1694319208</code></td><td>商品创建时间结束值，Unix 秒级时间戳。</td></tr>
+          <tr><td>Body</td><td>update_time_ge</td><td>number</td><td>后续对外可扩展 <code>updateTimeGe</code></td><td><code>1694319208</code></td><td>商品更新时间起始值，当前内部能力保留。</td></tr>
+          <tr><td>Body</td><td>update_time_le</td><td>number</td><td>后续对外可扩展 <code>updateTimeLe</code></td><td><code>1694319208</code></td><td>商品更新时间结束值，当前内部能力保留。</td></tr>
+          <tr><td>Body</td><td>category_version</td><td>string</td><td>系统默认 / 后续可扩展</td><td><code>v1</code></td><td>类目版本。</td></tr>
+          <tr><td>Body</td><td>listing_quality_tiers</td><td>list&lt;string&gt;</td><td>后续对外可扩展 <code>listingQualityTiers</code></td><td><code>["POOR", "FAIR"]</code></td><td>Listing 质量层级筛选。</td></tr>
+          <tr><td>Body</td><td>listing_platforms</td><td>list&lt;string&gt;</td><td>系统默认 / 后续可扩展</td><td><code>["TIKTOK_SHOP"]</code></td><td>Listing 平台筛选。</td></tr>
+          <tr><td>Body</td><td>audit_status</td><td>list&lt;string&gt;</td><td><code>auditStatus</code></td><td><code>["AUDITING"]</code></td><td>审核状态列表；对外单值传入，内部转换为列表。</td></tr>
+          <tr><td>Body</td><td>sku_ids</td><td>list&lt;string&gt;</td><td>后续对外可扩展 <code>skuIds</code></td><td><code>["1729592969712207230"]</code></td><td>SKU ID 列表筛选。</td></tr>
+          <tr><td>Body</td><td>sns_filter</td><td>string</td><td>系统默认 / 后续可扩展</td><td><code>CONFIGURED</code></td><td>SNS 配置筛选。</td></tr>
+          <tr><td>Body</td><td>return_draft_version</td><td>boolean</td><td>系统默认 / 后续可扩展 <code>returnDraftVersion</code></td><td><code>true</code></td><td>是否返回草稿版本。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>内部请求示例</strong></p>
+    <pre><code>-d '{
+    "status": "ALL",
+    "seller_skus": [
+      "Color-Red-XM001"
+    ],
+    "create_time_ge": 1694309208,
+    "create_time_le": 1694319208,
+    "update_time_ge": 1694319208,
+    "update_time_le": 1694319208,
+    "category_version": "v1",
+    "listing_quality_tiers": [
+      "POOR",
+      "FAIR"
+    ],
+    "listing_platforms": [
+      "TIKTOK_SHOP"
+    ],
+    "audit_status": [
+      "AUDITING"
+    ],
+    "sku_ids": [
+      "1729592969712207230"
+    ],
+    "sns_filter": "CONFIGURED",
+    "return_draft_version": true
+  }'</code></pre>
+    <p><strong>内部响应示例</strong></p>
+    <pre><code>{
+  "code": 0,
+  "data": {
+    "total_count": 200,
+    "products": [
+      {
+        "id": "1729592969712207008",
+        "title": "Short Boat Invisible Socks",
+        "status": "ACTIVATE",
+        "skus": [
+          {
+            "id": "1729592969712207012",
+            "seller_sku": "Color-Red-XM01",
+            "price": {
+              "currency": "USD",
+              "tax_exclusive_price": "111.01",
+              "sale_price": "121.11"
+            },
+            "inventory": [
+              {
+                "warehouse_id": "7068517275539719942",
+                "quantity": 999,
+                "backorder_quantity": 888,
+                "handling_time": 5
+              }
+            ],
+            "list_price": {
+              "amount": "1",
+              "currency": "USD"
+            },
+            "external_list_prices": [
+              {
+                "source": "SHOPIFY_COMPARE_AT_PRICE",
+                "amount": "1",
+                "currency": "USD"
+              }
+            ],
+            "pre_sale": {
+              "type": "PRE_ORDER",
+              "fulfillment_type": {
+                "handling_duration_days": 7,
+                "release_date": 1619611761
+              }
+            },
+            "status_info": {
+              "status": "DEACTIVATED",
+              "deactivation_source": "PLATFORM"
+            },
+            "fees": [
+              {
+                "type": "PFAND",
+                "amount": "1.01",
+                "additional_attribute": "SINGLE_USE"
+              }
+            ]
+          }
+        ],
+        "sales_regions": ["US"],
+        "create_time": 1234567890,
+        "update_time": 1234567800,
+        "product_sync_fail_reasons": ["The required qualification is missed."],
+        "is_not_for_sale": true,
+        "recommended_categories": [
+          {
+            "id": "853000",
+            "local_name": "Botol &amp; Stoples Penyimpanan"
+          }
+        ],
+        "listing_quality_tier": "POOR",
+        "integrated_platform_statuses": [
+          {
+            "platform": "TOKOPEDIA",
+            "status": "PLATFORM_DEACTIVATED"
+          }
+        ],
+        "audit": {
+          "status": "AUDITING",
+          "pre_approved_reasons": ["KYC_PENDING"]
+        },
+        "product_families": [
+          {
+            "id": "1000592969712207000",
+            "products": [
+              { "id": "1729592969712207008" }
+            ]
+          }
+        ],
+        "has_draft": true,
+        "scheduled_sale": {
+          "is_enabled_scheduled_sale": false,
+          "schedule_sale_time": 1768899145000
+        }
+      }
+    ],
+    "next_page_token": "b2Zmc2V0PTAK"
+  },
+  "message": "Success",
+  "request_id": "202203070749000101890810281E8C70B7"
+}</code></pre>
+    <p><strong>参数转换说明</strong></p>
+    <ul>
+      <li>对外接口字段统一使用 camelCase，例如 <code>createTimeGe</code>、<code>createTimeLe</code>、<code>auditStatus</code>。</li>
+      <li>内部对接第三方时再转换为 TikTok 原始下划线字段，例如 <code>create_time_ge</code>、<code>create_time_le</code>、<code>audit_status</code>。</li>
+      <li>第三方业务参数尽量保留在内部映射层；对外暂只开放当前确认可用字段，后续可按需要逐步放开 <code>sellerSkus</code>、<code>skuIds</code>、<code>updateTimeGe</code>、<code>updateTimeLe</code> 等字段。</li>
+      <li>第三方 Query/Header 中的鉴权、签名、店铺授权、游标分页等参数由内部接入层统一处理，本文档仅备份业务请求体参数。</li>
+    </ul>
+
+    <h3 id="api-product-detail">3.2 商品详情查询</h3>
+    <p><strong>对外接口说明</strong></p>
+    <p>该接口面向外部服务商提供单个 TikTok 商品详情查询能力。由于店铺名包含中文，对外使用 POST JSON Body 传参，避免 URL 参数转义问题；对外请求参数和响应字段统一使用 camelCase。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Body</td><td>shopName</td><td>string</td><td>是</td><td><code>美国TK-艾斯特尼-美区跨境1店</code></td><td>店铺名称，用于内部匹配店铺授权、店铺密文和访问令牌。</td></tr>
+          <tr><td>Body</td><td>productId</td><td>string</td><td>是</td><td><code>1729592969712207008</code></td><td>TikTok 商品 ID，对应内部第三方路径参数 <code>product_id</code>。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外请求示例</strong></p>
+    <pre><code>POST /openapi/tiktok-content/product/detail
+Content-Type: application/json
+
+{
+  "shopName": "美国TK-艾斯特尼-美区跨境1店",
+  "productId": "1729592969712207008"
+}</code></pre>
+    <p><strong>对外响应示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 0,
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;1729592969712207008&quot;,
+    &quot;status&quot;: &quot;SELLER_DEACTIVATED&quot;,
+    &quot;title&quot;: &quot;Short Boat Invisible Socks&quot;,
+    &quot;categoryChains&quot;: [
+      {
+        &quot;id&quot;: &quot;853000&quot;,
+        &quot;parentId&quot;: &quot;851848&quot;,
+        &quot;localName&quot;: &quot;Botol &amp; Stoples Penyimpanan&quot;,
+        &quot;isLeaf&quot;: true
+      }
+    ],
+    &quot;brand&quot;: {
+      &quot;id&quot;: &quot;7082427311584347905&quot;,
+      &quot;name&quot;: &quot;brand xxx aaa&quot;
+    },
+    &quot;mainImages&quot;: [
+      {
+        &quot;height&quot;: 600,
+        &quot;width&quot;: 600,
+        &quot;thumbUrls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ],
+        &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+        &quot;urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ]
+      }
+    ],
+    &quot;video&quot;: {
+      &quot;id&quot;: &quot;v09ea0g40000cj91373c77u3mid3g1s0&quot;,
+      &quot;coverUrl&quot;: &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;,
+      &quot;format&quot;: &quot;MP4&quot;,
+      &quot;url&quot;: &quot;https://v16m-default.akamaized.net/bbae7099581b26cd340beaa7821b2d8c/64de6020/video/tos/alisg/tos-alisg-v-f466fc-sg/oMne9QuzIBN3fIDN7bFCCMbBKuGigg12ghDC8k/?a=0&amp;ch=0&amp;cr=0&amp;dr=0&amp;er=0&amp;lr=default&amp;cd=0%7C0%7C0%7C0&amp;br=2212&amp;bt=1106&amp;cs=0&amp;ds=3&amp;ft=dl9~j-Inz7TKnfsfiyq8Z&amp;mime_type=video_mp4&amp;qs=13&amp;rc=anR4Ojk6ZmYzbTMzODRmNEBpanR4Ojk6ZmYzbTMzODRmNEBsYWFwcjRva2NgLS1kLy1zYSNsYWFwcjRva2NgLS1kLy1zcw%3D%3D&amp;l=202308171159498F7B108584E58B010932&amp;btag=e00048000&quot;,
+      &quot;width&quot;: 1280,
+      &quot;height&quot;: 480,
+      &quot;size&quot;: 1000
+    },
+    &quot;description&quot;: &quot;&lt;p&gt;Please compare above detailed size with your measurement before purchase.&lt;/p&gt;\n&lt;ul&gt; \n  &lt;li&gt;M-Size&lt;/li&gt;\n  &lt;li&gt;XL-Size&lt;/li&gt;\n&lt;/ul&gt; \n&lt;img src=\&quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/181595ea7d26489284b5667488d708c1~tplv-o3syd03w52-origin-jpeg.jpeg?from=1432613627\&quot; /&gt;\n&quot;,
+    &quot;packageDimensions&quot;: {
+      &quot;length&quot;: &quot;10&quot;,
+      &quot;width&quot;: &quot;10&quot;,
+      &quot;height&quot;: &quot;10&quot;,
+      &quot;unit&quot;: &quot;CENTIMETER&quot;
+    },
+    &quot;packageWeight&quot;: {
+      &quot;value&quot;: &quot;1.32&quot;,
+      &quot;unit&quot;: &quot;KILOGRAM&quot;
+    },
+    &quot;skus&quot;: [
+      {
+        &quot;id&quot;: &quot;10001&quot;,
+        &quot;sellerSku&quot;: &quot;sku name&quot;,
+        &quot;price&quot;: {
+          &quot;taxExclusivePrice&quot;: &quot;110&quot;,
+          &quot;salePrice&quot;: &quot;117.5&quot;,
+          &quot;currency&quot;: &quot;USD&quot;,
+          &quot;unitPrice&quot;: &quot;1&quot;
+        },
+        &quot;inventory&quot;: [
+          {
+            &quot;warehouseId&quot;: &quot;6966568648651605766&quot;,
+            &quot;quantity&quot;: 999,
+            &quot;backorderQuantity&quot;: 888,
+            &quot;handlingTime&quot;: 5
+          }
+        ],
+        &quot;identifierCode&quot;: {
+          &quot;code&quot;: &quot;10000000000010&quot;,
+          &quot;type&quot;: &quot;GTIN&quot;
+        },
+        &quot;salesAttributes&quot;: [
+          {
+            &quot;id&quot;: &quot;100000&quot;,
+            &quot;name&quot;: &quot;Color&quot;,
+            &quot;valueId&quot;: &quot;100000&quot;,
+            &quot;valueName&quot;: &quot;Red&quot;,
+            &quot;skuImg&quot;: {
+              &quot;height&quot;: 100,
+              &quot;width&quot;: 100,
+              &quot;thumbUrls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ],
+              &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+              &quot;urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ]
+            },
+            &quot;supplementarySkuImages&quot;: [
+              {
+                &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                &quot;height&quot;: 100,
+                &quot;width&quot;: 100,
+                &quot;thumbUrls&quot;: [
+                  &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                ],
+                &quot;urls&quot;: [
+                  &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                ]
+              }
+            ]
+          }
+        ],
+        &quot;externalSkuId&quot;: &quot;1729592969712207234&quot;,
+        &quot;combinedSkus&quot;: [
+          {
+            &quot;productId&quot;: &quot;1729582718312380123&quot;,
+            &quot;skuId&quot;: &quot;1729582718312380123&quot;,
+            &quot;skuCount&quot;: 1,
+            &quot;sellerSku&quot;: &quot;sku_name&quot;,
+            &quot;title&quot;: &quot;Short Boat Invisible Socks&quot;,
+            &quot;salesAttributes&quot;: [
+              {
+                &quot;id&quot;: &quot;100000&quot;,
+                &quot;name&quot;: &quot;Color&quot;,
+                &quot;valueId&quot;: &quot;100000&quot;,
+                &quot;valueName&quot;: &quot;Red&quot;,
+                &quot;skuImg&quot;: {
+                  &quot;height&quot;: 100,
+                  &quot;width&quot;: 100,
+                  &quot;thumbUrls&quot;: [
+                    &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                  ],
+                  &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                  &quot;urls&quot;: [
+                    &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                  ]
+                },
+                &quot;supplementarySkuImages&quot;: [
+                  {
+                    &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                    &quot;height&quot;: 100,
+                    &quot;width&quot;: 100,
+                    &quot;thumbUrls&quot;: [
+                      &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                    ],
+                    &quot;urls&quot;: [
+                      &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                    ]
+                  }
+                ]
+              }
+            ],
+            &quot;price&quot;: {
+              &quot;taxExclusivePrice&quot;: &quot;110&quot;,
+              &quot;salePrice&quot;: &quot;117.5&quot;,
+              &quot;currency&quot;: &quot;USD&quot;
+            },
+            &quot;inventory&quot;: [
+              {
+                &quot;warehouseId&quot;: &quot;6966568648651605766&quot;,
+                &quot;quantity&quot;: 999
+              }
+            ],
+            &quot;productMainImage&quot;: {
+              &quot;height&quot;: 600,
+              &quot;width&quot;: 600,
+              &quot;thumbUrls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ],
+              &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+              &quot;urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ]
+            },
+            &quot;categories&quot;: [
+              {
+                &quot;id&quot;: &quot;853000&quot;,
+                &quot;parentId&quot;: &quot;851848&quot;,
+                &quot;localName&quot;: &quot;Botol &amp; Stoples Penyimpanan&quot;,
+                &quot;isLeaf&quot;: true
+              }
+            ],
+            &quot;brand&quot;: {
+              &quot;id&quot;: &quot;7082427311584347905&quot;,
+              &quot;name&quot;: &quot;brand xxx aaa&quot;
+            },
+            &quot;combinedListingNotLiveReasons&quot;: [
+              &quot;SUB_PRODUCT_DELETE&quot;
+            ]
+          }
+        ],
+        &quot;globalListingPolicy&quot;: {
+          &quot;priceSync&quot;: true,
+          &quot;inventoryType&quot;: &quot;SHARED&quot;,
+          &quot;replicateSource&quot;: {
+            &quot;productId&quot;: &quot;1729592969712203232&quot;,
+            &quot;shopId&quot;: &quot;7295929697122032321&quot;,
+            &quot;skuId&quot;: &quot;1729592969712203232&quot;
+          }
+        },
+        &quot;skuUnitCount&quot;: &quot;1.00&quot;,
+        &quot;externalUrls&quot;: [
+          &quot;https://example.com/path1&quot;,
+          &quot;https://example.com/path2&quot;
+        ],
+        &quot;extraIdentifierCodes&quot;: [
+          &quot;00012345678905&quot;,
+          &quot;9780596520687&quot;
+        ],
+        &quot;preSale&quot;: {
+          &quot;type&quot;: &quot;PRE_ORDER&quot;,
+          &quot;fulfillmentType&quot;: {
+            &quot;handlingDurationDays&quot;: 3,
+            &quot;releaseDate&quot;: 1619611761
+          }
+        },
+        &quot;listPrice&quot;: {
+          &quot;amount&quot;: &quot;1&quot;,
+          &quot;currency&quot;: &quot;USD&quot;
+        },
+        &quot;externalListPrices&quot;: [
+          {
+            &quot;source&quot;: &quot;SHOPIFY_COMPARE_AT_PRICE&quot;,
+            &quot;amount&quot;: &quot;1&quot;,
+            &quot;currency&quot;: &quot;USD&quot;
+          }
+        ],
+        &quot;statusInfo&quot;: {
+          &quot;status&quot;: &quot;DEACTIVATED&quot;,
+          &quot;deactivationSource&quot;: &quot;PLATFORM&quot;
+        },
+        &quot;fees&quot;: [
+          {
+            &quot;type&quot;: &quot;PFAND&quot;,
+            &quot;amount&quot;: &quot;1.01&quot;,
+            &quot;additionalAttribute&quot;: &quot;SINGLE_USE&quot;
+          }
+        ],
+        &quot;skuDimensions&quot;: {
+          &quot;length&quot;: &quot;10&quot;,
+          &quot;width&quot;: &quot;10&quot;,
+          &quot;height&quot;: &quot;10&quot;,
+          &quot;unit&quot;: &quot;CENTIMETER&quot;
+        },
+        &quot;skuWeight&quot;: {
+          &quot;value&quot;: &quot;1.32&quot;,
+          &quot;unit&quot;: &quot;KILOGRAM&quot;
+        }
+      }
+    ],
+    &quot;certifications&quot;: [
+      {
+        &quot;id&quot;: &quot;602362&quot;,
+        &quot;title&quot;: &quot;SNI Certificate&quot;,
+        &quot;files&quot;: [
+          {
+            &quot;id&quot;: &quot;v09ea0g40000cj91373c77u3mid3g1s0&quot;,
+            &quot;urls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ],
+            &quot;name&quot;: &quot;CERT_X2.PDF&quot;,
+            &quot;format&quot;: &quot;PDF&quot;
+          }
+        ],
+        &quot;images&quot;: [
+          {
+            &quot;height&quot;: 600,
+            &quot;width&quot;: 600,
+            &quot;thumbUrls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ],
+            &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+            &quot;urls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ]
+          }
+        ],
+        &quot;expirationDate&quot;: 1741235456
+      }
+    ],
+    &quot;sizeChart&quot;: {
+      &quot;image&quot;: {
+        &quot;height&quot;: 600,
+        &quot;width&quot;: 600,
+        &quot;thumbUrls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ],
+        &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+        &quot;urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ]
+      },
+      &quot;template&quot;: {
+        &quot;id&quot;: &quot;7267563252536723205&quot;
+      }
+    },
+    &quot;isCodAllowed&quot;: true,
+    &quot;productAttributes&quot;: [
+      {
+        &quot;id&quot;: &quot;100392&quot;,
+        &quot;name&quot;: &quot;Occasion&quot;,
+        &quot;values&quot;: [
+          {
+            &quot;id&quot;: &quot;1001533&quot;,
+            &quot;name&quot;: &quot;Birthday&quot;
+          }
+        ]
+      }
+    ],
+    &quot;auditFailedReasons&quot;: [
+      {
+        &quot;position&quot;: &quot;product&quot;,
+        &quot;reasons&quot;: [
+          &quot;violate listing rules&quot;
+        ],
+        &quot;suggestions&quot;: [
+          &quot;The product violates TikTok Shopping listing rules, please check and resubmit.&quot;
+        ],
+        &quot;listingPlatform&quot;: &quot;TIKTOK_SHOP&quot;
+      }
+    ],
+    &quot;updateTime&quot;: 1234567899,
+    &quot;createTime&quot;: 1234567890,
+    &quot;deliveryOptions&quot;: [
+      {
+        &quot;id&quot;: &quot;1729592969712203232&quot;,
+        &quot;name&quot;: &quot;SEND_BY_SELLER&quot;,
+        &quot;isAvailable&quot;: true
+      }
+    ],
+    &quot;externalProductId&quot;: &quot;172959296971220002&quot;,
+    &quot;productTypes&quot;: [
+      &quot;COMBINED_PRODUCT&quot;
+    ],
+    &quot;isNotForSale&quot;: true,
+    &quot;recommendedCategories&quot;: [
+      {
+        &quot;id&quot;: &quot;850003&quot;,
+        &quot;localName&quot;: &quot;\t\nBotol &amp; Stoples Penyimpanan&quot;
+      }
+    ],
+    &quot;manufacturerIds&quot;: [
+      &quot;172959296971220002&quot;
+    ],
+    &quot;responsiblePersonIds&quot;: [
+      &quot;172959296971220003&quot;
+    ],
+    &quot;listingQualityTier&quot;: &quot;POOR&quot;,
+    &quot;integratedPlatformStatuses&quot;: [
+      {
+        &quot;platform&quot;: &quot;TOKOPEDIA&quot;,
+        &quot;status&quot;: &quot;PLATFORM_DEACTIVATED&quot;
+      }
+    ],
+    &quot;shippingInsuranceRequirement&quot;: &quot;OPTIONAL&quot;,
+    &quot;minimumOrderQuantity&quot;: 1,
+    &quot;isPreOwned&quot;: false,
+    &quot;audit&quot;: {
+      &quot;status&quot;: &quot;AUDITING&quot;,
+      &quot;preApprovedReasons&quot;: [
+        &quot;KYC_PENDING&quot;
+      ]
+    },
+    &quot;globalProductAssociation&quot;: {
+      &quot;globalProductId&quot;: &quot;1729592969712207920&quot;,
+      &quot;skuMappings&quot;: [
+        {
+          &quot;globalSkuId&quot;: &quot;1729592969712207234&quot;,
+          &quot;localSkuId&quot;: &quot;1729592969712207230&quot;,
+          &quot;salesAttributeMappings&quot;: [
+            {
+              &quot;localAttributeId&quot;: &quot;100000&quot;,
+              &quot;globalAttributeId&quot;: &quot;100000&quot;,
+              &quot;localValueId&quot;: &quot;1001064&quot;,
+              &quot;globalValueId&quot;: &quot;1001064&quot;
+            }
+          ]
+        }
+      ]
+    },
+    &quot;prescriptionRequirement&quot;: {
+      &quot;needsPrescription&quot;: false
+    },
+    &quot;productFamilies&quot;: [
+      {
+        &quot;id&quot;: &quot;1000592969712207000&quot;,
+        &quot;products&quot;: [
+          {
+            &quot;id&quot;: &quot;1729592969712207008&quot;
+          }
+        ]
+      }
+    ],
+    &quot;subscribeInfo&quot;: {
+      &quot;supportSubscribe&quot;: false,
+      &quot;subscribeStatus&quot;: &quot;ENABLED&quot;,
+      &quot;subscribeDiscountDetails&quot;: [
+        {
+          &quot;discountLevel&quot;: &quot;REGULAR&quot;,
+          &quot;discountValue&quot;: 10
+        }
+      ],
+      &quot;subscribePromotionConfig&quot;: [
+        {
+          &quot;discountLevel&quot;: &quot;REGULAR&quot;,
+          &quot;discountOptions&quot;: [
+            5,
+            10,
+            15,
+            20
+          ],
+          &quot;maxDiscount&quot;: 90,
+          &quot;minDiscount&quot;: 5
+        }
+      ]
+    },
+    &quot;hasDraft&quot;: true,
+    &quot;primaryCombinedProductId&quot;: &quot;1729592969712207008&quot;,
+    &quot;productStatus&quot;: &quot;SELLER_DEACTIVATED&quot;,
+    &quot;isReplicated&quot;: false,
+    &quot;shippingTemplateId&quot;: &quot;7552764259994699538&quot;,
+    &quot;scheduledSale&quot;: {
+      &quot;isEnabledScheduledSale&quot;: false,
+      &quot;scheduleSaleTime&quot;: 1768899145000
+    },
+    &quot;searchTerms&quot;: [
+      &quot;sneakers&quot;,
+      &quot;running shoes&quot;,
+      &quot;athletic&quot;
+    ],
+    &quot;keyProductFeatures&quot;: [
+      &quot;Breathable mesh upper&quot;,
+      &quot;Cushioned foam midsole&quot;
+    ]
+  },
+  &quot;message&quot;: &quot;Success&quot;,
+  &quot;requestId&quot;: &quot;202203070749000101890810281E8C70B7&quot;
+}</code></pre>
+
+
+    <p><strong>内部对接第三方接口参数</strong></p>
+    <p>内部服务根据商品 ID 调用 TikTok Get Product 原始详情接口。此处仅记录业务路径参数和业务 Query 参数，鉴权、签名、店铺授权、请求头等参数由内部接入层统一处理，不在本文档展开。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>内部参数</th><th>类型</th><th>来源对外参数 / 系统来源</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Path</td><td>product_id</td><td>string</td><td><code>productId</code></td><td><code>1729592969712207008</code></td><td>TikTok 商品 ID，对应详情接口路径中的商品标识。</td></tr>
+          <tr><td>Query</td><td>return_under_review_version</td><td>boolean</td><td>系统默认 / 后续可扩展 <code>returnUnderReviewVersion</code></td><td><code>true</code></td><td>是否返回审核中版本。</td></tr>
+          <tr><td>Query</td><td>return_draft_version</td><td>boolean</td><td>系统默认 / 后续可扩展 <code>returnDraftVersion</code></td><td><code>true</code></td><td>是否返回草稿版本。</td></tr>
+          <tr><td>Query</td><td>locale</td><td>string</td><td>系统默认 / 后续可扩展</td><td><code>en</code></td><td>返回内容语言。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>内部请求示例</strong></p>
+    <pre><code>GET /product/202309/products/{product_id}?return_under_review_version=true&amp;return_draft_version=true&amp;locale=en</code></pre>
+    <p><strong>内部响应示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 0,
+  &quot;data&quot;: {
+    &quot;id&quot;: &quot;1729592969712207008&quot;,
+    &quot;status&quot;: &quot;SELLER_DEACTIVATED&quot;,
+    &quot;title&quot;: &quot;Short Boat Invisible Socks&quot;,
+    &quot;category_chains&quot;: [
+      {
+        &quot;id&quot;: &quot;853000&quot;,
+        &quot;parent_id&quot;: &quot;851848&quot;,
+        &quot;local_name&quot;: &quot;Botol &amp; Stoples Penyimpanan&quot;,
+        &quot;is_leaf&quot;: true
+      }
+    ],
+    &quot;brand&quot;: {
+      &quot;id&quot;: &quot;7082427311584347905&quot;,
+      &quot;name&quot;: &quot;brand xxx aaa&quot;
+    },
+    &quot;main_images&quot;: [
+      {
+        &quot;height&quot;: 600,
+        &quot;width&quot;: 600,
+        &quot;thumb_urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ],
+        &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+        &quot;urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ]
+      }
+    ],
+    &quot;video&quot;: {
+      &quot;id&quot;: &quot;v09ea0g40000cj91373c77u3mid3g1s0&quot;,
+      &quot;cover_url&quot;: &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;,
+      &quot;format&quot;: &quot;MP4&quot;,
+      &quot;url&quot;: &quot;https://v16m-default.akamaized.net/bbae7099581b26cd340beaa7821b2d8c/64de6020/video/tos/alisg/tos-alisg-v-f466fc-sg/oMne9QuzIBN3fIDN7bFCCMbBKuGigg12ghDC8k/?a=0&amp;ch=0&amp;cr=0&amp;dr=0&amp;er=0&amp;lr=default&amp;cd=0%7C0%7C0%7C0&amp;br=2212&amp;bt=1106&amp;cs=0&amp;ds=3&amp;ft=dl9~j-Inz7TKnfsfiyq8Z&amp;mime_type=video_mp4&amp;qs=13&amp;rc=anR4Ojk6ZmYzbTMzODRmNEBpanR4Ojk6ZmYzbTMzODRmNEBsYWFwcjRva2NgLS1kLy1zYSNsYWFwcjRva2NgLS1kLy1zcw%3D%3D&amp;l=202308171159498F7B108584E58B010932&amp;btag=e00048000&quot;,
+      &quot;width&quot;: 1280,
+      &quot;height&quot;: 480,
+      &quot;size&quot;: 1000
+    },
+    &quot;description&quot;: &quot;&lt;p&gt;Please compare above detailed size with your measurement before purchase.&lt;/p&gt;\n&lt;ul&gt; \n  &lt;li&gt;M-Size&lt;/li&gt;\n  &lt;li&gt;XL-Size&lt;/li&gt;\n&lt;/ul&gt; \n&lt;img src=\&quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/181595ea7d26489284b5667488d708c1~tplv-o3syd03w52-origin-jpeg.jpeg?from=1432613627\&quot; /&gt;\n&quot;,
+    &quot;package_dimensions&quot;: {
+      &quot;length&quot;: &quot;10&quot;,
+      &quot;width&quot;: &quot;10&quot;,
+      &quot;height&quot;: &quot;10&quot;,
+      &quot;unit&quot;: &quot;CENTIMETER&quot;
+    },
+    &quot;package_weight&quot;: {
+      &quot;value&quot;: &quot;1.32&quot;,
+      &quot;unit&quot;: &quot;KILOGRAM&quot;
+    },
+    &quot;skus&quot;: [
+      {
+        &quot;id&quot;: &quot;10001&quot;,
+        &quot;seller_sku&quot;: &quot;sku name&quot;,
+        &quot;price&quot;: {
+          &quot;tax_exclusive_price&quot;: &quot;110&quot;,
+          &quot;sale_price&quot;: &quot;117.5&quot;,
+          &quot;currency&quot;: &quot;USD&quot;,
+          &quot;unit_price&quot;: &quot;1&quot;
+        },
+        &quot;inventory&quot;: [
+          {
+            &quot;warehouse_id&quot;: &quot;6966568648651605766&quot;,
+            &quot;quantity&quot;: 999,
+            &quot;backorder_quantity&quot;: 888,
+            &quot;handling_time&quot;: 5
+          }
+        ],
+        &quot;identifier_code&quot;: {
+          &quot;code&quot;: &quot;10000000000010&quot;,
+          &quot;type&quot;: &quot;GTIN&quot;
+        },
+        &quot;sales_attributes&quot;: [
+          {
+            &quot;id&quot;: &quot;100000&quot;,
+            &quot;name&quot;: &quot;Color&quot;,
+            &quot;value_id&quot;: &quot;100000&quot;,
+            &quot;value_name&quot;: &quot;Red&quot;,
+            &quot;sku_img&quot;: {
+              &quot;height&quot;: 100,
+              &quot;width&quot;: 100,
+              &quot;thumb_urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ],
+              &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+              &quot;urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ]
+            },
+            &quot;supplementary_sku_images&quot;: [
+              {
+                &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                &quot;height&quot;: 100,
+                &quot;width&quot;: 100,
+                &quot;thumb_urls&quot;: [
+                  &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                ],
+                &quot;urls&quot;: [
+                  &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                ]
+              }
+            ]
+          }
+        ],
+        &quot;external_sku_id&quot;: &quot;1729592969712207234&quot;,
+        &quot;combined_skus&quot;: [
+          {
+            &quot;product_id&quot;: &quot;1729582718312380123&quot;,
+            &quot;sku_id&quot;: &quot;1729582718312380123&quot;,
+            &quot;sku_count&quot;: 1,
+            &quot;seller_sku&quot;: &quot;sku_name&quot;,
+            &quot;title&quot;: &quot;Short Boat Invisible Socks&quot;,
+            &quot;sales_attributes&quot;: [
+              {
+                &quot;id&quot;: &quot;100000&quot;,
+                &quot;name&quot;: &quot;Color&quot;,
+                &quot;value_id&quot;: &quot;100000&quot;,
+                &quot;value_name&quot;: &quot;Red&quot;,
+                &quot;sku_img&quot;: {
+                  &quot;height&quot;: 100,
+                  &quot;width&quot;: 100,
+                  &quot;thumb_urls&quot;: [
+                    &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                  ],
+                  &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                  &quot;urls&quot;: [
+                    &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                  ]
+                },
+                &quot;supplementary_sku_images&quot;: [
+                  {
+                    &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+                    &quot;height&quot;: 100,
+                    &quot;width&quot;: 100,
+                    &quot;thumb_urls&quot;: [
+                      &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                    ],
+                    &quot;urls&quot;: [
+                      &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+                    ]
+                  }
+                ]
+              }
+            ],
+            &quot;price&quot;: {
+              &quot;tax_exclusive_price&quot;: &quot;110&quot;,
+              &quot;sale_price&quot;: &quot;117.5&quot;,
+              &quot;currency&quot;: &quot;USD&quot;
+            },
+            &quot;inventory&quot;: [
+              {
+                &quot;warehouse_id&quot;: &quot;6966568648651605766&quot;,
+                &quot;quantity&quot;: 999
+              }
+            ],
+            &quot;product_main_image&quot;: {
+              &quot;height&quot;: 600,
+              &quot;width&quot;: 600,
+              &quot;thumb_urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ],
+              &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+              &quot;urls&quot;: [
+                &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+              ]
+            },
+            &quot;categories&quot;: [
+              {
+                &quot;id&quot;: &quot;853000&quot;,
+                &quot;parent_id&quot;: &quot;851848&quot;,
+                &quot;local_name&quot;: &quot;Botol &amp; Stoples Penyimpanan&quot;,
+                &quot;is_leaf&quot;: true
+              }
+            ],
+            &quot;brand&quot;: {
+              &quot;id&quot;: &quot;7082427311584347905&quot;,
+              &quot;name&quot;: &quot;brand xxx aaa&quot;
+            },
+            &quot;combined_listing_not_live_reasons&quot;: [
+              &quot;SUB_PRODUCT_DELETE&quot;
+            ]
+          }
+        ],
+        &quot;global_listing_policy&quot;: {
+          &quot;price_sync&quot;: true,
+          &quot;inventory_type&quot;: &quot;SHARED&quot;,
+          &quot;replicate_source&quot;: {
+            &quot;product_id&quot;: &quot;1729592969712203232&quot;,
+            &quot;shop_id&quot;: &quot;7295929697122032321&quot;,
+            &quot;sku_id&quot;: &quot;1729592969712203232&quot;
+          }
+        },
+        &quot;sku_unit_count&quot;: &quot;1.00&quot;,
+        &quot;external_urls&quot;: [
+          &quot;https://example.com/path1&quot;,
+          &quot;https://example.com/path2&quot;
+        ],
+        &quot;extra_identifier_codes&quot;: [
+          &quot;00012345678905&quot;,
+          &quot;9780596520687&quot;
+        ],
+        &quot;pre_sale&quot;: {
+          &quot;type&quot;: &quot;PRE_ORDER&quot;,
+          &quot;fulfillment_type&quot;: {
+            &quot;handling_duration_days&quot;: 3,
+            &quot;release_date&quot;: 1619611761
+          }
+        },
+        &quot;list_price&quot;: {
+          &quot;amount&quot;: &quot;1&quot;,
+          &quot;currency&quot;: &quot;USD&quot;
+        },
+        &quot;external_list_prices&quot;: [
+          {
+            &quot;source&quot;: &quot;SHOPIFY_COMPARE_AT_PRICE&quot;,
+            &quot;amount&quot;: &quot;1&quot;,
+            &quot;currency&quot;: &quot;USD&quot;
+          }
+        ],
+        &quot;status_info&quot;: {
+          &quot;status&quot;: &quot;DEACTIVATED&quot;,
+          &quot;deactivation_source&quot;: &quot;PLATFORM&quot;
+        },
+        &quot;fees&quot;: [
+          {
+            &quot;type&quot;: &quot;PFAND&quot;,
+            &quot;amount&quot;: &quot;1.01&quot;,
+            &quot;additional_attribute&quot;: &quot;SINGLE_USE&quot;
+          }
+        ],
+        &quot;sku_dimensions&quot;: {
+          &quot;length&quot;: &quot;10&quot;,
+          &quot;width&quot;: &quot;10&quot;,
+          &quot;height&quot;: &quot;10&quot;,
+          &quot;unit&quot;: &quot;CENTIMETER&quot;
+        },
+        &quot;sku_weight&quot;: {
+          &quot;value&quot;: &quot;1.32&quot;,
+          &quot;unit&quot;: &quot;KILOGRAM&quot;
+        }
+      }
+    ],
+    &quot;certifications&quot;: [
+      {
+        &quot;id&quot;: &quot;602362&quot;,
+        &quot;title&quot;: &quot;SNI Certificate&quot;,
+        &quot;files&quot;: [
+          {
+            &quot;id&quot;: &quot;v09ea0g40000cj91373c77u3mid3g1s0&quot;,
+            &quot;urls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ],
+            &quot;name&quot;: &quot;CERT_X2.PDF&quot;,
+            &quot;format&quot;: &quot;PDF&quot;
+          }
+        ],
+        &quot;images&quot;: [
+          {
+            &quot;height&quot;: 600,
+            &quot;width&quot;: 600,
+            &quot;thumb_urls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ],
+            &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+            &quot;urls&quot;: [
+              &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+            ]
+          }
+        ],
+        &quot;expiration_date&quot;: 1741235456
+      }
+    ],
+    &quot;size_chart&quot;: {
+      &quot;image&quot;: {
+        &quot;height&quot;: 600,
+        &quot;width&quot;: 600,
+        &quot;thumb_urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ],
+        &quot;uri&quot;: &quot;tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4&quot;,
+        &quot;urls&quot;: [
+          &quot;https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/6c8519a3663a4d728c4e3c131dc914b4~tplv-o3syd03w52-resize-jpeg:300:300.jpeg?from=522366036&quot;
+        ]
+      },
+      &quot;template&quot;: {
+        &quot;id&quot;: &quot;7267563252536723205&quot;
+      }
+    },
+    &quot;is_cod_allowed&quot;: true,
+    &quot;product_attributes&quot;: [
+      {
+        &quot;id&quot;: &quot;100392&quot;,
+        &quot;name&quot;: &quot;Occasion&quot;,
+        &quot;values&quot;: [
+          {
+            &quot;id&quot;: &quot;1001533&quot;,
+            &quot;name&quot;: &quot;Birthday&quot;
+          }
+        ]
+      }
+    ],
+    &quot;audit_failed_reasons&quot;: [
+      {
+        &quot;position&quot;: &quot;product&quot;,
+        &quot;reasons&quot;: [
+          &quot;violate listing rules&quot;
+        ],
+        &quot;suggestions&quot;: [
+          &quot;The product violates TikTok Shopping listing rules, please check and resubmit.&quot;
+        ],
+        &quot;listing_platform&quot;: &quot;TIKTOK_SHOP&quot;
+      }
+    ],
+    &quot;update_time&quot;: 1234567899,
+    &quot;create_time&quot;: 1234567890,
+    &quot;delivery_options&quot;: [
+      {
+        &quot;id&quot;: &quot;1729592969712203232&quot;,
+        &quot;name&quot;: &quot;SEND_BY_SELLER&quot;,
+        &quot;is_available&quot;: true
+      }
+    ],
+    &quot;external_product_id&quot;: &quot;172959296971220002&quot;,
+    &quot;product_types&quot;: [
+      &quot;COMBINED_PRODUCT&quot;
+    ],
+    &quot;is_not_for_sale&quot;: true,
+    &quot;recommended_categories&quot;: [
+      {
+        &quot;id&quot;: &quot;850003&quot;,
+        &quot;local_name&quot;: &quot;\t\nBotol &amp; Stoples Penyimpanan&quot;
+      }
+    ],
+    &quot;manufacturer_ids&quot;: [
+      &quot;172959296971220002&quot;
+    ],
+    &quot;responsible_person_ids&quot;: [
+      &quot;172959296971220003&quot;
+    ],
+    &quot;listing_quality_tier&quot;: &quot;POOR&quot;,
+    &quot;integrated_platform_statuses&quot;: [
+      {
+        &quot;platform&quot;: &quot;TOKOPEDIA&quot;,
+        &quot;status&quot;: &quot;PLATFORM_DEACTIVATED&quot;
+      }
+    ],
+    &quot;shipping_insurance_requirement&quot;: &quot;OPTIONAL&quot;,
+    &quot;minimum_order_quantity&quot;: 1,
+    &quot;is_pre_owned&quot;: false,
+    &quot;audit&quot;: {
+      &quot;status&quot;: &quot;AUDITING&quot;,
+      &quot;pre_approved_reasons&quot;: [
+        &quot;KYC_PENDING&quot;
+      ]
+    },
+    &quot;global_product_association&quot;: {
+      &quot;global_product_id&quot;: &quot;1729592969712207920&quot;,
+      &quot;sku_mappings&quot;: [
+        {
+          &quot;global_sku_id&quot;: &quot;1729592969712207234&quot;,
+          &quot;local_sku_id&quot;: &quot;1729592969712207230&quot;,
+          &quot;sales_attribute_mappings&quot;: [
+            {
+              &quot;local_attribute_id&quot;: &quot;100000&quot;,
+              &quot;global_attribute_id&quot;: &quot;100000&quot;,
+              &quot;local_value_id&quot;: &quot;1001064&quot;,
+              &quot;global_value_id&quot;: &quot;1001064&quot;
+            }
+          ]
+        }
+      ]
+    },
+    &quot;prescription_requirement&quot;: {
+      &quot;needs_prescription&quot;: false
+    },
+    &quot;product_families&quot;: [
+      {
+        &quot;id&quot;: &quot;1000592969712207000&quot;,
+        &quot;products&quot;: [
+          {
+            &quot;id&quot;: &quot;1729592969712207008&quot;
+          }
+        ]
+      }
+    ],
+    &quot;subscribe_info&quot;: {
+      &quot;support_subscribe&quot;: false,
+      &quot;subscribe_status&quot;: &quot;ENABLED&quot;,
+      &quot;subscribe_discount_details&quot;: [
+        {
+          &quot;discount_level&quot;: &quot;REGULAR&quot;,
+          &quot;discount_value&quot;: 10
+        }
+      ],
+      &quot;subscribe_promotion_config&quot;: [
+        {
+          &quot;discount_level&quot;: &quot;REGULAR&quot;,
+          &quot;discount_options&quot;: [
+            5,
+            10,
+            15,
+            20
+          ],
+          &quot;max_discount&quot;: 90,
+          &quot;min_discount&quot;: 5
+        }
+      ]
+    },
+    &quot;has_draft&quot;: true,
+    &quot;primary_combined_product_id&quot;: &quot;1729592969712207008&quot;,
+    &quot;product_status&quot;: &quot;SELLER_DEACTIVATED&quot;,
+    &quot;is_replicated&quot;: false,
+    &quot;shipping_template_id&quot;: &quot;7552764259994699538&quot;,
+    &quot;scheduled_sale&quot;: {
+      &quot;is_enabled_scheduled_sale&quot;: false,
+      &quot;schedule_sale_time&quot;: 1768899145000
+    },
+    &quot;search_terms&quot;: [
+      &quot;sneakers&quot;,
+      &quot;running shoes&quot;,
+      &quot;athletic&quot;
+    ],
+    &quot;key_product_features&quot;: [
+      &quot;Breathable mesh upper&quot;,
+      &quot;Cushioned foam midsole&quot;
+    ]
+  },
+  &quot;message&quot;: &quot;Success&quot;,
+  &quot;request_id&quot;: &quot;202203070749000101890810281E8C70B7&quot;
+}</code></pre>
+
+    <h3 id="api-product-materials">3.3 商品内容素材查询</h3>
+    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+
+    <h3 id="api-task-list">3.4 任务列表查询</h3>
+    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+
+    <h3 id="api-task-result">3.5 任务结果回传</h3>
+    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+
+    <h3 id="api-dictionaries">3.6 枚举字典查询</h3>
+    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+
+    <h2>四、通用接入要求</h2>
+    <h3>4.1 鉴权与安全</h3>
+    <ul>
+      <li>所有接口必须通过 HTTPS 访问，不允许明文 HTTP。</li>
+      <li>外部服务商通过 API Key / App Secret / 签名方式接入，具体方案由 IT API 网关统一实现。</li>
+      <li>所有请求需记录调用方、接口路径、请求时间、响应状态、耗时和 traceId，便于审计与问题追踪。</li>
+      <li>原则上只开放最小必要字段，不直接暴露 TikTok Shop、积加 ERP 或数据库内部敏感字段。</li>
+    </ul>
+
+    <h3>4.2 通用请求头</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Header</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>Authorization</code></td><td>是</td><td>服务商访问凭证或签名结果，具体格式待网关方案确认。</td></tr>
+          <tr><td><code>X-App-Id</code></td><td>是</td><td>服务商应用 ID，用于识别调用方。</td></tr>
+          <tr><td><code>X-Timestamp</code></td><td>是</td><td>请求时间戳，用于防重放。</td></tr>
+          <tr><td><code>X-Trace-Id</code></td><td>否</td><td>调用链追踪 ID；未传时由网关生成。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.3 通用响应结构</h3>
+    <pre><code>{
+  "code": 0,
+  "message": "success",
+  "traceId": "202605151500000001",
+  "data": {}
+}</code></pre>
+
+    <h2>五、待确认事项</h2>
+    <ul>
+      <li>确认外部服务商实际需要的接口范围：只读查询、任务领取、结果回传、素材上传或状态回调。</li>
+      <li>确认接口路径前缀、域名、鉴权方式、签名算法和调用频率限制。</li>
+      <li>确认商品、素材、任务相关字段是否存在敏感信息，以及对外字段脱敏规则。</li>
+      <li>确认写入类接口的幂等键、重复提交处理、失败重试和人工兜底流程。</li>
+    </ul>
+
+    <p class="back"><a href="../index.html">← 返回首页</a></p>
+  </div>
+</body>
+</html>

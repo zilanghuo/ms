@@ -4154,3 +4154,109 @@
 2026-05-13 14:45:06.564 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
 2026-05-13 14:45:06.564 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
 2026-05-13 14:45:06.759 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-13 17:01:34.911 [INFO]     doris_mcp_server.main.DorisServer:755 - Shutting down Doris MCP Server
+2026-05-13 17:01:34.913 [INFO]     doris_mcp_server.utils.security:138 - DorisSecurityManager shutdown completed
+2026-05-13 17:01:34.913 [INFO]     doris_mcp_server.main.DorisServer:759 - Security manager shutdown completed
+2026-05-13 17:01:34.913 [INFO]     doris_mcp_server.utils.db:1187 - Pool health monitor stopped
+2026-05-13 17:01:34.913 [INFO]     doris_mcp_server.utils.db:1201 - Pool cleanup monitor stopped
+2026-05-13 17:01:34.914 [INFO]     doris_mcp_server.utils.db:1555 - Connection manager closed successfully
+2026-05-13 17:01:34.914 [INFO]     doris_mcp_server.main.DorisServer:762 - Doris MCP Server has been shut down
+2026-05-13 17:01:34.914 [INFO]     doris_mcp_server.logger:516 - Shutting down logging system...
+2026-05-13 17:01:34.915 [INFO]     doris_mcp_server.log_cleanup:171 - Log cleanup scheduler stopped
+2026-05-14 16:54:30.854 [INFO]     doris_mcp_server.log_cleanup:163 - Log cleanup scheduler started - cleanup every 24h, max age 30 days
+2026-05-14 16:54:30.854 [INFO]     doris_mcp_server.logger:427 - ================================================================================
+2026-05-14 16:54:30.854 [INFO]     doris_mcp_server.logger:428 - Doris MCP Server Logging System Initialized
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.log_cleanup:223 - Cleaned up 2 old log files, freed 0.00 MB
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:429 - Log Level: INFO
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:431 - Log Directory: /Users/a1/Documents/Office/code/ms-proj/logs
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:434 - Console Logging: Disabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:435 - File Logging: Enabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:436 - Audit Logging: Enabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:437 - Log Cleanup: Enabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:439 - Cleanup Settings: Max age 30 days, interval 24h
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.logger:443 - ================================================================================
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:948 - Enhanced logging system with cleanup initialized successfully
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:949 - Log directory: logs
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:950 - Log level: INFO
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:951 - Audit logging: Enabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:952 - Log cleanup: Enabled
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.utils.config:954 - Cleanup config: Max age 30 days, interval 24h
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:483 - System Information:
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:484 - Python Version: 3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 17.0.0 (clang-1700.6.3.2)]
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:485 - Platform: darwin
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:486 - Working Directory: /Users/a1/Documents/Office/code/ms-proj
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:487 - Process ID: 43715
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:493 - Environment LOG_LEVEL: Not Set
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:493 - Environment LOG_FILE_PATH: Not Set
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:493 - Environment ENABLE_AUDIT: Not Set
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.system:493 - Environment AUDIT_FILE_PATH: Not Set
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.main:916 - Starting Doris MCP Server...
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.main:917 - Transport: stdio
+2026-05-14 16:54:30.855 [INFO]     doris_mcp_server.main:918 - Log Level: INFO
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.security:480 - All authentication methods are disabled - anonymous access allowed
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.db:211 - Session  Cache initialized, save system session: False, save user session: False
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.schema_extractor:105 - Loaded excluded database list: ['information_schema', 'mysql', 'performance_schema', 'sys', 'doris_metadata']
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.data_governance_tools:45 - DataGovernanceTools initialized
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.data_exploration_tools:45 - DataExplorationTools initialized
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.data_quality_tools:50 - DataQualityTools initialized with atomic tools
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.security_analytics_tools:39 - SecurityAnalyticsTools initialized
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.dependency_analysis_tools:46 - DependencyAnalysisTools initialized
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.performance_analytics_tools:46 - PerformanceAnalyticsTools initialized
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.tools.tools_manager:72 - DorisToolsManager initialized with business logic processors, v0.5.0 analytics tools, and ADBC query tools
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.main.DorisServer:428 - Starting Doris MCP Server (stdio mode)
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.security:127 - DorisSecurityManager initialized successfully
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.main.DorisServer:433 - Security manager initialization completed
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.db:950 - stdio mode database config validated: 124.71.61.163:19030
+2026-05-14 16:54:30.856 [INFO]     doris_mcp_server.utils.db:960 - Testing database connectivity for stdio mode...
+2026-05-14 16:54:31.079 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 16:54:31.080 [INFO]     doris_mcp_server.utils.db:1180 - 🩺 Starting pool health monitor
+2026-05-14 16:54:31.080 [INFO]     doris_mcp_server.utils.db:1194 - 🧹 Starting pool cleanup monitor
+2026-05-14 16:54:31.279 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 16:54:31.279 [INFO]     doris_mcp_server.utils.db:986 - Database connection established successfully for stdio mode
+2026-05-14 16:54:31.279 [INFO]     doris_mcp_server.main.DorisServer:450 - Creating stdio_server transport...
+2026-05-14 16:54:31.282 [INFO]     doris_mcp_server.main.DorisServer:456 - stdio_server streams created successfully
+2026-05-14 16:54:31.283 [INFO]     doris_mcp_server.main.DorisServer:466 - Initialization options created successfully
+2026-05-14 16:54:31.283 [INFO]     doris_mcp_server.main.DorisServer:469 - Starting to run MCP server...
+2026-05-14 16:54:31.288 [INFO]     mcp.server.lowlevel.server:727 - Processing request of type ListToolsRequest
+2026-05-14 16:54:31.288 [INFO]     doris_mcp_server.main.DorisServer:362 - Handling tool list request
+2026-05-14 16:54:31.288 [INFO]     doris_mcp_server.main.DorisServer:364 - Returning 25 tools
+2026-05-14 18:23:07.759 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 18:23:07.877 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 18:23:07.878 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 18:23:08.062 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 18:39:02.270 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 18:39:02.383 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 18:39:02.384 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 18:39:02.553 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 18:57:29.048 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 18:57:29.159 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 18:57:29.160 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 18:57:29.361 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 19:15:41.288 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 19:15:41.409 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 19:15:41.410 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 19:15:41.588 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 19:33:18.942 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 19:33:22.057 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 19:33:22.058 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 19:33:22.245 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 19:51:09.382 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 19:51:12.487 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 19:51:12.488 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 19:51:12.661 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 20:06:17.856 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 20:06:20.978 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 20:06:20.979 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 20:06:21.143 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 20:25:57.501 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 20:25:57.615 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 20:25:57.616 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 20:25:57.775 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 20:46:09.400 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 20:46:12.512 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 20:46:12.513 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 20:46:12.697 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-14 21:05:56.154 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-14 21:21:01.925 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-14 21:21:01.925 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-14 21:21:02.139 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
