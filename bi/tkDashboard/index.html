@@ -168,6 +168,13 @@
             </div>
           </div>
           <div class="nav-version">
+            <div class="nav-version-title">OpenAPI 对外接口</div>
+            <div class="nav-version-items">
+              <a class="nav-item" href="#" data-src="openapi/对外提供的API列表.html" data-breadcrumb="OpenAPI 对外接口 / API 列表">API 列表</a>
+              <a class="nav-item" href="#" data-src="openapi/表结构设计.html" data-breadcrumb="OpenAPI 对外接口 / 表结构设计">表结构设计</a>
+            </div>
+          </div>
+          <div class="nav-version">
             <div class="nav-version-title">源数据集成</div>
             <div class="nav-version-items">
               <a class="nav-item" href="#" data-src="数据源相关/源数据统一梳理.html" data-breadcrumb="源数据集成 / 源数据集成列表">源数据集成列表</a>
@@ -199,7 +206,7 @@
       var navVersions = document.querySelectorAll('.sidebar .nav-version');
       var search = window.location.search || '';
       var hash = window.location.hash || '';
-      var defaultExpandedTitles = ['库存模块 1.0', '库存模块', '源数据集成'];
+      var defaultExpandedTitles = ['库存模块 1.0', '库存模块', 'OpenAPI 对外接口', '源数据集成'];
 
       function withVersionParams(src) {
         if (!src) return src;

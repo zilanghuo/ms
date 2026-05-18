@@ -408,10 +408,10 @@
       <div class="table-wrap">
         <table id="resultTable">
           <thead id="resultHead">
-            <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>趋势</th><th colspan="47"></th></tr>
+            <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>趋势</th><th colspan="59"></th></tr>
           </thead>
           <tbody id="resultBody">
-            <tr><td colspan="51" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
+            <tr><td colspan="63" class="empty-tip">请选择查询条件后点击「查询」</td></tr>
           </tbody>
         </table>
       </div>
@@ -441,8 +441,12 @@
           商品卡商品交易总额、商品卡成交件数、曝光、商品卡片的页面浏览次数、去重浏览、去重客户、商品卡点击、商品卡转化。</li>
         <li>4、直播相关字段调整为区分“商家直播 / 达人直播”后再汇总：
           直播商品交易总额、直播成交件数、曝光次数、来自视频的页面浏览次数、直播的去重页面浏览次数、去重商品客户数、直播点击率、直播转化率。</li>
-        <li>5、短视频相关字段调整为区分“商家视频 / 达人视频”后再汇总：
-          商品卡短视频商品交易总额、短视频成交件数、视频曝光次数、来自视频的页面浏览次数、来自视频的去重页面浏览次数、视频去重商品客户数、视频点击率、视频转化率。</li>
+        <li>5、短视频相关字段调整为区分“商家视频 / 达人视频”后再汇总，并同步字段名与列顺序：
+          <div style="margin-top:0.4rem;line-height:1.8;">
+            <div>字段名调整：<code>商品卡短视频商品交易总额</code> → <code>商家视频 GMV</code>；<code>短视频成交件数</code> → <code>商家视频商品成交件数</code>；<code>视频曝光次数</code> → <code>商家视频曝光次数</code>；<code>视频点击率</code> → <code>商家视频点击率</code>；<code>视频转化率</code> → <code>商家视频转化率</code>；新增展示 <code>达人直播GMV</code>。</div>
+            <div>字段展示顺序：商家直播 GMV、商家视频 GMV、商家视频商品成交件数、客单价、商家视频曝光次数、来自视频的页面浏览次数、来自视频的去重页面浏览次数、视频去重商品客户数、商家视频点击率、商家视频转化率、达人直播GMV、达人直播曝光次数、达人直播点击率、达人直播转化率、达人视频 GMV、达人视频曝光次数、达人视频点击率、达人视频转化率、直播总曝光次数、直播总转化率、视频转化率。</div>
+          </div>
+        </li>
         <li>6、占比口径同步调整：
           商品卡GMV占比、直播GMV占比、短视频GMV占比 改为基于 <code>商家商品卡 + 商家直播 + 达人直播 + 商家视频 + 达人视频</code> 的拆分口径汇总计算。</li>
         <li>7、本次新增列仅针对美区店铺生效，非美区店铺仍按原有逻辑展示；因此本次只做列内插入，不调整表头分组。</li>
@@ -475,7 +479,7 @@
         <div class="analysis-body">
           <table class="analysis-table" id="analysisTable">
             <thead id="analysisThead">
-              <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>趋势</th><th colspan="47"></th></tr>
+              <tr><th>日期</th><th>PID</th><th>主推SPU</th><th>趋势</th><th colspan="59"></th></tr>
             </thead>
             <tbody id="analysisBody"></tbody>
           </table>
@@ -567,9 +571,9 @@
       var GROUPS = [
         { title: '日期', cls: 'bg-blue', fields: ['date'] },
         { title: '商品基础信息', cls: 'bg-yellow', fields: ['pid', 'spu', 'analysis'] },
-        { title: 'GMV情况', cls: 'bg-blue', fields: ['avgOrderAmount', 'avgSubsidyPerOrder', 'financeGmv', 'goodsGrossAmount', 'dealQty', 'orderCount', 'cardGmv', 'liveGmv', 'videoGmv', 'expertVideoGmv', 'cardGmvRate', 'liveGmvRate', 'videoGmvRate'] },
+        { title: 'GMV情况', cls: 'bg-blue', fields: ['avgOrderAmount', 'avgSubsidyPerOrder', 'financeGmv', 'goodsGrossAmount', 'dealQty', 'orderCount', 'cardGmv', 'liveGmv', 'videoGmv', 'cardGmvRate', 'liveGmvRate', 'videoGmvRate'] },
         { title: '商品卡', cls: 'bg-yellow', fields: ['cardGoodsGrossAmount', 'cardDealQty', 'cardAvgOrderAmount', 'cardExposure', 'cardPageView', 'cardUniqueView', 'cardUniqueCustomer', 'cardClick', 'cardConversion'] },
-        { title: '短视频', cls: 'bg-blue', fields: ['videoGoodsGrossAmount', 'videoDealQty', 'videoAvgOrderAmount', 'liveTotalExposure', 'expertLiveExposure', 'videoExposure', 'expertVideoExposure', 'videoPageView', 'videoUniqueView', 'videoUniqueCustomer', 'liveTotalClickRate', 'expertLiveClickRate', 'videoClickRate', 'expertVideoClickRate', 'liveTotalConversionRate', 'expertLiveConversionRate', 'videoConversionRate', 'expertVideoConversionRate'] },
+        { title: '短视频', cls: 'bg-blue', fields: ['merchantLiveGmv', 'videoGoodsGrossAmount', 'videoDealQty', 'videoAvgOrderAmount', 'videoExposure', 'videoPageView', 'videoUniqueView', 'videoUniqueCustomer', 'videoClickRate', 'videoConversionRate', 'expertLiveGmv', 'expertLiveExposure', 'expertLiveClickRate', 'expertLiveConversionRate', 'expertVideoGmv', 'expertVideoExposure', 'expertVideoClickRate', 'expertVideoConversionRate', 'liveTotalExposure', 'liveTotalConversionRate', 'videoTotalConversionRate'] },
         { title: '商务剪辑情况', cls: 'bg-yellow', fields: ['bizMountCount', 'editMountCount', 'totalMountCount', 'bizOrderVideoCount', 'editOrderVideoCount', 'totalOrderVideoCount'] },
         { title: '广告情况', cls: 'bg-blue', fields: ['vasConsume', 'gmvMaxConsume', 'adTotalConsume', 'adUnitQty', 'adOrderCount', 'adGmv', 'totalGmv', 'totalAcoas', 'adRoiEst', 'adAcoas', 'adRoiSetting'] }
       ];
@@ -588,7 +592,7 @@
         { key: 'cardGmv', label: '商品卡GMV', type: 'money', metric: true },
         { key: 'liveGmv', label: '直播GMV', type: 'money', metric: true },
         { key: 'videoGmv', label: '短视频GMV', type: 'money', metric: true },
-        { key: 'expertVideoGmv', label: '达人视频GMV', type: 'money', metric: true },
+        { key: 'expertVideoGmv', label: '达人视频 GMV', type: 'money', metric: true },
         { key: 'cardGmvRate', label: '商品卡GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.cardGmv, m.financeGmv) * 100; } },
         { key: 'liveGmvRate', label: '直播GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.liveGmv, m.financeGmv) * 100; } },
         { key: 'videoGmvRate', label: '短视频GMV占比', type: 'percent', formula: function(m) { return safeDivide(m.videoGmv, m.financeGmv) * 100; } },
@@ -601,8 +605,9 @@
         { key: 'cardUniqueCustomer', label: '去重客户', type: 'number', metric: true },
         { key: 'cardClick', label: '商品卡点击', type: 'number', metric: true },
         { key: 'cardConversion', label: '商品卡转化', type: 'percent', formula: function(m) { return safeDivide(m.cardDealQty, m.cardClick) * 100; } },
-        { key: 'videoGoodsGrossAmount', label: '商品卡短视频商品交易总额', type: 'money', metric: true },
-        { key: 'videoDealQty', label: '短视频成交件数', type: 'number', metric: true },
+        { key: 'merchantLiveGmv', label: '商家直播 GMV', type: 'money', metric: true },
+        { key: 'videoGoodsGrossAmount', label: '商家视频 GMV', type: 'money', metric: true },
+        { key: 'videoDealQty', label: '商家视频商品成交件数', type: 'number', metric: true },
         { key: 'videoAvgOrderAmount', label: '客单价', type: 'money', formula: function(m) { return safeDivide(m.videoGoodsGrossAmount, m.videoDealQty); } },
         { key: 'liveTotalExposure', label: '直播总曝光次数', type: 'number', metric: true },
         { key: 'expertLiveExposure', label: '达人直播曝光次数', type: 'number', metric: true },
@@ -610,14 +615,16 @@
         { key: 'expertLiveClickRate', label: '达人直播点击率', type: 'percent', metric: true },
         { key: 'liveTotalConversionRate', label: '直播总转化率', type: 'percent', metric: true },
         { key: 'expertLiveConversionRate', label: '达人直播转化率', type: 'percent', metric: true },
-        { key: 'videoExposure', label: '视频曝光次数', type: 'number', metric: true },
+        { key: 'videoTotalConversionRate', label: '视频转化率', type: 'percent', formula: function(m) { return safeDivide(m.videoDealQty + (m.expertVideoDealQty || 0), m.videoPageView + (m.expertVideoPageView || 0)) * 100; } },
+        { key: 'videoExposure', label: '商家视频曝光次数', type: 'number', metric: true },
         { key: 'expertVideoExposure', label: '达人视频曝光次数', type: 'number', metric: true },
         { key: 'videoPageView', label: '来自视频的页面浏览次数', type: 'number', metric: true },
         { key: 'videoUniqueView', label: '来自视频的去重页面浏览次数', type: 'number', metric: true },
         { key: 'videoUniqueCustomer', label: '视频去重商品客户数', type: 'number', metric: true },
-        { key: 'videoClickRate', label: '视频点击率', type: 'percent', formula: function(m) { return safeDivide(m.videoPageView, m.videoExposure) * 100; } },
+        { key: 'videoClickRate', label: '商家视频点击率', type: 'percent', formula: function(m) { return safeDivide(m.videoPageView, m.videoExposure) * 100; } },
         { key: 'expertVideoClickRate', label: '达人视频点击率', type: 'percent', metric: true },
-        { key: 'videoConversionRate', label: '视频转化率', type: 'percent', formula: function(m) { return safeDivide(m.videoDealQty, m.videoPageView) * 100; } },
+        { key: 'videoConversionRate', label: '商家视频转化率', type: 'percent', formula: function(m) { return safeDivide(m.videoDealQty, m.videoPageView) * 100; } },
+        { key: 'expertLiveGmv', label: '达人直播GMV', type: 'money', metric: true },
         { key: 'expertVideoConversionRate', label: '达人视频转化率', type: 'percent', metric: true },
         { key: 'bizMountCount', label: '商务挂车量', type: 'number', metric: true },
         { key: 'editMountCount', label: '剪辑挂车量', type: 'number', metric: true },
@@ -1110,6 +1117,8 @@
             orderCount: orderCount,
             cardGmv: cardGmv,
             liveGmv: liveGmv,
+            expertLiveGmv: expertLiveGmv,
+            merchantLiveGmv: merchantLiveGmv,
             videoGmv: videoGmv,
             expertVideoGmv: expertVideoGmv,
             cardGoodsGrossAmount: cardGoodsGrossAmount,

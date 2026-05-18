@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>对外提供 API - 表结构设计</title>
+  <style>
+    :root { --bg: #f6f8fb; --card: #ffffff; --text: #1f2937; --muted: #6b7280; --accent: #2563eb; --border: #e5e7eb; --code-bg: #f3f4f6; }
+    * { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .doc { max-width: 1500px; margin: 28px auto; padding: 32px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 30px rgba(15,23,42,.06); }
+    h1 { margin: 0 0 18px; padding-bottom: 14px; border-bottom: 4px solid var(--accent); font-size: 28px; } h2 { margin: 34px 0 14px; padding-left: 10px; border-left: 4px solid var(--accent); font-size: 22px; } h3 { margin: 26px 0 12px; font-size: 18px; } p { margin: 8px 0; }
+    .muted { color: var(--muted); } .back { margin-bottom: 18px; } .back a,.toc-link { color: var(--accent); text-decoration: none; } .back a:hover,.toc-link:hover { text-decoration: underline; }
+    .table-wrap { width: 100%; overflow-x: auto; margin: 12px 0 18px; border: 1px solid var(--border); border-radius: 10px; } table { width: 100%; min-width: 980px; border-collapse: collapse; background: #fff; } th,td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; } th { background: #f8fafc; font-weight: 700; white-space: nowrap; } tr:last-child td { border-bottom: 0; }
+    code { padding: 2px 5px; border-radius: 5px; background: var(--code-bg); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; } pre { margin: 12px 0 22px; padding: 16px; overflow-x: auto; border-radius: 10px; background: #0f172a; color: #e5e7eb; } pre code { padding: 0; background: transparent; color: inherit; font-size: 12px; line-height: 1.55; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; } .ods { background: #dbeafe; color: #1d4ed8; } .note { padding: 12px 14px; border: 1px solid #bfdbfe; border-radius: 10px; background: #eff6ff; color: #1e3a8a; }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <div class="back"><a href="对外提供的API列表.html">← 返回对外提供的 API 列表</a></div>
+    <h1>对外提供 API - 表结构设计</h1>
+    <p class="muted">本文档沉淀“商品列表查询 / 商品详情查询”当前 <code>tiktok_product*</code> MySQL 表，以及第三个 API“SKU详情关系（积加）”对应的 Doris ODS 层表结构。接口字段使用 camelCase，ODS 底表字段按 Doris 规范统一使用小写下划线。</p>
+
+    <h2>一、设计说明</h2>
+    <div class="note">
+      <p>1. 表均归属 <code>ods</code> 库，业务域统一为 <code>product</code>；TikTok Shop 官方接口数据按商品域命名为 <code>ods_product_tiktok_*</code>。</p>
+      <p>2. TikTok 商品接口以接口文档中的 <code>mysql 已有</code> 与 <code>mysql 需新建</code> 的 <code>tiktok_product*</code> 表为准，一张 MySQL 表对应一张 Doris ODS 表。</p>
+      <p>3. 第三个 API“SKU详情关系（积加）”对应 <code>business_ledger_product</code>，Doris ODS 表继续保留 <code>ods_product_api_jijia_sku_spu_detail_df</code>。</p>
+      <p>4. 已删除旧版 <code>product_search</code>、<code>product_detail</code> 以及无业务含义的 <code>certification</code>、<code>platform_status</code>、<code>simple_array</code> 等多余设计。</p>
+      <p>5. DDL 使用 Doris <code>UNIQUE KEY</code> 模型；Key 列前置，字段类型使用 Doris 兼容类型，JSON / 长文本统一使用 <code>STRING</code>。</p>
+    </div>
+
+    <h2>二、ODS 表清单</h2>
+    <div class="table-wrap"><table><thead><tr><th>层级</th><th>表名</th><th>对应 MySQL 表</th><th>MySQL 状态</th><th>粒度</th></tr></thead><tbody>
+      <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_df">ods_product_tiktok_product_df</a></td><td><code>tiktok_product</code></td><td>mysql 已有</td><td>日期 + TikTok商品</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_category_df">ods_product_tiktok_product_category_df</a></td><td><code>tiktok_product_category</code></td><td>mysql 已有</td><td>日期 + 店铺站点 + 分类</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_sku_df">ods_product_tiktok_product_sku_df</a></td><td><code>tiktok_product_sku</code></td><td>mysql 已有</td><td>日期 + 店铺 + 商品 + SKU</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_warehouse_df">ods_product_tiktok_product_warehouse_df</a></td><td><code>tiktok_product_warehouse</code></td><td>mysql 已有</td><td>日期 + 店铺 + 商品 + SKU + 仓库</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_image_df">ods_product_tiktok_product_image_df</a></td><td><code>tiktok_product_image</code></td><td>mysql 需新建</td><td>日期 + 商品 + 图片类型 + 明细</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_sku_attribute_df">ods_product_tiktok_product_sku_attribute_df</a></td><td><code>tiktok_product_sku_attribute</code></td><td>mysql 需新建</td><td>日期 + 商品 + SKU + 销售属性</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_combined_sku_df">ods_product_tiktok_product_combined_sku_df</a></td><td><code>tiktok_product_combined_sku</code></td><td>mysql 需新建</td><td>日期 + 父商品SKU + 组合子SKU</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_attribute_df">ods_product_tiktok_product_attribute_df</a></td><td><code>tiktok_product_attribute</code></td><td>mysql 需新建</td><td>日期 + 商品 + 属性 + 属性值</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_audit_failed_reason_df">ods_product_tiktok_product_audit_failed_reason_df</a></td><td><code>tiktok_product_audit_failed_reason</code></td><td>mysql 需新建</td><td>日期 + 商品 + 审核失败位置</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_delivery_option_df">ods_product_tiktok_product_delivery_option_df</a></td><td><code>tiktok_product_delivery_option</code></td><td>mysql 需新建</td><td>日期 + 商品 + 配送方式</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_family_df">ods_product_tiktok_product_family_df</a></td><td><code>tiktok_product_family</code></td><td>mysql 需新建</td><td>日期 + 商品 + 家族 + 家族商品</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_global_sku_mapping_df">ods_product_tiktok_product_global_sku_mapping_df</a></td><td><code>tiktok_product_global_sku_mapping</code></td><td>mysql 需新建</td><td>日期 + 商品 + 全球SKU + 本地SKU</td></tr><tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_tiktok_product_subscribe_discount_df">ods_product_tiktok_product_subscribe_discount_df</a></td><td><code>tiktok_product_subscribe_discount</code></td><td>mysql 需新建</td><td>日期 + 商品 + 订阅折扣类型 + 等级</td></tr>
+      <tr><td><span class="badge ods">ODS</span></td><td><a class="toc-link" href="#tbl-ods_product_api_jijia_sku_spu_detail_df">ods_product_api_jijia_sku_spu_detail_df</a></td><td><code>business_ledger_product</code></td><td>mysql 已有</td><td>日期 + SKU + SPU + 积加产品</td></tr>
+    </tbody></table></div>
+
+    <h2>三、ODS 明细表设计</h2>
+    <h3 id="tbl-ods_product_tiktok_product_df">3.1 ods_product_tiktok_product_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product</code>；<strong>状态</strong>：mysql 已有；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>product_name</td><td>VARCHAR(500)</td><td>产品名称</td></tr>
+<tr><td>description</td><td>STRING</td><td>产品描述</td></tr>
+<tr><td>product_status</td><td>VARCHAR(50)</td><td>产品状态</td></tr>
+<tr><td>product_type</td><td>VARCHAR(50)</td><td>产品类型</td></tr>
+<tr><td>category_id</td><td>VARCHAR(100)</td><td>产品分类ID</td></tr>
+<tr><td>category_name</td><td>VARCHAR(200)</td><td>产品分类名称</td></tr>
+<tr><td>brand_id</td><td>VARCHAR(100)</td><td>品牌ID</td></tr>
+<tr><td>brand_name</td><td>VARCHAR(200)</td><td>品牌名称</td></tr>
+<tr><td>weight</td><td>VARCHAR(50)</td><td>产品重量（克）</td></tr>
+<tr><td>dimensions</td><td>STRING</td><td>产品尺寸信息JSON</td></tr>
+<tr><td>image_urls</td><td>STRING</td><td>产品图片URL列表JSON</td></tr>
+<tr><td>video_urls</td><td>STRING</td><td>产品视频URL列表JSON</td></tr>
+<tr><td>tags</td><td>STRING</td><td>产品标签JSON</td></tr>
+<tr><td>attributes</td><td>STRING</td><td>产品属性JSON</td></tr>
+<tr><td>logistics</td><td>STRING</td><td>产品物流信息JSON</td></tr>
+<tr><td>promotions</td><td>STRING</td><td>产品促销信息JSON</td></tr>
+<tr><td>reviews</td><td>STRING</td><td>产品评价信息JSON</td></tr>
+<tr><td>create_timestamp</td><td>BIGINT</td><td>产品创建时间戳</td></tr>
+<tr><td>update_timestamp</td><td>BIGINT</td><td>产品更新时间戳</td></tr>
+<tr><td>publish_timestamp</td><td>BIGINT</td><td>产品上架时间戳</td></tr>
+<tr><td>unpublish_timestamp</td><td>BIGINT</td><td>产品下架时间戳</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始SDK响应数据JSON</td></tr>
+<tr><td>sync_error_msg</td><td>STRING</td><td>同步错误信息</td></tr>
+<tr><td>data_source</td><td>VARCHAR(50)</td><td>数据来源</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_df (
+    smt                  INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                  VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id         INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id           VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    tiktok_product_id    BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    shop_id              VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    product_name         VARCHAR(500)                        COMMENT &#x27;产品名称&#x27;,
+    description          STRING                              COMMENT &#x27;产品描述&#x27;,
+    product_status       VARCHAR(50)                         COMMENT &#x27;产品状态&#x27;,
+    product_type         VARCHAR(50)                         COMMENT &#x27;产品类型&#x27;,
+    category_id          VARCHAR(100)                        COMMENT &#x27;产品分类ID&#x27;,
+    category_name        VARCHAR(200)                        COMMENT &#x27;产品分类名称&#x27;,
+    brand_id             VARCHAR(100)                        COMMENT &#x27;品牌ID&#x27;,
+    brand_name           VARCHAR(200)                        COMMENT &#x27;品牌名称&#x27;,
+    weight               VARCHAR(50)                         COMMENT &#x27;产品重量（克）&#x27;,
+    dimensions           STRING                              COMMENT &#x27;产品尺寸信息JSON&#x27;,
+    image_urls           STRING                              COMMENT &#x27;产品图片URL列表JSON&#x27;,
+    video_urls           STRING                              COMMENT &#x27;产品视频URL列表JSON&#x27;,
+    tags                 STRING                              COMMENT &#x27;产品标签JSON&#x27;,
+    attributes           STRING                              COMMENT &#x27;产品属性JSON&#x27;,
+    logistics            STRING                              COMMENT &#x27;产品物流信息JSON&#x27;,
+    promotions           STRING                              COMMENT &#x27;产品促销信息JSON&#x27;,
+    reviews              STRING                              COMMENT &#x27;产品评价信息JSON&#x27;,
+    create_timestamp     BIGINT                              COMMENT &#x27;产品创建时间戳&#x27;,
+    update_timestamp     BIGINT                              COMMENT &#x27;产品更新时间戳&#x27;,
+    publish_timestamp    BIGINT                              COMMENT &#x27;产品上架时间戳&#x27;,
+    unpublish_timestamp  BIGINT                              COMMENT &#x27;产品下架时间戳&#x27;,
+    raw_response_data    STRING                              COMMENT &#x27;原始SDK响应数据JSON&#x27;,
+    sync_error_msg       STRING                              COMMENT &#x27;同步错误信息&#x27;,
+    data_source          VARCHAR(50)                         COMMENT &#x27;数据来源&#x27;,
+    status_flag          TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag             TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time          DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time          DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by            VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by            VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark               VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time          DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id)
+COMMENT &#x27;TikTok产品表 ODS层表（商品域，日全量，mysql 已有）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_category_df">3.2 ods_product_tiktok_product_category_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_category</code>；<strong>状态</strong>：mysql 已有；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, category_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>category_id</td><td>VARCHAR(100)</td><td>分类ID</td></tr>
+<tr><td>tiktok_category_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>parent_category_id</td><td>VARCHAR(100)</td><td>父分类ID</td></tr>
+<tr><td>category_name</td><td>VARCHAR(200)</td><td>分类名称</td></tr>
+<tr><td>category_level</td><td>INT</td><td>分类层级</td></tr>
+<tr><td>category_path</td><td>STRING</td><td>分类路径JSON</td></tr>
+<tr><td>children</td><td>STRING</td><td>子分类列表JSON</td></tr>
+<tr><td>is_leaf</td><td>TINYINT</td><td>是否为叶子节点</td></tr>
+<tr><td>category_status</td><td>VARCHAR(50)</td><td>分类状态</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始SDK响应数据JSON</td></tr>
+<tr><td>sync_error_msg</td><td>STRING</td><td>同步错误信息</td></tr>
+<tr><td>data_source</td><td>VARCHAR(50)</td><td>数据来源</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_category_df (
+    smt                 INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                 VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id        INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    category_id         VARCHAR(100)                        COMMENT &#x27;分类ID&#x27;,
+    tiktok_category_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    parent_category_id  VARCHAR(100)                        COMMENT &#x27;父分类ID&#x27;,
+    category_name       VARCHAR(200)                        COMMENT &#x27;分类名称&#x27;,
+    category_level      INT                                 COMMENT &#x27;分类层级&#x27;,
+    category_path       STRING                              COMMENT &#x27;分类路径JSON&#x27;,
+    children            STRING                              COMMENT &#x27;子分类列表JSON&#x27;,
+    is_leaf             TINYINT                             COMMENT &#x27;是否为叶子节点&#x27;,
+    category_status     VARCHAR(50)                         COMMENT &#x27;分类状态&#x27;,
+    raw_response_data   STRING                              COMMENT &#x27;原始SDK响应数据JSON&#x27;,
+    sync_error_msg      STRING                              COMMENT &#x27;同步错误信息&#x27;,
+    data_source         VARCHAR(50)                         COMMENT &#x27;数据来源&#x27;,
+    status_flag         TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag            TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time         DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time         DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by           VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by           VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark              VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time         DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, category_id)
+COMMENT &#x27;TikTok产品分类表 ODS层表（商品域，日全量，mysql 已有）&#x27;
+DISTRIBUTED BY HASH(category_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_sku_df">3.3 ods_product_tiktok_product_sku_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_sku</code>；<strong>状态</strong>：mysql 已有；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, shop_id, product_id, sku_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>sku_id</td><td>VARCHAR(100)</td><td>SKU ID</td></tr>
+<tr><td>tiktok_product_sku_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+<tr><td>seller_sku</td><td>VARCHAR(200)</td><td>卖家SKU编码</td></tr>
+<tr><td>sku_status</td><td>VARCHAR(50)</td><td>SKU状态</td></tr>
+<tr><td>sku_image_url</td><td>VARCHAR(500)</td><td>SKU图片URL</td></tr>
+<tr><td>price</td><td>STRING</td><td>价格信息JSON</td></tr>
+<tr><td>inventory</td><td>STRING</td><td>库存信息JSON</td></tr>
+<tr><td>variation_attributes</td><td>STRING</td><td>变体属性JSON</td></tr>
+<tr><td>weight</td><td>VARCHAR(50)</td><td>SKU重量（克）</td></tr>
+<tr><td>dimensions</td><td>STRING</td><td>SKU尺寸信息JSON</td></tr>
+<tr><td>is_available</td><td>TINYINT</td><td>是否可用</td></tr>
+<tr><td>is_out_of_stock</td><td>TINYINT</td><td>是否缺货</td></tr>
+<tr><td>min_order_quantity</td><td>INT</td><td>最小订单数量</td></tr>
+<tr><td>max_order_quantity</td><td>INT</td><td>最大订单数量</td></tr>
+<tr><td>currency</td><td>VARCHAR(10)</td><td>货币类型</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始SDK响应数据JSON</td></tr>
+<tr><td>sync_error_msg</td><td>STRING</td><td>同步错误信息</td></tr>
+<tr><td>data_source</td><td>VARCHAR(50)</td><td>数据来源</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_sku_df (
+    smt                    INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                    VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id           INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    shop_id                VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    product_id             VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    sku_id                 VARCHAR(100)                        COMMENT &#x27;SKU ID&#x27;,
+    tiktok_product_sku_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id      BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    sku_name               VARCHAR(500)                        COMMENT &#x27;SKU名称&#x27;,
+    seller_sku             VARCHAR(200)                        COMMENT &#x27;卖家SKU编码&#x27;,
+    sku_status             VARCHAR(50)                         COMMENT &#x27;SKU状态&#x27;,
+    sku_image_url          VARCHAR(500)                        COMMENT &#x27;SKU图片URL&#x27;,
+    price                  STRING                              COMMENT &#x27;价格信息JSON&#x27;,
+    inventory              STRING                              COMMENT &#x27;库存信息JSON&#x27;,
+    variation_attributes   STRING                              COMMENT &#x27;变体属性JSON&#x27;,
+    weight                 VARCHAR(50)                         COMMENT &#x27;SKU重量（克）&#x27;,
+    dimensions             STRING                              COMMENT &#x27;SKU尺寸信息JSON&#x27;,
+    is_available           TINYINT                             COMMENT &#x27;是否可用&#x27;,
+    is_out_of_stock        TINYINT                             COMMENT &#x27;是否缺货&#x27;,
+    min_order_quantity     INT                                 COMMENT &#x27;最小订单数量&#x27;,
+    max_order_quantity     INT                                 COMMENT &#x27;最大订单数量&#x27;,
+    currency               VARCHAR(10)                         COMMENT &#x27;货币类型&#x27;,
+    raw_response_data      STRING                              COMMENT &#x27;原始SDK响应数据JSON&#x27;,
+    sync_error_msg         STRING                              COMMENT &#x27;同步错误信息&#x27;,
+    data_source            VARCHAR(50)                         COMMENT &#x27;数据来源&#x27;,
+    status_flag            TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag               TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time            DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time            DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by              VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by              VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                 VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time            DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, shop_id, product_id, sku_id)
+COMMENT &#x27;TikTok产品SKU表 ODS层表（商品域，日全量，mysql 已有）&#x27;
+DISTRIBUTED BY HASH(sku_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_warehouse_df">3.4 ods_product_tiktok_product_warehouse_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_warehouse</code>；<strong>状态</strong>：mysql 已有；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, shop_id, product_id, sku_id, warehouse_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>sku_id</td><td>VARCHAR(100)</td><td>SKU ID</td></tr>
+<tr><td>warehouse_id</td><td>VARCHAR(100)</td><td>仓库ID</td></tr>
+<tr><td>tiktok_product_warehouse_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_sku_id</td><td>BIGINT</td><td>SKU表ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>sku_name</td><td>VARCHAR(500)</td><td>SKU名称</td></tr>
+<tr><td>quantity</td><td>INT</td><td>数量</td></tr>
+<tr><td>backorder_quantity</td><td>INT</td><td>待发货数量</td></tr>
+<tr><td>handling_time</td><td>INT</td><td>订单处理时长，单位天</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_warehouse_df (
+    smt                          INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                          VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                 INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    shop_id                      VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    product_id                   VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    sku_id                       VARCHAR(100)                        COMMENT &#x27;SKU ID&#x27;,
+    warehouse_id                 VARCHAR(100)                        COMMENT &#x27;仓库ID&#x27;,
+    tiktok_product_warehouse_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_sku_id        BIGINT                              COMMENT &#x27;SKU表ID&#x27;,
+    tiktok_product_id            BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    sku_name                     VARCHAR(500)                        COMMENT &#x27;SKU名称&#x27;,
+    quantity                     INT                                 COMMENT &#x27;数量&#x27;,
+    backorder_quantity           INT                                 COMMENT &#x27;待发货数量&#x27;,
+    handling_time                INT                                 COMMENT &#x27;订单处理时长，单位天&#x27;,
+    status_flag                  TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                     TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                  DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                  DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                    VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                    VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                       VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                  DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, shop_id, product_id, sku_id, warehouse_id)
+COMMENT &#x27;TikTok产品SKU仓库明细表 ODS层表（商品域，日全量，mysql 已有）&#x27;
+DISTRIBUTED BY HASH(sku_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_image_df">3.5 ods_product_tiktok_product_image_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_image</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, image_type, ref_id, sort_no</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>image_type</td><td>VARCHAR(80)</td><td>图片类型</td></tr>
+<tr><td>ref_id</td><td>VARCHAR(100)</td><td>关联ID</td></tr>
+<tr><td>sort_no</td><td>INT</td><td>排序</td></tr>
+<tr><td>tiktok_product_image_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>tiktok_product_sku_id</td><td>BIGINT</td><td>关联SKU表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>sku_id</td><td>VARCHAR(100)</td><td>SKU ID</td></tr>
+<tr><td>uri</td><td>VARCHAR(1000)</td><td>图片URI</td></tr>
+<tr><td>height</td><td>INT</td><td>图片高度</td></tr>
+<tr><td>width</td><td>INT</td><td>图片宽度</td></tr>
+<tr><td>urls</td><td>STRING</td><td>原图URL数组JSON</td></tr>
+<tr><td>thumb_urls</td><td>STRING</td><td>缩略图URL数组JSON</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始图片对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_image_df (
+    smt                      INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                      VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id             INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id               VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    image_type               VARCHAR(80)                         COMMENT &#x27;图片类型&#x27;,
+    ref_id                   VARCHAR(100)                        COMMENT &#x27;关联ID&#x27;,
+    sort_no                  INT                                 COMMENT &#x27;排序&#x27;,
+    tiktok_product_image_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id        BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    tiktok_product_sku_id    BIGINT                              COMMENT &#x27;关联SKU表ID&#x27;,
+    shop_id                  VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    sku_id                   VARCHAR(100)                        COMMENT &#x27;SKU ID&#x27;,
+    uri                      VARCHAR(1000)                       COMMENT &#x27;图片URI&#x27;,
+    height                   INT                                 COMMENT &#x27;图片高度&#x27;,
+    width                    INT                                 COMMENT &#x27;图片宽度&#x27;,
+    urls                     STRING                              COMMENT &#x27;原图URL数组JSON&#x27;,
+    thumb_urls               STRING                              COMMENT &#x27;缩略图URL数组JSON&#x27;,
+    raw_response_data        STRING                              COMMENT &#x27;原始图片对象JSON&#x27;,
+    status_flag              TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                 TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time              DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time              DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                   VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time              DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, image_type, ref_id, sort_no)
+COMMENT &#x27;TikTok商品图片明细表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_sku_attribute_df">3.6 ods_product_tiktok_product_sku_attribute_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_sku_attribute</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, shop_id, product_id, sku_id, attribute_id, value_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>sku_id</td><td>VARCHAR(100)</td><td>SKU ID</td></tr>
+<tr><td>attribute_id</td><td>VARCHAR(100)</td><td>属性ID</td></tr>
+<tr><td>value_id</td><td>VARCHAR(100)</td><td>属性值ID</td></tr>
+<tr><td>tiktok_product_sku_attribute_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_sku_id</td><td>BIGINT</td><td>关联SKU表ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>attribute_source</td><td>VARCHAR(50)</td><td>属性来源</td></tr>
+<tr><td>attribute_name</td><td>VARCHAR(200)</td><td>属性名称</td></tr>
+<tr><td>value_name</td><td>VARCHAR(200)</td><td>属性值名称</td></tr>
+<tr><td>sku_img</td><td>STRING</td><td>SKU属性图片对象JSON</td></tr>
+<tr><td>supplementary_sku_images</td><td>STRING</td><td>SKU补充图片数组JSON</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始属性对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_sku_attribute_df (
+    smt                              INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                              VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                     INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    shop_id                          VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    product_id                       VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    sku_id                           VARCHAR(100)                        COMMENT &#x27;SKU ID&#x27;,
+    attribute_id                     VARCHAR(100)                        COMMENT &#x27;属性ID&#x27;,
+    value_id                         VARCHAR(100)                        COMMENT &#x27;属性值ID&#x27;,
+    tiktok_product_sku_attribute_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_sku_id            BIGINT                              COMMENT &#x27;关联SKU表ID&#x27;,
+    tiktok_product_id                BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    attribute_source                 VARCHAR(50)                         COMMENT &#x27;属性来源&#x27;,
+    attribute_name                   VARCHAR(200)                        COMMENT &#x27;属性名称&#x27;,
+    value_name                       VARCHAR(200)                        COMMENT &#x27;属性值名称&#x27;,
+    sku_img                          STRING                              COMMENT &#x27;SKU属性图片对象JSON&#x27;,
+    supplementary_sku_images         STRING                              COMMENT &#x27;SKU补充图片数组JSON&#x27;,
+    raw_response_data                STRING                              COMMENT &#x27;原始属性对象JSON&#x27;,
+    status_flag                      TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                         TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                      DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                      DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                        VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                        VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                           VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                      DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, shop_id, product_id, sku_id, attribute_id, value_id)
+COMMENT &#x27;TikTok商品SKU销售属性表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(sku_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_combined_sku_df">3.7 ods_product_tiktok_product_combined_sku_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_combined_sku</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, parent_product_id, parent_sku_id, combined_product_id, combined_sku_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>parent_product_id</td><td>VARCHAR(100)</td><td>所属TikTok产品ID</td></tr>
+<tr><td>parent_sku_id</td><td>VARCHAR(100)</td><td>所属SKU ID</td></tr>
+<tr><td>combined_product_id</td><td>VARCHAR(100)</td><td>组合子产品ID</td></tr>
+<tr><td>combined_sku_id</td><td>VARCHAR(100)</td><td>组合子SKU ID</td></tr>
+<tr><td>tiktok_product_combined_sku_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>sku_count</td><td>INT</td><td>组合SKU数量</td></tr>
+<tr><td>seller_sku</td><td>VARCHAR(200)</td><td>卖家SKU编码</td></tr>
+<tr><td>title</td><td>VARCHAR(500)</td><td>商品标题</td></tr>
+<tr><td>price</td><td>STRING</td><td>价格信息JSON</td></tr>
+<tr><td>inventory</td><td>STRING</td><td>库存信息JSON</td></tr>
+<tr><td>product_main_image</td><td>STRING</td><td>商品主图对象JSON</td></tr>
+<tr><td>categories</td><td>STRING</td><td>分类数组JSON</td></tr>
+<tr><td>brand</td><td>STRING</td><td>品牌对象JSON</td></tr>
+<tr><td>combined_listing_not_live_reasons</td><td>STRING</td><td>组合商品未上架原因数组JSON</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始组合SKU对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_combined_sku_df (
+    smt                                INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                                VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                       INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    parent_product_id                  VARCHAR(100)                        COMMENT &#x27;所属TikTok产品ID&#x27;,
+    parent_sku_id                      VARCHAR(100)                        COMMENT &#x27;所属SKU ID&#x27;,
+    combined_product_id                VARCHAR(100)                        COMMENT &#x27;组合子产品ID&#x27;,
+    combined_sku_id                    VARCHAR(100)                        COMMENT &#x27;组合子SKU ID&#x27;,
+    tiktok_product_combined_sku_id     BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    shop_id                            VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    sku_count                          INT                                 COMMENT &#x27;组合SKU数量&#x27;,
+    seller_sku                         VARCHAR(200)                        COMMENT &#x27;卖家SKU编码&#x27;,
+    title                              VARCHAR(500)                        COMMENT &#x27;商品标题&#x27;,
+    price                              STRING                              COMMENT &#x27;价格信息JSON&#x27;,
+    inventory                          STRING                              COMMENT &#x27;库存信息JSON&#x27;,
+    product_main_image                 STRING                              COMMENT &#x27;商品主图对象JSON&#x27;,
+    categories                         STRING                              COMMENT &#x27;分类数组JSON&#x27;,
+    brand                              STRING                              COMMENT &#x27;品牌对象JSON&#x27;,
+    combined_listing_not_live_reasons  STRING                              COMMENT &#x27;组合商品未上架原因数组JSON&#x27;,
+    raw_response_data                  STRING                              COMMENT &#x27;原始组合SKU对象JSON&#x27;,
+    status_flag                        TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                           TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                        DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                        DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                          VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                          VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                             VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                        DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, parent_product_id, parent_sku_id, combined_product_id, combined_sku_id)
+COMMENT &#x27;TikTok组合SKU明细表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(parent_sku_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_attribute_df">3.8 ods_product_tiktok_product_attribute_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_attribute</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, attribute_id, value_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>attribute_id</td><td>VARCHAR(100)</td><td>属性ID</td></tr>
+<tr><td>value_id</td><td>VARCHAR(100)</td><td>属性值ID</td></tr>
+<tr><td>tiktok_product_attribute_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>attribute_name</td><td>VARCHAR(200)</td><td>属性名称</td></tr>
+<tr><td>value_name</td><td>VARCHAR(500)</td><td>属性值名称</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始属性对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_attribute_df (
+    smt                          INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                          VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                 INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                   VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    attribute_id                 VARCHAR(100)                        COMMENT &#x27;属性ID&#x27;,
+    value_id                     VARCHAR(100)                        COMMENT &#x27;属性值ID&#x27;,
+    tiktok_product_attribute_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id            BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                      VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    attribute_name               VARCHAR(200)                        COMMENT &#x27;属性名称&#x27;,
+    value_name                   VARCHAR(500)                        COMMENT &#x27;属性值名称&#x27;,
+    raw_response_data            STRING                              COMMENT &#x27;原始属性对象JSON&#x27;,
+    status_flag                  TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                     TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                  DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                  DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                    VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                    VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                       VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                  DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, attribute_id, value_id)
+COMMENT &#x27;TikTok商品属性明细表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_audit_failed_reason_df">3.9 ods_product_tiktok_product_audit_failed_reason_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_audit_failed_reason</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, position, listing_platform</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>position</td><td>VARCHAR(100)</td><td>失败位置</td></tr>
+<tr><td>listing_platform</td><td>VARCHAR(100)</td><td>Listing平台</td></tr>
+<tr><td>tiktok_product_audit_failed_reason_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>reasons</td><td>STRING</td><td>失败原因数组JSON</td></tr>
+<tr><td>suggestions</td><td>STRING</td><td>修改建议数组JSON</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始审核失败原因对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_audit_failed_reason_df (
+    smt                                    INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                                    VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                           INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                             VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    position                               VARCHAR(100)                        COMMENT &#x27;失败位置&#x27;,
+    listing_platform                       VARCHAR(100)                        COMMENT &#x27;Listing平台&#x27;,
+    tiktok_product_audit_failed_reason_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id                      BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                                VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    reasons                                STRING                              COMMENT &#x27;失败原因数组JSON&#x27;,
+    suggestions                            STRING                              COMMENT &#x27;修改建议数组JSON&#x27;,
+    raw_response_data                      STRING                              COMMENT &#x27;原始审核失败原因对象JSON&#x27;,
+    status_flag                            TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                               TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                            DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                            DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                              VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                              VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                                 VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                            DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, position, listing_platform)
+COMMENT &#x27;TikTok商品审核失败原因表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_delivery_option_df">3.10 ods_product_tiktok_product_delivery_option_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_delivery_option</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, delivery_option_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>delivery_option_id</td><td>VARCHAR(100)</td><td>配送方式ID</td></tr>
+<tr><td>tiktok_product_delivery_option_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>delivery_option_name</td><td>VARCHAR(200)</td><td>配送方式名称</td></tr>
+<tr><td>is_available</td><td>TINYINT</td><td>是否可用</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始配送方式对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_delivery_option_df (
+    smt                                INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                                VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                       INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                         VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    delivery_option_id                 VARCHAR(100)                        COMMENT &#x27;配送方式ID&#x27;,
+    tiktok_product_delivery_option_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id                  BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                            VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    delivery_option_name               VARCHAR(200)                        COMMENT &#x27;配送方式名称&#x27;,
+    is_available                       TINYINT                             COMMENT &#x27;是否可用&#x27;,
+    raw_response_data                  STRING                              COMMENT &#x27;原始配送方式对象JSON&#x27;,
+    status_flag                        TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                           TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                        DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                        DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                          VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                          VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                             VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                        DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, delivery_option_id)
+COMMENT &#x27;TikTok商品配送方式表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_family_df">3.11 ods_product_tiktok_product_family_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_family</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, family_id, family_product_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>family_id</td><td>VARCHAR(100)</td><td>商品家族ID</td></tr>
+<tr><td>family_product_id</td><td>VARCHAR(100)</td><td>家族内商品ID</td></tr>
+<tr><td>tiktok_product_family_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始商品家族对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_family_df (
+    smt                       INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                       VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id              INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    family_id                 VARCHAR(100)                        COMMENT &#x27;商品家族ID&#x27;,
+    family_product_id         VARCHAR(100)                        COMMENT &#x27;家族内商品ID&#x27;,
+    tiktok_product_family_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id         BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                   VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    raw_response_data         STRING                              COMMENT &#x27;原始商品家族对象JSON&#x27;,
+    status_flag               TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                  TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time               DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time               DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                 VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                 VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                    VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time               DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, family_id, family_product_id)
+COMMENT &#x27;TikTok商品家族关系表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_global_sku_mapping_df">3.12 ods_product_tiktok_product_global_sku_mapping_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_global_sku_mapping</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, global_product_id, global_sku_id, local_sku_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>global_product_id</td><td>VARCHAR(100)</td><td>全球商品ID</td></tr>
+<tr><td>global_sku_id</td><td>VARCHAR(100)</td><td>全球SKU ID</td></tr>
+<tr><td>local_sku_id</td><td>VARCHAR(100)</td><td>本地SKU ID</td></tr>
+<tr><td>tiktok_product_global_sku_mapping_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>sales_attribute_mappings</td><td>STRING</td><td>销售属性映射数组JSON</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始全局SKU映射对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_global_sku_mapping_df (
+    smt                                   INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                                   VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                          INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                            VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    global_product_id                     VARCHAR(100)                        COMMENT &#x27;全球商品ID&#x27;,
+    global_sku_id                         VARCHAR(100)                        COMMENT &#x27;全球SKU ID&#x27;,
+    local_sku_id                          VARCHAR(100)                        COMMENT &#x27;本地SKU ID&#x27;,
+    tiktok_product_global_sku_mapping_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id                     BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                               VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    sales_attribute_mappings              STRING                              COMMENT &#x27;销售属性映射数组JSON&#x27;,
+    raw_response_data                     STRING                              COMMENT &#x27;原始全局SKU映射对象JSON&#x27;,
+    status_flag                           TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                              TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                           DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                           DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                             VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                             VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                                VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                           DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, global_product_id, global_sku_id, local_sku_id)
+COMMENT &#x27;TikTok商品全局SKU映射表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(local_sku_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+    <h3 id="tbl-ods_product_tiktok_product_subscribe_discount_df">3.13 ods_product_tiktok_product_subscribe_discount_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>tiktok_product_subscribe_discount</code>；<strong>状态</strong>：mysql 需新建；<strong>唯一键</strong>：<code>smt, sdt, shop_site_id, product_id, discount_type, discount_level</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>product_id</td><td>VARCHAR(100)</td><td>TikTok产品ID</td></tr>
+<tr><td>discount_type</td><td>VARCHAR(50)</td><td>折扣类型</td></tr>
+<tr><td>discount_level</td><td>VARCHAR(100)</td><td>折扣等级</td></tr>
+<tr><td>tiktok_product_subscribe_discount_id</td><td>BIGINT</td><td>MySQL主键ID</td></tr>
+<tr><td>tiktok_product_id</td><td>BIGINT</td><td>关联产品表ID</td></tr>
+<tr><td>shop_id</td><td>VARCHAR(100)</td><td>店铺ID</td></tr>
+<tr><td>shop_site_id</td><td>INT</td><td>店铺站点ID</td></tr>
+<tr><td>discount_value</td><td>INT</td><td>折扣值</td></tr>
+<tr><td>discount_options</td><td>STRING</td><td>可选折扣数组JSON</td></tr>
+<tr><td>max_discount</td><td>INT</td><td>最大折扣</td></tr>
+<tr><td>min_discount</td><td>INT</td><td>最小折扣</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>原始订阅折扣对象JSON</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 MySQL status</td></tr>
+<tr><td>del_flag</td><td>TINYINT</td><td>删除标志，0存在，2删除</td></tr>
+<tr><td>create_time</td><td>DATETIME</td><td>源库创建时间</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>create_by</td><td>VARCHAR(50)</td><td>创建者</td></tr>
+<tr><td>update_by</td><td>VARCHAR(50)</td><td>更新者</td></tr>
+<tr><td>remark</td><td>VARCHAR(500)</td><td>备注</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_tiktok_product_subscribe_discount_df (
+    smt                                   INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                                   VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    shop_site_id                          INT                                 COMMENT &#x27;店铺站点ID&#x27;,
+    product_id                            VARCHAR(100)                        COMMENT &#x27;TikTok产品ID&#x27;,
+    discount_type                         VARCHAR(50)                         COMMENT &#x27;折扣类型&#x27;,
+    discount_level                        VARCHAR(100)                        COMMENT &#x27;折扣等级&#x27;,
+    tiktok_product_subscribe_discount_id  BIGINT                              COMMENT &#x27;MySQL主键ID&#x27;,
+    tiktok_product_id                     BIGINT                              COMMENT &#x27;关联产品表ID&#x27;,
+    shop_id                               VARCHAR(100)                        COMMENT &#x27;店铺ID&#x27;,
+    discount_value                        INT                                 COMMENT &#x27;折扣值&#x27;,
+    discount_options                      STRING                              COMMENT &#x27;可选折扣数组JSON&#x27;,
+    max_discount                          INT                                 COMMENT &#x27;最大折扣&#x27;,
+    min_discount                          INT                                 COMMENT &#x27;最小折扣&#x27;,
+    raw_response_data                     STRING                              COMMENT &#x27;原始订阅折扣对象JSON&#x27;,
+    status_flag                           TINYINT                             COMMENT &#x27;状态字段，来源 MySQL status&#x27;,
+    del_flag                              TINYINT                             COMMENT &#x27;删除标志，0存在，2删除&#x27;,
+    create_time                           DATETIME                            COMMENT &#x27;源库创建时间&#x27;,
+    update_time                           DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    create_by                             VARCHAR(50)                         COMMENT &#x27;创建者&#x27;,
+    update_by                             VARCHAR(50)                         COMMENT &#x27;更新者&#x27;,
+    remark                                VARCHAR(500)                        COMMENT &#x27;备注&#x27;,
+    insert_time                           DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, shop_site_id, product_id, discount_type, discount_level)
+COMMENT &#x27;TikTok商品订阅折扣明细表 ODS层表（商品域，日全量，mysql 需新建）&#x27;
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+
+    <h3 id="tbl-ods_product_api_jijia_sku_spu_detail_df">3.14 ods_product_api_jijia_sku_spu_detail_df</h3>
+    <p><strong>对应 MySQL 表</strong>：<code>business_ledger_product</code>；<strong>状态</strong>：mysql 已有；<strong>对应接口</strong>：3.3 SKU详情关系（积加）；<strong>唯一键</strong>：<code>smt, sdt, sku, spu, product_id</code></p>
+    <div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody>
+<tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM</td></tr>
+<tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区，格式：YYYYMMDD</td></tr>
+<tr><td>sku</td><td>VARCHAR(100)</td><td>SKU</td></tr>
+<tr><td>spu</td><td>VARCHAR(100)</td><td>SPU</td></tr>
+<tr><td>product_id</td><td>BIGINT</td><td>积加产品ID</td></tr>
+<tr><td>external_id</td><td>BIGINT</td><td>外部系统ID</td></tr>
+<tr><td>spu_name</td><td>VARCHAR(255)</td><td>SPU名称</td></tr>
+<tr><td>product_name</td><td>VARCHAR(255)</td><td>产品名称</td></tr>
+<tr><td>brief_name</td><td>VARCHAR(255)</td><td>产品简称</td></tr>
+<tr><td>title</td><td>VARCHAR(500)</td><td>产品标题</td></tr>
+<tr><td>state</td><td>TINYINT</td><td>产品状态，0正常，1停用</td></tr>
+<tr><td>small_image_url</td><td>VARCHAR(1000)</td><td>产品图片链接</td></tr>
+<tr><td>assembly</td><td>STRING</td><td>组合规则</td></tr>
+<tr><td>assembly_labor_cost</td><td>DECIMAL(18,2)</td><td>预计装配天数</td></tr>
+<tr><td>assembly_package</td><td>STRING</td><td>包材规则</td></tr>
+<tr><td>brand</td><td>VARCHAR(100)</td><td>品牌资料表编码</td></tr>
+<tr><td>brand_name</td><td>VARCHAR(255)</td><td>品牌名称</td></tr>
+<tr><td>category</td><td>VARCHAR(100)</td><td>品类资料表编码</td></tr>
+<tr><td>category_name</td><td>VARCHAR(255)</td><td>品类名称</td></tr>
+<tr><td>chinese_customs_name</td><td>VARCHAR(255)</td><td>中文报关名</td></tr>
+<tr><td>english_customs_name</td><td>VARCHAR(255)</td><td>英文报关名</td></tr>
+<tr><td>clothing</td><td>TINYINT</td><td>是否属于服装类别</td></tr>
+<tr><td>customs_code</td><td>VARCHAR(100)</td><td>海关编码</td></tr>
+<tr><td>description</td><td>STRING</td><td>描述</td></tr>
+<tr><td>is_inspection</td><td>TINYINT</td><td>是否商检</td></tr>
+<tr><td>material</td><td>VARCHAR(255)</td><td>材质</td></tr>
+<tr><td>package_h</td><td>DOUBLE</td><td>包装尺寸高</td></tr>
+<tr><td>package_l</td><td>DOUBLE</td><td>包装尺寸长</td></tr>
+<tr><td>package_w</td><td>DOUBLE</td><td>包装尺寸宽</td></tr>
+<tr><td>package_weight</td><td>DOUBLE</td><td>单品毛重g</td></tr>
+<tr><td>single_product_net_weight</td><td>DOUBLE</td><td>单品净重g</td></tr>
+<tr><td>single_product_size_h</td><td>DOUBLE</td><td>单品尺寸高</td></tr>
+<tr><td>single_product_size_l</td><td>DOUBLE</td><td>单品尺寸长</td></tr>
+<tr><td>single_product_size_w</td><td>DOUBLE</td><td>单品尺寸宽</td></tr>
+<tr><td>unit</td><td>VARCHAR(50)</td><td>单位</td></tr>
+<tr><td>specification</td><td>VARCHAR(255)</td><td>规格</td></tr>
+<tr><td>product_type</td><td>TINYINT</td><td>产品类型</td></tr>
+<tr><td>product_type_name</td><td>VARCHAR(100)</td><td>产品类型名称</td></tr>
+<tr><td>product_usage</td><td>VARCHAR(255)</td><td>产品用途</td></tr>
+<tr><td>product_property</td><td>VARCHAR(255)</td><td>属性，来源 property</td></tr>
+<tr><td>purchase</td><td>TINYINT</td><td>是否采购</td></tr>
+<tr><td>product_manager_account</td><td>VARCHAR(100)</td><td>产品负责人</td></tr>
+<tr><td>product_manager_account_id</td><td>BIGINT</td><td>产品负责人ID</td></tr>
+<tr><td>purchase_account</td><td>VARCHAR(100)</td><td>采购负责人</td></tr>
+<tr><td>purchase_account_id</td><td>BIGINT</td><td>采购负责人ID</td></tr>
+<tr><td>product_delivery_days</td><td>INT</td><td>采购交期天数</td></tr>
+<tr><td>quote</td><td>DECIMAL(18,2)</td><td>采购参考成本</td></tr>
+<tr><td>quote_currency_code</td><td>VARCHAR(50)</td><td>币种编码</td></tr>
+<tr><td>quote_currency_symbol</td><td>VARCHAR(50)</td><td>币种符号</td></tr>
+<tr><td>quote_currency_amount</td><td>DECIMAL(18,2)</td><td>币种金额</td></tr>
+<tr><td>quote_amount_with_symbol</td><td>VARCHAR(100)</td><td>带符号金额</td></tr>
+<tr><td>charged_attribute</td><td>TINYINT</td><td>带电属性</td></tr>
+<tr><td>liquid_attribute</td><td>TINYINT</td><td>液体属性</td></tr>
+<tr><td>magnetic_attribute</td><td>TINYINT</td><td>带磁属性</td></tr>
+<tr><td>powder_attribute</td><td>TINYINT</td><td>粉末属性</td></tr>
+<tr><td>wooden_attribute</td><td>TINYINT</td><td>木制属性</td></tr>
+<tr><td>paste_attribute</td><td>TINYINT</td><td>膏体属性</td></tr>
+<tr><td>battery_attribute</td><td>TINYINT</td><td>纯电属性</td></tr>
+<tr><td>transfer_group</td><td>VARCHAR(100)</td><td>物流分组</td></tr>
+<tr><td>product_level</td><td>INT</td><td>产品等级，来源 level</td></tr>
+<tr><td>level_name</td><td>VARCHAR(100)</td><td>产品等级名</td></tr>
+<tr><td>report_element</td><td>STRING</td><td>申报要素</td></tr>
+<tr><td>report_model</td><td>VARCHAR(255)</td><td>申报型号</td></tr>
+<tr><td>status_flag</td><td>TINYINT</td><td>状态字段，来源 status</td></tr>
+<tr><td>add_time</td><td>DATETIME</td><td>创建时间，来源 add_date</td></tr>
+<tr><td>last_time</td><td>DATETIME</td><td>更新时间，来源 last_date</td></tr>
+<tr><td>update_time</td><td>DATETIME</td><td>源库更新时间</td></tr>
+<tr><td>raw_response_data</td><td>STRING</td><td>单条产品关系原始JSON</td></tr>
+<tr><td>insert_time</td><td>DATETIME DEFAULT CURRENT_TIMESTAMP</td><td>ODS插入时间</td></tr>
+</tbody></table></div>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_product_api_jijia_sku_spu_detail_df (
+    smt                         INT                                 COMMENT &#x27;月分区，格式：YYYYMM&#x27;,
+    sdt                         VARCHAR(8)                          COMMENT &#x27;日期分区，格式：YYYYMMDD&#x27;,
+    sku                         VARCHAR(100)                        COMMENT &#x27;SKU&#x27;,
+    spu                         VARCHAR(100)                        COMMENT &#x27;SPU&#x27;,
+    product_id                  BIGINT                              COMMENT &#x27;积加产品ID&#x27;,
+    external_id                 BIGINT                              COMMENT &#x27;外部系统ID，来源 id&#x27;,
+    spu_name                    VARCHAR(255)                        COMMENT &#x27;SPU名称&#x27;,
+    product_name                VARCHAR(255)                        COMMENT &#x27;产品名称，来源 name&#x27;,
+    brief_name                  VARCHAR(255)                        COMMENT &#x27;产品简称&#x27;,
+    title                       VARCHAR(500)                        COMMENT &#x27;产品标题&#x27;,
+    state                       TINYINT                             COMMENT &#x27;产品状态，0正常，1停用&#x27;,
+    small_image_url             VARCHAR(1000)                       COMMENT &#x27;产品图片链接&#x27;,
+    assembly                    STRING                              COMMENT &#x27;组合规则&#x27;,
+    assembly_labor_cost         DECIMAL(18,2)                       COMMENT &#x27;预计装配天数&#x27;,
+    assembly_package            STRING                              COMMENT &#x27;包材规则&#x27;,
+    brand                       VARCHAR(100)                        COMMENT &#x27;品牌资料表编码&#x27;,
+    brand_name                  VARCHAR(255)                        COMMENT &#x27;品牌名称&#x27;,
+    category                    VARCHAR(100)                        COMMENT &#x27;品类资料表编码&#x27;,
+    category_name               VARCHAR(255)                        COMMENT &#x27;品类名称&#x27;,
+    chinese_customs_name        VARCHAR(255)                        COMMENT &#x27;中文报关名&#x27;,
+    english_customs_name        VARCHAR(255)                        COMMENT &#x27;英文报关名&#x27;,
+    clothing                    TINYINT                             COMMENT &#x27;是否属于服装类别&#x27;,
+    customs_code                VARCHAR(100)                        COMMENT &#x27;海关编码&#x27;,
+    description                 STRING                              COMMENT &#x27;描述&#x27;,
+    is_inspection               TINYINT                             COMMENT &#x27;是否商检&#x27;,
+    material                    VARCHAR(255)                        COMMENT &#x27;材质&#x27;,
+    package_h                   DOUBLE                              COMMENT &#x27;包装尺寸高&#x27;,
+    package_l                   DOUBLE                              COMMENT &#x27;包装尺寸长&#x27;,
+    package_w                   DOUBLE                              COMMENT &#x27;包装尺寸宽&#x27;,
+    package_weight              DOUBLE                              COMMENT &#x27;单品毛重g&#x27;,
+    single_product_net_weight   DOUBLE                              COMMENT &#x27;单品净重g&#x27;,
+    single_product_size_h       DOUBLE                              COMMENT &#x27;单品尺寸高&#x27;,
+    single_product_size_l       DOUBLE                              COMMENT &#x27;单品尺寸长&#x27;,
+    single_product_size_w       DOUBLE                              COMMENT &#x27;单品尺寸宽&#x27;,
+    unit                        VARCHAR(50)                         COMMENT &#x27;单位&#x27;,
+    specification               VARCHAR(255)                        COMMENT &#x27;规格&#x27;,
+    product_type                TINYINT                             COMMENT &#x27;产品类型&#x27;,
+    product_type_name           VARCHAR(100)                        COMMENT &#x27;产品类型名称&#x27;,
+    product_usage               VARCHAR(255)                        COMMENT &#x27;产品用途&#x27;,
+    product_property            VARCHAR(255)                        COMMENT &#x27;属性，来源 property&#x27;,
+    purchase                    TINYINT                             COMMENT &#x27;是否采购&#x27;,
+    product_manager_account     VARCHAR(100)                        COMMENT &#x27;产品负责人&#x27;,
+    product_manager_account_id  BIGINT                              COMMENT &#x27;产品负责人ID&#x27;,
+    purchase_account            VARCHAR(100)                        COMMENT &#x27;采购负责人&#x27;,
+    purchase_account_id         BIGINT                              COMMENT &#x27;采购负责人ID&#x27;,
+    product_delivery_days       INT                                 COMMENT &#x27;采购交期天数&#x27;,
+    quote                       DECIMAL(18,2)                       COMMENT &#x27;采购参考成本&#x27;,
+    quote_currency_code         VARCHAR(50)                         COMMENT &#x27;币种编码&#x27;,
+    quote_currency_symbol       VARCHAR(50)                         COMMENT &#x27;币种符号&#x27;,
+    quote_currency_amount       DECIMAL(18,2)                       COMMENT &#x27;币种金额&#x27;,
+    quote_amount_with_symbol    VARCHAR(100)                        COMMENT &#x27;带符号金额&#x27;,
+    charged_attribute           TINYINT                             COMMENT &#x27;带电属性&#x27;,
+    liquid_attribute            TINYINT                             COMMENT &#x27;液体属性&#x27;,
+    magnetic_attribute          TINYINT                             COMMENT &#x27;带磁属性&#x27;,
+    powder_attribute            TINYINT                             COMMENT &#x27;粉末属性&#x27;,
+    wooden_attribute            TINYINT                             COMMENT &#x27;木制属性&#x27;,
+    paste_attribute             TINYINT                             COMMENT &#x27;膏体属性&#x27;,
+    battery_attribute           TINYINT                             COMMENT &#x27;纯电属性&#x27;,
+    transfer_group              VARCHAR(100)                        COMMENT &#x27;物流分组&#x27;,
+    product_level               INT                                 COMMENT &#x27;产品等级，来源 level&#x27;,
+    level_name                  VARCHAR(100)                        COMMENT &#x27;产品等级名&#x27;,
+    report_element              STRING                              COMMENT &#x27;申报要素&#x27;,
+    report_model                VARCHAR(255)                        COMMENT &#x27;申报型号&#x27;,
+    status_flag                 TINYINT                             COMMENT &#x27;状态字段，来源 status&#x27;,
+    add_time                    DATETIME                            COMMENT &#x27;创建时间，来源 add_date&#x27;,
+    last_time                   DATETIME                            COMMENT &#x27;更新时间，来源 last_date&#x27;,
+    update_time                 DATETIME                            COMMENT &#x27;源库更新时间&#x27;,
+    raw_response_data           STRING                              COMMENT &#x27;单条产品关系原始JSON&#x27;,
+    insert_time                 DATETIME DEFAULT CURRENT_TIMESTAMP  COMMENT &#x27;ODS插入时间&#x27;
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, sku, spu, product_id)
+COMMENT &#x27;SKU详情关系 ODS层表（商品域，积加 API，日全量）&#x27;
+DISTRIBUTED BY HASH(sku) BUCKETS 16
+PROPERTIES (
+    &quot;replication_allocation&quot; = &quot;tag.location.default: 1&quot;,
+    &quot;enable_unique_key_merge_on_write&quot; = &quot;true&quot;
+);</code></pre>
+
+    <h2>四、MySQL 与 Doris 表映射</h2>
+    <div class="table-wrap"><table><thead><tr><th>MySQL 表</th><th>Doris ODS 表</th><th>状态</th><th>Doris UNIQUE KEY</th></tr></thead><tbody>
+      <tr><td><code>tiktok_product</code></td><td><code>ods_product_tiktok_product_df</code></td><td>mysql 已有</td><td><code>smt, sdt, shop_site_id, product_id</code></td></tr><tr><td><code>tiktok_product_category</code></td><td><code>ods_product_tiktok_product_category_df</code></td><td>mysql 已有</td><td><code>smt, sdt, shop_site_id, category_id</code></td></tr><tr><td><code>tiktok_product_sku</code></td><td><code>ods_product_tiktok_product_sku_df</code></td><td>mysql 已有</td><td><code>smt, sdt, shop_site_id, shop_id, product_id, sku_id</code></td></tr><tr><td><code>tiktok_product_warehouse</code></td><td><code>ods_product_tiktok_product_warehouse_df</code></td><td>mysql 已有</td><td><code>smt, sdt, shop_site_id, shop_id, product_id, sku_id, warehouse_id</code></td></tr><tr><td><code>tiktok_product_image</code></td><td><code>ods_product_tiktok_product_image_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, image_type, ref_id, sort_no</code></td></tr><tr><td><code>tiktok_product_sku_attribute</code></td><td><code>ods_product_tiktok_product_sku_attribute_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, shop_id, product_id, sku_id, attribute_id, value_id</code></td></tr><tr><td><code>tiktok_product_combined_sku</code></td><td><code>ods_product_tiktok_product_combined_sku_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, parent_product_id, parent_sku_id, combined_product_id, combined_sku_id</code></td></tr><tr><td><code>tiktok_product_attribute</code></td><td><code>ods_product_tiktok_product_attribute_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, attribute_id, value_id</code></td></tr><tr><td><code>tiktok_product_audit_failed_reason</code></td><td><code>ods_product_tiktok_product_audit_failed_reason_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, position, listing_platform</code></td></tr><tr><td><code>tiktok_product_delivery_option</code></td><td><code>ods_product_tiktok_product_delivery_option_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, delivery_option_id</code></td></tr><tr><td><code>tiktok_product_family</code></td><td><code>ods_product_tiktok_product_family_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, family_id, family_product_id</code></td></tr><tr><td><code>tiktok_product_global_sku_mapping</code></td><td><code>ods_product_tiktok_product_global_sku_mapping_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, global_product_id, global_sku_id, local_sku_id</code></td></tr><tr><td><code>tiktok_product_subscribe_discount</code></td><td><code>ods_product_tiktok_product_subscribe_discount_df</code></td><td>mysql 需新建</td><td><code>smt, sdt, shop_site_id, product_id, discount_type, discount_level</code></td></tr>
+      <tr><td><code>business_ledger_product</code></td><td><code>ods_product_api_jijia_sku_spu_detail_df</code></td><td>mysql 已有</td><td><code>smt, sdt, sku, spu, product_id</code></td></tr>
+    </tbody></table></div>
+  </main>
+</body>
+</html>

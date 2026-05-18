@@ -206,7 +206,114 @@
       <li><strong>挂车/视频指标</strong>：从 <code>ods_traffic_file_tiktok_video_performance_di</code> 按 <code>sdt+store_name</code> 聚合；剪辑挂车用 <code>creator_id</code> 命中 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 的集合统计，其余归为商务挂车。</li>
       <li><strong>产出 ADS</strong>：最终日表输出到 <code>ads_sales_pid_dashboard_1d</code>（与接口文档中 PID 数据看板主表字段一致）。</li>
     </ol>
-    <h3>2.5 最终目标结果</h3>
+
+    <h3>2.5 最终版字段来源与计算方法（对外交付明细）</h3>
+    <p>本节为 <code>ads.ads_sales_pid_dashboard_1d</code>（PID 维度数据看板 ADS 日表）的最终交付口径。ADS 层按 <code>(smt, sdt, store_name, pid)</code> 从 <code>dws.dws_sales_pid_dashboard_1d</code> 透传，DWS 层再关联 DWD 宽表与 GMV 计算明细补齐指标。源头以 ODS 层为主，少量维度与中间 DWS 结果用于口径沉淀。</p>
+    <h4>2.5.1 整体数据链路</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>中文表名</th><th>职责</th><th>关键关联/过滤</th></tr></thead>
+        <tbody>
+          <tr><td>ADS</td><td><code>ads.ads_sales_pid_dashboard_1d</code></td><td>PID 维度数据看板 ADS 日表</td><td>对外接口和看板直接使用的最终日表。</td><td>按 <code>smt/sdt</code> 删除重跑；从 DWS 同日期同步。</td></tr>
+          <tr><td>DWS</td><td><code>dws.dws_sales_pid_dashboard_1d</code></td><td>PID 维度数据看板 DWS 日表</td><td>合并 DWD 看板宽表与 GMV 计算明细，补充财务 GMV、客单价、补贴、总 GMV、实际 ACOAS 等。</td><td><code>smt+sdt+store_name+pid</code> 关联。</td></tr>
+          <tr><td>DWD</td><td><code>dwd.dwd_sales_pid_dashboard_wide_di</code></td><td>PID 维度数据看板宽表</td><td>以商品流量数据为主驱动，汇总商品卡、直播、短视频、达人、广告、挂车、开单视频等指标。</td><td>日粒度；主键口径为 <code>smt+sdt+store_name+pid</code>。</td></tr>
+          <tr><td>DWS</td><td><code>dws.dws_sales_pid_gmv_calc_detail_realtime</code></td><td>PID 维度 GMV 计算明细表</td><td>提供财务 GMV、客单价、补贴/单、销售量等财务口径。</td><td>按 <code>smt+sdt+store_name+pid</code> 与 DWD 看板宽表关联。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>2.5.2 ODS / DIM 来源表清单</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>表名</th><th>中文表名</th><th>来源类型</th><th>在本看板中的用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_list_di</code></td><td>TikTok 商品数据分析表（product_list）</td><td>TK 后台文件导入</td><td>旧口径及非美区商品主驱动表，提供 PID、商品名、GMV、成交件数、订单数、商品卡/直播/视频 GMV、曝光、浏览、点击率、转化率等。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_all_di</code></td><td>TikTok 商品数据分析全部表</td><td>TK 后台文件导入</td><td>美区 2026-04-28 后商品主驱动表，提供 PID、商品名、总 GMV、成交件数、订单数等基础指标。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_card_di</code></td><td>TikTok 商品数据分析商家商品卡表</td><td>TK 后台文件导入</td><td>美区新口径商品卡指标来源，提供商品卡归因 GMV、成交件数、曝光、点击率、转化率等。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_live_di</code></td><td>TikTok 商品数据分析商家直播表</td><td>TK 后台文件导入</td><td>美区新口径商家直播指标来源，提供商家直播归因 GMV、曝光、点击率、转化率等。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_video_di</code></td><td>TikTok 商品数据分析商家短视频表</td><td>TK 后台文件导入</td><td>美区新口径商家短视频指标来源，提供商家视频归因 GMV、成交件数、曝光、点击率、转化率等。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_product_affiliate_di</code></td><td>TikTok 商品数据分析达人联盟表</td><td>TK 后台文件导入</td><td>美区新口径达人直播/达人视频指标来源，提供达人直播 GMV、达人视频 GMV、达人曝光、点击率、转化率等。</td></tr>
+          <tr><td><code>ods.ods_marketing_file_tiktok_campaign_di</code></td><td>TikTok 广告推广系列数据表（Product campaign data）</td><td>TK 后台广告文件导入</td><td>广告指标来源；从 <code>campaign_name</code> 末尾解析 PID，聚合 VSA 消耗、GMVMAX 消耗、广告总消耗、广告订单、广告 GMV。</td></tr>
+          <tr><td><code>ods.ods_traffic_file_tiktok_video_performance_di</code></td><td>TikTok 视频表现明细表（Video Performance List）</td><td>积加或 TK 后台文件导入</td><td>挂车量来源；按视频发布时间过滤当天，清洗商品名后关联商品主表，统计商务/剪辑/合计挂车量。</td></tr>
+          <tr><td><code>ods.ods_platform_file_tiktok_account_df</code></td><td>TikTok 达人账号信息表</td><td>人工维护或文件导入</td><td>达人账号归属判定；用 <code>tiktok_uid</code> 区分剪辑挂车，用 <code>username</code> 区分剪辑开单视频。</td></tr>
+          <tr><td><code>ods.ods_file_trade_tiktok_affiliate_order_di</code></td><td>TikTok 联盟订单文件表</td><td>TK 联盟订单文件导入</td><td>开单视频数来源；按 <code>product_id+creator_username+content_id</code> 去重统计合计开单视频，并结合账号表拆分剪辑/商务。</td></tr>
+          <tr><td><code>dim.dim_sales_pid_main_spu_mapping_df</code></td><td>店铺+PID 对应主推 SPU 映射维表</td><td>业务后台维护</td><td>补充 <code>spu</code>；按 <code>store_name+pid</code> 取最新维护记录。</td></tr>
+          <tr><td><code>dws.dws_sales_pid_gmv_calc_detail_realtime</code></td><td>PID 维度 GMV 计算明细表</td><td>订单明细实时聚合</td><td>补充财务口径指标；底层来自 TikTok 订单/订单明细 ODS 清洗链路。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h4>2.5.3 ADS 字段来源与计算口径</h4>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ADS 字段</th><th>中文名称</th><th>来源表（中文表名）</th><th>来源字段 / 计算方法</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>smt</code></td><td>月份分区</td><td>DWS：PID 维度数据看板 DWS 日表</td><td>从 <code>dws_sales_pid_dashboard_1d.smt</code> 透传。</td><td>格式 <code>YYYYMM</code>。</td></tr>
+          <tr><td><code>sdt</code></td><td>日期分区</td><td>DWS：PID 维度数据看板 DWS 日表</td><td>从 <code>dws_sales_pid_dashboard_1d.sdt</code> 透传。</td><td>格式 <code>YYYYMMDD</code>。</td></tr>
+          <tr><td><code>store_name</code></td><td>店铺</td><td>ODS 商品主表：product_list / 商品数据分析全部表</td><td>旧口径取 <code>product_list.store_name</code>；美区新口径取 <code>product_all.store_name</code>。</td><td>用于店铺维度筛选与关联。</td></tr>
+          <tr><td><code>pid</code></td><td>PID / 商品 ID</td><td>ODS 商品主表：product_list / 商品数据分析全部表</td><td>旧口径取 <code>product_list.product_id</code>；美区新口径取 <code>product_all.product_id</code>。</td><td>看板核心商品粒度。</td></tr>
+          <tr><td><code>spu</code></td><td>主推 SPU</td><td>DIM：店铺+PID 对应主推 SPU 映射维表</td><td>按 <code>store_name+pid</code> 取最新 <code>main_spu</code>，为空时输出空字符串。</td><td>业务维护维度。</td></tr>
+          <tr><td><code>atv</code></td><td>客单价</td><td>DWS：PID 维度 GMV 计算明细表</td><td><code>COALESCE(g.atv, 0)</code>；底层口径为实付总价 / 销售量。</td><td>无匹配 GMV 明细时置 0。</td></tr>
+          <tr><td><code>subsidy_per</code></td><td>补贴/单</td><td>DWS：PID 维度 GMV 计算明细表</td><td><code>COALESCE(g.subsidy_per, 0)</code>；底层口径为平台补贴 / 销售量。</td><td>无匹配 GMV 明细时置 0。</td></tr>
+          <tr><td><code>financial_gmv</code></td><td>财务 GMV</td><td>DWS：PID 维度 GMV 计算明细表</td><td><code>COALESCE(g.financial_gmv, 0)</code>；底层口径为营业总额 - 商家折扣 + 运费。</td><td>最终财务口径 GMV。</td></tr>
+          <tr><td><code>trade_amount</code></td><td>商品交易总额</td><td>ODS 商品主表</td><td>DWD 宽表 <code>trade_amount</code>；旧口径取 <code>product_list.gmv</code>，美区新口径取 <code>product_all.gmv</code>。</td><td>非财务口径，来自商品数据分析导出。</td></tr>
+          <tr><td><code>deal_qty</code></td><td>成交件数</td><td>ODS 商品主表</td><td>旧口径取 <code>product_list.sold_quantity</code>，美区新口径取 <code>product_all.sold_quantity</code>。</td><td>商品数据分析口径。</td></tr>
+          <tr><td><code>order_qty</code></td><td>订单数 / 销售量</td><td>DWS：PID 维度 GMV 计算明细表</td><td>DWS 最终取 <code>g.quantity</code>；DWD 中原始订单数来自商品主表 <code>order_count</code>。</td><td>最终 ADS 以 GMV 明细销售量为准。</td></tr>
+          <tr><td><code>card_gmv</code></td><td>商品卡 GMV</td><td>ODS：product_list / 商家商品卡表</td><td>旧口径取 <code>product_list.product_card_gmv</code>；美区新口径取 <code>product_card.attributed_gmv</code>。</td><td>商品卡渠道 GMV。</td></tr>
+          <tr><td><code>live_gmv</code></td><td>直播 GMV</td><td>ODS：product_list / 商家直播表 + 达人联盟表</td><td>旧口径取 <code>product_list.live_gmv</code>；美区新口径为 <code>product_live.attributed_gmv + product_affiliate.live_gmv</code>。</td><td>美区新口径包含商家直播与达人直播。</td></tr>
+          <tr><td><code>video_gmv</code></td><td>短视频 GMV</td><td>ODS：product_list / 商家短视频表 + 达人联盟表</td><td>旧口径取 <code>product_list.video_gmv</code>；美区新口径为 <code>product_video.attributed_gmv + product_affiliate.video_gmv</code>。</td><td>美区新口径包含商家短视频与达人视频。</td></tr>
+          <tr><td><code>expert_video_gmv</code></td><td>达人视频 GMV</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.video_gmv</code>；旧口径和非美区当前为 <code>NULL</code>。</td><td>用于单独展示达人视频贡献。</td></tr>
+          <tr><td><code>card_gmv_ratio</code></td><td>商品卡 GMV 占比</td><td>DWD：PID 维度数据看板宽表</td><td><code>card_gmv / NULLIF(card_gmv + live_gmv + video_gmv, 0) * 100</code>，保留 2 位。</td><td>分母为三类渠道 GMV 合计。</td></tr>
+          <tr><td><code>live_gmv_ratio</code></td><td>直播 GMV 占比</td><td>DWD：PID 维度数据看板宽表</td><td><code>live_gmv / NULLIF(card_gmv + live_gmv + video_gmv, 0) * 100</code>，保留 2 位。</td><td>分母为三类渠道 GMV 合计。</td></tr>
+          <tr><td><code>video_gmv_ratio</code></td><td>短视频 GMV 占比</td><td>DWD：PID 维度数据看板宽表</td><td><code>video_gmv / NULLIF(card_gmv + live_gmv + video_gmv, 0) * 100</code>，保留 2 位。</td><td>分母为三类渠道 GMV 合计。</td></tr>
+          <tr><td><code>card_trade_amount</code></td><td>商品卡商品交易总额</td><td>DWD：PID 维度数据看板宽表</td><td>等于 <code>card_gmv</code>。</td><td>对齐看板字段命名。</td></tr>
+          <tr><td><code>card_deal_qty</code></td><td>商品卡成交件数</td><td>ODS：product_list / 商家商品卡表</td><td>旧口径取 <code>product_list.product_card_sold_quantity</code>；美区新口径取 <code>product_card.attributed_sold_quantity</code>。</td><td>商品卡成交件数。</td></tr>
+          <tr><td><code>card_atv</code></td><td>商品卡客单价</td><td>DWD：PID 维度数据看板宽表</td><td><code>card_gmv / NULLIF(card_deal_qty, 0)</code>，保留 2 位。</td><td>分母为商品卡成交件数。</td></tr>
+          <tr><td><code>card_exposure</code></td><td>商品卡曝光</td><td>ODS：product_list / 商家商品卡表</td><td>旧口径取 <code>product_list.product_card_exposure</code>；美区新口径取 <code>product_card.exposure_count</code>。</td><td>商品卡曝光次数。</td></tr>
+          <tr><td><code>card_page_view</code></td><td>商品卡页面浏览次数</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.product_card_page_view</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>card_uv_view</code></td><td>商品卡去重浏览</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.product_card_uv_view</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>card_uv_user</code></td><td>商品卡去重客户</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.product_card_uv_user</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>card_click_rate</code></td><td>商品卡点击率</td><td>ODS：product_list / 商家商品卡表</td><td>旧口径取 <code>product_list.product_card_click_rate</code>；美区新口径取 <code>product_card.click_rate</code>。</td><td>最终保留 4 位。</td></tr>
+          <tr><td><code>card_convert_rate</code></td><td>商品卡转化率</td><td>ODS：product_list / 商家商品卡表</td><td>旧口径取 <code>product_list.product_card_convert_rate</code>；美区新口径取 <code>product_card.ctor_sku_order</code>。</td><td>最终保留 4 位。</td></tr>
+          <tr><td><code>card_video_trade_amount</code></td><td>商品卡短视频商品交易总额</td><td>ODS：product_list / 商家短视频表</td><td>旧口径等于 <code>product_list.video_gmv</code>；美区新口径取 <code>product_video.attributed_gmv</code>。</td><td>当前实现表示商家短视频 GMV。</td></tr>
+          <tr><td><code>video_deal_qty</code></td><td>短视频成交件数</td><td>ODS：product_list / 商家短视频表</td><td>旧口径取 <code>product_list.video_sold_quantity</code>；美区新口径取 <code>product_video.attributed_sold_quantity</code>。</td><td>商家短视频成交件数。</td></tr>
+          <tr><td><code>video_atv</code></td><td>短视频客单价</td><td>DWD：PID 维度数据看板宽表</td><td><code>merchant_video_gmv / NULLIF(video_deal_qty, 0)</code>，保留 2 位。</td><td>美区新口径分子为商家短视频 GMV，不含达人视频 GMV。</td></tr>
+          <tr><td><code>live_total_exposure</code></td><td>直播总曝光次数</td><td>ODS：product_list / 商家直播表 + 达人联盟表</td><td>旧口径取 <code>product_list.live_exposure</code>；美区新口径为 <code>product_live.exposure_count + product_affiliate.live_exposure_count</code>。</td><td>美区新口径汇总商家直播与达人直播。</td></tr>
+          <tr><td><code>expert_live_exposure</code></td><td>达人直播曝光次数</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.live_exposure_count</code>；旧口径为 <code>NULL</code>。</td><td>达人直播单独指标。</td></tr>
+          <tr><td><code>video_exposure</code></td><td>视频曝光次数</td><td>ODS：product_list / 商家短视频表</td><td>旧口径取 <code>product_list.video_exposure</code>；美区新口径取 <code>product_video.exposure_count</code>。</td><td>商家视频曝光。</td></tr>
+          <tr><td><code>expert_video_exposure</code></td><td>达人视频曝光次数</td><td>ODS：product_list / 达人联盟表</td><td>旧口径取 <code>product_list.video_exposure</code>；美区新口径取 <code>product_affiliate.video_exposure_count</code>。</td><td>旧口径无法拆达人，沿用视频曝光。</td></tr>
+          <tr><td><code>video_page_view</code></td><td>来自视频的页面浏览次数</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.video_page_view</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>video_uv_view</code></td><td>来自视频的去重页面浏览次数</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.video_uv_view</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>video_uv_user</code></td><td>视频去重商品客户数</td><td>ODS：product_list</td><td>旧口径取 <code>product_list.video_uv_user</code>；美区新口径暂为 0。</td><td>美区新拆分表未提供该字段时置 0。</td></tr>
+          <tr><td><code>live_total_click_rate</code></td><td>直播总点击率</td><td>ODS：商家直播表 + 达人联盟表</td><td>美区新口径：商家直播 <code>click_rate</code> 与达人直播 <code>live_ctr</code> 都有值时取平均；只有一侧有值时取该侧；旧口径为 <code>NULL</code>。</td><td>综合直播点击率。</td></tr>
+          <tr><td><code>expert_live_click_rate</code></td><td>达人直播点击率</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.live_ctr</code>；旧口径为 <code>NULL</code>。</td><td>达人直播单独指标。</td></tr>
+          <tr><td><code>video_click_rate</code></td><td>视频点击率</td><td>ODS：product_list / 商家短视频表</td><td>旧口径取 <code>product_list.video_click_rate</code>；美区新口径取 <code>product_video.click_rate</code>。</td><td>视频点击率。</td></tr>
+          <tr><td><code>expert_video_click_rate</code></td><td>达人视频点击率</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.video_ctr</code>；旧口径为 <code>NULL</code>。</td><td>达人视频单独指标。</td></tr>
+          <tr><td><code>live_total_convert_rate</code></td><td>直播总转化率</td><td>ODS：商家直播表 + 达人联盟表</td><td>美区新口径：商家直播 <code>ctor_sku_order</code> 与达人直播 <code>live_ctor_sku_order</code> 都有值时取平均；只有一侧有值时取该侧；旧口径为 <code>NULL</code>。</td><td>综合直播转化率。</td></tr>
+          <tr><td><code>expert_live_convert_rate</code></td><td>达人直播转化率</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.live_ctor_sku_order</code>；旧口径为 <code>NULL</code>。</td><td>达人直播单独指标。</td></tr>
+          <tr><td><code>video_convert_rate</code></td><td>视频转化率</td><td>ODS：product_list / 商家短视频表</td><td>旧口径取 <code>product_list.video_convert_rate</code>；美区新口径取 <code>product_video.ctor_sku_order</code>。</td><td>视频转化率。</td></tr>
+          <tr><td><code>expert_video_convert_rate</code></td><td>达人视频转化率</td><td>ODS：TikTok 商品数据分析达人联盟表</td><td>美区新口径取 <code>product_affiliate.video_ctor_sku_order</code>；旧口径为 <code>NULL</code>。</td><td>达人视频单独指标。</td></tr>
+          <tr><td><code>biz_hanger_qty</code></td><td>商务挂车量</td><td>ODS：视频表现明细表 + 达人账号信息表</td><td>从视频表现表取当天发布且商品名非空的视频，清洗商品名后关联商品；<code>account_type=2</code> 且未命中账号表 <code>tiktok_uid</code> 计为商务挂车。</td><td>按 <code>sdt+store_name+商品名</code> 聚合后关联。</td></tr>
+          <tr><td><code>edit_hanger_qty</code></td><td>剪辑挂车量</td><td>ODS：视频表现明细表 + 达人账号信息表</td><td><code>account_type=1</code>，或 <code>account_type=2</code> 且命中账号表 <code>tiktok_uid</code>，计为剪辑挂车。</td><td>按视频条数统计。</td></tr>
+          <tr><td><code>total_hanger_qty</code></td><td>合计挂车量</td><td>ODS：视频表现明细表</td><td>满足过滤条件的视频记录 <code>COUNT(1)</code>。</td><td>商务挂车量 + 剪辑挂车量。</td></tr>
+          <tr><td><code>biz_open_video_qty</code></td><td>商务开单视频</td><td>ODS：TikTok 联盟订单文件表 + 达人账号信息表</td><td><code>total_open_video_qty - edit_open_video_qty</code>。</td><td>按 <code>product_id+creator_username+content_id</code> 去重。</td></tr>
+          <tr><td><code>edit_open_video_qty</code></td><td>剪辑开单视频</td><td>ODS：TikTok 联盟订单文件表 + 达人账号信息表</td><td>联盟订单中 <code>creator_username</code> 命中账号表 <code>username</code> 的去重视频数。</td><td>按 <code>product_id+creator_username+content_id</code> 去重。</td></tr>
+          <tr><td><code>total_open_video_qty</code></td><td>开单视频合计</td><td>ODS：TikTok 联盟订单文件表</td><td>联盟订单中 <code>product_id+creator_username+content_id</code> 去重计数。</td><td>用于衡量开单内容数。</td></tr>
+          <tr><td><code>vas_consume</code></td><td>VSA 消耗</td><td>ODS：TikTok 广告推广系列数据表</td><td>按 PID 聚合 <code>campaign_type='PRODUCT_SHOPPING_ADS'</code> 的 <code>cost</code>。</td><td>PID 从 <code>campaign_name</code> 末尾数字解析。</td></tr>
+          <tr><td><code>gmvmax_consume</code></td><td>GMVMAX 消耗</td><td>ODS：TikTok 广告推广系列数据表</td><td>按 PID 聚合非 <code>PRODUCT_SHOPPING_ADS</code> 的 <code>cost</code>。</td><td>PID 从 <code>campaign_name</code> 末尾数字解析。</td></tr>
+          <tr><td><code>ad_total_consume</code></td><td>广告总消耗</td><td>ODS：TikTok 广告推广系列数据表</td><td><code>SUM(cost)</code>。</td><td>VSA 消耗 + GMVMAX 消耗。</td></tr>
+          <tr><td><code>ad_order_count</code></td><td>实际单量</td><td>ODS / DWS 综合</td><td>当前 DWS 最终取 DWD 的 <code>ad_order_qty</code>，即广告表 <code>sku_orders</code> 聚合值。</td><td>字段名沿用看板展示口径。</td></tr>
+          <tr><td><code>ad_order_qty</code></td><td>广告订单数</td><td>DWS：PID 维度 GMV 计算明细表</td><td>当前 DWS 最终取 <code>g.quantity</code>。</td><td>与广告文件订单数不同，最终以 GMV 明细销售量为准。</td></tr>
+          <tr><td><code>ad_gmv</code></td><td>广告 GMV</td><td>ODS：TikTok 广告推广系列数据表</td><td>按 PID 聚合 <code>total_revenue</code>。</td><td>广告归因 GMV。</td></tr>
+          <tr><td><code>total_gmv</code></td><td>总 GMV</td><td>DWS：PID 维度 GMV 计算明细表</td><td>等于 <code>financial_gmv</code>。</td><td>最终总 GMV 使用财务 GMV。</td></tr>
+          <tr><td><code>total_acoas</code></td><td>实际 ACOAS</td><td>DWS：PID 维度数据看板 DWS 日表</td><td><code>ad_total_consume / NULLIF(financial_gmv * 0.92, 0)</code>。</td><td>分母使用财务 GMV 的 92%。</td></tr>
+          <tr><td><code>ad_roi</code></td><td>广告 ROI（测算）</td><td>DWS：PID 维度数据看板 DWS 日表</td><td><code>ad_gmv / NULLIF(gmvmax_consume, 0)</code>。</td><td>GMVMAX 消耗为 0 时返回空。</td></tr>
+          <tr><td><code>ad_acoas</code></td><td>广告 AcoAs</td><td>DWS：PID 维度数据看板 DWS 日表</td><td><code>ad_total_consume / NULLIF(ad_gmv, 0) * 100</code>。</td><td>广告 GMV 为 0 时返回空。</td></tr>
+          <tr><td><code>ad_roi_setting_count</code></td><td>广告 ROI 设置数</td><td>预留字段</td><td>固定输出 <code>0</code>。</td><td>当前暂无来源。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">说明：本节按当前数仓 SQL 最终实现整理。若后续 ODS 文件字段或美区/非美区口径继续调整，应同步更新本字段来源明细。</p>
+
+    <h3>2.6 最终目标结果</h3>
     <p>需求二达成的目标：<strong>PID 维度数据看板</strong>，支持按日期、店铺、PID 筛选，展示上述 GMV、渠道占比、商品卡/直播/短视频指标及广告挂车、ACOAS、广告ROI（测算）、广告AcoAs 等，与「1店PID维度的数据监测工具表-7天数据-》数据看板」结构一致或等价。</p>
     <p><strong>数据看板最终呈现示意</strong></p>
     <p>下图为需求二数据看板的目标呈现效果：按店铺（如 2 店）、按日期展示 PID、产品名称、一级/二级/三级分类、品牌，以及销售（销量、日销量、日销售额、环比/同环比）、销售额、7 日/30 日销售额趋势、复购（复购人数、复购率、复购客单价）、活跃度等指标。</p>

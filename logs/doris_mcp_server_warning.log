@@ -1203,3 +1203,19 @@
 2026-05-14 20:46:12.402 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
 2026-05-14 21:05:56.153 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
 2026-05-14 21:21:01.827 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 09:31:05.527 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 09:31:08.529 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 11:20:29.213 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 11:20:32.217 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 11:37:16.516 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 11:52:32.421 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 12:18:50.166 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 12:18:53.170 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 12:34:40.539 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 12:50:41.494 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 12:50:44.498 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 13:08:31.622 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 13:08:34.624 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 13:13:35.995 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 13:29:51.494 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 17:12:19.767 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery

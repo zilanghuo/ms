@@ -43,6 +43,7 @@
     <h1>对外提供的 API 列表</h1>
     <p class="meta">版本：v1.0 ｜ 日期：2026-05-15 ｜ 编制：IT 部 ｜ 适用范围：对外服务商 API 接入</p>
     <p class="meta">参考资料：<code>业务应用API接入规范-TikTok内容中台.pdf</code>（作为接入规范参考之一）</p>
+    <p class="meta">相关文档：<a class="toc-link" href="表结构设计.html">对外提供 API - 表结构设计</a></p>
     <hr />
 
     <h2>一、文档目的</h2>
@@ -85,7 +86,7 @@
             <td><span class="badge get">GET</span></td>
             <td>按站点、店铺、商品状态、关键词等条件分页查询内容中台商品基础资料。</td>
             <td>tk商品维护</td>
-            <td>TikTok Shop API 同步商品数据 + 内容中台商品维护数据</td>
+            <td>TikTok Shop API 同步商品数据</td>
             <td>用于服务商获取可处理的商品范围；需确认是否返回图片、标题、SPU/SKU、店铺等字段。</td>
           </tr>
           <tr>
@@ -95,56 +96,27 @@
             <td><span class="badge post">POST</span></td>
             <td>根据商品 ID 查询单个商品详情，包括商品基础信息、站点店铺信息、状态和内容字段。</td>
             <td>tk商品维护</td>
-            <td>TikTok Shop API 同步商品数据 + 内容中台商品维护数据</td>
+            <td>TikTok Shop API 同步商品数据</td>
             <td>请求体传入 <code>productId</code> + <code>shopName</code>，避免中文店铺名放在 URL 参数中产生转义问题。</td>
           </tr>
           <tr>
             <td>3</td>
-            <td><a class="toc-link" href="#api-product-materials">商品内容素材查询</a></td>
-            <td><code>/openapi/tiktok-content/products/{productId}/materials</code></td>
-            <td><span class="badge get">GET</span></td>
-            <td>查询商品关联的图片、标题、卖点、描述、视频或其他内容素材。</td>
-            <td>tk商品维护</td>
-            <td>内容中台人工维护数据 + 商品内容资产</td>
-            <td>需确认素材 URL 是否需要临时签名、有效期和防盗链策略。</td>
-          </tr>
-          <tr>
-            <td>4</td>
-            <td><a class="toc-link" href="#api-task-list">任务列表查询</a></td>
-            <td><code>/openapi/tiktok-content/tasks</code></td>
-            <td><span class="badge get">GET</span></td>
-            <td>分页查询分配给服务商的内容处理任务。</td>
-            <td>tk商品维护</td>
-            <td>内容中台任务数据</td>
-            <td>如服务商接入场景包含图片处理、标题优化、翻译或内容审核，建议开放该接口。</td>
-          </tr>
-          <tr>
-            <td>5</td>
-            <td><a class="toc-link" href="#api-task-result">任务结果回传</a></td>
-            <td><code>/openapi/tiktok-content/tasks/{taskId}/result</code></td>
+            <td><a class="toc-link" href="#api-jijia-sku-spu-detail">SKU详情关系（积加）</a></td>
+            <td><code>/openapi/jijia/product/sku-spu/detail</code></td>
             <td><span class="badge post">POST</span></td>
-            <td>服务商完成内容处理后，回传处理结果、素材地址、状态和异常原因。</td>
+            <td>根据 SKU、SPU 或产品 ID 查询积加产品台账中的 SKU 与 SPU 关系及产品基础资料。</td>
             <td>tk商品维护</td>
-            <td>外部服务商回传数据</td>
-            <td>写入类接口需单独确认幂等键、签名校验、字段校验和回滚策略。</td>
-          </tr>
-          <tr>
-            <td>6</td>
-            <td><a class="toc-link" href="#api-dictionaries">枚举字典查询</a></td>
-            <td><code>/openapi/tiktok-content/dictionaries</code></td>
-            <td><span class="badge get">GET</span></td>
-            <td>查询站点、店铺、商品状态、任务状态、内容类型等服务商需要使用的枚举字典。</td>
-            <td>tk商品维护</td>
-            <td>内容中台配置数据</td>
-            <td>用于减少接口字段硬编码，建议作为通用基础接口。</td>
+            <td>积加 MySQL：<code>business_ledger_product</code></td>
+            <td>仅提供对外参数说明；对外字段统一使用 camelCase。</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="api-products-list">3.1 商品列表查询</h3>
-    <p><strong>对外接口说明</strong></p>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
     <p>该接口面向外部服务商提供商品列表分页查询能力。对外请求参数参考 TikTok Shop Search Products 接口口径，仅保留当前业务可用筛选项，并将字段统一转换为驼峰命名。</p>
+    <p><strong>对外入参数</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
@@ -158,10 +130,11 @@
         </tbody>
       </table>
     </div>
-    <p><strong>对外请求示例</strong></p>
+    <p><strong>对外入参示例</strong></p>
     <pre><code>GET /openapi/tiktok-content/products?pageNum=1&amp;pageSize=20&amp;status=ACTIVATE&amp;createTimeGe=1714521600&amp;createTimeLe=1717199999&amp;auditStatus=AUDITING</code></pre>
 
-    <p><strong>对外响应示例</strong></p>
+    <p><strong>对外出参数</strong></p>
+    <p><strong>对外出参示例</strong></p>
     <pre><code>{
   "code": 0,
   "data": {
@@ -262,7 +235,7 @@
   "message": "Success",
   "requestId": "202203070749000101890810281E8C70B7"
 }</code></pre>
-    <p><strong>对外响应字段说明</strong></p>
+    <p><strong>对外出参数字段说明</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
@@ -287,8 +260,9 @@
       </table>
     </div>
 
-    <p><strong>内部对接第三方接口参数</strong></p>
+    <p><strong>模块二：对内参数说明（本服务对接第三方原始 API）</strong></p>
     <p>内部服务根据对外驼峰参数转换为 TikTok Search Products 原始业务请求体。此处仅记录 JSON Body 中的业务参数，鉴权、店铺、签名、分页游标等 Query/Header 参数由内部接入层统一处理，不在本文档展开。</p>
+    <p><strong>对内入参数</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数位置</th><th>内部参数</th><th>类型</th><th>来源对外参数 / 系统来源</th><th>示例</th><th>说明</th></tr></thead>
@@ -309,7 +283,7 @@
         </tbody>
       </table>
     </div>
-    <p><strong>内部请求示例</strong></p>
+    <p><strong>对内入参示例</strong></p>
     <pre><code>-d '{
     "status": "ALL",
     "seller_skus": [
@@ -336,7 +310,8 @@
     "sns_filter": "CONFIGURED",
     "return_draft_version": true
   }'</code></pre>
-    <p><strong>内部响应示例</strong></p>
+    <p><strong>对内出参数</strong></p>
+    <p><strong>对内出参示例</strong></p>
     <pre><code>{
   "code": 0,
   "data": {
@@ -445,8 +420,9 @@
     </ul>
 
     <h3 id="api-product-detail">3.2 商品详情查询</h3>
-    <p><strong>对外接口说明</strong></p>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
     <p>该接口面向外部服务商提供单个 TikTok 商品详情查询能力。由于店铺名包含中文，对外使用 POST JSON Body 传参，避免 URL 参数转义问题；对外请求参数和响应字段统一使用 camelCase。</p>
+    <p><strong>对外入参数</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
@@ -456,7 +432,7 @@
         </tbody>
       </table>
     </div>
-    <p><strong>对外请求示例</strong></p>
+    <p><strong>对外入参示例</strong></p>
     <pre><code>POST /openapi/tiktok-content/product/detail
 Content-Type: application/json
 
@@ -464,7 +440,8 @@ Content-Type: application/json
   "shopName": "美国TK-艾斯特尼-美区跨境1店",
   "productId": "1729592969712207008"
 }</code></pre>
-    <p><strong>对外响应示例</strong></p>
+    <p><strong>对外出参数</strong></p>
+    <p><strong>对外出参示例</strong></p>
     <pre><code>{
   &quot;code&quot;: 0,
   &quot;data&quot;: {
@@ -898,8 +875,9 @@ Content-Type: application/json
 }</code></pre>
 
 
-    <p><strong>内部对接第三方接口参数</strong></p>
+    <p><strong>模块二：对内参数说明（本服务对接第三方原始 API）</strong></p>
     <p>内部服务根据商品 ID 调用 TikTok Get Product 原始详情接口。此处仅记录业务路径参数和业务 Query 参数，鉴权、签名、店铺授权、请求头等参数由内部接入层统一处理，不在本文档展开。</p>
+    <p><strong>对内入参数</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数位置</th><th>内部参数</th><th>类型</th><th>来源对外参数 / 系统来源</th><th>示例</th><th>说明</th></tr></thead>
@@ -911,9 +889,10 @@ Content-Type: application/json
         </tbody>
       </table>
     </div>
-    <p><strong>内部请求示例</strong></p>
+    <p><strong>对内入参示例</strong></p>
     <pre><code>GET /product/202309/products/{product_id}?return_under_review_version=true&amp;return_draft_version=true&amp;locale=en</code></pre>
-    <p><strong>内部响应示例</strong></p>
+    <p><strong>对内出参数</strong></p>
+    <p><strong>对内出参示例</strong></p>
     <pre><code>{
   &quot;code&quot;: 0,
   &quot;data&quot;: {
@@ -1346,18 +1325,640 @@ Content-Type: application/json
   &quot;request_id&quot;: &quot;202203070749000101890810281E8C70B7&quot;
 }</code></pre>
 
-    <h3 id="api-product-materials">3.3 商品内容素材查询</h3>
-    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+    <p><strong>落库 MySQL DDL 备注</strong></p>
+    <p>商品列表查询与商品详情查询需要一起看：当前同步服务已经有 <code>tiktok_product</code>、<code>tiktok_product_category</code>、<code>tiktok_product_sku</code>、<code>tiktok_product_warehouse</code> 4 张 MySQL 表。以下 DDL 按“mysql 已有 / mysql 需新建”区分；已有表直接备份当前结构，新增表用于承接详情返回体中尚未有独立表保存的数组明细。</p>
+    <p><strong>mysql 已有</strong></p>
+    <pre><code>-- mysql 已有：TikTok产品表
+CREATE TABLE `tiktok_product` (
+  `tiktok_product_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `product_id` varchar(100) DEFAULT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `product_name` varchar(500) DEFAULT NULL COMMENT &#x27;产品名称&#x27;,
+  `description` text COMMENT &#x27;产品描述&#x27;,
+  `product_status` varchar(50) DEFAULT NULL COMMENT &#x27;产品状态&#x27;,
+  `product_type` varchar(50) DEFAULT NULL COMMENT &#x27;产品类型&#x27;,
+  `category_id` varchar(100) DEFAULT NULL COMMENT &#x27;产品分类ID&#x27;,
+  `category_name` varchar(200) DEFAULT NULL COMMENT &#x27;产品分类名称&#x27;,
+  `brand_id` varchar(100) DEFAULT NULL COMMENT &#x27;品牌ID&#x27;,
+  `brand_name` varchar(200) DEFAULT NULL COMMENT &#x27;品牌名称&#x27;,
+  `weight` varchar(50) DEFAULT NULL COMMENT &#x27;产品重量（克）&#x27;,
+  `dimensions` text COMMENT &#x27;产品尺寸信息（JSON格式）&#x27;,
+  `image_urls` text COMMENT &#x27;产品图片URL列表（JSON格式）&#x27;,
+  `video_urls` text COMMENT &#x27;产品视频URL列表（JSON格式）&#x27;,
+  `tags` text COMMENT &#x27;产品标签（JSON格式）&#x27;,
+  `attributes` text COMMENT &#x27;产品属性（JSON格式）&#x27;,
+  `logistics` text COMMENT &#x27;产品物流信息（JSON格式）&#x27;,
+  `promotions` text COMMENT &#x27;产品促销信息（JSON格式）&#x27;,
+  `reviews` text COMMENT &#x27;产品评价信息（JSON格式）&#x27;,
+  `create_timestamp` bigint(20) DEFAULT NULL COMMENT &#x27;产品创建时间（时间戳）&#x27;,
+  `update_timestamp` bigint(20) DEFAULT NULL COMMENT &#x27;产品更新时间（时间戳）&#x27;,
+  `publish_timestamp` bigint(20) DEFAULT NULL COMMENT &#x27;产品上架时间（时间戳）&#x27;,
+  `unpublish_timestamp` bigint(20) DEFAULT NULL COMMENT &#x27;产品下架时间（时间戳）&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始SDK响应数据（JSON格式）&#x27;,
+  `sync_error_msg` text COMMENT &#x27;同步错误信息&#x27;,
+  `data_source` varchar(50) DEFAULT NULL COMMENT &#x27;数据来源（product_list-产品列表，product_detail-产品详情）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `create_id` int(11) DEFAULT NULL COMMENT &#x27;创建者id&#x27;,
+  `update_id` int(11) DEFAULT NULL COMMENT &#x27;修改者id&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_id`),
+  UNIQUE KEY `uk_product_id` (`product_id`),
+  KEY `idx_shop_id` (`shop_id`),
+  KEY `idx_category_id` (`category_id`),
+  KEY `idx_update_timestamp` (`update_timestamp`)
+) ENGINE=InnoDB AUTO_INCREMENT=3822 DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok产品表&#x27;;
 
-    <h3 id="api-task-list">3.4 任务列表查询</h3>
-    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+-- mysql 已有：TikTok产品分类表
+CREATE TABLE `tiktok_product_category` (
+  `tiktok_category_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `category_id` varchar(100) DEFAULT NULL COMMENT &#x27;分类ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `parent_category_id` varchar(100) DEFAULT NULL COMMENT &#x27;父分类ID&#x27;,
+  `category_name` varchar(200) DEFAULT NULL COMMENT &#x27;分类名称&#x27;,
+  `category_level` int(11) DEFAULT NULL COMMENT &#x27;分类层级&#x27;,
+  `category_path` text COMMENT &#x27;分类路径（JSON格式）&#x27;,
+  `children` text COMMENT &#x27;子分类列表（JSON格式）&#x27;,
+  `is_leaf` tinyint(1) DEFAULT NULL COMMENT &#x27;是否为叶子节点&#x27;,
+  `category_status` varchar(50) DEFAULT NULL COMMENT &#x27;分类状态&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始SDK响应数据（JSON格式）&#x27;,
+  `sync_error_msg` text COMMENT &#x27;同步错误信息&#x27;,
+  `data_source` varchar(50) DEFAULT NULL COMMENT &#x27;数据来源&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `create_id` int(11) DEFAULT NULL COMMENT &#x27;创建者id&#x27;,
+  `update_id` int(11) DEFAULT NULL COMMENT &#x27;修改者id&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_category_id`),
+  UNIQUE KEY `uk_category_id` (`shop_site_id`,`category_id`) USING BTREE,
+  KEY `idx_parent_category_id` (`parent_category_id`),
+  KEY `idx_category_level` (`category_level`)
+) ENGINE=InnoDB AUTO_INCREMENT=5173 DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok产品分类表&#x27;;
 
-    <h3 id="api-task-result">3.5 任务结果回传</h3>
-    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+-- mysql 已有：TikTok产品SKU表
+CREATE TABLE `tiktok_product_sku` (
+  `tiktok_product_sku_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) DEFAULT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;SKU ID&#x27;,
+  `sku_name` varchar(500) DEFAULT NULL COMMENT &#x27;SKU名称&#x27;,
+  `seller_sku` varchar(200) DEFAULT NULL COMMENT &#x27;卖家SKU编码&#x27;,
+  `sku_status` varchar(50) DEFAULT NULL COMMENT &#x27;SKU状态&#x27;,
+  `sku_image_url` varchar(500) DEFAULT NULL COMMENT &#x27;SKU图片URL&#x27;,
+  `price` text COMMENT &#x27;价格信息（JSON格式）&#x27;,
+  `inventory` text COMMENT &#x27;库存信息（JSON格式）&#x27;,
+  `variation_attributes` text COMMENT &#x27;变体属性（JSON格式）&#x27;,
+  `weight` varchar(50) DEFAULT NULL COMMENT &#x27;SKU重量（克）&#x27;,
+  `dimensions` text COMMENT &#x27;SKU尺寸信息（JSON格式）&#x27;,
+  `is_available` tinyint(1) DEFAULT NULL COMMENT &#x27;是否可用&#x27;,
+  `is_out_of_stock` tinyint(1) DEFAULT NULL COMMENT &#x27;是否缺货&#x27;,
+  `min_order_quantity` int(11) DEFAULT NULL COMMENT &#x27;最小订单数量&#x27;,
+  `max_order_quantity` int(11) DEFAULT NULL COMMENT &#x27;最大订单数量&#x27;,
+  `currency` varchar(10) DEFAULT NULL COMMENT &#x27;货币类型&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始SDK响应数据（JSON格式）&#x27;,
+  `sync_error_msg` text COMMENT &#x27;同步错误信息&#x27;,
+  `data_source` varchar(50) DEFAULT NULL COMMENT &#x27;数据来源（product_list-产品列表，product_detail-产品详情）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `create_id` int(11) DEFAULT NULL COMMENT &#x27;创建者id&#x27;,
+  `update_id` int(11) DEFAULT NULL COMMENT &#x27;修改者id&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_sku_id`),
+  UNIQUE KEY `uk_sku_id` (`shop_id`,`product_id`,`sku_id`) USING BTREE,
+  KEY `idx_tiktok_product_id` (`tiktok_product_id`),
+  KEY `idx_product_id` (`product_id`),
+  KEY `idx_update_time` (`update_time`)
+) ENGINE=InnoDB AUTO_INCREMENT=435860 DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok产品SKU表&#x27;;
 
-    <h3 id="api-dictionaries">3.6 枚举字典查询</h3>
-    <p>接口详情待补充。后续将按“对外接口参数 / 对外响应体 / 内部对接第三方接口参数”的结构完善。</p>
+-- mysql 已有：TikTok产品SKU的仓库明细表
+CREATE TABLE `tiktok_product_warehouse` (
+  `tiktok_product_warehouse_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_sku_id` int(11) NOT NULL COMMENT &#x27;skuID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) DEFAULT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;SKU ID&#x27;,
+  `sku_name` varchar(500) DEFAULT NULL COMMENT &#x27;SKU名称&#x27;,
+  `warehouse_id` varchar(100) DEFAULT NULL COMMENT &#x27;warehouse_id ID&#x27;,
+  `quantity` int(11) DEFAULT NULL COMMENT &#x27;数量&#x27;,
+  `backorder_quantity` int(11) DEFAULT NULL COMMENT &#x27;待发货数量&#x27;,
+  `handling_time` int(11) DEFAULT NULL COMMENT &#x27;订单处理时长（day）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `create_id` int(11) DEFAULT NULL COMMENT &#x27;创建者id&#x27;,
+  `update_id` int(11) DEFAULT NULL COMMENT &#x27;修改者id&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_warehouse_id`),
+  KEY `sku_id` (`sku_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2047470 DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok产品SKU的仓库明细表&#x27;;</code></pre>
+    <p><strong>mysql 需新建</strong></p>
+    <p>以下表用于补齐商品详情返回体中当前 4 张 MySQL 表尚未独立承接的数组明细；对象字段可继续冗余到 <code>tiktok_product</code> 或 <code>tiktok_product_sku</code> 的 JSON / 扩展字段中。</p>
+    <pre><code>-- mysql 需新建：TikTok商品图片明细表（承接 main_images、size_chart.image、SKU图片、证书图片等数组/图片对象）
+CREATE TABLE `tiktok_product_image` (
+  `tiktok_product_image_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `tiktok_product_sku_id` int(11) DEFAULT NULL COMMENT &#x27;关联的SKU表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;SKU ID&#x27;,
+  `image_type` varchar(80) NOT NULL COMMENT &#x27;图片类型：MAIN_IMAGE、SIZE_CHART、SKU_IMAGE、SUPPLEMENTARY_SKU_IMAGE、CERTIFICATION_IMAGE、PRODUCT_MAIN_IMAGE等&#x27;,
+  `ref_id` varchar(100) DEFAULT NULL COMMENT &#x27;关联ID，如SKU ID、证书ID、组合SKU ID&#x27;,
+  `uri` varchar(1000) DEFAULT NULL COMMENT &#x27;图片URI&#x27;,
+  `height` int(11) DEFAULT NULL COMMENT &#x27;图片高度&#x27;,
+  `width` int(11) DEFAULT NULL COMMENT &#x27;图片宽度&#x27;,
+  `urls` text COMMENT &#x27;原图URL数组（JSON格式）&#x27;,
+  `thumb_urls` text COMMENT &#x27;缩略图URL数组（JSON格式）&#x27;,
+  `sort_no` int(11) DEFAULT NULL COMMENT &#x27;排序&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始图片对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_image_id`),
+  KEY `idx_product_image` (`product_id`,`shop_site_id`,`image_type`),
+  KEY `idx_sku_image` (`sku_id`,`image_type`),
+  KEY `idx_ref_id` (`ref_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品图片明细表&#x27;;
 
+-- mysql 需新建：TikTok商品SKU销售属性表（承接 skus[].sales_attributes、combined_skus[].sales_attributes 数组）
+CREATE TABLE `tiktok_product_sku_attribute` (
+  `tiktok_product_sku_attribute_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_sku_id` int(11) DEFAULT NULL COMMENT &#x27;关联的SKU表ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;SKU ID&#x27;,
+  `attribute_source` varchar(50) DEFAULT NULL COMMENT &#x27;属性来源：SKU、COMBINED_SKU&#x27;,
+  `attribute_id` varchar(100) DEFAULT NULL COMMENT &#x27;属性ID&#x27;,
+  `attribute_name` varchar(200) DEFAULT NULL COMMENT &#x27;属性名称&#x27;,
+  `value_id` varchar(100) DEFAULT NULL COMMENT &#x27;属性值ID&#x27;,
+  `value_name` varchar(200) DEFAULT NULL COMMENT &#x27;属性值名称&#x27;,
+  `sku_img` text COMMENT &#x27;SKU属性图片对象（JSON格式）&#x27;,
+  `supplementary_sku_images` text COMMENT &#x27;SKU补充图片数组（JSON格式）&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始属性对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_sku_attribute_id`),
+  KEY `idx_sku_attribute` (`shop_id`,`product_id`,`sku_id`),
+  KEY `idx_attribute_id` (`attribute_id`,`value_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品SKU销售属性表&#x27;;
+
+-- mysql 需新建：TikTok组合SKU明细表（承接 skus[].combined_skus 数组）
+CREATE TABLE `tiktok_product_combined_sku` (
+  `tiktok_product_combined_sku_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `parent_product_id` varchar(100) NOT NULL COMMENT &#x27;所属TikTok产品ID&#x27;,
+  `parent_sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;所属SKU ID&#x27;,
+  `combined_product_id` varchar(100) DEFAULT NULL COMMENT &#x27;组合子产品ID&#x27;,
+  `combined_sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;组合子SKU ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `sku_count` int(11) DEFAULT NULL COMMENT &#x27;组合SKU数量&#x27;,
+  `seller_sku` varchar(200) DEFAULT NULL COMMENT &#x27;卖家SKU编码&#x27;,
+  `title` varchar(500) DEFAULT NULL COMMENT &#x27;商品标题&#x27;,
+  `price` text COMMENT &#x27;价格信息（JSON格式）&#x27;,
+  `inventory` text COMMENT &#x27;库存信息（JSON格式）&#x27;,
+  `product_main_image` text COMMENT &#x27;商品主图对象（JSON格式）&#x27;,
+  `categories` text COMMENT &#x27;分类数组（JSON格式）&#x27;,
+  `brand` text COMMENT &#x27;品牌对象（JSON格式）&#x27;,
+  `combined_listing_not_live_reasons` text COMMENT &#x27;组合商品未上架原因数组（JSON格式）&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始组合SKU对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_combined_sku_id`),
+  KEY `idx_parent_sku` (`shop_id`,`parent_product_id`,`parent_sku_id`),
+  KEY `idx_combined_sku` (`combined_product_id`,`combined_sku_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok组合SKU明细表&#x27;;
+
+-- mysql 需新建：TikTok商品属性明细表（承接 product_attributes 数组）
+CREATE TABLE `tiktok_product_attribute` (
+  `tiktok_product_attribute_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `attribute_id` varchar(100) DEFAULT NULL COMMENT &#x27;属性ID&#x27;,
+  `attribute_name` varchar(200) DEFAULT NULL COMMENT &#x27;属性名称&#x27;,
+  `value_id` varchar(100) DEFAULT NULL COMMENT &#x27;属性值ID&#x27;,
+  `value_name` varchar(500) DEFAULT NULL COMMENT &#x27;属性值名称&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始属性对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_attribute_id`),
+  KEY `idx_product_attribute` (`product_id`,`shop_site_id`),
+  KEY `idx_attribute_id` (`attribute_id`,`value_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品属性明细表&#x27;;
+
+-- mysql 需新建：TikTok商品审核失败原因表（承接 audit_failed_reasons 数组）
+CREATE TABLE `tiktok_product_audit_failed_reason` (
+  `tiktok_product_audit_failed_reason_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `position` varchar(100) DEFAULT NULL COMMENT &#x27;失败位置&#x27;,
+  `listing_platform` varchar(100) DEFAULT NULL COMMENT &#x27;Listing平台&#x27;,
+  `reasons` text COMMENT &#x27;失败原因数组（JSON格式）&#x27;,
+  `suggestions` text COMMENT &#x27;修改建议数组（JSON格式）&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始审核失败原因对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_audit_failed_reason_id`),
+  KEY `idx_product_audit` (`product_id`,`shop_site_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品审核失败原因表&#x27;;
+
+-- mysql 需新建：TikTok商品配送方式表（承接 delivery_options 数组）
+CREATE TABLE `tiktok_product_delivery_option` (
+  `tiktok_product_delivery_option_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `delivery_option_id` varchar(100) DEFAULT NULL COMMENT &#x27;配送方式ID&#x27;,
+  `delivery_option_name` varchar(200) DEFAULT NULL COMMENT &#x27;配送方式名称&#x27;,
+  `is_available` tinyint(1) DEFAULT NULL COMMENT &#x27;是否可用&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始配送方式对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_delivery_option_id`),
+  KEY `idx_product_delivery` (`product_id`,`shop_site_id`),
+  KEY `idx_delivery_option_id` (`delivery_option_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品配送方式表&#x27;;
+
+-- mysql 需新建：TikTok商品家族关系表（承接 product_families 数组及其 products 子数组）
+CREATE TABLE `tiktok_product_family` (
+  `tiktok_product_family_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `family_id` varchar(100) DEFAULT NULL COMMENT &#x27;商品家族ID&#x27;,
+  `family_product_id` varchar(100) DEFAULT NULL COMMENT &#x27;家族内商品ID&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始商品家族对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_family_id`),
+  KEY `idx_product_family` (`product_id`,`shop_site_id`,`family_id`),
+  KEY `idx_family_product` (`family_product_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品家族关系表&#x27;;
+
+-- mysql 需新建：TikTok商品全局SKU映射表（承接 global_product_association.sku_mappings 数组）
+CREATE TABLE `tiktok_product_global_sku_mapping` (
+  `tiktok_product_global_sku_mapping_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `global_product_id` varchar(100) DEFAULT NULL COMMENT &#x27;全球商品ID&#x27;,
+  `global_sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;全球SKU ID&#x27;,
+  `local_sku_id` varchar(100) DEFAULT NULL COMMENT &#x27;本地SKU ID&#x27;,
+  `sales_attribute_mappings` text COMMENT &#x27;销售属性映射数组（JSON格式）&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始全局SKU映射对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_global_sku_mapping_id`),
+  KEY `idx_product_global_sku` (`product_id`,`shop_site_id`,`global_product_id`),
+  KEY `idx_local_sku` (`local_sku_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品全局SKU映射表&#x27;;
+
+-- mysql 需新建：TikTok商品订阅折扣明细表（承接 subscribe_info.subscribe_discount_details、subscribe_promotion_config 数组）
+CREATE TABLE `tiktok_product_subscribe_discount` (
+  `tiktok_product_subscribe_discount_id` int(11) NOT NULL AUTO_INCREMENT COMMENT &#x27;主键ID&#x27;,
+  `tiktok_product_id` int(11) DEFAULT NULL COMMENT &#x27;关联的产品表ID&#x27;,
+  `product_id` varchar(100) NOT NULL COMMENT &#x27;TikTok产品ID&#x27;,
+  `shop_id` varchar(100) DEFAULT NULL COMMENT &#x27;店铺ID&#x27;,
+  `shop_site_id` int(11) DEFAULT NULL COMMENT &#x27;店铺站点ID&#x27;,
+  `discount_type` varchar(50) DEFAULT NULL COMMENT &#x27;折扣类型：DETAIL、CONFIG&#x27;,
+  `discount_level` varchar(100) DEFAULT NULL COMMENT &#x27;折扣等级&#x27;,
+  `discount_value` int(11) DEFAULT NULL COMMENT &#x27;折扣值&#x27;,
+  `discount_options` text COMMENT &#x27;可选折扣数组（JSON格式）&#x27;,
+  `max_discount` int(11) DEFAULT NULL COMMENT &#x27;最大折扣&#x27;,
+  `min_discount` int(11) DEFAULT NULL COMMENT &#x27;最小折扣&#x27;,
+  `raw_response_data` longtext COMMENT &#x27;原始订阅折扣对象（JSON格式）&#x27;,
+  `status` tinyint(4) DEFAULT &#x27;1&#x27; COMMENT &#x27;状态:0正常,1停用&#x27;,
+  `del_flag` tinyint(4) DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT &#x27;创建时间&#x27;,
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT &#x27;更新时间&#x27;,
+  `create_by` varchar(50) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `update_by` varchar(50) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `remark` varchar(500) DEFAULT NULL COMMENT &#x27;备注&#x27;,
+  PRIMARY KEY (`tiktok_product_subscribe_discount_id`),
+  KEY `idx_product_subscribe` (`product_id`,`shop_site_id`,`discount_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;TikTok商品订阅折扣明细表&#x27;;</code></pre>
+
+    <h3 id="api-jijia-sku-spu-detail">3.3 SKU详情关系（积加）</h3>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
+    <p>该接口面向外部服务商提供积加产品台账中的 SKU 与 SPU 关系查询能力。接口只沉淀对外模块信息，请求参数和响应字段统一使用 camelCase；底层来源参考 MySQL 表 <code>business_ledger_product</code>。</p>
+    <p><strong>对外入参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Body</td><td>sku</td><td>string</td><td>否</td><td><code>Color-Red-XM01</code></td><td>SKU；与 <code>spu</code>、<code>productId</code> 至少传一个。</td></tr>
+          <tr><td>Body</td><td>spu</td><td>string</td><td>否</td><td><code>SPU-001</code></td><td>SPU；用于查询同一 SPU 下的 SKU 关系记录。</td></tr>
+          <tr><td>Body</td><td>productId</td><td>number</td><td>否</td><td><code>26668</code></td><td>积加产品 ID，对应 <code>business_ledger_product.product_id</code>。</td></tr>
+          <tr><td>Body</td><td>pageNum</td><td>number</td><td>是</td><td><code>1</code></td><td>页码，从 1 开始。</td></tr>
+          <tr><td>Body</td><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数，建议默认 20，最大值由网关或服务端限制。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外入参示例</strong></p>
+    <pre><code>POST /openapi/jijia/product/sku-spu/detail
+Content-Type: application/json
+
+{
+  &quot;sku&quot;: &quot;Color-Red-XM01&quot;,
+  &quot;spu&quot;: &quot;SPU-001&quot;,
+  &quot;productId&quot;: 26668,
+  &quot;pageNum&quot;: 1,
+  &quot;pageSize&quot;: 20
+}</code></pre>
+    <p><strong>对外出参数</strong></p>
+    <p><strong>对外出参示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 0,
+  &quot;data&quot;: {
+    &quot;pageNum&quot;: 1,
+    &quot;pageSize&quot;: 20,
+    &quot;totalCount&quot;: 1,
+    &quot;products&quot;: [
+      {
+        &quot;productId&quot;: 26668,
+        &quot;externalId&quot;: 1729592969,
+        &quot;sku&quot;: &quot;Color-Red-XM01&quot;,
+        &quot;spu&quot;: &quot;SPU-001&quot;,
+        &quot;spuName&quot;: &quot;Short Boat Socks Series&quot;,
+        &quot;name&quot;: &quot;Short Boat Invisible Socks&quot;,
+        &quot;briefName&quot;: &quot;Boat Socks&quot;,
+        &quot;title&quot;: &quot;Short Boat Invisible Socks&quot;,
+        &quot;state&quot;: 0,
+        &quot;stateName&quot;: &quot;正常&quot;,
+        &quot;smallImageUrl&quot;: &quot;https://example.com/product.jpg&quot;,
+        &quot;brand&quot;: &quot;BR001&quot;,
+        &quot;brandName&quot;: &quot;brand xxx aaa&quot;,
+        &quot;category&quot;: &quot;CAT001&quot;,
+        &quot;categoryName&quot;: &quot;Socks&quot;,
+        &quot;productType&quot;: 0,
+        &quot;productTypeName&quot;: &quot;成品&quot;,
+        &quot;unit&quot;: &quot;pcs&quot;,
+        &quot;specification&quot;: &quot;Red / M&quot;,
+        &quot;material&quot;: &quot;Cotton&quot;,
+        &quot;description&quot;: &quot;产品描述&quot;,
+        &quot;packageInfo&quot;: {
+          &quot;length&quot;: 10.0,
+          &quot;width&quot;: 10.0,
+          &quot;height&quot;: 10.0,
+          &quot;weight&quot;: 132.0,
+          &quot;unit&quot;: &quot;cm/g&quot;
+        },
+        &quot;singleProductInfo&quot;: {
+          &quot;length&quot;: 8.0,
+          &quot;width&quot;: 6.0,
+          &quot;height&quot;: 2.0,
+          &quot;netWeight&quot;: 100.0,
+          &quot;unit&quot;: &quot;cm/g&quot;
+        },
+        &quot;customsInfo&quot;: {
+          &quot;chineseCustomsName&quot;: &quot;袜子&quot;,
+          &quot;englishCustomsName&quot;: &quot;Socks&quot;,
+          &quot;customsCode&quot;: &quot;6115950000&quot;,
+          &quot;reportElement&quot;: &quot;品牌;材质;用途&quot;,
+          &quot;reportModel&quot;: &quot;M&quot;,
+          &quot;isInspection&quot;: 0,
+          &quot;clothing&quot;: 1
+        },
+        &quot;purchaseInfo&quot;: {
+          &quot;purchase&quot;: 1,
+          &quot;productDeliveryDays&quot;: 7,
+          &quot;quote&quot;: 12.5,
+          &quot;quoteCurrencyCode&quot;: &quot;CNY&quot;,
+          &quot;quoteCurrencySymbol&quot;: &quot;¥&quot;,
+          &quot;quoteCurrencyAmount&quot;: 12.5,
+          &quot;quoteAmountWithSymbol&quot;: &quot;¥12.50&quot;
+        },
+        &quot;ownerInfo&quot;: {
+          &quot;productManagerAccount&quot;: &quot;pm001&quot;,
+          &quot;productManagerAccountId&quot;: 1001,
+          &quot;purchaseAccount&quot;: &quot;buyer001&quot;,
+          &quot;purchaseAccountId&quot;: 1002
+        },
+        &quot;logisticsAttributes&quot;: {
+          &quot;chargedAttribute&quot;: 0,
+          &quot;liquidAttribute&quot;: 0,
+          &quot;magneticAttribute&quot;: 0,
+          &quot;powderAttribute&quot;: 0,
+          &quot;woodenAttribute&quot;: 0,
+          &quot;pasteAttribute&quot;: 0,
+          &quot;batteryAttribute&quot;: 0,
+          &quot;transferGroup&quot;: &quot;普货&quot;
+        },
+        &quot;assemblyInfo&quot;: {
+          &quot;assembly&quot;: &quot;组合规则&quot;,
+          &quot;assemblyLaborCost&quot;: 2.0,
+          &quot;assemblyPackage&quot;: &quot;包材规则&quot;
+        },
+        &quot;level&quot;: 1,
+        &quot;levelName&quot;: &quot;A&quot;,
+        &quot;productUsage&quot;: &quot;销售&quot;,
+        &quot;property&quot;: &quot;常规&quot;,
+        &quot;status&quot;: 0,
+        &quot;addDate&quot;: &quot;2026-05-01 10:00:00&quot;,
+        &quot;lastDate&quot;: &quot;2026-05-10 10:00:00&quot;,
+        &quot;updateTime&quot;: &quot;2026-05-10 10:00:00&quot;
+      }
+    ]
+  },
+  &quot;message&quot;: &quot;Success&quot;,
+  &quot;requestId&quot;: &quot;202605181200000001&quot;
+}</code></pre>
+    <p><strong>对外出参数字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码，0 表示成功。</td></tr>
+          <tr><td>message</td><td>string</td><td>响应消息。</td></tr>
+          <tr><td>requestId</td><td>string</td><td>请求 ID，用于排查问题和链路追踪。</td></tr>
+          <tr><td>data.pageNum</td><td>number</td><td>当前页码。</td></tr>
+          <tr><td>data.pageSize</td><td>number</td><td>每页条数。</td></tr>
+          <tr><td>data.totalCount</td><td>number</td><td>符合条件的记录总数。</td></tr>
+          <tr><td>data.products[].productId</td><td>number</td><td>产品 ID，对应 MySQL 字段 product_id。</td></tr>
+          <tr><td>data.products[].externalId</td><td>number</td><td>外部系统 ID，对应 MySQL 字段 id。</td></tr>
+          <tr><td>data.products[].sku</td><td>string</td><td>SKU。</td></tr>
+          <tr><td>data.products[].spu</td><td>string</td><td>SPU。</td></tr>
+          <tr><td>data.products[].spuName</td><td>string</td><td>SPU 名称。</td></tr>
+          <tr><td>data.products[].name</td><td>string</td><td>产品名称。</td></tr>
+          <tr><td>data.products[].briefName</td><td>string</td><td>产品简称。</td></tr>
+          <tr><td>data.products[].title</td><td>string</td><td>产品标题。</td></tr>
+          <tr><td>data.products[].state</td><td>number</td><td>产品状态，0-正常，1-停用。</td></tr>
+          <tr><td>data.products[].stateName</td><td>string</td><td>产品状态名称。</td></tr>
+          <tr><td>data.products[].smallImageUrl</td><td>string</td><td>产品图片链接。</td></tr>
+          <tr><td>data.products[].brand</td><td>string</td><td>品牌资料表编码。</td></tr>
+          <tr><td>data.products[].brandName</td><td>string</td><td>品牌名称。</td></tr>
+          <tr><td>data.products[].category</td><td>string</td><td>品类资料表编码。</td></tr>
+          <tr><td>data.products[].categoryName</td><td>string</td><td>品类名称。</td></tr>
+          <tr><td>data.products[].productType</td><td>number</td><td>产品类型，0-成品，1-包材，2-组合成品，3-半成品。</td></tr>
+          <tr><td>data.products[].productTypeName</td><td>string</td><td>产品类型名称。</td></tr>
+          <tr><td>data.products[].unit</td><td>string</td><td>单位。</td></tr>
+          <tr><td>data.products[].specification</td><td>string</td><td>规格。</td></tr>
+          <tr><td>data.products[].material</td><td>string</td><td>材质。</td></tr>
+          <tr><td>data.products[].description</td><td>string</td><td>描述。</td></tr>
+          <tr><td>data.products[].packageInfo</td><td>object</td><td>包装尺寸与毛重信息，对应 package_l/package_w/package_h/package_weight。</td></tr>
+          <tr><td>data.products[].singleProductInfo</td><td>object</td><td>单品尺寸与净重信息，对应 single_product_size_* 与 single_product_net_weight。</td></tr>
+          <tr><td>data.products[].customsInfo</td><td>object</td><td>报关与商检信息。</td></tr>
+          <tr><td>data.products[].purchaseInfo</td><td>object</td><td>采购、交期、报价与币种信息。</td></tr>
+          <tr><td>data.products[].ownerInfo</td><td>object</td><td>产品负责人和采购负责人信息。</td></tr>
+          <tr><td>data.products[].logisticsAttributes</td><td>object</td><td>带电、液体、带磁、粉末、木制、膏体、纯电、物流分组等属性。</td></tr>
+          <tr><td>data.products[].assemblyInfo</td><td>object</td><td>组合规则、预计装配天数和包材规则。</td></tr>
+          <tr><td>data.products[].level</td><td>number</td><td>产品等级。</td></tr>
+          <tr><td>data.products[].levelName</td><td>string</td><td>产品等级名。</td></tr>
+          <tr><td>data.products[].productUsage</td><td>string</td><td>产品用途。</td></tr>
+          <tr><td>data.products[].property</td><td>string</td><td>属性。</td></tr>
+          <tr><td>data.products[].status</td><td>number</td><td>状态字段。</td></tr>
+          <tr><td>data.products[].addDate</td><td>string</td><td>创建时间（外部字段）。</td></tr>
+          <tr><td>data.products[].lastDate</td><td>string</td><td>更新时间（外部字段）。</td></tr>
+          <tr><td>data.products[].updateTime</td><td>string</td><td>系统更新时间。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>来源 MySQL DDL</strong></p>
+    <pre><code>CREATE TABLE `business_ledger_product` (
+  `product_id` int NOT NULL AUTO_INCREMENT COMMENT &#x27;产品id（product_id）&#x27;,
+  `add_date` datetime DEFAULT NULL COMMENT &#x27;创建时间（外部字段）&#x27;,
+  `last_date` datetime DEFAULT NULL COMMENT &#x27;更新时间（外部字段）&#x27;,
+  `sku` varchar(100) DEFAULT NULL COMMENT &#x27;SKU&#x27;,
+  `spu` varchar(100) DEFAULT NULL COMMENT &#x27;SPU&#x27;,
+  `spu_name` varchar(255) DEFAULT NULL COMMENT &#x27;SPU名称&#x27;,
+  `name` varchar(255) DEFAULT NULL COMMENT &#x27;产品名称&#x27;,
+  `brief_name` varchar(255) DEFAULT NULL COMMENT &#x27;产品简称&#x27;,
+  `title` varchar(500) DEFAULT NULL COMMENT &#x27;产品标题&#x27;,
+  `state` tinyint DEFAULT NULL COMMENT &#x27;产品状态 [0-正常，1-停用]&#x27;,
+  `small_image_url` varchar(1000) DEFAULT NULL COMMENT &#x27;产品图片链接&#x27;,
+  `assembly` varchar(2000) DEFAULT NULL COMMENT &#x27;组合规则&#x27;,
+  `assembly_labor_cost` decimal(18,2) DEFAULT NULL COMMENT &#x27;预计装配天数（字段名含 cost，按实体保留）&#x27;,
+  `assembly_package` varchar(2000) DEFAULT NULL COMMENT &#x27;包材规则&#x27;,
+  `brand` varchar(100) DEFAULT NULL COMMENT &#x27;品牌资料表编码&#x27;,
+  `brand_name` varchar(255) DEFAULT NULL COMMENT &#x27;品牌名称&#x27;,
+  `category` varchar(100) DEFAULT NULL COMMENT &#x27;品类资料表编码&#x27;,
+  `category_name` varchar(255) DEFAULT NULL COMMENT &#x27;品类名称&#x27;,
+  `chinese_customs_name` varchar(255) DEFAULT NULL COMMENT &#x27;中文报关名&#x27;,
+  `english_customs_name` varchar(255) DEFAULT NULL COMMENT &#x27;英文报关名&#x27;,
+  `clothing` tinyint(1) DEFAULT NULL COMMENT &#x27;是否属于服装类别 [0-否，1-是]&#x27;,
+  `customs_code` varchar(100) DEFAULT NULL COMMENT &#x27;海关编码&#x27;,
+  `description` text COMMENT &#x27;描述&#x27;,
+  `id` int DEFAULT NULL COMMENT &#x27;ID（外部系统字段，含义待确认）&#x27;,
+  `is_inspection` tinyint DEFAULT NULL COMMENT &#x27;是否商检 [0-否，1-是]&#x27;,
+  `material` varchar(255) DEFAULT NULL COMMENT &#x27;材质&#x27;,
+  `package_h` double DEFAULT NULL COMMENT &#x27;包装尺寸 高&#x27;,
+  `package_l` double DEFAULT NULL COMMENT &#x27;包装尺寸 长&#x27;,
+  `package_w` double DEFAULT NULL COMMENT &#x27;包装尺寸 宽&#x27;,
+  `package_weight` double DEFAULT NULL COMMENT &#x27;单品毛重（g）&#x27;,
+  `single_product_net_weight` double DEFAULT NULL COMMENT &#x27;单品净重 g&#x27;,
+  `single_product_size_h` double DEFAULT NULL COMMENT &#x27;单品尺寸 高&#x27;,
+  `single_product_size_l` double DEFAULT NULL COMMENT &#x27;单品尺寸 长&#x27;,
+  `single_product_size_w` double DEFAULT NULL COMMENT &#x27;单品尺寸 宽&#x27;,
+  `unit` varchar(50) DEFAULT NULL COMMENT &#x27;单位&#x27;,
+  `specification` varchar(255) DEFAULT NULL COMMENT &#x27;规格&#x27;,
+  `product_type` tinyint DEFAULT NULL COMMENT &#x27;产品类型 [0-成品，1-包材，2-组合成品，3-半成品]&#x27;,
+  `product_type_name` varchar(100) DEFAULT NULL COMMENT &#x27;产品类型名称&#x27;,
+  `product_usage` varchar(255) DEFAULT NULL COMMENT &#x27;产品用途&#x27;,
+  `property` varchar(255) DEFAULT NULL COMMENT &#x27;属性&#x27;,
+  `purchase` tinyint DEFAULT NULL COMMENT &#x27;是否采购 [0-否，1-是]&#x27;,
+  `product_manager_account` varchar(100) DEFAULT NULL COMMENT &#x27;产品负责人&#x27;,
+  `product_manager_account_id` int DEFAULT NULL COMMENT &#x27;产品负责人id&#x27;,
+  `purchase_account` varchar(100) DEFAULT NULL COMMENT &#x27;采购负责人&#x27;,
+  `purchase_account_id` int DEFAULT NULL COMMENT &#x27;采购负责人id&#x27;,
+  `product_delivery_days` int DEFAULT NULL COMMENT &#x27;采购交期（天）&#x27;,
+  `quote` decimal(18,2) DEFAULT NULL COMMENT &#x27;采购信息-参考成本&#x27;,
+  `quote_currency_code` varchar(50) DEFAULT NULL COMMENT &#x27;币种编码&#x27;,
+  `quote_currency_symbol` varchar(50) DEFAULT NULL COMMENT &#x27;币种符号&#x27;,
+  `quote_currency_amount` decimal(18,2) DEFAULT NULL COMMENT &#x27;币种金额&#x27;,
+  `quote_amount_with_symbol` varchar(100) DEFAULT NULL COMMENT &#x27;带符号金额&#x27;,
+  `charged_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;带电属性&#x27;,
+  `liquid_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;液体属性&#x27;,
+  `magnetic_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;带磁属性&#x27;,
+  `powder_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;粉末属性&#x27;,
+  `wooden_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;木制属性&#x27;,
+  `paste_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;膏体属性&#x27;,
+  `battery_attribute` tinyint(1) DEFAULT NULL COMMENT &#x27;纯电属性&#x27;,
+  `transfer_group` varchar(100) DEFAULT NULL COMMENT &#x27;物流分组&#x27;,
+  `level` int DEFAULT NULL COMMENT &#x27;产品等级&#x27;,
+  `level_name` varchar(100) DEFAULT NULL COMMENT &#x27;产品等级名&#x27;,
+  `report_element` varchar(2000) DEFAULT NULL COMMENT &#x27;申报要素&#x27;,
+  `report_model` varchar(255) DEFAULT NULL COMMENT &#x27;申报型号&#x27;,
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT &#x27;备注&#x27;,
+  `status` tinyint DEFAULT &#x27;0&#x27; COMMENT &#x27;状态字段&#x27;,
+  `del_flag` tinyint DEFAULT &#x27;0&#x27; COMMENT &#x27;删除标志（0代表存在 2代表删除）&#x27;,
+  `create_by` varchar(64) DEFAULT NULL COMMENT &#x27;创建者&#x27;,
+  `create_time` datetime DEFAULT NULL COMMENT &#x27;创建时间&#x27;,
+  `update_by` varchar(64) DEFAULT NULL COMMENT &#x27;更新者&#x27;,
+  `update_time` datetime DEFAULT NULL COMMENT &#x27;更新时间&#x27;,
+  `create_id` int DEFAULT NULL COMMENT &#x27;创建者id&#x27;,
+  `update_id` int DEFAULT NULL COMMENT &#x27;修改者id&#x27;,
+  PRIMARY KEY (`product_id`),
+  KEY `idx_bl_prod_del_ctime` (`del_flag`,`create_time`),
+  KEY `idx_bl_prod_del_sku_pid` (`del_flag`,`sku`,`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=26669 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT=&#x27;台账产品表）&#x27;;</code></pre>
     <h2>四、通用接入要求</h2>
     <h3>4.1 鉴权与安全</h3>
     <ul>
