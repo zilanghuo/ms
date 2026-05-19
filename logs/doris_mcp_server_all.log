@@ -6417,3 +6417,1277 @@
 2026-05-18 17:12:19.888 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
 2026-05-18 17:12:19.889 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
 2026-05-18 17:12:20.070 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 18:21:10.466 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 18:21:10.469 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 18:21:10.469 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 18:21:13.471 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 18:21:13.569 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 18:21:13.570 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 18:21:13.751 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 18:37:12.966 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 18:37:12.969 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 18:37:12.969 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 18:37:13.061 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 18:37:13.062 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 18:37:13.231 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 18:54:03.057 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 18:54:03.058 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 18:54:03.059 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 18:54:03.176 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 18:54:03.176 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 18:54:03.344 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 19:11:29.397 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 19:11:29.399 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 19:11:29.399 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 19:11:29.527 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 19:11:29.528 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 19:11:29.724 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 19:28:06.862 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 19:28:06.864 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 19:28:06.865 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 19:28:06.965 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 19:28:06.966 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 19:28:07.168 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 19:44:57.328 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 19:44:57.330 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 19:44:57.331 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 19:45:00.334 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 19:45:00.461 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 19:45:00.462 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 19:45:00.661 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 20:01:54.696 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 20:01:54.701 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 20:01:54.701 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 20:01:57.704 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 20:01:57.844 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 20:01:57.844 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 20:01:58.027 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 20:22:00.847 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 20:22:00.849 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 20:22:00.849 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 20:38:26.505 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 20:38:26.630 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 20:38:26.630 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 20:38:26.802 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 20:55:58.188 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 20:55:58.190 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 20:55:58.191 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 20:56:01.192 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 20:56:01.303 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 20:56:01.304 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 20:56:01.504 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 21:25:58.206 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 21:25:58.209 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 21:25:58.214 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 21:25:58.319 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 21:25:58.320 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 21:25:58.485 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 21:42:53.350 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 21:42:53.352 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 21:42:53.353 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 21:42:53.475 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 21:42:53.475 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 21:42:53.650 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 21:59:13.260 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 21:59:13.262 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 21:59:13.263 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 21:59:13.593 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 21:59:13.594 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 21:59:13.776 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 22:15:23.809 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 22:15:23.811 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 22:15:23.811 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 22:15:26.813 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 22:15:26.948 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 22:15:26.949 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 22:15:27.108 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 22:33:37.340 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 22:33:37.342 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 22:33:37.342 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 22:33:40.345 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 22:33:40.436 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 22:33:40.436 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 22:33:40.654 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 22:50:10.546 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 22:50:10.548 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 22:50:10.549 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 22:50:10.684 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 22:50:10.684 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 22:50:10.878 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 23:08:43.261 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 23:08:43.263 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 23:08:43.263 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 23:08:43.387 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 23:08:43.388 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 23:08:43.583 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 23:18:00.928 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 23:18:00.930 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 23:18:00.930 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 23:18:01.051 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 23:18:01.052 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 23:18:01.190 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 23:35:29.425 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 23:35:29.427 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 23:35:29.427 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 23:35:32.430 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 23:35:32.539 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 23:35:32.540 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 23:35:32.741 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-18 23:51:22.582 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-18 23:51:22.584 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-18 23:51:22.585 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-18 23:51:25.587 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-18 23:51:25.693 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-18 23:51:25.693 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-18 23:51:25.898 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 00:07:36.254 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 00:07:36.256 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 00:07:36.256 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 00:07:36.375 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 00:07:36.375 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 00:07:36.542 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 00:24:37.531 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 00:24:37.532 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 00:24:37.533 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 00:24:37.669 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 00:24:37.669 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 00:24:37.856 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 00:41:31.149 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 00:41:31.151 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 00:41:31.152 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 00:41:31.276 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 00:41:31.276 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 00:41:31.462 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 00:58:25.811 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 00:58:25.814 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 00:58:25.814 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 00:58:28.817 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 00:58:28.971 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 00:58:28.972 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 00:58:29.159 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 01:14:31.166 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 01:14:31.168 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 01:14:31.169 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 01:14:34.171 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 01:14:34.287 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 01:14:34.288 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 01:14:34.430 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 01:32:28.422 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 01:32:28.424 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 01:32:28.425 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 01:32:28.537 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 01:32:28.537 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 01:32:28.714 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 01:50:43.487 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 01:50:43.487 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 01:50:43.488 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 01:50:43.615 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 01:50:43.616 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 01:50:43.812 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 02:07:02.736 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 02:07:02.738 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 02:07:02.739 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 02:07:02.886 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 02:07:02.886 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 02:07:03.039 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 02:24:14.308 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 02:24:14.310 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 02:24:14.311 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 02:24:17.314 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 02:24:17.442 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 02:24:17.442 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 02:24:17.623 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 02:40:23.930 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 02:40:23.930 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 02:40:23.931 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 02:40:26.934 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 02:40:27.018 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 02:40:27.019 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 02:40:27.210 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 02:56:49.966 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 02:56:49.967 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 02:56:49.968 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 02:56:50.086 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 02:56:50.086 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 02:56:50.265 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 03:22:59.695 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 03:22:59.698 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 03:22:59.699 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 03:22:59.822 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 03:22:59.822 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 03:23:00.012 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 03:39:20.321 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 65] No route to host)')
+2026-05-19 03:39:20.323 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 03:39:20.324 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 03:39:20.438 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 03:39:20.439 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 03:39:20.604 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 03:49:19.120 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 03:49:19.123 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 03:49:19.124 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 04:04:42.805 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 04:04:42.965 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 04:04:42.966 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 04:04:43.145 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 04:21:20.630 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 04:21:20.631 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 04:21:20.632 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 04:21:20.764 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 04:21:20.765 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 04:21:20.953 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 04:38:58.765 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 04:38:58.767 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 04:38:58.767 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 04:39:01.770 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 04:39:01.867 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 04:39:01.868 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 04:39:02.057 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 04:55:57.029 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 04:55:57.031 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 04:55:57.031 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 04:55:57.157 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 04:55:57.157 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 04:55:57.323 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 05:13:10.906 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 05:13:10.908 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 05:13:10.909 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 05:13:11.021 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 05:13:11.021 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 05:13:11.200 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 05:30:59.970 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 05:30:59.973 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 05:30:59.974 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 05:31:00.118 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 05:31:00.118 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 05:31:00.276 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 05:49:30.695 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 05:49:30.697 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 05:49:30.698 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 05:49:33.701 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 05:49:33.853 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 05:49:33.853 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 05:49:34.041 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 06:07:20.489 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 06:07:20.491 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 06:07:20.492 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 06:07:23.493 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 06:07:23.633 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 06:07:23.633 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 06:07:23.815 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 06:24:39.830 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 06:24:39.832 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 06:24:39.833 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 06:42:01.511 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 06:42:01.609 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 06:42:01.610 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 06:42:01.802 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 06:50:41.708 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 06:50:41.710 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 06:50:41.710 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 06:50:41.842 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 06:50:41.843 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 06:50:42.036 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 07:06:58.288 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 07:06:58.290 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 07:06:58.291 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 07:07:01.294 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 07:07:01.392 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 07:07:01.393 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 07:07:01.596 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 07:24:41.495 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 07:24:41.496 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 07:24:41.497 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 07:24:44.498 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 07:24:44.602 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 07:24:44.602 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 07:24:44.803 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 07:31:19.404 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 07:31:19.406 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 07:31:19.407 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 07:31:19.513 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 07:31:19.513 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 07:31:19.699 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 07:48:29.308 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 07:48:29.310 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 07:48:29.311 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 07:48:32.313 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 07:48:32.422 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 07:48:32.423 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 07:48:32.625 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 08:08:50.571 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 08:08:50.574 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 08:08:50.575 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 08:08:53.577 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 08:08:53.734 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 08:08:53.734 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 08:08:53.886 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 08:25:39.491 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 08:25:39.493 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 08:25:39.493 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 08:25:39.630 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 08:25:39.631 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 08:25:39.805 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 08:35:24.569 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 08:35:24.571 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 08:35:24.572 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 08:35:24.716 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 08:35:24.717 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 08:35:24.923 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:11:41.533 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:11:41.537 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:11:41.537 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:11:44.539 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 12:11:44.689 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:11:44.689 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:11:44.852 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:16:50.790 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:16:50.791 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:16:50.791 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:16:50.922 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:16:50.923 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:16:51.086 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:21:51.680 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:21:51.681 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:21:51.682 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:21:51.782 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:21:51.783 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:21:51.951 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:26:52.448 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:26:52.449 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:26:52.450 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:26:55.453 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 12:26:55.631 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:26:55.631 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:26:55.823 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:31:56.260 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:31:56.263 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:31:56.263 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:31:59.266 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 12:31:59.379 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:31:59.380 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:31:59.564 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:37:00.087 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:37:00.089 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:37:00.090 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:41:15.072 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 12:41:15.163 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:41:15.164 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:41:15.338 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 12:51:13.017 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 12:51:13.019 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 12:51:13.019 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 12:51:13.386 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 12:51:13.387 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 12:51:14.586 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 13:31:08.718 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (2013, 'Lost connection to MySQL server during query ([Errno 60] Operation timed out)')
+2026-05-19 13:31:08.721 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:31:08.722 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:31:11.724 [WARNING]  doris_mcp_server.utils.db:1298 - Pool close timeout, forcing cleanup
+2026-05-19 13:31:11.823 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:11.823 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:31:11.823 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:31:13.888 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:13.889 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:31:13.889 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:31:15.959 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:15.960 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:31:15.960 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:31:45.963 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:31:45.964 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:31:45.965 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:31:46.026 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:46.026 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:31:46.026 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:31:48.093 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:48.094 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:31:48.094 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:31:50.161 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:31:50.161 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:31:50.161 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:32:04.725 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:32:20.164 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:32:20.166 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:32:20.166 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:32:20.238 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:20.238 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:32:20.238 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:32:22.320 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:22.321 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:32:22.321 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:32:24.390 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:24.390 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:32:24.390 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:32:54.391 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:32:54.394 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:32:54.394 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:32:54.488 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:54.488 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:32:54.488 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:32:56.562 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:56.563 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:32:56.563 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:32:58.653 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:32:58.654 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:32:58.654 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:33:04.728 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:33:28.656 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:33:28.658 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:33:28.658 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:33:28.742 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:33:28.743 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:33:28.743 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:33:30.847 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:33:30.847 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:33:30.847 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:33:32.914 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:33:32.915 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:33:32.915 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:34:02.916 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:34:02.918 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:34:02.918 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:34:02.986 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:02.987 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:34:02.987 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:34:04.729 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:34:05.050 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:05.050 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:34:05.051 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:34:07.131 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:07.131 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:34:07.132 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:34:37.133 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:34:37.134 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:34:37.134 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:34:37.215 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:37.216 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:34:37.216 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:34:39.271 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:39.272 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:34:39.272 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:34:41.333 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:34:41.334 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:34:41.334 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:35:04.731 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:35:11.335 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:35:11.336 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:35:11.336 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:35:11.416 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:11.416 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:35:11.416 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:35:13.507 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:13.507 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:35:13.507 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:35:15.578 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:15.579 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:35:15.579 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:35:45.581 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:35:45.584 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:35:45.584 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:35:45.657 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:45.658 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:35:45.658 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:35:47.746 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:47.746 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:35:47.747 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:35:49.821 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:35:49.821 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:35:49.821 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:36:04.734 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:36:19.823 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:36:19.825 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:36:19.825 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:36:19.903 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:36:19.904 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:36:19.904 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:36:21.982 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:36:21.982 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:36:21.983 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:36:24.047 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:36:24.047 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:36:24.048 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:36:54.133 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:36:54.134 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:36:54.135 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:36:55.212 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:36:55.213 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:36:55.213 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:36:58.283 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:36:58.283 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:36:58.283 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:37:00.353 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:37:00.354 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:37:00.354 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:37:04.821 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:37:30.355 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:37:30.357 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:37:30.357 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:37:30.420 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:37:30.420 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:37:30.421 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:37:32.504 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:37:32.505 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:37:32.505 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:37:34.587 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:37:34.587 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:37:34.587 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:38:04.589 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:38:04.591 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:38:04.591 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:38:04.674 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:38:04.675 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:38:04.675 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:38:04.823 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:38:06.733 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:38:06.733 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:38:06.733 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:38:08.826 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:38:08.826 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:38:08.827 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:38:38.829 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:38:38.830 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:38:38.831 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:38:38.907 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:38:38.907 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:38:38.908 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:38:40.979 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:38:40.980 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:38:40.980 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:38:43.056 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:38:43.057 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:38:43.057 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:39:04.825 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:39:13.059 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:39:13.059 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:39:13.060 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:39:13.122 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:13.122 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:39:13.122 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:39:16.202 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:16.202 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:39:16.202 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:39:18.271 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:18.272 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:39:18.272 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:39:48.274 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:39:48.275 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:39:48.276 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:39:48.368 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:48.369 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:39:48.369 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:39:50.446 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:50.447 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:39:50.447 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:39:52.536 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:39:52.537 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:39:52.537 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:40:04.829 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:40:22.539 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:40:22.540 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:40:22.541 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:40:22.605 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:40:22.605 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:40:22.605 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:40:24.679 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:40:24.679 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:40:24.680 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:40:26.760 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:40:26.761 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:40:26.761 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:40:56.763 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:40:56.766 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:40:56.766 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:40:56.844 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:40:56.845 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:40:56.845 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:40:58.917 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:40:58.917 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:40:58.917 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:41:00.986 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:41:00.986 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:41:00.987 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:41:04.832 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:41:30.989 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:41:30.990 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:41:30.991 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:41:31.055 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:41:31.055 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:41:31.055 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:41:33.110 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:41:33.110 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:41:33.110 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:41:35.177 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:41:35.177 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:41:35.178 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:42:04.836 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:42:05.179 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:42:05.180 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:42:05.180 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:42:05.267 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:05.267 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:42:05.267 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:42:07.348 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:07.349 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:42:07.349 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:42:09.407 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:09.407 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:42:09.407 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:42:39.410 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:42:39.412 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:42:39.413 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:42:39.490 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:39.490 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:42:39.491 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:42:41.564 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:41.564 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:42:41.565 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:42:43.646 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:42:43.647 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:42:43.647 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:43:04.840 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:43:13.648 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:43:13.649 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:43:13.649 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:43:13.734 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:13.734 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:43:13.734 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:43:15.824 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:15.824 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:43:15.824 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:43:17.918 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:17.918 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:43:17.919 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:43:47.921 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:43:47.924 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:43:47.925 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:43:48.000 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:48.001 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:43:48.001 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:43:50.082 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:50.082 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:43:50.083 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:43:52.141 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:43:52.142 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:43:52.142 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:44:04.843 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:44:22.143 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:44:22.145 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:44:22.145 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:44:22.194 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:44:22.194 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:44:22.194 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:44:24.272 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:44:24.272 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:44:24.272 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:44:26.335 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:44:26.335 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:44:26.335 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:44:56.336 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:44:56.337 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:44:56.337 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:44:56.412 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:44:56.412 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:44:56.412 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:44:58.477 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:44:58.477 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:44:58.477 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:45:00.564 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:45:00.564 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:45:00.565 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:45:04.845 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:45:30.566 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:45:30.568 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:45:30.568 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:45:30.651 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:45:30.651 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:45:30.651 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:45:32.708 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:45:32.708 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:45:32.708 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:45:34.784 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:45:34.784 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:45:34.784 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:46:04.787 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:46:04.790 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:46:04.790 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:46:04.866 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:04.866 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:46:04.866 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:46:06.919 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:06.920 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:46:06.920 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:46:08.980 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:08.980 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:46:08.980 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:46:38.983 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:46:38.986 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:46:38.987 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:46:39.057 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:39.057 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:46:39.057 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:46:41.136 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:41.136 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:46:41.136 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:46:43.208 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:46:43.208 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:46:43.208 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:47:04.849 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:47:13.210 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:47:13.211 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:47:13.211 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:47:13.290 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:47:13.290 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:47:13.290 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:47:15.355 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:47:15.355 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:47:15.355 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:47:17.418 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:47:17.418 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:47:17.418 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:47:47.420 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:47:47.423 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:47:47.424 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:47:47.504 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:47:47.505 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:47:47.505 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:47:49.581 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:47:49.581 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:47:49.581 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:47:51.639 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:47:51.639 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:47:51.639 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:48:04.852 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:48:21.640 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:48:21.643 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:48:21.643 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:48:21.710 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 128')
+2026-05-19 13:48:21.710 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:48:21.710 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:48:23.805 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:48:23.806 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:48:23.806 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:48:25.882 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:48:25.883 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:48:25.883 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:48:55.885 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:48:55.887 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:48:55.888 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:48:55.963 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:48:55.963 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:48:55.964 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:48:58.031 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:48:58.031 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:48:58.032 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:49:00.098 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:49:00.099 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:49:00.099 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:49:04.855 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:49:30.100 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:49:30.101 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:49:30.101 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:49:30.152 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:49:30.153 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:49:30.153 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:49:32.215 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:49:32.216 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:49:32.216 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:49:34.290 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:49:34.291 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:49:34.291 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:50:04.293 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:50:04.293 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:50:04.294 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:50:04.371 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:50:04.371 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:50:04.371 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:50:04.858 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:50:06.454 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:50:06.454 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:50:06.454 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:50:08.513 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:50:08.513 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:50:08.514 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:50:38.515 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:50:38.516 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:50:38.517 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:50:38.587 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:50:38.588 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:50:38.588 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:50:40.683 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:50:40.683 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:50:40.683 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:50:42.751 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:50:42.751 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:50:42.752 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:51:04.858 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:51:12.753 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:51:12.754 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:51:12.755 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:51:12.832 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:12.833 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:51:12.833 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:51:14.905 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:14.906 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:51:14.906 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:51:16.987 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:16.987 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:51:16.988 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:51:46.989 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:51:46.990 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:51:46.990 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:51:47.064 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:47.064 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:51:47.065 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:51:49.131 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:49.132 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:51:49.132 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:51:51.188 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 13:51:51.188 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:51:51.188 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:52:04.862 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:52:21.190 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:52:21.191 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:52:21.191 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:52:21.266 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:21.267 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:52:21.267 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:52:23.347 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:23.348 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:52:23.348 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:52:25.422 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:25.422 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:52:25.423 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:52:55.425 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:52:55.426 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:52:55.426 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:52:55.497 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:55.498 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:52:55.498 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:52:57.587 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:57.588 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:52:57.589 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:52:59.660 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:52:59.661 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:52:59.661 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:53:04.866 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:53:29.663 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:53:29.665 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:53:29.665 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:53:29.745 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:53:29.745 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:53:29.745 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:53:31.833 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:53:31.833 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:53:31.834 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:53:33.901 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:53:33.901 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:53:33.902 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:54:03.902 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:54:03.904 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:54:03.904 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:54:03.970 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:54:03.971 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:54:03.971 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:54:04.868 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:54:06.068 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:54:06.068 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:54:06.069 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:54:08.126 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:54:08.126 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:54:08.126 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:54:38.128 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:54:38.129 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:54:38.129 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:54:38.186 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:54:38.187 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:54:38.187 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:54:40.248 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:54:40.248 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:54:40.248 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:54:42.314 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:54:42.314 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:54:42.314 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:55:04.872 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:55:12.315 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:55:12.317 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:55:12.317 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:55:12.395 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:12.395 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:55:12.395 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:55:14.448 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:14.448 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:55:14.448 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:55:16.547 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:16.547 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:55:16.547 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:55:46.547 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:55:46.549 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:55:46.549 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:55:46.624 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:46.625 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:55:46.625 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:55:48.722 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:48.722 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:55:48.722 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:55:50.796 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:55:50.797 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:55:50.797 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:56:04.881 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:56:20.798 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:56:20.800 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:56:20.800 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:56:20.868 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:20.869 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:56:20.869 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:56:22.969 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:22.970 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:56:22.970 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:56:25.048 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:25.048 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:56:25.048 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:56:55.049 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:56:55.051 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:56:55.051 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:56:55.112 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:55.112 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:56:55.112 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:56:57.179 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:57.179 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:56:57.179 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:56:59.236 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:56:59.236 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:56:59.236 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:57:04.883 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:57:29.242 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:57:29.244 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:57:29.245 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:57:29.317 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:57:29.317 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:57:29.317 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:57:31.386 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:57:31.386 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:57:31.387 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:57:33.451 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 126')
+2026-05-19 13:57:33.452 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:57:33.452 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:58:03.455 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:58:03.457 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:58:03.458 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:58:03.556 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:03.557 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:58:03.557 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:58:04.886 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:58:05.657 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:05.657 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:58:05.657 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:58:07.732 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:07.733 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:58:07.733 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:58:37.734 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:58:37.736 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:58:37.737 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:58:37.802 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:37.803 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:58:37.803 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:58:39.886 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:39.887 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:58:39.887 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:58:41.960 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:58:41.960 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:58:41.961 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:59:04.887 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 13:59:11.961 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:59:11.962 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:59:11.962 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:59:12.020 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:12.020 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:59:12.021 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:59:14.075 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:14.075 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:59:14.076 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:59:16.154 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:16.155 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:59:16.155 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 13:59:46.157 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 13:59:46.158 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 13:59:46.158 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 13:59:46.224 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:46.225 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 13:59:46.225 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 13:59:48.286 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:48.286 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 13:59:48.286 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 13:59:50.352 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 13:59:50.352 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 13:59:50.352 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:00:04.890 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:00:20.354 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:00:20.355 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:00:20.355 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:00:20.431 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:00:20.431 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:00:20.431 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:00:22.534 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:00:22.535 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:00:22.535 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:00:24.608 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:00:24.608 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:00:24.609 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:00:54.612 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:00:54.615 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:00:54.616 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:00:54.683 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:00:54.684 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:00:54.684 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:00:56.784 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:00:56.785 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:00:56.785 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:00:58.856 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:00:58.857 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:00:58.857 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:01:04.894 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:01:28.859 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:01:28.860 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:01:28.861 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:01:28.931 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:01:28.931 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:01:28.931 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:01:31.009 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:01:31.010 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:01:31.010 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:01:33.065 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 127')
+2026-05-19 14:01:33.065 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:01:33.066 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:02:03.069 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:02:03.071 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:02:03.072 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:02:03.142 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:03.143 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:02:03.143 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:02:04.897 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:02:05.206 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:05.207 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:02:05.207 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:02:07.290 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:07.291 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:02:07.291 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:02:37.293 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:02:37.295 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:02:37.295 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:02:37.361 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:37.361 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:02:37.362 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:02:39.444 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:39.445 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:02:39.445 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:02:41.520 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:02:41.521 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:02:41.521 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:03:04.899 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:03:11.522 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:03:11.523 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:03:11.523 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:03:11.609 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:11.609 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:03:11.609 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:03:13.691 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:13.692 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:03:13.692 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:03:15.786 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:15.786 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:03:15.786 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:03:45.787 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:03:45.789 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:03:45.789 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:03:45.873 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:45.873 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:03:45.874 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:03:47.956 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:47.957 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:03:47.957 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:03:50.019 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:03:50.020 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:03:50.020 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:04:04.903 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:04:20.021 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:04:20.023 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:04:20.024 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:04:20.099 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:20.100 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:04:20.100 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:04:22.185 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:22.185 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:04:22.185 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:04:24.255 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:24.255 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:04:24.255 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:04:54.256 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:04:54.258 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:04:54.259 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:04:54.329 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:54.329 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:04:54.329 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:04:56.391 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:56.391 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:04:56.392 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:04:58.463 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:04:58.463 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:04:58.464 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:05:04.907 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:05:28.465 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:05:28.466 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:05:28.466 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:05:28.541 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:05:28.541 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:05:28.542 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:05:30.610 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:05:30.610 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:05:30.610 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:05:32.684 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:05:32.685 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:05:32.685 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:06:02.687 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:06:02.689 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:06:02.689 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:06:02.766 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:02.766 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:06:02.766 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:06:04.851 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:04.851 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:06:04.851 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:06:04.909 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:06:06.934 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:06.935 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:06:06.935 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:06:36.937 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:06:36.939 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:06:36.940 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:06:37.020 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:37.021 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:06:37.021 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:06:39.089 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:39.089 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:06:39.090 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:06:41.153 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:06:41.154 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:06:41.154 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:07:04.912 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:07:11.156 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:07:11.157 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:07:11.157 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:07:11.217 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:11.217 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:07:11.218 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:07:13.280 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:13.281 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:07:13.281 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:07:15.348 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:15.350 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:07:15.350 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:07:45.352 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:07:45.354 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:07:45.354 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:07:45.433 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:45.434 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:07:45.434 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:07:47.514 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:47.515 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:07:47.515 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:07:49.619 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:07:49.620 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:07:49.620 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:08:04.915 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:08:19.622 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:08:19.622 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:08:19.622 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:08:19.689 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:19.689 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:08:19.689 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:08:21.759 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:21.759 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:08:21.760 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:08:23.831 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:23.832 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:08:23.832 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:08:53.835 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:08:53.837 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:08:53.838 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:08:53.937 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:53.937 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:08:53.937 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:08:56.007 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:56.008 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:08:56.008 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:08:58.083 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:08:58.084 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:08:58.085 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:09:04.919 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:09:28.087 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:09:28.089 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:09:28.089 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:09:28.165 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:09:28.166 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:09:28.166 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:09:30.237 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:09:30.237 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:09:30.238 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:09:32.312 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:09:32.313 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:09:32.313 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:10:02.315 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:10:02.317 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:10:02.319 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:10:02.379 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:02.379 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:10:02.380 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:10:04.451 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:04.451 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:10:04.452 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:10:04.922 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:10:06.529 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:06.529 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:10:06.529 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:10:36.532 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:10:36.533 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:10:36.533 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:10:36.610 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:36.611 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:10:36.611 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:10:38.669 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:38.669 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:10:38.669 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:10:40.757 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:10:40.757 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:10:40.758 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:11:04.926 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:11:10.759 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:11:10.759 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:11:10.760 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:11:10.839 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:10.840 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:11:10.840 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:11:12.917 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:12.917 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:11:12.917 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:11:15.015 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:15.017 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:11:15.017 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:11:45.020 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:11:45.023 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:11:45.023 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:11:45.092 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:45.093 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 1
+2026-05-19 14:11:45.093 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 2/3)
+2026-05-19 14:11:47.170 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:47.170 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 2
+2026-05-19 14:11:47.171 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 3/3)
+2026-05-19 14:11:49.240 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:11:49.240 [WARNING]  doris_mcp_server.utils.db:1337 - ❌ Pool recovery health check failed on attempt 3
+2026-05-19 14:11:49.241 [ERROR]    doris_mcp_server.utils.db:1361 - ❌ Pool recovery failed after all attempts
+2026-05-19 14:12:04.931 [ERROR]    doris_mcp_server.utils.db:1270 - Stale connection cleanup error: 'NoneType' object has no attribute 'size'
+2026-05-19 14:12:19.243 [ERROR]    doris_mcp_server.utils.db:1141 - Pool health test failed: 'NoneType' object has no attribute 'acquire'
+2026-05-19 14:12:19.244 [WARNING]  doris_mcp_server.utils.db:1221 - ❌ Pool health check failed, attempting recovery
+2026-05-19 14:12:19.244 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 14:12:19.445 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 14:12:19.445 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 14:12:19.720 [WARNING]  doris_mcp_server.utils.db:1157 - Failed to warm up connection 3: (1203, 'Reach limit of connections. Total: 1024, User: 100, Current: 125')
+2026-05-19 14:12:19.721 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 2 connections created
