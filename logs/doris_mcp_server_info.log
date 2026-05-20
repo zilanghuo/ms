@@ -4744,3 +4744,227 @@
 2026-05-19 14:12:19.445 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
 2026-05-19 14:12:19.445 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
 2026-05-19 14:12:19.721 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 2 connections created
+2026-05-19 17:36:44.230 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 17:36:44.362 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 17:36:44.363 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 17:36:44.542 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 18:19:33.411 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 18:19:34.528 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 18:19:34.528 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 18:19:34.745 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 18:36:19.581 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 18:36:19.719 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 18:36:19.720 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 18:36:19.930 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 18:52:20.436 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 18:52:23.547 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 18:52:23.547 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 18:52:23.756 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 19:11:51.402 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 19:11:52.535 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 19:11:52.536 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 19:11:52.706 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 19:31:49.590 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 19:31:49.711 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 19:31:49.712 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 19:31:49.905 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 19:49:51.998 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 19:49:52.088 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 19:49:52.088 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 19:49:52.278 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 20:03:22.225 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 20:03:22.340 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 20:03:22.340 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 20:03:22.494 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 20:19:50.431 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 20:19:53.520 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 20:19:53.521 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 20:19:53.754 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 20:37:56.915 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 20:54:03.536 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 20:54:03.538 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 20:54:03.759 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 21:12:44.000 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 21:12:44.095 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 21:12:44.096 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 21:12:44.284 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 21:28:41.474 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 21:28:44.572 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 21:28:44.573 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 21:28:44.777 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 21:45:36.761 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 21:45:39.896 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 21:45:39.896 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 21:45:40.113 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 22:02:37.192 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 22:02:40.322 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 22:02:40.323 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 22:02:40.490 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 22:19:08.616 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 22:19:08.729 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 22:19:08.730 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 22:19:08.881 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 22:36:12.039 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 22:52:58.809 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 22:52:58.809 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 22:52:58.983 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 23:10:07.959 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 23:27:06.732 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 23:27:06.733 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 23:27:06.936 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 23:43:24.126 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 23:43:24.263 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 23:43:24.263 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 23:43:24.472 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-19 23:59:27.602 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-19 23:59:30.707 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-19 23:59:30.707 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-19 23:59:30.901 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 00:17:08.933 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 00:17:12.051 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 00:17:12.052 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 00:17:12.228 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 00:34:48.305 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 00:49:58.497 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 00:49:58.498 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 00:49:58.906 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 01:06:51.108 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 01:06:51.242 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 01:06:51.243 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 01:06:51.423 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 01:35:28.752 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 01:35:31.879 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 01:35:31.880 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 01:35:32.073 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 01:53:38.569 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 01:53:38.717 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 01:53:38.718 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 01:53:38.916 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 02:10:43.401 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 02:10:43.521 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 02:10:43.521 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 02:10:43.723 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 02:27:25.061 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 02:27:25.179 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 02:27:25.179 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 02:27:25.363 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 02:43:24.515 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 02:43:27.653 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 02:43:27.654 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 02:43:27.827 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 03:00:44.670 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 03:00:44.800 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 03:00:44.801 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 03:00:44.972 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 03:16:43.207 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 03:16:46.322 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 03:16:46.322 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 03:16:46.507 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 03:33:08.714 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 03:49:18.518 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 03:49:18.518 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 03:49:18.715 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 04:07:51.103 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 04:25:03.773 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 04:25:03.773 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 04:25:03.964 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 04:42:25.762 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 04:42:28.923 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 04:42:28.923 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 04:42:29.095 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 05:00:42.635 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 05:00:45.765 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 05:00:45.765 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 05:00:45.953 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 05:34:35.124 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 05:34:38.230 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 05:34:38.231 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 05:34:38.391 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 05:52:24.084 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 05:52:24.264 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 05:52:24.265 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 05:52:24.443 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 06:08:23.711 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 06:08:23.840 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 06:08:23.840 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 06:08:24.032 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 06:24:48.735 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 06:24:51.859 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 06:24:51.859 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 06:24:52.010 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 06:42:25.810 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 06:42:28.930 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 06:42:28.930 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 06:42:29.123 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 07:08:27.056 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 07:08:30.166 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 07:08:30.166 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 07:08:30.370 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 07:24:52.422 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 07:24:55.550 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 07:24:55.551 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 07:24:55.750 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 07:42:13.523 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 07:42:16.639 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 07:42:16.640 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 07:42:16.831 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 07:54:05.105 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 07:54:05.209 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 07:54:05.209 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 07:54:05.396 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 08:12:13.231 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 08:12:13.370 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 08:12:13.371 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 08:12:13.568 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 08:28:45.417 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 08:28:48.522 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 08:28:48.522 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 08:28:48.708 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 08:38:49.281 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 08:38:52.401 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 08:38:52.402 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 08:38:52.619 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 09:42:56.300 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 09:42:59.408 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 09:42:59.409 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 09:42:59.621 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 10:32:10.112 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 10:32:10.254 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 10:32:10.255 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 10:32:10.414 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 10:37:13.275 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 10:37:16.366 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 10:37:16.367 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 10:37:16.540 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 11:38:09.850 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 11:38:09.962 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 11:38:09.963 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 11:38:10.121 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 12:18:02.742 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 12:18:05.897 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 12:18:05.898 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 12:18:06.093 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 12:34:59.325 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 12:35:02.454 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 12:35:02.455 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 12:35:02.635 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 12:50:58.986 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 12:50:59.083 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 12:50:59.084 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 12:50:59.277 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 13:08:13.808 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 13:08:13.946 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 13:08:13.946 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 13:08:14.109 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 13:24:32.333 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 13:24:32.428 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 13:24:32.428 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 13:24:32.614 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 13:31:24.431 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 13:31:27.554 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 13:31:27.555 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 13:31:27.742 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created
+2026-05-20 14:03:10.643 [INFO]     doris_mcp_server.utils.db:1288 - 🔄 Attempting pool recovery (attempt 1/3)
+2026-05-20 14:03:13.747 [INFO]     doris_mcp_server.utils.db:1329 - ✅ Pool recovery successful on attempt 1
+2026-05-20 14:03:13.747 [INFO]     doris_mcp_server.utils.db:1146 - 🔥 Warming up connection pool with 3 connections
+2026-05-20 14:03:13.964 [INFO]     doris_mcp_server.utils.db:1167 - ✅ Pool warmup completed, 3 connections created

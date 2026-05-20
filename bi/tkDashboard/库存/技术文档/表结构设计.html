@@ -115,47 +115,68 @@
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, product_id, item_id, site_name</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_product_online_product_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD',
-  product_id VARCHAR(100) COMMENT '平台商品 ID，对应接口 productId',
-  item_id VARCHAR(100) COMMENT '平台 item ID，对应接口 itemId',
-  site_name VARCHAR(100) COMMENT '站点名称，对应接口 siteName，如美国',
-  record_id VARCHAR(50) COMMENT '源记录 ID，对应接口 id',
-  platform_product_code VARCHAR(100) COMMENT '平台商品编码，对应接口 productCode',
-  site_id VARCHAR(50) COMMENT '站点 ID，对应接口 siteId',
-  store_id VARCHAR(100) COMMENT '店铺 ID，对应接口 shopId，按统一规范转为 store_id',
-  store_name VARCHAR(200) COMMENT '店铺名称，对应接口 shopName，按统一规范转为 store_name',
-  currency_code VARCHAR(20) COMMENT '币种，对应接口 currency',
-  sku VARCHAR(100) COMMENT 'SKU，对应接口 sku',
-  msku VARCHAR(100) COMMENT 'MSKU，对应接口 msku',
-  spu VARCHAR(100) COMMENT 'SPU，对应接口 spu',
-  spu_name VARCHAR(500) COMMENT 'SPU 名称，对应接口 spuName',
-  product_name VARCHAR(500) COMMENT '商品名称，对应接口 productName',
-  product_title VARCHAR(1000) COMMENT '商品标题，对应接口 title',
-  main_image_url VARCHAR(1000) COMMENT '主图 URL，对应接口 mainImage',
-  brand_code VARCHAR(100) COMMENT '品牌编码，对应接口 brandCode',
-  brand_name VARCHAR(200) COMMENT '品牌名称，对应接口 brandName',
-  category_code VARCHAR(100) COMMENT '类目编码，对应接口 categoryCode',
-  category_name VARCHAR(200) COMMENT '类目名称，对应接口 categoryName',
-  charge_person_ids VARCHAR(500) COMMENT '负责人 ID 列表，对应接口 chargePersonIds',
-  charge_person_name VARCHAR(200) COMMENT '负责人名称，对应接口 chargePersonName',
-  original_price DECIMAL(18,2) COMMENT '原价，对应接口 originalPrice',
-  price_include_vat DECIMAL(18,2) COMMENT '含税售价，对应接口 priceIncludeVat',
-  inventory_product_total_num BIGINT COMMENT '库存商品总数，对应接口 inventoryProductTotalNum',
-  product_status_code VARCHAR(50) COMMENT '商品状态编码，对应接口 productStatus，如 live',
-  product_status_name VARCHAR(100) COMMENT '商品状态名称，对应接口 productStatusName，如在售',
-  platform_create_date DATE COMMENT '平台创建日期，对应接口 platformCreateTime，格式 YYYY-MM-DD',
-  platform_update_date DATE COMMENT '平台更新日期，对应接口 platformUpdateTime，格式 YYYY-MM-DD',
-  insert_time DATETIME COMMENT '入仓时间'
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_tiktok_product_online_product_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, product_id, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_tiktok_product_online_product_df
+-- 说明: TikTok 在线商品日全量快照 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_product_online_product_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD',
+    product_id                           VARCHAR(100)       COMMENT '平台商品 ID，对应接口 productId',
+    sku                                  VARCHAR(100)       COMMENT 'SKU，对应接口 sku',
+    record_id                            VARCHAR(50)        COMMENT '源记录 ID，对应接口 id',
+    item_id                              VARCHAR(100)       COMMENT '平台 item ID，对应接口 itemId',
+    platform_product_code                VARCHAR(100)       COMMENT '平台商品编码，对应接口 productCode',
+    site_id                              VARCHAR(50)        COMMENT '站点 ID，对应接口 siteId',
+    site_name                            VARCHAR(100)       COMMENT '站点名称，对应接口 siteName，如美国',
+    store_id                             VARCHAR(100)       COMMENT '店铺 ID，对应接口 shopId，按统一规范转为 store_id',
+    store_name                           VARCHAR(200)       COMMENT '店铺名称，对应接口 shopName，按统一规范转为 store_name',
+    currency_code                        VARCHAR(20)        COMMENT '币种，对应接口 currency',
+    msku                                 VARCHAR(100)       COMMENT 'MSKU，对应接口 msku',
+    spu                                  VARCHAR(100)       COMMENT 'SPU，对应接口 spu',
+    spu_name                             VARCHAR(500)       COMMENT 'SPU 名称，对应接口 spuName',
+    product_name                         VARCHAR(500)       COMMENT '商品名称，对应接口 productName',
+    product_title                        VARCHAR(1000)      COMMENT '商品标题，对应接口 title',
+    main_image_url                       VARCHAR(1000)      COMMENT '主图 URL，对应接口 mainImage',
+    brand_code                           VARCHAR(100)       COMMENT '品牌编码，对应接口 brandCode',
+    brand_name                           VARCHAR(200)       COMMENT '品牌名称，对应接口 brandName',
+    category_code                        VARCHAR(100)       COMMENT '类目编码，对应接口 categoryCode',
+    category_name                        VARCHAR(200)       COMMENT '类目名称，对应接口 categoryName',
+    charge_person_ids                    VARCHAR(500)       COMMENT '负责人 ID 列表，对应接口 chargePersonIds',
+    charge_person_name                   VARCHAR(200)       COMMENT '负责人名称，对应接口 chargePersonName',
+    original_price                       DECIMAL(18,2)      COMMENT '原价，对应接口 originalPrice',
+    price_include_vat                    DECIMAL(18,2)      COMMENT '含税售价，对应接口 priceIncludeVat',
+    inventory_product_total_num          BIGINT             COMMENT '库存商品总数，对应接口 inventoryProductTotalNum',
+    product_status_code                  VARCHAR(50)        COMMENT '商品状态编码，对应接口 productStatus，如 live',
+    product_status_name                  VARCHAR(100)       COMMENT '商品状态名称，对应接口 productStatusName，如在售',
+    platform_create_date                 DATE               COMMENT '平台创建日期，对应接口 platformCreateTime，格式 YYYY-MM-DD',
+    platform_update_date                 DATE               COMMENT '平台更新日期，对应接口 platformUpdateTime，格式 YYYY-MM-DD',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, product_id, sku)
+COMMENT 'TikTok 在线商品日全量快照 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
 )
-ENGINE=OLAP
-UNIQUE KEY(smt, sdt, product_id, item_id, site_name)
-DISTRIBUTED BY HASH(product_id) BUCKETS 10
+DISTRIBUTED BY HASH(sku) BUCKETS 16
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p>字段命名统一说明：名称类统一使用 <code>site_name</code>、<code>store_name</code>、<code>spu_name</code>、<code>product_status_name</code>；编码类统一使用 <code>*_id</code> / <code>*_code</code>；链接类统一使用 <code>*_url</code>；系统时间字段统一使用 <code>insert_time</code>。该表按接口/统一采集快照设计，不保留 <code>raw_file_name</code> 这类文件导入字段。</p>
 
@@ -232,78 +253,99 @@ PROPERTIES (
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, warehouse_id, market_id, sku, msku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_site_product_stock_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD',
-  warehouse_id BIGINT COMMENT '仓库 ID，对应返回体 warehouseId',
-  market_id BIGINT COMMENT '市场 ID，对应返回体 marketId',
-  sku VARCHAR(100) COMMENT 'SKU，对应返回体 sku',
-  msku VARCHAR(100) COMMENT 'MSKU，对应返回体 msku',
-  record_id VARCHAR(50) COMMENT '源记录 ID，对应返回体 id',
-  warehouse_name VARCHAR(200) COMMENT '仓库名称，对应返回体 warehouseName',
-  market_name VARCHAR(100) COMMENT '市场名称，对应返回体 marketName',
-  spu VARCHAR(100) COMMENT 'SPU，对应返回体 spu',
-  spu_name VARCHAR(500) COMMENT 'SPU 名称，对应返回体 spuName',
-  product_name VARCHAR(500) COMMENT '商品名称，对应返回体 productName',
-  product_image_url VARCHAR(1000) COMMENT '商品图片 URL，对应返回体 productImageUrl',
-  brand_name VARCHAR(200) COMMENT '品牌名称，对应返回体 brandName',
-  category_name VARCHAR(200) COMMENT '类目名称，对应返回体 categoryName',
-  product_manager_account VARCHAR(100) COMMENT '商品负责人账号，对应返回体 productManagerAccount',
-  product_status_name VARCHAR(100) COMMENT '商品状态名称，对应返回体 productStatusName',
-  product_type_name VARCHAR(100) COMMENT '商品类型名称，对应返回体 productTypeName',
-  unit VARCHAR(20) COMMENT '库存单位，对应返回体 unit',
-  assembly VARCHAR(100) COMMENT '组装标识 / 组装信息，对应返回体 assembly',
-  product_delivery_days INT COMMENT '商品交付天数，对应返回体 productDeliveryDays',
-  available_qty DECIMAL(18,2) COMMENT '可用库存，对应返回体 availableQty',
-  fulfillable_quantity DECIMAL(18,2) COMMENT '可履约数量，对应返回体 fulfillableQuantity',
-  on_hand_qty DECIMAL(18,2) COMMENT '现有库存，对应返回体 onHandQty',
-  total_inventory_qty DECIMAL(18,2) COMMENT '总库存数量，对应返回体 totalInventoryQty',
-  in_transit_qty DECIMAL(18,2) COMMENT '在途数量，对应返回体 inTransitQty',
-  reservation_qty DECIMAL(18,2) COMMENT '预留数量，对应返回体 reservationQty',
-  reserved_processed_qty DECIMAL(18,2) COMMENT '已处理预留数量，对应返回体 reservedProcessed',
-  reserved_unprocessed_qty DECIMAL(18,2) COMMENT '未处理预留数量，对应返回体 reservedUnprocessed',
-  unsellable_qty DECIMAL(18,2) COMMENT '不可售数量，对应返回体 unsellableQuantity',
-  obsolete_qty DECIMAL(18,2) COMMENT '呆滞数量，对应返回体 obsoleteQty',
-  obsolete_rate DECIMAL(18,4) COMMENT '呆滞率，对应返回体 obsoleteRate',
-  assemble_plan_quantity DECIMAL(18,2) COMMENT '组装计划数量，对应返回体 assemblePlanQuantity',
-  purchase_plan_quantity DECIMAL(18,2) COMMENT '采购计划数量，对应返回体 purchasePlanQuantity',
-  plan_quantity DECIMAL(18,2) COMMENT '计划数量，对应返回体 planQuantity',
-  pl_po_ln_qty DECIMAL(18,2) COMMENT '采购单行数量，对应返回体 plPoLnQty',
-  order_quantity DECIMAL(18,2) COMMENT '订单数量，对应返回体 orderQuantity',
-  lot_no_quantity DECIMAL(18,2) COMMENT '批次号数量，对应返回体 lotNoQuantity',
-  single_quantity DECIMAL(18,2) COMMENT '单件数量，对应返回体 singleQuantity',
-  erp_receiving_qty DECIMAL(18,2) COMMENT 'ERP 收货数量，对应返回体 erpReceiving',
-  erp_shipped_qty DECIMAL(18,2) COMMENT 'ERP 已发货数量，对应返回体 erpShipped',
-  erp_wait_shipped_qty DECIMAL(18,2) COMMENT 'ERP 待发货数量，对应返回体 erpWaitShipped',
-  erp_working_qty DECIMAL(18,2) COMMENT 'ERP 在制作 / 处理中数量，对应返回体 erpWorking',
-  inv_age_0_to_30_days DECIMAL(18,2) COMMENT '0-30 天库龄库存，对应返回体 invAge0To30Days',
-  inv_age_31_to_60_days DECIMAL(18,2) COMMENT '31-60 天库龄库存，对应返回体 invAge31To60Days',
-  inv_age_61_to_90_days DECIMAL(18,2) COMMENT '61-90 天库龄库存，对应返回体 invAge61To90Days',
-  inv_age_91_to_180_days DECIMAL(18,2) COMMENT '91-180 天库龄库存，对应返回体 invAge91To180Days',
-  inv_age_181_to_270_days DECIMAL(18,2) COMMENT '181-270 天库龄库存，对应返回体 invAge181To270Days',
-  inv_age_271_to_330_days DECIMAL(18,2) COMMENT '271-330 天库龄库存，对应返回体 invAge271To330Days',
-  inv_age_331_to_365_days DECIMAL(18,2) COMMENT '331-365 天库龄库存，对应返回体 invAge331To365Days',
-  inv_age_365_plus_days DECIMAL(18,2) COMMENT '365 天以上库龄库存，对应返回体 invAge365PlusDays',
-  arrive_cost DECIMAL(18,4) COMMENT '到仓成本，对应返回体 arriveCost',
-  purchase_cost DECIMAL(18,4) COMMENT '采购成本，对应返回体 purchaseCost',
-  good_value DECIMAL(18,4) COMMENT '良品货值，对应返回体 goodValue',
-  defective_value DECIMAL(18,4) COMMENT '残次货值，对应返回体 defectiveValue',
-  in_transit_value DECIMAL(18,4) COMMENT '在途货值，对应返回体 inTransitValue',
-  obsolete_value DECIMAL(18,4) COMMENT '呆滞货值，对应返回体 obsoleteValue',
-  on_hand_value DECIMAL(18,4) COMMENT '现有库存货值，对应返回体 onHandValue',
-  total_value DECIMAL(18,4) COMMENT '总货值，对应返回体 totalValue',
-  transfer_pending_shipment_value DECIMAL(18,4) COMMENT '待发转运货值，对应返回体 transferPendingShipmentValue',
-  platform_create_time DATETIME COMMENT '平台创建时间，对应返回体 createTime',
-  last_update_time DATETIME COMMENT '最后更新时间，对应返回体 updateTime',
-  insert_time DATETIME COMMENT '入仓时间'
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_tiktok_site_product_stock_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, record_id, warehouse_id, market_id, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_tiktok_site_product_stock_df
+-- 说明: TikTok 站点产品库存自定义导出日全量 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_site_product_stock_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD',
+    record_id                            VARCHAR(50)        COMMENT '源记录 ID，对应返回体 id',
+    warehouse_id                         BIGINT             COMMENT '仓库 ID，对应返回体 warehouseId',
+    market_id                            BIGINT             COMMENT '市场 ID，对应返回体 marketId',
+    sku                                  VARCHAR(100)       COMMENT 'SKU，对应返回体 sku',
+    warehouse_name                       VARCHAR(200)       COMMENT '仓库名称，对应返回体 warehouseName',
+    market_name                          VARCHAR(100)       COMMENT '市场名称，对应返回体 marketName',
+    msku                                 VARCHAR(100)       COMMENT 'MSKU，对应返回体 msku',
+    spu                                  VARCHAR(100)       COMMENT 'SPU，对应返回体 spu',
+    spu_name                             VARCHAR(500)       COMMENT 'SPU 名称，对应返回体 spuName',
+    product_name                         VARCHAR(500)       COMMENT '商品名称，对应返回体 productName',
+    product_image_url                    VARCHAR(1000)      COMMENT '商品图片 URL，对应返回体 productImageUrl',
+    brand_name                           VARCHAR(200)       COMMENT '品牌名称，对应返回体 brandName',
+    category_name                        VARCHAR(200)       COMMENT '类目名称，对应返回体 categoryName',
+    product_manager_account              VARCHAR(100)       COMMENT '商品负责人账号，对应返回体 productManagerAccount',
+    product_status_name                  VARCHAR(100)       COMMENT '商品状态名称，对应返回体 productStatusName',
+    product_type_name                    VARCHAR(100)       COMMENT '商品类型名称，对应返回体 productTypeName',
+    unit                                 VARCHAR(20)        COMMENT '库存单位，对应返回体 unit',
+    assembly                             VARCHAR(100)       COMMENT '组装标识 / 组装信息，对应返回体 assembly',
+    product_delivery_days                INT                COMMENT '商品交付天数，对应返回体 productDeliveryDays',
+    available_qty                        DECIMAL(18,2)      COMMENT '可用库存，对应返回体 availableQty',
+    fulfillable_quantity                 DECIMAL(18,2)      COMMENT '可履约数量，对应返回体 fulfillableQuantity',
+    on_hand_qty                          DECIMAL(18,2)      COMMENT '现有库存，对应返回体 onHandQty',
+    total_inventory_qty                  DECIMAL(18,2)      COMMENT '总库存数量，对应返回体 totalInventoryQty',
+    in_transit_qty                       DECIMAL(18,2)      COMMENT '在途数量，对应返回体 inTransitQty',
+    reservation_qty                      DECIMAL(18,2)      COMMENT '预留数量，对应返回体 reservationQty',
+    reserved_processed_qty               DECIMAL(18,2)      COMMENT '已处理预留数量，对应返回体 reservedProcessed',
+    reserved_unprocessed_qty             DECIMAL(18,2)      COMMENT '未处理预留数量，对应返回体 reservedUnprocessed',
+    unsellable_qty                       DECIMAL(18,2)      COMMENT '不可售数量，对应返回体 unsellableQuantity',
+    obsolete_qty                         DECIMAL(18,2)      COMMENT '呆滞数量，对应返回体 obsoleteQty',
+    obsolete_rate                        DECIMAL(18,4)      COMMENT '呆滞率，对应返回体 obsoleteRate',
+    assemble_plan_quantity               DECIMAL(18,2)      COMMENT '组装计划数量，对应返回体 assemblePlanQuantity',
+    purchase_plan_quantity               DECIMAL(18,2)      COMMENT '采购计划数量，对应返回体 purchasePlanQuantity',
+    plan_quantity                        DECIMAL(18,2)      COMMENT '计划数量，对应返回体 planQuantity',
+    pl_po_ln_qty                         DECIMAL(18,2)      COMMENT '采购单行数量，对应返回体 plPoLnQty',
+    order_quantity                       DECIMAL(18,2)      COMMENT '订单数量，对应返回体 orderQuantity',
+    lot_no_quantity                      DECIMAL(18,2)      COMMENT '批次号数量，对应返回体 lotNoQuantity',
+    single_quantity                      DECIMAL(18,2)      COMMENT '单件数量，对应返回体 singleQuantity',
+    erp_receiving_qty                    DECIMAL(18,2)      COMMENT 'ERP 收货数量，对应返回体 erpReceiving',
+    erp_shipped_qty                      DECIMAL(18,2)      COMMENT 'ERP 已发货数量，对应返回体 erpShipped',
+    erp_wait_shipped_qty                 DECIMAL(18,2)      COMMENT 'ERP 待发货数量，对应返回体 erpWaitShipped',
+    erp_working_qty                      DECIMAL(18,2)      COMMENT 'ERP 在制作 / 处理中数量，对应返回体 erpWorking',
+    inv_age_0_to_30_days                 DECIMAL(18,2)      COMMENT '0-30 天库龄库存，对应返回体 invAge0To30Days',
+    inv_age_31_to_60_days                DECIMAL(18,2)      COMMENT '31-60 天库龄库存，对应返回体 invAge31To60Days',
+    inv_age_61_to_90_days                DECIMAL(18,2)      COMMENT '61-90 天库龄库存，对应返回体 invAge61To90Days',
+    inv_age_91_to_180_days               DECIMAL(18,2)      COMMENT '91-180 天库龄库存，对应返回体 invAge91To180Days',
+    inv_age_181_to_270_days              DECIMAL(18,2)      COMMENT '181-270 天库龄库存，对应返回体 invAge181To270Days',
+    inv_age_271_to_330_days              DECIMAL(18,2)      COMMENT '271-330 天库龄库存，对应返回体 invAge271To330Days',
+    inv_age_331_to_365_days              DECIMAL(18,2)      COMMENT '331-365 天库龄库存，对应返回体 invAge331To365Days',
+    inv_age_365_plus_days                DECIMAL(18,2)      COMMENT '365 天以上库龄库存，对应返回体 invAge365PlusDays',
+    arrive_cost                          DECIMAL(18,4)      COMMENT '到仓成本，对应返回体 arriveCost',
+    purchase_cost                        DECIMAL(18,4)      COMMENT '采购成本，对应返回体 purchaseCost',
+    good_value                           DECIMAL(18,4)      COMMENT '良品货值，对应返回体 goodValue',
+    defective_value                      DECIMAL(18,4)      COMMENT '残次货值，对应返回体 defectiveValue',
+    in_transit_value                     DECIMAL(18,4)      COMMENT '在途货值，对应返回体 inTransitValue',
+    obsolete_value                       DECIMAL(18,4)      COMMENT '呆滞货值，对应返回体 obsoleteValue',
+    on_hand_value                        DECIMAL(18,4)      COMMENT '现有库存货值，对应返回体 onHandValue',
+    total_value                          DECIMAL(18,4)      COMMENT '总货值，对应返回体 totalValue',
+    transfer_pending_shipment_value      DECIMAL(18,4)      COMMENT '待发转运货值，对应返回体 transferPendingShipmentValue',
+    platform_create_time                 DATETIME           COMMENT '平台创建时间，对应返回体 createTime',
+    last_update_time                     DATETIME           COMMENT '最后更新时间，对应返回体 updateTime',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, record_id, warehouse_id, market_id, sku)
+COMMENT 'TikTok 站点产品库存自定义导出日全量 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
 )
-ENGINE=OLAP
-UNIQUE KEY(smt, sdt, warehouse_id, market_id, sku, msku)
-DISTRIBUTED BY HASH(sku) BUCKETS 10
+DISTRIBUTED BY HASH(sku) BUCKETS 16
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p>字段命名按当前统一规范处理：仓库统一使用 <code>warehouse_*</code>，商品统一使用 <code>product_*</code> / <code>spu</code> / <code>sku</code>，时间统一拆成平台时间字段和系统时间字段，数量字段统一使用 <code>*_qty</code>，货值字段统一使用 <code>*_value</code>。</p>
 
@@ -371,69 +413,90 @@ PROPERTIES (
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, warehouse_id, fbt_warehouse_id, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_fbt_stock_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD',
-  warehouse_id BIGINT COMMENT '店铺仓库 ID，对应返回体 warehouseId',
-  fbt_warehouse_id VARCHAR(100) COMMENT 'FBT 仓库 ID，对应返回体 fbtWarehouseId',
-  sku VARCHAR(100) COMMENT 'SKU，对应返回体 sku',
-  record_id BIGINT COMMENT '源记录 ID，对应返回体 id',
-  fbt_id VARCHAR(100) COMMENT 'FBT 记录 ID，对应返回体 fbtId',
-  warehouse_name VARCHAR(200) COMMENT '店铺仓库名称，对应返回体 warehouseName',
-  fbt_warehouse_name VARCHAR(200) COMMENT 'FBT 仓库名称，对应返回体 fbtWarehouseName',
-  fulfillment_channel VARCHAR(50) COMMENT '履约渠道编码，对应返回体 fulfillmentChannel',
-  fulfillment_channel_name VARCHAR(100) COMMENT '履约渠道名称，对应返回体 fulfillmentChannelName',
-  reference_code VARCHAR(100) COMMENT '参考编码，对应返回体 referenceCode',
-  goods_sku VARCHAR(100) COMMENT '货品 SKU，对应返回体 goodsSku',
-  spu VARCHAR(100) COMMENT 'SPU，对应返回体 spu',
-  spu_name VARCHAR(500) COMMENT 'SPU 名称，对应返回体 spuName',
-  product_name VARCHAR(500) COMMENT '商品名称，对应返回体 productName',
-  goods_name VARCHAR(1000) COMMENT '货品名称，对应返回体 goodsName',
-  product_image_url VARCHAR(1000) COMMENT '商品图片 URL，对应返回体 productImageUrl',
-  brand_name VARCHAR(200) COMMENT '品牌名称，对应返回体 brandName',
-  category_name VARCHAR(200) COMMENT '类目名称，对应返回体 categoryName',
-  product_manager_account VARCHAR(100) COMMENT '商品负责人账号，对应返回体 productManagerAccount',
-  selling_manager_name_list VARCHAR(1000) COMMENT '销售负责人列表，对应返回体 sellingManagerNameList',
-  product_status_name VARCHAR(100) COMMENT '商品状态名称，对应返回体 productStatusName',
-  product_type_name VARCHAR(100) COMMENT '商品类型名称，对应返回体 productTypeName',
-  status_code INT COMMENT '状态编码，对应返回体 status',
-  status_name VARCHAR(100) COMMENT '状态名称，对应返回体 statusName',
-  listing_level VARCHAR(100) COMMENT 'Listing 层级，对应返回体 listingLevel',
-  listing_state VARCHAR(100) COMMENT 'Listing 状态，对应返回体 listingState',
-  assembly VARCHAR(100) COMMENT '组装信息，对应返回体 assembly',
-  unit VARCHAR(20) COMMENT '库存单位，对应返回体 unit',
-  product_delivery_days INT COMMENT '商品交付天数，对应返回体 productDeliveryDays',
-  available_qty DECIMAL(18,2) COMMENT '可用库存，对应返回体 availableQuantity',
-  total_qty DECIMAL(18,2) COMMENT '总库存数量，对应返回体 totalQuantity',
-  in_transit_qty DECIMAL(18,2) COMMENT '在途数量，对应返回体 inTransitQuantity',
-  reserved_qty DECIMAL(18,2) COMMENT '预留数量，对应返回体 reservedQuantity',
-  unfulfillable_qty DECIMAL(18,2) COMMENT '不可履约数量，对应返回体 unfulfillableQuantity',
-  single_quantity DECIMAL(18,2) COMMENT '单件数量，对应返回体 singleQuantity',
-  units_ordered_7_days DECIMAL(18,2) COMMENT '近 7 天销量，对应返回体 unitsOrdered7Days',
-  units_ordered_15_days DECIMAL(18,2) COMMENT '近 15 天销量，对应返回体 unitsOrdered15Days',
-  units_ordered_30_days DECIMAL(18,2) COMMENT '近 30 天销量，对应返回体 unitsOrdered30Days',
-  units_ordered_60_days DECIMAL(18,2) COMMENT '近 60 天销量，对应返回体 unitsOrdered60Days',
-  units_ordered_90_days DECIMAL(18,2) COMMENT '近 90 天销量，对应返回体 unitsOrdered90Days',
-  avg_units_ordered_7_days DECIMAL(18,4) COMMENT '近 7 天平均销量，对应返回体 avgUnitsOrdered7Days',
-  avg_units_ordered_15_days DECIMAL(18,4) COMMENT '近 15 天平均销量，对应返回体 avgUnitsOrdered15Days',
-  avg_units_ordered_30_days DECIMAL(18,4) COMMENT '近 30 天平均销量，对应返回体 avgUnitsOrdered30Days',
-  avg_units_ordered_60_days DECIMAL(18,4) COMMENT '近 60 天平均销量，对应返回体 avgUnitsOrdered60Days',
-  avg_units_ordered_90_days DECIMAL(18,4) COMMENT '近 90 天平均销量，对应返回体 avgUnitsOrdered90Days',
-  historical_units_ordered_7_days DECIMAL(18,2) COMMENT '历史近 7 天销量，对应返回体 historicalUnitsOrdered7Days',
-  historical_units_ordered_30_days DECIMAL(18,2) COMMENT '历史近 30 天销量，对应返回体 historicalUnitsOrdered30Days',
-  historical_7_days_detail_json STRING COMMENT '历史近 7 天明细，对应返回体 historical7DaysDetailList',
-  historical_30_days_detail_json STRING COMMENT '历史近 30 天明细，对应返回体 historical30DaysDetailList',
-  platform_create_time DATETIME COMMENT '平台创建时间，对应返回体 createTime',
-  last_update_time DATETIME COMMENT '最后更新时间，对应返回体 updateTime',
-  insert_time DATETIME COMMENT '入仓时间'
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_tiktok_fbt_stock_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, record_id, fbt_id, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_tiktok_fbt_stock_df
+-- 说明: TikTok FBT 库存自定义导出日全量 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_tiktok_fbt_stock_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD',
+    record_id                            BIGINT             COMMENT '源记录 ID，对应返回体 id',
+    fbt_id                               VARCHAR(100)       COMMENT 'FBT 记录 ID，对应返回体 fbtId',
+    sku                                  VARCHAR(100)       COMMENT 'SKU，对应返回体 sku',
+    warehouse_id                         BIGINT             COMMENT '店铺仓库 ID，对应返回体 warehouseId',
+    warehouse_name                       VARCHAR(200)       COMMENT '店铺仓库名称，对应返回体 warehouseName',
+    fbt_warehouse_id                     VARCHAR(100)       COMMENT 'FBT 仓库 ID，对应返回体 fbtWarehouseId',
+    fbt_warehouse_name                   VARCHAR(200)       COMMENT 'FBT 仓库名称，对应返回体 fbtWarehouseName',
+    fulfillment_channel                  VARCHAR(50)        COMMENT '履约渠道编码，对应返回体 fulfillmentChannel',
+    fulfillment_channel_name             VARCHAR(100)       COMMENT '履约渠道名称，对应返回体 fulfillmentChannelName',
+    reference_code                       VARCHAR(100)       COMMENT '参考编码，对应返回体 referenceCode',
+    goods_sku                            VARCHAR(100)       COMMENT '货品 SKU，对应返回体 goodsSku',
+    spu                                  VARCHAR(100)       COMMENT 'SPU，对应返回体 spu',
+    spu_name                             VARCHAR(500)       COMMENT 'SPU 名称，对应返回体 spuName',
+    product_name                         VARCHAR(500)       COMMENT '商品名称，对应返回体 productName',
+    goods_name                           VARCHAR(1000)      COMMENT '货品名称，对应返回体 goodsName',
+    product_image_url                    VARCHAR(1000)      COMMENT '商品图片 URL，对应返回体 productImageUrl',
+    brand_name                           VARCHAR(200)       COMMENT '品牌名称，对应返回体 brandName',
+    category_name                        VARCHAR(200)       COMMENT '类目名称，对应返回体 categoryName',
+    product_manager_account              VARCHAR(100)       COMMENT '商品负责人账号，对应返回体 productManagerAccount',
+    selling_manager_name_list            VARCHAR(1000)      COMMENT '销售负责人列表，对应返回体 sellingManagerNameList',
+    product_status_name                  VARCHAR(100)       COMMENT '商品状态名称，对应返回体 productStatusName',
+    product_type_name                    VARCHAR(100)       COMMENT '商品类型名称，对应返回体 productTypeName',
+    status_code                          INT                COMMENT '状态编码，对应返回体 status',
+    status_name                          VARCHAR(100)       COMMENT '状态名称，对应返回体 statusName',
+    listing_level                        VARCHAR(100)       COMMENT 'Listing 层级，对应返回体 listingLevel',
+    listing_state                        VARCHAR(100)       COMMENT 'Listing 状态，对应返回体 listingState',
+    assembly                             VARCHAR(100)       COMMENT '组装信息，对应返回体 assembly',
+    unit                                 VARCHAR(20)        COMMENT '库存单位，对应返回体 unit',
+    product_delivery_days                INT                COMMENT '商品交付天数，对应返回体 productDeliveryDays',
+    available_qty                        DECIMAL(18,2)      COMMENT '可用库存，对应返回体 availableQuantity',
+    total_qty                            DECIMAL(18,2)      COMMENT '总库存数量，对应返回体 totalQuantity',
+    in_transit_qty                       DECIMAL(18,2)      COMMENT '在途数量，对应返回体 inTransitQuantity',
+    reserved_qty                         DECIMAL(18,2)      COMMENT '预留数量，对应返回体 reservedQuantity',
+    unfulfillable_qty                    DECIMAL(18,2)      COMMENT '不可履约数量，对应返回体 unfulfillableQuantity',
+    single_quantity                      DECIMAL(18,2)      COMMENT '单件数量，对应返回体 singleQuantity',
+    units_ordered_7_days                 DECIMAL(18,2)      COMMENT '近 7 天销量，对应返回体 unitsOrdered7Days',
+    units_ordered_15_days                DECIMAL(18,2)      COMMENT '近 15 天销量，对应返回体 unitsOrdered15Days',
+    units_ordered_30_days                DECIMAL(18,2)      COMMENT '近 30 天销量，对应返回体 unitsOrdered30Days',
+    units_ordered_60_days                DECIMAL(18,2)      COMMENT '近 60 天销量，对应返回体 unitsOrdered60Days',
+    units_ordered_90_days                DECIMAL(18,2)      COMMENT '近 90 天销量，对应返回体 unitsOrdered90Days',
+    avg_units_ordered_7_days             DECIMAL(18,4)      COMMENT '近 7 天平均销量，对应返回体 avgUnitsOrdered7Days',
+    avg_units_ordered_15_days            DECIMAL(18,4)      COMMENT '近 15 天平均销量，对应返回体 avgUnitsOrdered15Days',
+    avg_units_ordered_30_days            DECIMAL(18,4)      COMMENT '近 30 天平均销量，对应返回体 avgUnitsOrdered30Days',
+    avg_units_ordered_60_days            DECIMAL(18,4)      COMMENT '近 60 天平均销量，对应返回体 avgUnitsOrdered60Days',
+    avg_units_ordered_90_days            DECIMAL(18,4)      COMMENT '近 90 天平均销量，对应返回体 avgUnitsOrdered90Days',
+    historical_units_ordered_7_days      DECIMAL(18,2)      COMMENT '历史近 7 天销量，对应返回体 historicalUnitsOrdered7Days',
+    historical_units_ordered_30_days     DECIMAL(18,2)      COMMENT '历史近 30 天销量，对应返回体 historicalUnitsOrdered30Days',
+    historical_7_days_detail_json        STRING             COMMENT '历史近 7 天明细，对应返回体 historical7DaysDetailList',
+    historical_30_days_detail_json       STRING             COMMENT '历史近 30 天明细，对应返回体 historical30DaysDetailList',
+    platform_create_time                 DATETIME           COMMENT '平台创建时间，对应返回体 createTime',
+    last_update_time                     DATETIME           COMMENT '最后更新时间，对应返回体 updateTime',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, record_id, fbt_id, sku)
+COMMENT 'TikTok FBT 库存自定义导出日全量 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
 )
-ENGINE=OLAP
-UNIQUE KEY(smt, sdt, warehouse_id, fbt_warehouse_id, sku)
-DISTRIBUTED BY HASH(sku) BUCKETS 10
+DISTRIBUTED BY HASH(sku) BUCKETS 16
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p>字段命名按统一规范处理：库存数量统一使用 <code>*_qty</code>，状态字段统一拆成 <code>status_code</code> 与 <code>status_name</code>，时间字段统一拆成平台业务时间与系统入仓时间。数组 / 明细列表字段在 ODS 层以 JSON 字符串形式保留原始结构，便于后续按需解析。</p>
 
@@ -481,49 +544,70 @@ PROPERTIES (
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, platform_code, market_id, site_code, asin, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_multi_platform_sales_performance_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD；销售表现同步时取当前时间前 2 天作为基准日',
-  platform_code VARCHAR(50) COMMENT '平台编码，对应返回体 platformCode',
-  market_id VARCHAR(50) COMMENT '店铺 / 市场 ID，对应返回体 marketId',
-  site_code VARCHAR(20) COMMENT '站点代码，可由 marketId 或业务映射补充',
-  asin VARCHAR(1000) COMMENT 'ASIN 列表，对应返回体 asin',
-  sku VARCHAR(100) COMMENT 'SKU',
-  unique_value VARCHAR(200) COMMENT '唯一标识，对应返回体 uniqueValue',
-  platform_name VARCHAR(100) COMMENT '平台名称，对应返回体 platformName',
-  market_name VARCHAR(200) COMMENT '店铺 / 市场名称，对应返回体 marketName',
-  site_name VARCHAR(100) COMMENT '站点名称，可由 marketName 或业务映射补充',
-  store_id VARCHAR(100) COMMENT '店铺 ID，标准化后字段，可由 marketId 映射',
-  store_name VARCHAR(200) COMMENT '店铺名称，标准化后字段，可由 marketName 映射',
-  brand_name VARCHAR(200) COMMENT '品牌，对应返回体 brand',
-  category_name VARCHAR(200) COMMENT '类目，对应返回体 category',
-  crawl_title VARCHAR(2000) COMMENT '抓取标题，对应返回体 crawlTitle',
-  img_url VARCHAR(1000) COMMENT '图片地址，对应返回体 imgUrl',
-  listing_level VARCHAR(100) COMMENT 'Listing层级，对应返回体 listingLevel',
-  listing_state VARCHAR(100) COMMENT 'Listing状态，对应返回体 listingState',
-  spu VARCHAR(100) COMMENT 'SPU',
-  spu_name VARCHAR(500) COMMENT 'SPU名称，对应返回体 spuName',
-  msku VARCHAR(100) COMMENT 'MSKU，对应返回体 msku',
-  product_name VARCHAR(500) COMMENT '商品名称，对应返回体 productName',
-  product_attribute_name VARCHAR(500) COMMENT '商品属性名称，对应返回体 productAttributeName',
-  product_manager_name VARCHAR(100) COMMENT '产品负责人，对应返回体 productManagerName',
-  selling_manager_name VARCHAR(100) COMMENT '销售负责人，对应返回体 sellingManagerName',
-  currency_code VARCHAR(20) COMMENT '币种编码，对应返回体 currency',
-  currency_symbol VARCHAR(20) COMMENT '币种符号，对应返回体 currencySymbol',
-  avg_price DECIMAL(18,2) COMMENT '均价，对应返回体 avgPrice',
-  sale_price DECIMAL(18,2) COMMENT '售价，对应返回体 salePrice',
-  units_ordered DECIMAL(18,2) COMMENT '销量件数，对应返回体 unitsOrdered',
-  orders BIGINT COMMENT '订单数，对应返回体 orders',
-  order_product_sales_amount DECIMAL(18,2) COMMENT '商品销售额，对应返回体 orderProductSales',
-  insert_time DATETIME COMMENT '入仓时间'
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_multi_platform_sales_performance_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, platform_code, market_id, store_id, spu, sku</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_multi_platform_sales_performance_df
+-- 说明: 多平台销售表现日全量 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_multi_platform_sales_performance_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD；销售表现同步时取当前时间前 2 天作为基准日',
+    platform_code                        VARCHAR(50)        COMMENT '平台编码，对应返回体 platformCode',
+    market_id                            VARCHAR(50)        COMMENT '店铺 / 市场 ID，对应返回体 marketId',
+    store_id                             VARCHAR(100)       COMMENT '店铺 ID，标准化后字段，可由 marketId 映射',
+    spu                                  VARCHAR(100)       COMMENT 'SPU',
+    sku                                  VARCHAR(100)       COMMENT 'SKU',
+    unique_value                         VARCHAR(200)       COMMENT '唯一标识，对应返回体 uniqueValue',
+    platform_name                        VARCHAR(100)       COMMENT '平台名称，对应返回体 platformName',
+    market_name                          VARCHAR(200)       COMMENT '店铺 / 市场名称，对应返回体 marketName',
+    site_code                            VARCHAR(20)        COMMENT '站点代码，可由 marketId 或业务映射补充',
+    site_name                            VARCHAR(100)       COMMENT '站点名称，可由 marketName 或业务映射补充',
+    store_name                           VARCHAR(200)       COMMENT '店铺名称，标准化后字段，可由 marketName 映射',
+    asin                                 VARCHAR(1000)      COMMENT 'ASIN 列表，对应返回体 asin',
+    brand_name                           VARCHAR(200)       COMMENT '品牌，对应返回体 brand',
+    category_name                        VARCHAR(200)       COMMENT '类目，对应返回体 category',
+    crawl_title                          VARCHAR(2000)      COMMENT '抓取标题，对应返回体 crawlTitle',
+    img_url                              VARCHAR(1000)      COMMENT '图片地址，对应返回体 imgUrl',
+    listing_level                        VARCHAR(100)       COMMENT 'Listing层级，对应返回体 listingLevel',
+    listing_state                        VARCHAR(100)       COMMENT 'Listing状态，对应返回体 listingState',
+    spu_name                             VARCHAR(500)       COMMENT 'SPU名称，对应返回体 spuName',
+    msku                                 VARCHAR(100)       COMMENT 'MSKU，对应返回体 msku',
+    product_name                         VARCHAR(500)       COMMENT '商品名称，对应返回体 productName',
+    product_attribute_name               VARCHAR(500)       COMMENT '商品属性名称，对应返回体 productAttributeName',
+    product_manager_name                 VARCHAR(100)       COMMENT '产品负责人，对应返回体 productManagerName',
+    selling_manager_name                 VARCHAR(100)       COMMENT '销售负责人，对应返回体 sellingManagerName',
+    currency_code                        VARCHAR(20)        COMMENT '币种编码，对应返回体 currency',
+    currency_symbol                      VARCHAR(20)        COMMENT '币种符号，对应返回体 currencySymbol',
+    avg_price                            DECIMAL(18,2)      COMMENT '均价，对应返回体 avgPrice',
+    sale_price                           DECIMAL(18,2)      COMMENT '售价，对应返回体 salePrice',
+    units_ordered                        DECIMAL(18,2)      COMMENT '销量件数，对应返回体 unitsOrdered',
+    orders                               BIGINT             COMMENT '订单数，对应返回体 orders',
+    order_product_sales_amount           DECIMAL(18,2)      COMMENT '商品销售额，对应返回体 orderProductSales',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, platform_code, market_id, store_id, spu, sku)
+COMMENT '多平台销售表现日全量 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
 )
-ENGINE=OLAP
-UNIQUE KEY(smt, sdt, platform_code, market_id, site_code, asin, sku)
-DISTRIBUTED BY HASH(sku) BUCKETS 10
+DISTRIBUTED BY HASH(sku) BUCKETS 16
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p>该表按源导出业务字段落库，优先保留平台、店铺、商品、销量、金额等原始信息；站点和店铺标准化字段可在 ODS 入仓时同步补齐，也可在 DWD 层通过 <code>market_id / market_name</code> 做统一映射。销售表现同步仅写入业务基准日当天明细。DWD 层可基于每日明细按 <code>sdt</code> 聚合计算过去 7 天 / 30 天日销与加权日销。</p>
 
@@ -564,42 +648,63 @@ PROPERTIES (
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, site_code, store_id, pid, sku_id</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_jijia_pid_warehouse_stock_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD',
-  site_code VARCHAR(20) COMMENT '站点代码',
-  store_id VARCHAR(100) COMMENT '店铺 ID',
-  pid VARCHAR(100) COMMENT '店铺 PID',
-  sku_id VARCHAR(100) COMMENT 'SKU ID',
-  store_name VARCHAR(200) COMMENT '店铺名称',
-  available_qty_us_tk_xiamen_domestic DECIMAL(18,2) COMMENT '美国TK-国内厦门仓 可用库存',
-  available_qty_winit_usky3 DECIMAL(18,2) COMMENT '万邑通:USKY3_Warehouse 可用库存',
-  available_qty_winit_uswc2 DECIMAL(18,2) COMMENT '万邑通:USWC2_Warehouse 可用库存',
-  available_qty_winit_uswc DECIMAL(18,2) COMMENT '万邑通:USWC_Warehouse 可用库存',
-  available_qty_us_est_guchang_west DECIMAL(18,2) COMMENT '美国TK-艾斯特尼-美国谷仓:美西仓库 可用库存',
-  available_qty_us_tk_xiamen_direct DECIMAL(18,2) COMMENT '美国TK-厦门直邮仓 可用库存',
-  available_qty_uk_est_return DECIMAL(18,2) COMMENT '美国TK-艾斯特尼-英国退件仓:英国仓 可用库存',
-  available_qty_winit_uktw DECIMAL(18,2) COMMENT '万邑通:UKTW Warehouse 可用库存',
-  ext_warehouse_01_name VARCHAR(200) COMMENT '预留扩展仓库 01 名称',
-  ext_warehouse_01_available_qty DECIMAL(18,2) COMMENT '预留扩展仓库 01 可用库存',
-  ext_warehouse_02_name VARCHAR(200) COMMENT '预留扩展仓库 02 名称',
-  ext_warehouse_02_available_qty DECIMAL(18,2) COMMENT '预留扩展仓库 02 可用库存',
-  ext_warehouse_03_name VARCHAR(200) COMMENT '预留扩展仓库 03 名称',
-  ext_warehouse_03_available_qty DECIMAL(18,2) COMMENT '预留扩展仓库 03 可用库存',
-  ext_warehouse_04_name VARCHAR(200) COMMENT '预留扩展仓库 04 名称',
-  ext_warehouse_04_available_qty DECIMAL(18,2) COMMENT '预留扩展仓库 04 可用库存',
-  ext_warehouse_05_name VARCHAR(200) COMMENT '预留扩展仓库 05 名称',
-  ext_warehouse_05_available_qty DECIMAL(18,2) COMMENT '预留扩展仓库 05 可用库存',
-  api_request_time DATETIME COMMENT '接口抓取时间',
-  insert_time DATETIME COMMENT '入仓时间'
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_jijia_pid_warehouse_stock_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, store_id, pid, sku_id</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_jijia_pid_warehouse_stock_df
+-- 说明: 积加 API 店铺 PID 仓库库存日全量快照 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_jijia_pid_warehouse_stock_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD',
+    store_id                             VARCHAR(100)       COMMENT '店铺 ID',
+    pid                                  VARCHAR(100)       COMMENT '店铺 PID',
+    sku_id                               VARCHAR(100)       COMMENT 'SKU ID',
+    site_code                            VARCHAR(20)        COMMENT '站点代码',
+    store_name                           VARCHAR(200)       COMMENT '店铺名称',
+    available_qty_us_tk_xiamen_domestic  DECIMAL(18,2)      COMMENT '美国TK-国内厦门仓 可用库存',
+    available_qty_winit_usky3            DECIMAL(18,2)      COMMENT '万邑通:USKY3_Warehouse 可用库存',
+    available_qty_winit_uswc2            DECIMAL(18,2)      COMMENT '万邑通:USWC2_Warehouse 可用库存',
+    available_qty_winit_uswc             DECIMAL(18,2)      COMMENT '万邑通:USWC_Warehouse 可用库存',
+    available_qty_us_est_guchang_west    DECIMAL(18,2)      COMMENT '美国TK-艾斯特尼-美国谷仓:美西仓库 可用库存',
+    available_qty_us_tk_xiamen_direct    DECIMAL(18,2)      COMMENT '美国TK-厦门直邮仓 可用库存',
+    available_qty_uk_est_return          DECIMAL(18,2)      COMMENT '美国TK-艾斯特尼-英国退件仓:英国仓 可用库存',
+    available_qty_winit_uktw             DECIMAL(18,2)      COMMENT '万邑通:UKTW Warehouse 可用库存',
+    ext_warehouse_01_name                VARCHAR(200)       COMMENT '预留扩展仓库 01 名称',
+    ext_warehouse_01_available_qty       DECIMAL(18,2)      COMMENT '预留扩展仓库 01 可用库存',
+    ext_warehouse_02_name                VARCHAR(200)       COMMENT '预留扩展仓库 02 名称',
+    ext_warehouse_02_available_qty       DECIMAL(18,2)      COMMENT '预留扩展仓库 02 可用库存',
+    ext_warehouse_03_name                VARCHAR(200)       COMMENT '预留扩展仓库 03 名称',
+    ext_warehouse_03_available_qty       DECIMAL(18,2)      COMMENT '预留扩展仓库 03 可用库存',
+    ext_warehouse_04_name                VARCHAR(200)       COMMENT '预留扩展仓库 04 名称',
+    ext_warehouse_04_available_qty       DECIMAL(18,2)      COMMENT '预留扩展仓库 04 可用库存',
+    ext_warehouse_05_name                VARCHAR(200)       COMMENT '预留扩展仓库 05 名称',
+    ext_warehouse_05_available_qty       DECIMAL(18,2)      COMMENT '预留扩展仓库 05 可用库存',
+    api_request_time                     DATETIME           COMMENT '接口抓取时间',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_id, pid, sku_id)
+COMMENT '积加 API 店铺 PID 仓库库存日全量快照 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
 )
-ENGINE=OLAP
-UNIQUE KEY(smt, sdt, site_code, store_id, pid, sku_id)
-DISTRIBUTED BY HASH(sku_id) BUCKETS 10
+DISTRIBUTED BY HASH(pid) BUCKETS 16
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p><strong>当前业务关注仓库列表</strong> 已按固定字段平铺：</p>
     <ul>
@@ -631,22 +736,43 @@ PROPERTIES (
       </table>
     </div>
     <p><strong>Doris DDL（Unique Key）</strong></p>
-    <p>以下 DDL 以当前字段清单为准，采用 Doris Unique Key 模型；主键口径为 <code>smt, sdt, warehouse_name, warehouse_code</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中会将业务唯一键字段前置，字段含义仍以本小节字段清单为准。</p>
-    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_inventory_manual_available_warehouse_df (
-  smt INT COMMENT '月分区，YYYYMM',
-  sdt VARCHAR(8) COMMENT '业务日期，YYYYMMDD',
-  warehouse_name VARCHAR(200) COMMENT '仓库名',
-  warehouse_code VARCHAR(100) COMMENT '仓库编码',
-  site_name VARCHAR(100) COMMENT '所属站点名称',
-  raw_file_name VARCHAR(200) COMMENT '原始导入文件名',
-  insert_time DATETIME COMMENT '入仓时间'
-)
-ENGINE=OLAP
+    <p>以下 DDL 与仓库 <code>ddl/inventory/ods/ods_inventory_manual_available_warehouse_df.sql</code> 保持一致，采用 Doris Unique Key 模型，按 <code>smt</code> 做月分区；主键口径为 <code>smt, sdt, warehouse_name, warehouse_code</code>。因 Doris Unique Key 要求 Key 列位于建表字段前部，DDL 中已将 Key 字段前置，字段含义仍以本小节字段清单为准。</p>
+    <pre><code>-- ========================================
+-- 表名: ods.ods_inventory_manual_available_warehouse_df
+-- 说明: 可用仓库列表手动导入日全量 ODS 表
+-- 数据来源：bi/tkDashboard/库存/技术文档/表结构设计.html
+-- 更新日期：2026-05
+-- ========================================
+
+CREATE TABLE IF NOT EXISTS ods.ods_inventory_manual_available_warehouse_df (
+    smt                                  INT                COMMENT '月分区，YYYYMM',
+    sdt                                  VARCHAR(8)         COMMENT '业务日期，YYYYMMDD',
+    warehouse_name                       VARCHAR(200)       COMMENT '仓库名',
+    warehouse_code                       VARCHAR(100)       COMMENT '仓库编码',
+    site_name                            VARCHAR(100)       COMMENT '所属站点名称',
+    raw_file_name                        VARCHAR(200)       COMMENT '原始导入文件名',
+    insert_time                          DATETIME           DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
 UNIQUE KEY(smt, sdt, warehouse_name, warehouse_code)
+COMMENT '可用仓库列表手动导入日全量 ODS 表'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
+)
 DISTRIBUTED BY HASH(warehouse_name) BUCKETS 4
 PROPERTIES (
-  'replication_num' = '1',
-  'enable_unique_key_merge_on_write' = 'true'
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
     <p><strong>当前业务关注仓库列表</strong></p>
     <ul>

@@ -81,37 +81,110 @@
         <tbody>
           <tr>
             <td>1</td>
-            <td><a class="toc-link" href="#api-products-list">商品列表查询</a></td>
-            <td><code>/openapi/tiktok-content/products</code></td>
+            <td><a class="toc-link" href="#api-tiktok-stores">TK店铺列表</a></td>
+            <td><code>/openapi/tiktok/content/stores</code></td>
             <td><span class="badge get">GET</span></td>
-            <td>按站点、店铺、商品状态、关键词等条件分页查询内容中台商品基础资料。</td>
+            <td>查询可用于商品列表和商品详情入参的 TK 店铺列表。</td>
             <td>tk商品维护</td>
-            <td>TikTok Shop API 同步商品数据</td>
-            <td>用于服务商获取可处理的商品范围；需确认是否返回图片、标题、SPU/SKU、店铺等字段。</td>
+            <td>复用 TK 看板店铺选项：<code>tk/options/stores</code></td>
+            <td>无业务入参；返回 <code>storeName</code> 和 <code>siteCode</code>。</td>
           </tr>
           <tr>
             <td>2</td>
-            <td><a class="toc-link" href="#api-product-detail">商品详情查询</a></td>
-            <td><code>/openapi/tiktok-content/product/detail</code></td>
+            <td><a class="toc-link" href="#api-products-list">商品列表查询</a></td>
+            <td><code>/openapi/tiktok/content/products</code></td>
             <td><span class="badge post">POST</span></td>
-            <td>根据商品 ID 查询单个商品详情，包括商品基础信息、站点店铺信息、状态和内容字段。</td>
+            <td>按店铺、商品状态、创建时间、审核状态等条件分页查询内容中台商品基础资料。</td>
             <td>tk商品维护</td>
-            <td>TikTok Shop API 同步商品数据</td>
-            <td>请求体传入 <code>productId</code> + <code>shopName</code>，避免中文店铺名放在 URL 参数中产生转义问题。</td>
+            <td>DWD 表：<code>dwd.dwd_product_tiktok_product_detail_df</code></td>
+            <td>请求体为 JSON；<code>pageSize</code> 最大 100；列表 SKU 不返回库存明细。</td>
           </tr>
           <tr>
             <td>3</td>
-            <td><a class="toc-link" href="#api-jijia-sku-spu-detail">SKU详情关系（积加）</a></td>
-            <td><code>/openapi/jijia/product/sku-spu/detail</code></td>
+            <td><a class="toc-link" href="#api-product-detail">商品详情查询</a></td>
+            <td><code>/openapi/tiktok/content/product/detail</code></td>
             <td><span class="badge post">POST</span></td>
-            <td>根据 SKU、SPU 或产品 ID 查询积加产品台账中的 SKU 与 SPU 关系及产品基础资料。</td>
+            <td>根据商品 ID 和店铺名称查询单个商品详情，详情 SKU 返回库存明细。</td>
             <td>tk商品维护</td>
-            <td>积加 MySQL：<code>business_ledger_product</code></td>
-            <td>仅提供对外参数说明；对外字段统一使用 camelCase。</td>
+            <td>DWD 表：<code>dwd.dwd_product_tiktok_product_detail_df</code>；SKU、库存等来自 ODS 子表</td>
+            <td>请求体传入 <code>productId</code> + <code>shopName</code>。</td>
           </tr>
+          <tr>
+            <td>4</td>
+            <td><a class="toc-link" href="#api-jijia-sku-spu-detail">SKU详情关系（积加）</a></td>
+            <td><code>/openapi/jijia/product/sku/spu/detail</code></td>
+            <td><span class="badge post">POST</span></td>
+            <td>查询积加 SKU 与 SPU 产品关系，支持按 SKU 或 SPU 精确筛选。</td>
+            <td>tk商品维护</td>
+            <td>ODS 表：<code>ods.ods_product_api_jijia_sku_spu_detail_df</code></td>
+            <td><code>sku</code> 和 <code>spu</code> 均可不传；<code>productId</code> 不作为入参。</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td><a class="toc-link" href="#api-tiktok-product-status-list">TK产品状态列表</a></td>
+            <td><code>/openapi/tiktok/content/product/status/list</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>查询 TK 商品可用状态枚举，供外部服务商筛选或展示。</td>
+            <td>tk商品维护</td>
+            <td>DIM 表：<code>dim.dim_product_tiktok_product_enum_df</code>（<code>enum_type=product_status</code>）</td>
+            <td>查询同一张枚举维表，按 <code>enum_type</code> 区分。</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td><a class="toc-link" href="#api-tiktok-product-audit-status-list">TK产品审核状态列表</a></td>
+            <td><code>/openapi/tiktok/content/product/audit/status/list</code></td>
+            <td><span class="badge get">GET</span></td>
+            <td>查询 TK 商品审核状态枚举，供外部服务商筛选或展示。</td>
+            <td>tk商品维护</td>
+            <td>DIM 表：<code>dim.dim_product_tiktok_product_enum_df</code>（<code>enum_type=audit_status</code>）</td>
+            <td>查询同一张枚举维表，按 <code>enum_type</code> 区分。</td>
+          </tr></tbody>
+      </table>
+    </div>
+
+
+    <h3 id="api-tiktok-stores">3.0 TK店铺列表</h3>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
+    <p>该接口面向外部服务商提供 TK 店铺列表，返回的 <code>storeName</code> 可用于商品列表接口的 <code>storeName</code> 和商品详情接口的 <code>shopName</code>。</p>
+    <p><strong>对外入参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Query</td><td>无</td><td>-</td><td>否</td><td>-</td><td>当前接口无业务入参。</td></tr>
         </tbody>
       </table>
     </div>
+    <p><strong>对外入参示例</strong></p>
+    <pre><code>GET /openapi/tiktok/content/stores</code></pre>
+    <p><strong>对外出参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码，200 表示成功。</td></tr>
+          <tr><td>msg</td><td>string</td><td>响应描述。</td></tr>
+          <tr><td>total</td><td>number</td><td>总数，当前通常为 <code>null</code>。</td></tr>
+          <tr><td>data.stores</td><td>array</td><td>店铺列表。</td></tr>
+          <tr><td>data.stores[].storeName</td><td>string</td><td>店铺名称。</td></tr>
+          <tr><td>data.stores[].siteCode</td><td>string</td><td>站点代码。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外出参示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 200,
+  &quot;msg&quot;: &quot;操作成功&quot;,
+  &quot;total&quot;: null,
+  &quot;data&quot;: {
+    &quot;stores&quot;: [
+      {
+        &quot;storeName&quot;: &quot;美国TK-艾斯特尼-美区跨境1店:US&quot;,
+        &quot;siteCode&quot;: &quot;US&quot;
+      }
+    ]
+  }
+}</code></pre>
 
     <h3 id="api-products-list">3.1 商品列表查询</h3>
     <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
@@ -121,17 +194,29 @@
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数，对应 TikTok 原始字段 <code>page_size</code>；建议默认 20，最大值需由网关或服务端限制。</td></tr>
-          <tr><td>pageNum</td><td>number</td><td>是</td><td><code>1</code></td><td>页码，从 1 开始；对外使用页码分页，内部如需对接 TikTok 游标分页，由服务端负责转换。</td></tr>
-          <tr><td>status</td><td>string</td><td>否</td><td><code>ACTIVATE</code></td><td>商品状态，对应 TikTok 原始字段 <code>status</code>；用于筛选在售、下架等状态商品，枚举值以后续实际接入为准。</td></tr>
-          <tr><td>createTimeGe</td><td>number</td><td>否</td><td><code>1714521600</code></td><td>创建时间起始值，对应 TikTok 原始字段 <code>create_time_ge</code>；Unix 秒级时间戳，表示查询创建时间大于等于该值的商品。</td></tr>
-          <tr><td>createTimeLe</td><td>number</td><td>否</td><td><code>1717199999</code></td><td>创建时间结束值，对应 TikTok 原始字段 <code>create_time_le</code>；Unix 秒级时间戳，表示查询创建时间小于等于该值的商品。</td></tr>
-          <tr><td>auditStatus</td><td>string</td><td>否</td><td><code>AUDITING</code></td><td>审核状态，对应 TikTok 原始字段 <code>audit_status</code>；用于筛选审核中、审核通过、审核失败等商品。</td></tr>
+          <tr><td>storeName</td><td>string</td><td>是</td><td><code>美国TK-艾斯特尼-美区跨境1店:US</code></td><td>店铺站点全名，使用 TK 店铺列表接口返回的 <code>storeName</code>。</td></tr>
+          <tr><td>pageNum</td><td>number</td><td>是</td><td><code>1</code></td><td>页码，从 1 开始；未传时服务端默认 1。</td></tr>
+          <tr><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数；未传时服务端默认 20，最大 100。</td></tr>
+          <tr><td>status</td><td>string</td><td>否</td><td><code>ACTIVATE</code></td><td>商品状态；可从 TK 产品状态列表接口获取枚举。</td></tr>
+          <tr><td>createTimeGe</td><td>number</td><td>否</td><td><code>1714521600</code></td><td>创建时间起始值，Unix 秒级时间戳。</td></tr>
+          <tr><td>createTimeLe</td><td>number</td><td>否</td><td><code>1717199999</code></td><td>创建时间结束值，Unix 秒级时间戳。</td></tr>
+          <tr><td>auditStatus</td><td>string</td><td>否</td><td><code>AUDITING</code></td><td>审核状态；可从 TK 产品审核状态列表接口获取枚举。</td></tr>
         </tbody>
       </table>
     </div>
     <p><strong>对外入参示例</strong></p>
-    <pre><code>GET /openapi/tiktok-content/products?pageNum=1&amp;pageSize=20&amp;status=ACTIVATE&amp;createTimeGe=1714521600&amp;createTimeLe=1717199999&amp;auditStatus=AUDITING</code></pre>
+    <pre><code>POST /openapi/tiktok/content/products
+Content-Type: application/json
+
+{
+  &quot;storeName&quot;: &quot;美国TK-艾斯特尼-美区跨境1店:US&quot;,
+  &quot;pageNum&quot;: 1,
+  &quot;pageSize&quot;: 20,
+  &quot;status&quot;: &quot;ACTIVATE&quot;,
+  &quot;createTimeGe&quot;: 1714521600,
+  &quot;createTimeLe&quot;: 1717199999,
+  &quot;auditStatus&quot;: &quot;AUDITING&quot;
+}</code></pre>
 
     <p><strong>对外出参数</strong></p>
     <p><strong>对外出参示例</strong></p>
@@ -249,7 +334,7 @@
           <tr><td>data.products[].id</td><td>string</td><td>商品 ID。</td></tr>
           <tr><td>data.products[].title</td><td>string</td><td>商品标题。</td></tr>
           <tr><td>data.products[].status</td><td>string</td><td>商品状态。</td></tr>
-          <tr><td>data.products[].skus[]</td><td>list&lt;object&gt;</td><td>商品 SKU 列表，包含 SKU ID、商家 SKU、价格、库存、预售、状态和费用等信息。</td></tr>
+          <tr><td>data.products[].skus[]</td><td>list&lt;object&gt;</td><td>商品 SKU 列表；列表接口不返回 <code>inventory</code> 库存明细，详情接口返回。</td></tr>
           <tr><td>data.products[].salesRegions[]</td><td>list&lt;string&gt;</td><td>商品销售区域。</td></tr>
           <tr><td>data.products[].createTime</td><td>number</td><td>商品创建时间，Unix 时间戳。</td></tr>
           <tr><td>data.products[].updateTime</td><td>number</td><td>商品更新时间，Unix 时间戳。</td></tr>
@@ -427,17 +512,17 @@
       <table>
         <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>Body</td><td>shopName</td><td>string</td><td>是</td><td><code>美国TK-艾斯特尼-美区跨境1店</code></td><td>店铺名称，用于内部匹配店铺授权、店铺密文和访问令牌。</td></tr>
+          <tr><td>Body</td><td>shopName</td><td>string</td><td>是</td><td><code>美国TK-艾斯特尼-美区跨境1店:US</code></td><td>店铺名称，使用 TK 店铺列表接口返回的 <code>storeName</code>。</td></tr>
           <tr><td>Body</td><td>productId</td><td>string</td><td>是</td><td><code>1729592969712207008</code></td><td>TikTok 商品 ID，对应内部第三方路径参数 <code>product_id</code>。</td></tr>
         </tbody>
       </table>
     </div>
     <p><strong>对外入参示例</strong></p>
-    <pre><code>POST /openapi/tiktok-content/product/detail
+    <pre><code>POST /openapi/tiktok/content/product/detail
 Content-Type: application/json
 
 {
-  "shopName": "美国TK-艾斯特尼-美区跨境1店",
+  "shopName": "美国TK-艾斯特尼-美区跨境1店:US",
   "productId": "1729592969712207008"
 }</code></pre>
     <p><strong>对外出参数</strong></p>
@@ -503,14 +588,6 @@ Content-Type: application/json
           &quot;currency&quot;: &quot;USD&quot;,
           &quot;unitPrice&quot;: &quot;1&quot;
         },
-        &quot;inventory&quot;: [
-          {
-            &quot;warehouseId&quot;: &quot;6966568648651605766&quot;,
-            &quot;quantity&quot;: 999,
-            &quot;backorderQuantity&quot;: 888,
-            &quot;handlingTime&quot;: 5
-          }
-        ],
         &quot;identifierCode&quot;: {
           &quot;code&quot;: &quot;10000000000010&quot;,
           &quot;type&quot;: &quot;GTIN&quot;
@@ -1713,22 +1790,21 @@ CREATE TABLE `tiktok_product_subscribe_discount` (
       <table>
         <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>Body</td><td>sku</td><td>string</td><td>否</td><td><code>Color-Red-XM01</code></td><td>SKU；与 <code>spu</code>、<code>productId</code> 至少传一个。</td></tr>
-          <tr><td>Body</td><td>spu</td><td>string</td><td>否</td><td><code>SPU-001</code></td><td>SPU；用于查询同一 SPU 下的 SKU 关系记录。</td></tr>
-          <tr><td>Body</td><td>productId</td><td>number</td><td>否</td><td><code>26668</code></td><td>积加产品 ID，对应 <code>business_ledger_product.product_id</code>。</td></tr>
+          <tr><td>Body</td><td>sku</td><td>string</td><td>否</td><td><code>Color-Red-XM01</code></td><td>SKU；可不传，传入时按 SKU 精确查询。</td></tr>
+          <tr><td>Body</td><td>spu</td><td>string</td><td>否</td><td><code>SPU-001</code></td><td>SPU；可不传，传入时按 SPU 精确查询。</td></tr>
           <tr><td>Body</td><td>pageNum</td><td>number</td><td>是</td><td><code>1</code></td><td>页码，从 1 开始。</td></tr>
-          <tr><td>Body</td><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数，建议默认 20，最大值由网关或服务端限制。</td></tr>
+          <tr><td>Body</td><td>pageSize</td><td>number</td><td>是</td><td><code>20</code></td><td>每页条数；未传时服务端默认 20，最大 100。</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="note"><code>sku</code> 和 <code>spu</code> 可以同时不传；都不传时按最新分区分页返回数据。</p>
     <p><strong>对外入参示例</strong></p>
-    <pre><code>POST /openapi/jijia/product/sku-spu/detail
+    <pre><code>POST /openapi/jijia/product/sku/spu/detail
 Content-Type: application/json
 
 {
   &quot;sku&quot;: &quot;Color-Red-XM01&quot;,
   &quot;spu&quot;: &quot;SPU-001&quot;,
-  &quot;productId&quot;: 26668,
   &quot;pageNum&quot;: 1,
   &quot;pageSize&quot;: 20
 }</code></pre>
@@ -1959,6 +2035,112 @@ Content-Type: application/json
   KEY `idx_bl_prod_del_ctime` (`del_flag`,`create_time`),
   KEY `idx_bl_prod_del_sku_pid` (`del_flag`,`sku`,`product_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=26669 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT=&#x27;台账产品表）&#x27;;</code></pre>
+
+    <h3 id="api-tiktok-product-status-list">3.4 TK产品状态列表</h3>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
+    <p>该接口用于向外部服务商提供 TK 商品状态枚举。接口查询 <code>dim.dim_product_tiktok_product_enum_df</code>，固定过滤 <code>enum_type=product_status</code>，返回业务对象保留 <code>code</code> 和中文名 <code>name</code>。</p>
+    <p><strong>对外入参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Query</td><td>无</td><td>-</td><td>否</td><td>-</td><td>当前接口无业务入参。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外入参示例</strong></p>
+    <pre><code>GET /openapi/tiktok/content/product/status/list</code></pre>
+    <p><strong>对外出参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码，0 表示成功。</td></tr>
+          <tr><td>message</td><td>string</td><td>响应描述。</td></tr>
+          <tr><td>traceId</td><td>string</td><td>请求链路追踪 ID。</td></tr>
+          <tr><td>data</td><td>array</td><td>商品状态枚举列表。</td></tr>
+          <tr><td>data[].code</td><td>string</td><td>状态编码，对外传参与返回统一使用该编码。</td></tr>
+          <tr><td>data[].name</td><td>string</td><td>状态中文名。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外出参示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;traceId&quot;: &quot;202605201500000001&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;code&quot;: &quot;ALL&quot;,
+      &quot;name&quot;: &quot;全部&quot;
+    },
+    {
+      &quot;code&quot;: &quot;ACTIVATE&quot;,
+      &quot;name&quot;: &quot;生效&quot;
+    },
+    {
+      &quot;code&quot;: &quot;SELLER_DEACTIVATED&quot;,
+      &quot;name&quot;: &quot;商家下架&quot;
+    },
+    {
+      &quot;code&quot;: &quot;PLATFORM_DEACTIVATED&quot;,
+      &quot;name&quot;: &quot;平台下架&quot;
+    },
+    {
+      &quot;code&quot;: &quot;DRAFT&quot;,
+      &quot;name&quot;: &quot;草稿&quot;
+    }
+  ]
+}</code></pre>
+
+    <h3 id="api-tiktok-product-audit-status-list">3.5 TK产品审核状态列表</h3>
+    <p><strong>模块一：对外参数说明（外部服务商使用）</strong></p>
+    <p>该接口用于向外部服务商提供 TK 商品审核状态枚举。接口查询 <code>dim.dim_product_tiktok_product_enum_df</code>，固定过滤 <code>enum_type=audit_status</code>，返回业务对象保留 <code>code</code> 和中文名 <code>name</code>。</p>
+    <p><strong>对外入参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数位置</th><th>参数</th><th>类型</th><th>必填</th><th>示例</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Query</td><td>无</td><td>-</td><td>否</td><td>-</td><td>当前接口无业务入参。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外入参示例</strong></p>
+    <pre><code>GET /openapi/tiktok/content/product/audit/status/list</code></pre>
+    <p><strong>对外出参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>code</td><td>number</td><td>响应码，0 表示成功。</td></tr>
+          <tr><td>message</td><td>string</td><td>响应描述。</td></tr>
+          <tr><td>traceId</td><td>string</td><td>请求链路追踪 ID。</td></tr>
+          <tr><td>data</td><td>array</td><td>商品审核状态枚举列表。</td></tr>
+          <tr><td>data[].code</td><td>string</td><td>审核状态编码，对外传参与返回统一使用该编码。</td></tr>
+          <tr><td>data[].name</td><td>string</td><td>审核状态中文名。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>对外出参示例</strong></p>
+    <pre><code>{
+  &quot;code&quot;: 0,
+  &quot;message&quot;: &quot;success&quot;,
+  &quot;traceId&quot;: &quot;202605201500000002&quot;,
+  &quot;data&quot;: [
+    {
+      &quot;code&quot;: &quot;AUDITING&quot;,
+      &quot;name&quot;: &quot;审核中&quot;
+    },
+    {
+      &quot;code&quot;: &quot;FAILED&quot;,
+      &quot;name&quot;: &quot;审核失败&quot;
+    },
+    {
+      &quot;code&quot;: &quot;APPROVED&quot;,
+      &quot;name&quot;: &quot;审核通过&quot;
+    }
+  ]
+}</code></pre>
     <h2>四、通用接入要求</h2>
     <h3>4.1 鉴权与安全</h3>
     <ul>
