@@ -90,6 +90,7 @@
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-video-di">ods_traffic_file_tiktok_product_video_di</a></td><td>TikTok 商品数据分析-商家视频</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-card-di">ods_traffic_file_tiktok_product_card_di</a></td><td>TikTok 商品数据分析-商家商品卡</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-affiliate-di">ods_traffic_file_tiktok_product_affiliate_di</a></td><td>TikTok 商品数据分析-联盟</td><td>PID 需求二 数据看板，tk后台excel 1拆5</td></tr>
+          <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-product-analysis-all-module-di">ods_traffic_file_tiktok_product_analysis_all_module_di</a></td><td>TikTok 商品数据分析 product_list 全模块合并导出</td><td>PID 需求二 数据看板，1-3 全模块合并 Excel</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-marketing-file-tiktok-campaign-di">ods_marketing_file_tiktok_campaign_di</a></td><td>TikTok 广告推广（Product campaign data）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-traffic-file-tiktok-video-performance-di">ods_traffic_file_tiktok_video_performance_di</a></td><td>TikTok 视频表现（Video Performance List）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ods">ODS</span></td><td><a href="#tbl-ods-platform-file-tiktok-account-df">ods_platform_file_tiktok_account_df</a></td><td>TikTok 账号信息（达人列表）</td><td>PID 需求二 挂车量区分</td></tr>
@@ -1764,6 +1765,399 @@ PROPERTIES (
 
     <hr />
 
+    <h3 id="tbl-ods-traffic-file-tiktok-product-analysis-all-module-di">3.15 ods_traffic_file_tiktok_product_analysis_all_module_di</h3>
+    <p>TikTok 商品数据分析 product_list 全模块合并导出 ODS 表。对应文件 <code>bi/tkDashboard/销售/PID/docs/1-3/product_list_20260516 (1).xlsx</code>，<strong>第 3 行为模块名</strong>，<strong>第 4 行为模块内字段名</strong>，第 5 行起为数据；第 3 行为空的列作为公用字段。该表用于承接“全部、商家直播、商家视频、联盟、商家商品卡”所有模块合并在同一个 Excel 的数据分析文件，字段说明保留 Excel 原始列号，便于回溯。命名依据参考 Doris 分层与字段命名规范：ODS 表名使用 <code>ods_{业务域}_{数据源}_{表名}_{数据增长类型}</code>，底表字段使用小写下划线。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区 YYYYMM，由数据分析日期或落库日期派生</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>日期分区 YYYYMMDD，由数据分析日期或落库日期派生</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(200)</td><td>店铺名称（文件外补充）</td></tr>
+          <tr><td>product_name</td><td>STRING</td><td>公用字段 - 商品名（Excel列 A，第3行：公用字段，第4行：商品名）</td></tr>
+          <tr><td>product_id</td><td>VARCHAR(200)</td><td>公用字段 - 商品 ID（Excel列 B，第3行：公用字段，第4行：商品 ID）</td></tr>
+          <tr><td>gmv_range</td><td>VARCHAR(200)</td><td>公用字段 - GMV 区间（Excel列 C，第3行：公用字段，第4行：GMV 区间）</td></tr>
+          <tr><td>product_status</td><td>VARCHAR(64)</td><td>公用字段 - 发品状态（Excel列 D，第3行：公用字段，第4行：发品状态）</td></tr>
+          <tr><td>all_gmv</td><td>DECIMAL(20,4)</td><td>全部 - GMV（Excel列 E，第3行：全部，第4行：GMV）</td></tr>
+          <tr><td>all_merchant_live_attributed_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家直播归因 GMV（Excel列 F，第3行：全部，第4行：商家直播归因 GMV）</td></tr>
+          <tr><td>all_merchant_live_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家直播 GMV（Excel列 G，第3行：全部，第4行：商家直播 GMV）</td></tr>
+          <tr><td>all_merchant_live_indirect_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家直播间接 GMV（Excel列 H，第3行：全部，第4行：商家直播间接 GMV）</td></tr>
+          <tr><td>all_merchant_video_attributed_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家视频归因 GMV（Excel列 I，第3行：全部，第4行：商家视频归因 GMV）</td></tr>
+          <tr><td>all_merchant_video_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家视频 GMV（Excel列 J，第3行：全部，第4行：商家视频 GMV）</td></tr>
+          <tr><td>all_merchant_video_indirect_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家视频间接 GMV（Excel列 K，第3行：全部，第4行：商家视频间接 GMV）</td></tr>
+          <tr><td>all_creator_attributed_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 达人归因 GMV（Excel列 L，第3行：全部，第4行：达人归因 GMV）</td></tr>
+          <tr><td>all_creator_live_attributed_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 达人直播归因 GMV（Excel列 M，第3行：全部，第4行：达人直播归因 GMV）</td></tr>
+          <tr><td>all_affiliate_live_product_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 联盟直播商品交易总额（Excel列 N，第3行：全部，第4行：联盟直播商品交易总额）</td></tr>
+          <tr><td>all_creator_live_indirect_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 达人直播间接 GMV（Excel列 O，第3行：全部，第4行：达人直播间接 GMV）</td></tr>
+          <tr><td>all_affiliate_video_attributed_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 联盟视频归因 GMV（Excel列 P，第3行：全部，第4行：联盟视频归因 GMV）</td></tr>
+          <tr><td>all_affiliate_video_product_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 联盟视频商品交易总额（Excel列 Q，第3行：全部，第4行：联盟视频商品交易总额）</td></tr>
+          <tr><td>all_creator_video_indirect_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 达人视频间接 GMV（Excel列 R，第3行：全部，第4行：达人视频间接 GMV）</td></tr>
+          <tr><td>all_merchant_product_card_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商家商品卡 GMV（Excel列 S，第3行：全部，第4行：商家商品卡 GMV）</td></tr>
+          <tr><td>all_order_count</td><td>BIGINT</td><td>全部 - 订单数（Excel列 T，第3行：全部，第4行：订单数）</td></tr>
+          <tr><td>all_sku_order_count</td><td>BIGINT</td><td>全部 - SKU 订单数（Excel列 U，第3行：全部，第4行：SKU 订单数）</td></tr>
+          <tr><td>all_sold_quantity</td><td>BIGINT</td><td>全部 - 商品成交件数（Excel列 V，第3行：全部，第4行：商品成交件数）</td></tr>
+          <tr><td>all_estimated_customer_count</td><td>BIGINT</td><td>全部 - 预计客户数（Excel列 W，第3行：全部，第4行：预计客户数）</td></tr>
+          <tr><td>all_avg_order_amount_sku_order</td><td>DECIMAL(20,4)</td><td>全部 - 平均订单金额（SKU 订单）（Excel列 X，第3行：全部，第4行：平均订单金额（SKU 订单））</td></tr>
+          <tr><td>all_exposure_count</td><td>BIGINT</td><td>全部 - 商品曝光次数（Excel列 Y，第3行：全部，第4行：商品曝光次数）</td></tr>
+          <tr><td>all_click_count</td><td>BIGINT</td><td>全部 - 商品点击量（Excel列 Z，第3行：全部，第4行：商品点击量）</td></tr>
+          <tr><td>all_click_rate</td><td>DECIMAL(10,4)</td><td>全部 - 商品点击率（Excel列 AA，第3行：全部，第4行：商品点击率）</td></tr>
+          <tr><td>all_add_to_cart_count</td><td>BIGINT</td><td>全部 - 加购次数（Excel列 AB，第3行：全部，第4行：加购次数）</td></tr>
+          <tr><td>all_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>全部 - 加购率（Excel列 AC，第3行：全部，第4行：加购率）</td></tr>
+          <tr><td>all_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>全部 - CTOR（SKU 订单）（Excel列 AD，第3行：全部，第4行：CTOR（SKU 订单））</td></tr>
+          <tr><td>all_dedup_exposure_count</td><td>BIGINT</td><td>全部 - 去重商品曝光次数（Excel列 AE，第3行：全部，第4行：去重商品曝光次数）</td></tr>
+          <tr><td>all_dedup_click_count</td><td>BIGINT</td><td>全部 - 去重点击次数（Excel列 AF，第3行：全部，第4行：去重点击次数）</td></tr>
+          <tr><td>all_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>全部 - 去重点击率（Excel列 AG，第3行：全部，第4行：去重点击率）</td></tr>
+          <tr><td>all_added_to_cart_user_count</td><td>BIGINT</td><td>全部 - 已加购的用户数（Excel列 AH，第3行：全部，第4行：已加购的用户数）</td></tr>
+          <tr><td>all_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>全部 - 去重加购率（Excel列 AI，第3行：全部，第4行：去重加购率）</td></tr>
+          <tr><td>all_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>全部 - 去重点击成交转化率（SKU 订单）（Excel列 AJ，第3行：全部，第4行：去重点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>all_gmv_with_tax</td><td>DECIMAL(20,4)</td><td>全部 - 含税 GMV（Excel列 AK，第3行：全部，第4行：含税 GMV）</td></tr>
+          <tr><td>all_tax_amount</td><td>DECIMAL(20,4)</td><td>全部 - 税费（Excel列 AL，第3行：全部，第4行：税费）</td></tr>
+          <tr><td>all_tiktok_joint_venture_gmv</td><td>DECIMAL(20,4)</td><td>全部 - GMV（TikTok 合资）（Excel列 AM，第3行：全部，第4行：GMV（TikTok 合资））</td></tr>
+          <tr><td>all_shipping_fee</td><td>DECIMAL(20,4)</td><td>全部 - 运费（Excel列 AN，第3行：全部，第4行：运费）</td></tr>
+          <tr><td>all_refund_amount</td><td>DECIMAL(20,4)</td><td>全部 - 退款金额（Excel列 AO，第3行：全部，第4行：退款金额）</td></tr>
+          <tr><td>all_refunded_item_quantity</td><td>BIGINT</td><td>全部 - 已退款的商品件数（Excel列 AP，第3行：全部，第4行：已退款的商品件数）</td></tr>
+          <tr><td>all_refund_customer_count</td><td>BIGINT</td><td>全部 - 退款客户数（Excel列 AQ，第3行：全部，第4行：退款客户数）</td></tr>
+          <tr><td>all_mall_exposure_count</td><td>BIGINT</td><td>全部 - 商城页商品曝光次数（Excel列 AR，第3行：全部，第4行：商城页商品曝光次数）</td></tr>
+          <tr><td>all_mall_click_count</td><td>BIGINT</td><td>全部 - 商城页商品点击量（Excel列 AS，第3行：全部，第4行：商城页商品点击量）</td></tr>
+          <tr><td>all_mall_dedup_click_count</td><td>BIGINT</td><td>全部 - 商城页去重商品点击量（Excel列 AT，第3行：全部，第4行：商城页去重商品点击量）</td></tr>
+          <tr><td>all_mall_estimated_customer_count</td><td>BIGINT</td><td>全部 - 预计商城页客户数（Excel列 AU，第3行：全部，第4行：预计商城页客户数）</td></tr>
+          <tr><td>all_mall_click_rate</td><td>DECIMAL(10,4)</td><td>全部 - 商城页点击率（Excel列 AV，第3行：全部，第4行：商城页点击率）</td></tr>
+          <tr><td>all_mall_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>全部 - 商城页点击成交转化率（SKU 订单）（Excel列 AW，第3行：全部，第4行：商城页点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>all_mall_gmv</td><td>DECIMAL(20,4)</td><td>全部 - 商城页 GMV（Excel列 AX，第3行：全部，第4行：商城页 GMV）</td></tr>
+          <tr><td>all_mall_sold_quantity</td><td>BIGINT</td><td>全部 - 商城页商品成交件数（Excel列 AY，第3行：全部，第4行：商城页商品成交件数）</td></tr>
+          <tr><td>merchant_live_attributed_gmv</td><td>DECIMAL(20,4)</td><td>商家直播 - 归因 GMV（Excel列 AZ，第3行：商家直播，第4行：归因 GMV）</td></tr>
+          <tr><td>merchant_live_gmv</td><td>DECIMAL(20,4)</td><td>商家直播 - GMV（Excel列 BA，第3行：商家直播，第4行：GMV）</td></tr>
+          <tr><td>merchant_live_indirect_gmv</td><td>DECIMAL(20,4)</td><td>商家直播 - 间接 GMV（Excel列 BB，第3行：商家直播，第4行：间接 GMV）</td></tr>
+          <tr><td>merchant_live_attributed_order_count</td><td>BIGINT</td><td>商家直播 - 归因订单数（Excel列 BC，第3行：商家直播，第4行：归因订单数）</td></tr>
+          <tr><td>merchant_live_attributed_sku_order_count</td><td>BIGINT</td><td>商家直播 - 归因 SKU 订单数（Excel列 BD，第3行：商家直播，第4行：归因 SKU 订单数）</td></tr>
+          <tr><td>merchant_live_sku_order_count</td><td>BIGINT</td><td>商家直播 - SKU 订单数（Excel列 BE，第3行：商家直播，第4行：SKU 订单数）</td></tr>
+          <tr><td>merchant_live_indirect_sku_order_count</td><td>BIGINT</td><td>商家直播 - 间接 SKU 订单数（Excel列 BF，第3行：商家直播，第4行：间接 SKU 订单数）</td></tr>
+          <tr><td>merchant_live_attributed_sold_quantity</td><td>BIGINT</td><td>商家直播 - 归因成交件数（Excel列 BG，第3行：商家直播，第4行：归因成交件数）</td></tr>
+          <tr><td>merchant_live_sold_quantity</td><td>BIGINT</td><td>商家直播 - 商品成交件数（Excel列 BH，第3行：商家直播，第4行：商品成交件数）</td></tr>
+          <tr><td>merchant_live_indirect_sold_quantity</td><td>BIGINT</td><td>商家直播 - 间接成交件数（Excel列 BI，第3行：商家直播，第4行：间接成交件数）</td></tr>
+          <tr><td>merchant_live_estimated_customer_count</td><td>BIGINT</td><td>商家直播 - 预计客户数（Excel列 BJ，第3行：商家直播，第4行：预计客户数）</td></tr>
+          <tr><td>merchant_live_aov_attributed_sku_order</td><td>DECIMAL(20,4)</td><td>商家直播 - AOV（归因 SKU 订单）（Excel列 BK，第3行：商家直播，第4行：AOV（归因 SKU 订单））</td></tr>
+          <tr><td>merchant_live_new_live_session_count</td><td>BIGINT</td><td>商家直播 - 新直播场次（Excel列 BL，第3行：商家直播，第4行：新直播场次）</td></tr>
+          <tr><td>merchant_live_exposure_count</td><td>BIGINT</td><td>商家直播 - 商品曝光次数（Excel列 BM，第3行：商家直播，第4行：商品曝光次数）</td></tr>
+          <tr><td>merchant_live_click_count</td><td>BIGINT</td><td>商家直播 - 商品点击量（Excel列 BN，第3行：商家直播，第4行：商品点击量）</td></tr>
+          <tr><td>merchant_live_click_rate</td><td>DECIMAL(10,4)</td><td>商家直播 - 商品点击率（Excel列 BO，第3行：商家直播，第4行：商品点击率）</td></tr>
+          <tr><td>merchant_live_add_to_cart_count</td><td>BIGINT</td><td>商家直播 - 加购次数（Excel列 BP，第3行：商家直播，第4行：加购次数）</td></tr>
+          <tr><td>merchant_live_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家直播 - 加购率（Excel列 BQ，第3行：商家直播，第4行：加购率）</td></tr>
+          <tr><td>merchant_live_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>商家直播 - CTOR（SKU 订单）（Excel列 BR，第3行：商家直播，第4行：CTOR（SKU 订单））</td></tr>
+          <tr><td>merchant_live_dedup_exposure_count</td><td>BIGINT</td><td>商家直播 - 去重商品曝光次数（Excel列 BS，第3行：商家直播，第4行：去重商品曝光次数）</td></tr>
+          <tr><td>merchant_live_dedup_click_count</td><td>BIGINT</td><td>商家直播 - 去重点击次数（Excel列 BT，第3行：商家直播，第4行：去重点击次数）</td></tr>
+          <tr><td>merchant_live_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>商家直播 - 去重点击率（Excel列 BU，第3行：商家直播，第4行：去重点击率）</td></tr>
+          <tr><td>merchant_live_added_to_cart_user_count</td><td>BIGINT</td><td>商家直播 - 已加购的用户数（Excel列 BV，第3行：商家直播，第4行：已加购的用户数）</td></tr>
+          <tr><td>merchant_live_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家直播 - 去重加购率（Excel列 BW，第3行：商家直播，第4行：去重加购率）</td></tr>
+          <tr><td>merchant_live_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>商家直播 - 去重点击成交转化率（SKU 订单）（Excel列 BX，第3行：商家直播，第4行：去重点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>merchant_video_attributed_gmv</td><td>DECIMAL(20,4)</td><td>商家视频 - 归因 GMV（Excel列 BY，第3行：商家视频，第4行：归因 GMV）</td></tr>
+          <tr><td>merchant_video_gmv</td><td>DECIMAL(20,4)</td><td>商家视频 - GMV（Excel列 BZ，第3行：商家视频，第4行：GMV）</td></tr>
+          <tr><td>merchant_video_indirect_gmv</td><td>DECIMAL(20,4)</td><td>商家视频 - 间接 GMV（Excel列 CA，第3行：商家视频，第4行：间接 GMV）</td></tr>
+          <tr><td>merchant_video_attributed_order_count</td><td>BIGINT</td><td>商家视频 - 归因订单数（Excel列 CB，第3行：商家视频，第4行：归因订单数）</td></tr>
+          <tr><td>merchant_video_attributed_sku_order_count</td><td>BIGINT</td><td>商家视频 - 归因 SKU 订单数（Excel列 CC，第3行：商家视频，第4行：归因 SKU 订单数）</td></tr>
+          <tr><td>merchant_video_sku_order_count</td><td>BIGINT</td><td>商家视频 - SKU 订单数（Excel列 CD，第3行：商家视频，第4行：SKU 订单数）</td></tr>
+          <tr><td>merchant_video_indirect_sku_order_count</td><td>BIGINT</td><td>商家视频 - 间接 SKU 订单数（Excel列 CE，第3行：商家视频，第4行：间接 SKU 订单数）</td></tr>
+          <tr><td>merchant_video_attributed_sold_quantity</td><td>BIGINT</td><td>商家视频 - 归因成交件数（Excel列 CF，第3行：商家视频，第4行：归因成交件数）</td></tr>
+          <tr><td>merchant_video_sold_quantity</td><td>BIGINT</td><td>商家视频 - 商品成交件数（Excel列 CG，第3行：商家视频，第4行：商品成交件数）</td></tr>
+          <tr><td>merchant_video_indirect_sold_quantity</td><td>BIGINT</td><td>商家视频 - 间接成交件数（Excel列 CH，第3行：商家视频，第4行：间接成交件数）</td></tr>
+          <tr><td>merchant_video_estimated_customer_count</td><td>BIGINT</td><td>商家视频 - 预计客户数（Excel列 CI，第3行：商家视频，第4行：预计客户数）</td></tr>
+          <tr><td>merchant_video_aov_attributed_sku_order</td><td>DECIMAL(20,4)</td><td>商家视频 - AOV（归因 SKU 订单）（Excel列 CJ，第3行：商家视频，第4行：AOV（归因 SKU 订单））</td></tr>
+          <tr><td>merchant_video_new_video_count</td><td>BIGINT</td><td>商家视频 - 新视频数（Excel列 CK，第3行：商家视频，第4行：新视频数）</td></tr>
+          <tr><td>merchant_video_exposure_count</td><td>BIGINT</td><td>商家视频 - 商品曝光次数（Excel列 CL，第3行：商家视频，第4行：商品曝光次数）</td></tr>
+          <tr><td>merchant_video_click_count</td><td>BIGINT</td><td>商家视频 - 商品点击量（Excel列 CM，第3行：商家视频，第4行：商品点击量）</td></tr>
+          <tr><td>merchant_video_click_rate</td><td>DECIMAL(10,4)</td><td>商家视频 - 商品点击率（Excel列 CN，第3行：商家视频，第4行：商品点击率）</td></tr>
+          <tr><td>merchant_video_add_to_cart_count</td><td>BIGINT</td><td>商家视频 - 加购次数（Excel列 CO，第3行：商家视频，第4行：加购次数）</td></tr>
+          <tr><td>merchant_video_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家视频 - 加购率（Excel列 CP，第3行：商家视频，第4行：加购率）</td></tr>
+          <tr><td>merchant_video_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>商家视频 - CTOR（SKU 订单）（Excel列 CQ，第3行：商家视频，第4行：CTOR（SKU 订单））</td></tr>
+          <tr><td>merchant_video_dedup_exposure_count</td><td>BIGINT</td><td>商家视频 - 去重商品曝光次数（Excel列 CR，第3行：商家视频，第4行：去重商品曝光次数）</td></tr>
+          <tr><td>merchant_video_dedup_click_count</td><td>BIGINT</td><td>商家视频 - 去重点击次数（Excel列 CS，第3行：商家视频，第4行：去重点击次数）</td></tr>
+          <tr><td>merchant_video_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>商家视频 - 去重点击率（Excel列 CT，第3行：商家视频，第4行：去重点击率）</td></tr>
+          <tr><td>merchant_video_added_to_cart_user_count</td><td>BIGINT</td><td>商家视频 - 已加购的用户数（Excel列 CU，第3行：商家视频，第4行：已加购的用户数）</td></tr>
+          <tr><td>merchant_video_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家视频 - 去重加购率（Excel列 CV，第3行：商家视频，第4行：去重加购率）</td></tr>
+          <tr><td>merchant_video_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>商家视频 - 去重点击成交转化率（SKU 订单）（Excel列 CW，第3行：商家视频，第4行：去重点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>affiliate_attributed_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 归因 GMV（Excel列 CX，第3行：联盟，第4行：归因 GMV）</td></tr>
+          <tr><td>affiliate_live_attributed_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 直播归因 GMV（Excel列 CY，第3行：联盟，第4行：直播归因 GMV）</td></tr>
+          <tr><td>affiliate_live_product_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 联盟直播商品交易总额（Excel列 CZ，第3行：联盟，第4行：联盟直播商品交易总额）</td></tr>
+          <tr><td>affiliate_creator_live_indirect_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 达人直播间接 GMV（Excel列 DA，第3行：联盟，第4行：达人直播间接 GMV）</td></tr>
+          <tr><td>affiliate_video_attributed_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 视频归因 GMV（Excel列 DB，第3行：联盟，第4行：视频归因 GMV）</td></tr>
+          <tr><td>affiliate_video_product_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 联盟视频商品交易总额（Excel列 DC，第3行：联盟，第4行：联盟视频商品交易总额）</td></tr>
+          <tr><td>affiliate_creator_video_indirect_gmv</td><td>DECIMAL(20,4)</td><td>联盟 - 达人视频间接 GMV（Excel列 DD，第3行：联盟，第4行：达人视频间接 GMV）</td></tr>
+          <tr><td>affiliate_attributed_order_count</td><td>BIGINT</td><td>联盟 - 归因订单数（Excel列 DE，第3行：联盟，第4行：归因订单数）</td></tr>
+          <tr><td>affiliate_attributed_sku_order_count</td><td>BIGINT</td><td>联盟 - 归因 SKU 订单数（Excel列 DF，第3行：联盟，第4行：归因 SKU 订单数）</td></tr>
+          <tr><td>affiliate_attributed_sold_quantity</td><td>BIGINT</td><td>联盟 - 归因成交件数（Excel列 DG，第3行：联盟，第4行：归因成交件数）</td></tr>
+          <tr><td>affiliate_estimated_customer_count</td><td>BIGINT</td><td>联盟 - 预计客户数（Excel列 DH，第3行：联盟，第4行：预计客户数）</td></tr>
+          <tr><td>affiliate_aov_attributed_sku_order</td><td>DECIMAL(20,4)</td><td>联盟 - AOV（归因 SKU 订单）（Excel列 DI，第3行：联盟，第4行：AOV（归因 SKU 订单））</td></tr>
+          <tr><td>affiliate_promoting_creators_metric_name_short_ui</td><td>VARCHAR(200)</td><td>联盟 - promoting_creators_metric_name_short_ui（Excel列 DJ，第3行：联盟，第4行：promoting_creators_metric_name_short_ui）</td></tr>
+          <tr><td>affiliate_new_live_session_count</td><td>BIGINT</td><td>联盟 - 新直播场次（Excel列 DK，第3行：联盟，第4行：新直播场次）</td></tr>
+          <tr><td>affiliate_new_video_count</td><td>BIGINT</td><td>联盟 - 新视频数（Excel列 DL，第3行：联盟，第4行：新视频数）</td></tr>
+          <tr><td>affiliate_exposure_count</td><td>BIGINT</td><td>联盟 - 商品曝光次数（Excel列 DM，第3行：联盟，第4行：商品曝光次数）</td></tr>
+          <tr><td>affiliate_click_count</td><td>BIGINT</td><td>联盟 - 商品点击量（Excel列 DN，第3行：联盟，第4行：商品点击量）</td></tr>
+          <tr><td>affiliate_click_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 商品点击率（Excel列 DO，第3行：联盟，第4行：商品点击率）</td></tr>
+          <tr><td>affiliate_add_to_cart_count</td><td>BIGINT</td><td>联盟 - 加购次数（Excel列 DP，第3行：联盟，第4行：加购次数）</td></tr>
+          <tr><td>affiliate_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 加购率（Excel列 DQ，第3行：联盟，第4行：加购率）</td></tr>
+          <tr><td>affiliate_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>联盟 - CTOR（SKU 订单）（Excel列 DR，第3行：联盟，第4行：CTOR（SKU 订单））</td></tr>
+          <tr><td>affiliate_dedup_exposure_count</td><td>BIGINT</td><td>联盟 - 去重商品曝光次数（Excel列 DS，第3行：联盟，第4行：去重商品曝光次数）</td></tr>
+          <tr><td>affiliate_dedup_click_count</td><td>BIGINT</td><td>联盟 - 去重点击次数（Excel列 DT，第3行：联盟，第4行：去重点击次数）</td></tr>
+          <tr><td>affiliate_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击率（Excel列 DU，第3行：联盟，第4行：去重点击率）</td></tr>
+          <tr><td>affiliate_added_to_cart_user_count</td><td>BIGINT</td><td>联盟 - 已加购的用户数（Excel列 DV，第3行：联盟，第4行：已加购的用户数）</td></tr>
+          <tr><td>affiliate_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重加购率（Excel列 DW，第3行：联盟，第4行：去重加购率）</td></tr>
+          <tr><td>affiliate_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击成交转化率（SKU 订单）（Excel列 DX，第3行：联盟，第4行：去重点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>affiliate_live_exposure_count</td><td>BIGINT</td><td>联盟 - 商品曝光次数（直播）（Excel列 DY，第3行：联盟，第4行：商品曝光次数（直播））</td></tr>
+          <tr><td>affiliate_live_click_count</td><td>BIGINT</td><td>联盟 - 商品点击量（直播）（Excel列 DZ，第3行：联盟，第4行：商品点击量（直播））</td></tr>
+          <tr><td>affiliate_live_ctr</td><td>DECIMAL(10,4)</td><td>联盟 - CTR（直播）（Excel列 EA，第3行：联盟，第4行：CTR（直播））</td></tr>
+          <tr><td>affiliate_live_add_to_cart_count</td><td>BIGINT</td><td>联盟 - 加购次数（直播）（Excel列 EB，第3行：联盟，第4行：加购次数（直播））</td></tr>
+          <tr><td>affiliate_live_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 加购率（直播）（Excel列 EC，第3行：联盟，第4行：加购率（直播））</td></tr>
+          <tr><td>affiliate_live_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>联盟 - CTOR（SKU 订单）（直播）（Excel列 ED，第3行：联盟，第4行：CTOR（SKU 订单）（直播））</td></tr>
+          <tr><td>affiliate_live_dedup_exposure_count</td><td>BIGINT</td><td>联盟 - 去重商品曝光次数（直播）（Excel列 EE，第3行：联盟，第4行：去重商品曝光次数（直播））</td></tr>
+          <tr><td>affiliate_live_dedup_click_count</td><td>BIGINT</td><td>联盟 - 去重点击次数（直播）（Excel列 EF，第3行：联盟，第4行：去重点击次数（直播））</td></tr>
+          <tr><td>affiliate_live_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击率（直播）（Excel列 EG，第3行：联盟，第4行：去重点击率（直播））</td></tr>
+          <tr><td>affiliate_live_atc_user_count</td><td>BIGINT</td><td>联盟 - ATC 用户数（直播）（Excel列 EH，第3行：联盟，第4行：ATC 用户数（直播））</td></tr>
+          <tr><td>affiliate_live_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重加购率（直播）（Excel列 EI，第3行：联盟，第4行：去重加购率（直播））</td></tr>
+          <tr><td>affiliate_live_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击成交转化率（SKU 订单）（直播）（Excel列 EJ，第3行：联盟，第4行：去重点击成交转化率（SKU 订单）（直播））</td></tr>
+          <tr><td>affiliate_video_exposure_count</td><td>BIGINT</td><td>联盟 - 商品曝光次数（视频）（Excel列 EK，第3行：联盟，第4行：商品曝光次数（视频））</td></tr>
+          <tr><td>affiliate_video_click_count</td><td>BIGINT</td><td>联盟 - 商品点击量（视频）（Excel列 EL，第3行：联盟，第4行：商品点击量（视频））</td></tr>
+          <tr><td>affiliate_video_ctr</td><td>DECIMAL(10,4)</td><td>联盟 - CTR（视频）（Excel列 EM，第3行：联盟，第4行：CTR（视频））</td></tr>
+          <tr><td>affiliate_video_add_to_cart_count</td><td>BIGINT</td><td>联盟 - 加购次数（视频）（Excel列 EN，第3行：联盟，第4行：加购次数（视频））</td></tr>
+          <tr><td>affiliate_video_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 加购率（视频）（Excel列 EO，第3行：联盟，第4行：加购率（视频））</td></tr>
+          <tr><td>affiliate_video_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>联盟 - CTOR（SKU 订单）（视频）（Excel列 EP，第3行：联盟，第4行：CTOR（SKU 订单）（视频））</td></tr>
+          <tr><td>affiliate_video_dedup_exposure_count</td><td>BIGINT</td><td>联盟 - 去重商品曝光次数（视频）（Excel列 EQ，第3行：联盟，第4行：去重商品曝光次数（视频））</td></tr>
+          <tr><td>affiliate_video_dedup_click_count</td><td>BIGINT</td><td>联盟 - 去重点击次数（视频）（Excel列 ER，第3行：联盟，第4行：去重点击次数（视频））</td></tr>
+          <tr><td>affiliate_video_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击率（视频）（Excel列 ES，第3行：联盟，第4行：去重点击率（视频））</td></tr>
+          <tr><td>affiliate_video_atc_user_count</td><td>BIGINT</td><td>联盟 - ATC 用户数（视频）（Excel列 ET，第3行：联盟，第4行：ATC 用户数（视频））</td></tr>
+          <tr><td>affiliate_video_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重加购率（视频）（Excel列 EU，第3行：联盟，第4行：去重加购率（视频））</td></tr>
+          <tr><td>affiliate_video_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>联盟 - 去重点击成交转化率（SKU 订单）（视频）（Excel列 EV，第3行：联盟，第4行：去重点击成交转化率（SKU 订单）（视频））</td></tr>
+          <tr><td>merchant_card_attributed_gmv</td><td>DECIMAL(20,4)</td><td>商家商品卡 - 归因 GMV（Excel列 EW，第3行：商家商品卡，第4行：归因 GMV）</td></tr>
+          <tr><td>merchant_card_gmv</td><td>DECIMAL(20,4)</td><td>商家商品卡 - GMV（Excel列 EX，第3行：商家商品卡，第4行：GMV）</td></tr>
+          <tr><td>merchant_card_indirect_gmv</td><td>DECIMAL(20,4)</td><td>商家商品卡 - 间接 GMV（Excel列 EY，第3行：商家商品卡，第4行：间接 GMV）</td></tr>
+          <tr><td>merchant_card_attributed_order_count</td><td>BIGINT</td><td>商家商品卡 - 归因订单数（Excel列 EZ，第3行：商家商品卡，第4行：归因订单数）</td></tr>
+          <tr><td>merchant_card_attributed_sku_order_count</td><td>BIGINT</td><td>商家商品卡 - 归因 SKU 订单数（Excel列 FA，第3行：商家商品卡，第4行：归因 SKU 订单数）</td></tr>
+          <tr><td>merchant_card_sku_order_count</td><td>BIGINT</td><td>商家商品卡 - SKU 订单数（Excel列 FB，第3行：商家商品卡，第4行：SKU 订单数）</td></tr>
+          <tr><td>merchant_card_indirect_sku_order_count</td><td>BIGINT</td><td>商家商品卡 - 间接 SKU 订单数（Excel列 FC，第3行：商家商品卡，第4行：间接 SKU 订单数）</td></tr>
+          <tr><td>merchant_card_attributed_sold_quantity</td><td>BIGINT</td><td>商家商品卡 - 归因成交件数（Excel列 FD，第3行：商家商品卡，第4行：归因成交件数）</td></tr>
+          <tr><td>merchant_card_sold_quantity</td><td>BIGINT</td><td>商家商品卡 - 商品成交件数（Excel列 FE，第3行：商家商品卡，第4行：商品成交件数）</td></tr>
+          <tr><td>merchant_card_indirect_sold_quantity</td><td>BIGINT</td><td>商家商品卡 - 间接成交件数（Excel列 FF，第3行：商家商品卡，第4行：间接成交件数）</td></tr>
+          <tr><td>merchant_card_estimated_customer_count</td><td>BIGINT</td><td>商家商品卡 - 预计客户数（Excel列 FG，第3行：商家商品卡，第4行：预计客户数）</td></tr>
+          <tr><td>merchant_card_aov_attributed_sku_order</td><td>DECIMAL(20,4)</td><td>商家商品卡 - AOV（归因 SKU 订单）（Excel列 FH，第3行：商家商品卡，第4行：AOV（归因 SKU 订单））</td></tr>
+          <tr><td>merchant_card_exposure_count</td><td>BIGINT</td><td>商家商品卡 - 商品曝光次数（Excel列 FI，第3行：商家商品卡，第4行：商品曝光次数）</td></tr>
+          <tr><td>merchant_card_click_count</td><td>BIGINT</td><td>商家商品卡 - 商品点击量（Excel列 FJ，第3行：商家商品卡，第4行：商品点击量）</td></tr>
+          <tr><td>merchant_card_click_rate</td><td>DECIMAL(10,4)</td><td>商家商品卡 - 商品点击率（Excel列 FK，第3行：商家商品卡，第4行：商品点击率）</td></tr>
+          <tr><td>merchant_card_add_to_cart_count</td><td>BIGINT</td><td>商家商品卡 - 加购次数（Excel列 FL，第3行：商家商品卡，第4行：加购次数）</td></tr>
+          <tr><td>merchant_card_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家商品卡 - 加购率（Excel列 FM，第3行：商家商品卡，第4行：加购率）</td></tr>
+          <tr><td>merchant_card_ctor_sku_order</td><td>DECIMAL(10,4)</td><td>商家商品卡 - CTOR（SKU 订单）（Excel列 FN，第3行：商家商品卡，第4行：CTOR（SKU 订单））</td></tr>
+          <tr><td>merchant_card_dedup_exposure_count</td><td>BIGINT</td><td>商家商品卡 - 去重商品曝光次数（Excel列 FO，第3行：商家商品卡，第4行：去重商品曝光次数）</td></tr>
+          <tr><td>merchant_card_dedup_click_count</td><td>BIGINT</td><td>商家商品卡 - 去重点击次数（Excel列 FP，第3行：商家商品卡，第4行：去重点击次数）</td></tr>
+          <tr><td>merchant_card_dedup_click_rate</td><td>DECIMAL(10,4)</td><td>商家商品卡 - 去重点击率（Excel列 FQ，第3行：商家商品卡，第4行：去重点击率）</td></tr>
+          <tr><td>merchant_card_added_to_cart_user_count</td><td>BIGINT</td><td>商家商品卡 - 已加购的用户数（Excel列 FR，第3行：商家商品卡，第4行：已加购的用户数）</td></tr>
+          <tr><td>merchant_card_dedup_add_to_cart_rate</td><td>DECIMAL(10,4)</td><td>商家商品卡 - 去重加购率（Excel列 FS，第3行：商家商品卡，第4行：去重加购率）</td></tr>
+          <tr><td>merchant_card_dedup_click_to_order_rate</td><td>DECIMAL(10,4)</td><td>商家商品卡 - 去重点击成交转化率（SKU 订单）（Excel列 FT，第3行：商家商品卡，第4行：去重点击成交转化率（SKU 订单））</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_name, product_id) | 文件数据源，日增量；同一日期、店铺、商品保留一行最新数据</p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ods.ods_traffic_file_tiktok_product_analysis_all_module_di (
+    smt                                                INT                                COMMENT '月分区，格式：YYYYMM',
+    sdt                                                VARCHAR(8)                         COMMENT '日期分区，格式：YYYYMMDD',
+    store_name                                         VARCHAR(200)                       COMMENT '店铺名称（文件外补充）',
+    product_id                                         VARCHAR(200)                       COMMENT '公用字段 - 商品 ID（Excel列 B，第3行：公用字段，第4行：商品 ID）',
+    product_name                                       STRING                             COMMENT '公用字段 - 商品名（Excel列 A，第3行：公用字段，第4行：商品名）',
+    gmv_range                                          VARCHAR(200)                       COMMENT '公用字段 - GMV 区间（Excel列 C，第3行：公用字段，第4行：GMV 区间）',
+    product_status                                     VARCHAR(64)                        COMMENT '公用字段 - 发品状态（Excel列 D，第3行：公用字段，第4行：发品状态）',
+    all_gmv                                            DECIMAL(20,4)                      COMMENT '全部 - GMV（Excel列 E，第3行：全部，第4行：GMV）',
+    all_merchant_live_attributed_gmv                   DECIMAL(20,4)                      COMMENT '全部 - 商家直播归因 GMV（Excel列 F，第3行：全部，第4行：商家直播归因 GMV）',
+    all_merchant_live_gmv                              DECIMAL(20,4)                      COMMENT '全部 - 商家直播 GMV（Excel列 G，第3行：全部，第4行：商家直播 GMV）',
+    all_merchant_live_indirect_gmv                     DECIMAL(20,4)                      COMMENT '全部 - 商家直播间接 GMV（Excel列 H，第3行：全部，第4行：商家直播间接 GMV）',
+    all_merchant_video_attributed_gmv                  DECIMAL(20,4)                      COMMENT '全部 - 商家视频归因 GMV（Excel列 I，第3行：全部，第4行：商家视频归因 GMV）',
+    all_merchant_video_gmv                             DECIMAL(20,4)                      COMMENT '全部 - 商家视频 GMV（Excel列 J，第3行：全部，第4行：商家视频 GMV）',
+    all_merchant_video_indirect_gmv                    DECIMAL(20,4)                      COMMENT '全部 - 商家视频间接 GMV（Excel列 K，第3行：全部，第4行：商家视频间接 GMV）',
+    all_creator_attributed_gmv                         DECIMAL(20,4)                      COMMENT '全部 - 达人归因 GMV（Excel列 L，第3行：全部，第4行：达人归因 GMV）',
+    all_creator_live_attributed_gmv                    DECIMAL(20,4)                      COMMENT '全部 - 达人直播归因 GMV（Excel列 M，第3行：全部，第4行：达人直播归因 GMV）',
+    all_affiliate_live_product_gmv                     DECIMAL(20,4)                      COMMENT '全部 - 联盟直播商品交易总额（Excel列 N，第3行：全部，第4行：联盟直播商品交易总额）',
+    all_creator_live_indirect_gmv                      DECIMAL(20,4)                      COMMENT '全部 - 达人直播间接 GMV（Excel列 O，第3行：全部，第4行：达人直播间接 GMV）',
+    all_affiliate_video_attributed_gmv                 DECIMAL(20,4)                      COMMENT '全部 - 联盟视频归因 GMV（Excel列 P，第3行：全部，第4行：联盟视频归因 GMV）',
+    all_affiliate_video_product_gmv                    DECIMAL(20,4)                      COMMENT '全部 - 联盟视频商品交易总额（Excel列 Q，第3行：全部，第4行：联盟视频商品交易总额）',
+    all_creator_video_indirect_gmv                     DECIMAL(20,4)                      COMMENT '全部 - 达人视频间接 GMV（Excel列 R，第3行：全部，第4行：达人视频间接 GMV）',
+    all_merchant_product_card_gmv                      DECIMAL(20,4)                      COMMENT '全部 - 商家商品卡 GMV（Excel列 S，第3行：全部，第4行：商家商品卡 GMV）',
+    all_order_count                                    BIGINT                             COMMENT '全部 - 订单数（Excel列 T，第3行：全部，第4行：订单数）',
+    all_sku_order_count                                BIGINT                             COMMENT '全部 - SKU 订单数（Excel列 U，第3行：全部，第4行：SKU 订单数）',
+    all_sold_quantity                                  BIGINT                             COMMENT '全部 - 商品成交件数（Excel列 V，第3行：全部，第4行：商品成交件数）',
+    all_estimated_customer_count                       BIGINT                             COMMENT '全部 - 预计客户数（Excel列 W，第3行：全部，第4行：预计客户数）',
+    all_avg_order_amount_sku_order                     DECIMAL(20,4)                      COMMENT '全部 - 平均订单金额（SKU 订单）（Excel列 X，第3行：全部，第4行：平均订单金额（SKU 订单））',
+    all_exposure_count                                 BIGINT                             COMMENT '全部 - 商品曝光次数（Excel列 Y，第3行：全部，第4行：商品曝光次数）',
+    all_click_count                                    BIGINT                             COMMENT '全部 - 商品点击量（Excel列 Z，第3行：全部，第4行：商品点击量）',
+    all_click_rate                                     DECIMAL(10,4)                      COMMENT '全部 - 商品点击率（Excel列 AA，第3行：全部，第4行：商品点击率）',
+    all_add_to_cart_count                              BIGINT                             COMMENT '全部 - 加购次数（Excel列 AB，第3行：全部，第4行：加购次数）',
+    all_add_to_cart_rate                               DECIMAL(10,4)                      COMMENT '全部 - 加购率（Excel列 AC，第3行：全部，第4行：加购率）',
+    all_ctor_sku_order                                 DECIMAL(10,4)                      COMMENT '全部 - CTOR（SKU 订单）（Excel列 AD，第3行：全部，第4行：CTOR（SKU 订单））',
+    all_dedup_exposure_count                           BIGINT                             COMMENT '全部 - 去重商品曝光次数（Excel列 AE，第3行：全部，第4行：去重商品曝光次数）',
+    all_dedup_click_count                              BIGINT                             COMMENT '全部 - 去重点击次数（Excel列 AF，第3行：全部，第4行：去重点击次数）',
+    all_dedup_click_rate                               DECIMAL(10,4)                      COMMENT '全部 - 去重点击率（Excel列 AG，第3行：全部，第4行：去重点击率）',
+    all_added_to_cart_user_count                       BIGINT                             COMMENT '全部 - 已加购的用户数（Excel列 AH，第3行：全部，第4行：已加购的用户数）',
+    all_dedup_add_to_cart_rate                         DECIMAL(10,4)                      COMMENT '全部 - 去重加购率（Excel列 AI，第3行：全部，第4行：去重加购率）',
+    all_dedup_click_to_order_rate                      DECIMAL(10,4)                      COMMENT '全部 - 去重点击成交转化率（SKU 订单）（Excel列 AJ，第3行：全部，第4行：去重点击成交转化率（SKU 订单））',
+    all_gmv_with_tax                                   DECIMAL(20,4)                      COMMENT '全部 - 含税 GMV（Excel列 AK，第3行：全部，第4行：含税 GMV）',
+    all_tax_amount                                     DECIMAL(20,4)                      COMMENT '全部 - 税费（Excel列 AL，第3行：全部，第4行：税费）',
+    all_tiktok_joint_venture_gmv                       DECIMAL(20,4)                      COMMENT '全部 - GMV（TikTok 合资）（Excel列 AM，第3行：全部，第4行：GMV（TikTok 合资））',
+    all_shipping_fee                                   DECIMAL(20,4)                      COMMENT '全部 - 运费（Excel列 AN，第3行：全部，第4行：运费）',
+    all_refund_amount                                  DECIMAL(20,4)                      COMMENT '全部 - 退款金额（Excel列 AO，第3行：全部，第4行：退款金额）',
+    all_refunded_item_quantity                         BIGINT                             COMMENT '全部 - 已退款的商品件数（Excel列 AP，第3行：全部，第4行：已退款的商品件数）',
+    all_refund_customer_count                          BIGINT                             COMMENT '全部 - 退款客户数（Excel列 AQ，第3行：全部，第4行：退款客户数）',
+    all_mall_exposure_count                            BIGINT                             COMMENT '全部 - 商城页商品曝光次数（Excel列 AR，第3行：全部，第4行：商城页商品曝光次数）',
+    all_mall_click_count                               BIGINT                             COMMENT '全部 - 商城页商品点击量（Excel列 AS，第3行：全部，第4行：商城页商品点击量）',
+    all_mall_dedup_click_count                         BIGINT                             COMMENT '全部 - 商城页去重商品点击量（Excel列 AT，第3行：全部，第4行：商城页去重商品点击量）',
+    all_mall_estimated_customer_count                  BIGINT                             COMMENT '全部 - 预计商城页客户数（Excel列 AU，第3行：全部，第4行：预计商城页客户数）',
+    all_mall_click_rate                                DECIMAL(10,4)                      COMMENT '全部 - 商城页点击率（Excel列 AV，第3行：全部，第4行：商城页点击率）',
+    all_mall_click_to_order_rate                       DECIMAL(10,4)                      COMMENT '全部 - 商城页点击成交转化率（SKU 订单）（Excel列 AW，第3行：全部，第4行：商城页点击成交转化率（SKU 订单））',
+    all_mall_gmv                                       DECIMAL(20,4)                      COMMENT '全部 - 商城页 GMV（Excel列 AX，第3行：全部，第4行：商城页 GMV）',
+    all_mall_sold_quantity                             BIGINT                             COMMENT '全部 - 商城页商品成交件数（Excel列 AY，第3行：全部，第4行：商城页商品成交件数）',
+    merchant_live_attributed_gmv                       DECIMAL(20,4)                      COMMENT '商家直播 - 归因 GMV（Excel列 AZ，第3行：商家直播，第4行：归因 GMV）',
+    merchant_live_gmv                                  DECIMAL(20,4)                      COMMENT '商家直播 - GMV（Excel列 BA，第3行：商家直播，第4行：GMV）',
+    merchant_live_indirect_gmv                         DECIMAL(20,4)                      COMMENT '商家直播 - 间接 GMV（Excel列 BB，第3行：商家直播，第4行：间接 GMV）',
+    merchant_live_attributed_order_count               BIGINT                             COMMENT '商家直播 - 归因订单数（Excel列 BC，第3行：商家直播，第4行：归因订单数）',
+    merchant_live_attributed_sku_order_count           BIGINT                             COMMENT '商家直播 - 归因 SKU 订单数（Excel列 BD，第3行：商家直播，第4行：归因 SKU 订单数）',
+    merchant_live_sku_order_count                      BIGINT                             COMMENT '商家直播 - SKU 订单数（Excel列 BE，第3行：商家直播，第4行：SKU 订单数）',
+    merchant_live_indirect_sku_order_count             BIGINT                             COMMENT '商家直播 - 间接 SKU 订单数（Excel列 BF，第3行：商家直播，第4行：间接 SKU 订单数）',
+    merchant_live_attributed_sold_quantity             BIGINT                             COMMENT '商家直播 - 归因成交件数（Excel列 BG，第3行：商家直播，第4行：归因成交件数）',
+    merchant_live_sold_quantity                        BIGINT                             COMMENT '商家直播 - 商品成交件数（Excel列 BH，第3行：商家直播，第4行：商品成交件数）',
+    merchant_live_indirect_sold_quantity               BIGINT                             COMMENT '商家直播 - 间接成交件数（Excel列 BI，第3行：商家直播，第4行：间接成交件数）',
+    merchant_live_estimated_customer_count             BIGINT                             COMMENT '商家直播 - 预计客户数（Excel列 BJ，第3行：商家直播，第4行：预计客户数）',
+    merchant_live_aov_attributed_sku_order             DECIMAL(20,4)                      COMMENT '商家直播 - AOV（归因 SKU 订单）（Excel列 BK，第3行：商家直播，第4行：AOV（归因 SKU 订单））',
+    merchant_live_new_live_session_count               BIGINT                             COMMENT '商家直播 - 新直播场次（Excel列 BL，第3行：商家直播，第4行：新直播场次）',
+    merchant_live_exposure_count                       BIGINT                             COMMENT '商家直播 - 商品曝光次数（Excel列 BM，第3行：商家直播，第4行：商品曝光次数）',
+    merchant_live_click_count                          BIGINT                             COMMENT '商家直播 - 商品点击量（Excel列 BN，第3行：商家直播，第4行：商品点击量）',
+    merchant_live_click_rate                           DECIMAL(10,4)                      COMMENT '商家直播 - 商品点击率（Excel列 BO，第3行：商家直播，第4行：商品点击率）',
+    merchant_live_add_to_cart_count                    BIGINT                             COMMENT '商家直播 - 加购次数（Excel列 BP，第3行：商家直播，第4行：加购次数）',
+    merchant_live_add_to_cart_rate                     DECIMAL(10,4)                      COMMENT '商家直播 - 加购率（Excel列 BQ，第3行：商家直播，第4行：加购率）',
+    merchant_live_ctor_sku_order                       DECIMAL(10,4)                      COMMENT '商家直播 - CTOR（SKU 订单）（Excel列 BR，第3行：商家直播，第4行：CTOR（SKU 订单））',
+    merchant_live_dedup_exposure_count                 BIGINT                             COMMENT '商家直播 - 去重商品曝光次数（Excel列 BS，第3行：商家直播，第4行：去重商品曝光次数）',
+    merchant_live_dedup_click_count                    BIGINT                             COMMENT '商家直播 - 去重点击次数（Excel列 BT，第3行：商家直播，第4行：去重点击次数）',
+    merchant_live_dedup_click_rate                     DECIMAL(10,4)                      COMMENT '商家直播 - 去重点击率（Excel列 BU，第3行：商家直播，第4行：去重点击率）',
+    merchant_live_added_to_cart_user_count             BIGINT                             COMMENT '商家直播 - 已加购的用户数（Excel列 BV，第3行：商家直播，第4行：已加购的用户数）',
+    merchant_live_dedup_add_to_cart_rate               DECIMAL(10,4)                      COMMENT '商家直播 - 去重加购率（Excel列 BW，第3行：商家直播，第4行：去重加购率）',
+    merchant_live_dedup_click_to_order_rate            DECIMAL(10,4)                      COMMENT '商家直播 - 去重点击成交转化率（SKU 订单）（Excel列 BX，第3行：商家直播，第4行：去重点击成交转化率（SKU 订单））',
+    merchant_video_attributed_gmv                      DECIMAL(20,4)                      COMMENT '商家视频 - 归因 GMV（Excel列 BY，第3行：商家视频，第4行：归因 GMV）',
+    merchant_video_gmv                                 DECIMAL(20,4)                      COMMENT '商家视频 - GMV（Excel列 BZ，第3行：商家视频，第4行：GMV）',
+    merchant_video_indirect_gmv                        DECIMAL(20,4)                      COMMENT '商家视频 - 间接 GMV（Excel列 CA，第3行：商家视频，第4行：间接 GMV）',
+    merchant_video_attributed_order_count              BIGINT                             COMMENT '商家视频 - 归因订单数（Excel列 CB，第3行：商家视频，第4行：归因订单数）',
+    merchant_video_attributed_sku_order_count          BIGINT                             COMMENT '商家视频 - 归因 SKU 订单数（Excel列 CC，第3行：商家视频，第4行：归因 SKU 订单数）',
+    merchant_video_sku_order_count                     BIGINT                             COMMENT '商家视频 - SKU 订单数（Excel列 CD，第3行：商家视频，第4行：SKU 订单数）',
+    merchant_video_indirect_sku_order_count            BIGINT                             COMMENT '商家视频 - 间接 SKU 订单数（Excel列 CE，第3行：商家视频，第4行：间接 SKU 订单数）',
+    merchant_video_attributed_sold_quantity            BIGINT                             COMMENT '商家视频 - 归因成交件数（Excel列 CF，第3行：商家视频，第4行：归因成交件数）',
+    merchant_video_sold_quantity                       BIGINT                             COMMENT '商家视频 - 商品成交件数（Excel列 CG，第3行：商家视频，第4行：商品成交件数）',
+    merchant_video_indirect_sold_quantity              BIGINT                             COMMENT '商家视频 - 间接成交件数（Excel列 CH，第3行：商家视频，第4行：间接成交件数）',
+    merchant_video_estimated_customer_count            BIGINT                             COMMENT '商家视频 - 预计客户数（Excel列 CI，第3行：商家视频，第4行：预计客户数）',
+    merchant_video_aov_attributed_sku_order            DECIMAL(20,4)                      COMMENT '商家视频 - AOV（归因 SKU 订单）（Excel列 CJ，第3行：商家视频，第4行：AOV（归因 SKU 订单））',
+    merchant_video_new_video_count                     BIGINT                             COMMENT '商家视频 - 新视频数（Excel列 CK，第3行：商家视频，第4行：新视频数）',
+    merchant_video_exposure_count                      BIGINT                             COMMENT '商家视频 - 商品曝光次数（Excel列 CL，第3行：商家视频，第4行：商品曝光次数）',
+    merchant_video_click_count                         BIGINT                             COMMENT '商家视频 - 商品点击量（Excel列 CM，第3行：商家视频，第4行：商品点击量）',
+    merchant_video_click_rate                          DECIMAL(10,4)                      COMMENT '商家视频 - 商品点击率（Excel列 CN，第3行：商家视频，第4行：商品点击率）',
+    merchant_video_add_to_cart_count                   BIGINT                             COMMENT '商家视频 - 加购次数（Excel列 CO，第3行：商家视频，第4行：加购次数）',
+    merchant_video_add_to_cart_rate                    DECIMAL(10,4)                      COMMENT '商家视频 - 加购率（Excel列 CP，第3行：商家视频，第4行：加购率）',
+    merchant_video_ctor_sku_order                      DECIMAL(10,4)                      COMMENT '商家视频 - CTOR（SKU 订单）（Excel列 CQ，第3行：商家视频，第4行：CTOR（SKU 订单））',
+    merchant_video_dedup_exposure_count                BIGINT                             COMMENT '商家视频 - 去重商品曝光次数（Excel列 CR，第3行：商家视频，第4行：去重商品曝光次数）',
+    merchant_video_dedup_click_count                   BIGINT                             COMMENT '商家视频 - 去重点击次数（Excel列 CS，第3行：商家视频，第4行：去重点击次数）',
+    merchant_video_dedup_click_rate                    DECIMAL(10,4)                      COMMENT '商家视频 - 去重点击率（Excel列 CT，第3行：商家视频，第4行：去重点击率）',
+    merchant_video_added_to_cart_user_count            BIGINT                             COMMENT '商家视频 - 已加购的用户数（Excel列 CU，第3行：商家视频，第4行：已加购的用户数）',
+    merchant_video_dedup_add_to_cart_rate              DECIMAL(10,4)                      COMMENT '商家视频 - 去重加购率（Excel列 CV，第3行：商家视频，第4行：去重加购率）',
+    merchant_video_dedup_click_to_order_rate           DECIMAL(10,4)                      COMMENT '商家视频 - 去重点击成交转化率（SKU 订单）（Excel列 CW，第3行：商家视频，第4行：去重点击成交转化率（SKU 订单））',
+    affiliate_attributed_gmv                           DECIMAL(20,4)                      COMMENT '联盟 - 归因 GMV（Excel列 CX，第3行：联盟，第4行：归因 GMV）',
+    affiliate_live_attributed_gmv                      DECIMAL(20,4)                      COMMENT '联盟 - 直播归因 GMV（Excel列 CY，第3行：联盟，第4行：直播归因 GMV）',
+    affiliate_live_product_gmv                         DECIMAL(20,4)                      COMMENT '联盟 - 联盟直播商品交易总额（Excel列 CZ，第3行：联盟，第4行：联盟直播商品交易总额）',
+    affiliate_creator_live_indirect_gmv                DECIMAL(20,4)                      COMMENT '联盟 - 达人直播间接 GMV（Excel列 DA，第3行：联盟，第4行：达人直播间接 GMV）',
+    affiliate_video_attributed_gmv                     DECIMAL(20,4)                      COMMENT '联盟 - 视频归因 GMV（Excel列 DB，第3行：联盟，第4行：视频归因 GMV）',
+    affiliate_video_product_gmv                        DECIMAL(20,4)                      COMMENT '联盟 - 联盟视频商品交易总额（Excel列 DC，第3行：联盟，第4行：联盟视频商品交易总额）',
+    affiliate_creator_video_indirect_gmv               DECIMAL(20,4)                      COMMENT '联盟 - 达人视频间接 GMV（Excel列 DD，第3行：联盟，第4行：达人视频间接 GMV）',
+    affiliate_attributed_order_count                   BIGINT                             COMMENT '联盟 - 归因订单数（Excel列 DE，第3行：联盟，第4行：归因订单数）',
+    affiliate_attributed_sku_order_count               BIGINT                             COMMENT '联盟 - 归因 SKU 订单数（Excel列 DF，第3行：联盟，第4行：归因 SKU 订单数）',
+    affiliate_attributed_sold_quantity                 BIGINT                             COMMENT '联盟 - 归因成交件数（Excel列 DG，第3行：联盟，第4行：归因成交件数）',
+    affiliate_estimated_customer_count                 BIGINT                             COMMENT '联盟 - 预计客户数（Excel列 DH，第3行：联盟，第4行：预计客户数）',
+    affiliate_aov_attributed_sku_order                 DECIMAL(20,4)                      COMMENT '联盟 - AOV（归因 SKU 订单）（Excel列 DI，第3行：联盟，第4行：AOV（归因 SKU 订单））',
+    affiliate_promoting_creators_metric_name_short_ui  VARCHAR(200)                       COMMENT '联盟 - promoting_creators_metric_name_short_ui（Excel列 DJ，第3行：联盟，第4行：promoting_creators_metric_name_short_ui）',
+    affiliate_new_live_session_count                   BIGINT                             COMMENT '联盟 - 新直播场次（Excel列 DK，第3行：联盟，第4行：新直播场次）',
+    affiliate_new_video_count                          BIGINT                             COMMENT '联盟 - 新视频数（Excel列 DL，第3行：联盟，第4行：新视频数）',
+    affiliate_exposure_count                           BIGINT                             COMMENT '联盟 - 商品曝光次数（Excel列 DM，第3行：联盟，第4行：商品曝光次数）',
+    affiliate_click_count                              BIGINT                             COMMENT '联盟 - 商品点击量（Excel列 DN，第3行：联盟，第4行：商品点击量）',
+    affiliate_click_rate                               DECIMAL(10,4)                      COMMENT '联盟 - 商品点击率（Excel列 DO，第3行：联盟，第4行：商品点击率）',
+    affiliate_add_to_cart_count                        BIGINT                             COMMENT '联盟 - 加购次数（Excel列 DP，第3行：联盟，第4行：加购次数）',
+    affiliate_add_to_cart_rate                         DECIMAL(10,4)                      COMMENT '联盟 - 加购率（Excel列 DQ，第3行：联盟，第4行：加购率）',
+    affiliate_ctor_sku_order                           DECIMAL(10,4)                      COMMENT '联盟 - CTOR（SKU 订单）（Excel列 DR，第3行：联盟，第4行：CTOR（SKU 订单））',
+    affiliate_dedup_exposure_count                     BIGINT                             COMMENT '联盟 - 去重商品曝光次数（Excel列 DS，第3行：联盟，第4行：去重商品曝光次数）',
+    affiliate_dedup_click_count                        BIGINT                             COMMENT '联盟 - 去重点击次数（Excel列 DT，第3行：联盟，第4行：去重点击次数）',
+    affiliate_dedup_click_rate                         DECIMAL(10,4)                      COMMENT '联盟 - 去重点击率（Excel列 DU，第3行：联盟，第4行：去重点击率）',
+    affiliate_added_to_cart_user_count                 BIGINT                             COMMENT '联盟 - 已加购的用户数（Excel列 DV，第3行：联盟，第4行：已加购的用户数）',
+    affiliate_dedup_add_to_cart_rate                   DECIMAL(10,4)                      COMMENT '联盟 - 去重加购率（Excel列 DW，第3行：联盟，第4行：去重加购率）',
+    affiliate_dedup_click_to_order_rate                DECIMAL(10,4)                      COMMENT '联盟 - 去重点击成交转化率（SKU 订单）（Excel列 DX，第3行：联盟，第4行：去重点击成交转化率（SKU 订单））',
+    affiliate_live_exposure_count                      BIGINT                             COMMENT '联盟 - 商品曝光次数（直播）（Excel列 DY，第3行：联盟，第4行：商品曝光次数（直播））',
+    affiliate_live_click_count                         BIGINT                             COMMENT '联盟 - 商品点击量（直播）（Excel列 DZ，第3行：联盟，第4行：商品点击量（直播））',
+    affiliate_live_ctr                                 DECIMAL(10,4)                      COMMENT '联盟 - CTR（直播）（Excel列 EA，第3行：联盟，第4行：CTR（直播））',
+    affiliate_live_add_to_cart_count                   BIGINT                             COMMENT '联盟 - 加购次数（直播）（Excel列 EB，第3行：联盟，第4行：加购次数（直播））',
+    affiliate_live_add_to_cart_rate                    DECIMAL(10,4)                      COMMENT '联盟 - 加购率（直播）（Excel列 EC，第3行：联盟，第4行：加购率（直播））',
+    affiliate_live_ctor_sku_order                      DECIMAL(10,4)                      COMMENT '联盟 - CTOR（SKU 订单）（直播）（Excel列 ED，第3行：联盟，第4行：CTOR（SKU 订单）（直播））',
+    affiliate_live_dedup_exposure_count                BIGINT                             COMMENT '联盟 - 去重商品曝光次数（直播）（Excel列 EE，第3行：联盟，第4行：去重商品曝光次数（直播））',
+    affiliate_live_dedup_click_count                   BIGINT                             COMMENT '联盟 - 去重点击次数（直播）（Excel列 EF，第3行：联盟，第4行：去重点击次数（直播））',
+    affiliate_live_dedup_click_rate                    DECIMAL(10,4)                      COMMENT '联盟 - 去重点击率（直播）（Excel列 EG，第3行：联盟，第4行：去重点击率（直播））',
+    affiliate_live_atc_user_count                      BIGINT                             COMMENT '联盟 - ATC 用户数（直播）（Excel列 EH，第3行：联盟，第4行：ATC 用户数（直播））',
+    affiliate_live_dedup_add_to_cart_rate              DECIMAL(10,4)                      COMMENT '联盟 - 去重加购率（直播）（Excel列 EI，第3行：联盟，第4行：去重加购率（直播））',
+    affiliate_live_dedup_click_to_order_rate           DECIMAL(10,4)                      COMMENT '联盟 - 去重点击成交转化率（SKU 订单）（直播）（Excel列 EJ，第3行：联盟，第4行：去重点击成交转化率（SKU 订单）（直播））',
+    affiliate_video_exposure_count                     BIGINT                             COMMENT '联盟 - 商品曝光次数（视频）（Excel列 EK，第3行：联盟，第4行：商品曝光次数（视频））',
+    affiliate_video_click_count                        BIGINT                             COMMENT '联盟 - 商品点击量（视频）（Excel列 EL，第3行：联盟，第4行：商品点击量（视频））',
+    affiliate_video_ctr                                DECIMAL(10,4)                      COMMENT '联盟 - CTR（视频）（Excel列 EM，第3行：联盟，第4行：CTR（视频））',
+    affiliate_video_add_to_cart_count                  BIGINT                             COMMENT '联盟 - 加购次数（视频）（Excel列 EN，第3行：联盟，第4行：加购次数（视频））',
+    affiliate_video_add_to_cart_rate                   DECIMAL(10,4)                      COMMENT '联盟 - 加购率（视频）（Excel列 EO，第3行：联盟，第4行：加购率（视频））',
+    affiliate_video_ctor_sku_order                     DECIMAL(10,4)                      COMMENT '联盟 - CTOR（SKU 订单）（视频）（Excel列 EP，第3行：联盟，第4行：CTOR（SKU 订单）（视频））',
+    affiliate_video_dedup_exposure_count               BIGINT                             COMMENT '联盟 - 去重商品曝光次数（视频）（Excel列 EQ，第3行：联盟，第4行：去重商品曝光次数（视频））',
+    affiliate_video_dedup_click_count                  BIGINT                             COMMENT '联盟 - 去重点击次数（视频）（Excel列 ER，第3行：联盟，第4行：去重点击次数（视频））',
+    affiliate_video_dedup_click_rate                   DECIMAL(10,4)                      COMMENT '联盟 - 去重点击率（视频）（Excel列 ES，第3行：联盟，第4行：去重点击率（视频））',
+    affiliate_video_atc_user_count                     BIGINT                             COMMENT '联盟 - ATC 用户数（视频）（Excel列 ET，第3行：联盟，第4行：ATC 用户数（视频））',
+    affiliate_video_dedup_add_to_cart_rate             DECIMAL(10,4)                      COMMENT '联盟 - 去重加购率（视频）（Excel列 EU，第3行：联盟，第4行：去重加购率（视频））',
+    affiliate_video_dedup_click_to_order_rate          DECIMAL(10,4)                      COMMENT '联盟 - 去重点击成交转化率（SKU 订单）（视频）（Excel列 EV，第3行：联盟，第4行：去重点击成交转化率（SKU 订单）（视频））',
+    merchant_card_attributed_gmv                       DECIMAL(20,4)                      COMMENT '商家商品卡 - 归因 GMV（Excel列 EW，第3行：商家商品卡，第4行：归因 GMV）',
+    merchant_card_gmv                                  DECIMAL(20,4)                      COMMENT '商家商品卡 - GMV（Excel列 EX，第3行：商家商品卡，第4行：GMV）',
+    merchant_card_indirect_gmv                         DECIMAL(20,4)                      COMMENT '商家商品卡 - 间接 GMV（Excel列 EY，第3行：商家商品卡，第4行：间接 GMV）',
+    merchant_card_attributed_order_count               BIGINT                             COMMENT '商家商品卡 - 归因订单数（Excel列 EZ，第3行：商家商品卡，第4行：归因订单数）',
+    merchant_card_attributed_sku_order_count           BIGINT                             COMMENT '商家商品卡 - 归因 SKU 订单数（Excel列 FA，第3行：商家商品卡，第4行：归因 SKU 订单数）',
+    merchant_card_sku_order_count                      BIGINT                             COMMENT '商家商品卡 - SKU 订单数（Excel列 FB，第3行：商家商品卡，第4行：SKU 订单数）',
+    merchant_card_indirect_sku_order_count             BIGINT                             COMMENT '商家商品卡 - 间接 SKU 订单数（Excel列 FC，第3行：商家商品卡，第4行：间接 SKU 订单数）',
+    merchant_card_attributed_sold_quantity             BIGINT                             COMMENT '商家商品卡 - 归因成交件数（Excel列 FD，第3行：商家商品卡，第4行：归因成交件数）',
+    merchant_card_sold_quantity                        BIGINT                             COMMENT '商家商品卡 - 商品成交件数（Excel列 FE，第3行：商家商品卡，第4行：商品成交件数）',
+    merchant_card_indirect_sold_quantity               BIGINT                             COMMENT '商家商品卡 - 间接成交件数（Excel列 FF，第3行：商家商品卡，第4行：间接成交件数）',
+    merchant_card_estimated_customer_count             BIGINT                             COMMENT '商家商品卡 - 预计客户数（Excel列 FG，第3行：商家商品卡，第4行：预计客户数）',
+    merchant_card_aov_attributed_sku_order             DECIMAL(20,4)                      COMMENT '商家商品卡 - AOV（归因 SKU 订单）（Excel列 FH，第3行：商家商品卡，第4行：AOV（归因 SKU 订单））',
+    merchant_card_exposure_count                       BIGINT                             COMMENT '商家商品卡 - 商品曝光次数（Excel列 FI，第3行：商家商品卡，第4行：商品曝光次数）',
+    merchant_card_click_count                          BIGINT                             COMMENT '商家商品卡 - 商品点击量（Excel列 FJ，第3行：商家商品卡，第4行：商品点击量）',
+    merchant_card_click_rate                           DECIMAL(10,4)                      COMMENT '商家商品卡 - 商品点击率（Excel列 FK，第3行：商家商品卡，第4行：商品点击率）',
+    merchant_card_add_to_cart_count                    BIGINT                             COMMENT '商家商品卡 - 加购次数（Excel列 FL，第3行：商家商品卡，第4行：加购次数）',
+    merchant_card_add_to_cart_rate                     DECIMAL(10,4)                      COMMENT '商家商品卡 - 加购率（Excel列 FM，第3行：商家商品卡，第4行：加购率）',
+    merchant_card_ctor_sku_order                       DECIMAL(10,4)                      COMMENT '商家商品卡 - CTOR（SKU 订单）（Excel列 FN，第3行：商家商品卡，第4行：CTOR（SKU 订单））',
+    merchant_card_dedup_exposure_count                 BIGINT                             COMMENT '商家商品卡 - 去重商品曝光次数（Excel列 FO，第3行：商家商品卡，第4行：去重商品曝光次数）',
+    merchant_card_dedup_click_count                    BIGINT                             COMMENT '商家商品卡 - 去重点击次数（Excel列 FP，第3行：商家商品卡，第4行：去重点击次数）',
+    merchant_card_dedup_click_rate                     DECIMAL(10,4)                      COMMENT '商家商品卡 - 去重点击率（Excel列 FQ，第3行：商家商品卡，第4行：去重点击率）',
+    merchant_card_added_to_cart_user_count             BIGINT                             COMMENT '商家商品卡 - 已加购的用户数（Excel列 FR，第3行：商家商品卡，第4行：已加购的用户数）',
+    merchant_card_dedup_add_to_cart_rate               DECIMAL(10,4)                      COMMENT '商家商品卡 - 去重加购率（Excel列 FS，第3行：商家商品卡，第4行：去重加购率）',
+    merchant_card_dedup_click_to_order_rate            DECIMAL(10,4)                      COMMENT '商家商品卡 - 去重点击成交转化率（SKU 订单）（Excel列 FT，第3行：商家商品卡，第4行：去重点击成交转化率（SKU 订单））',
+    insert_time                                        DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_name, product_id)
+COMMENT 'TikTok 商品数据分析 product_list 全模块合并导出 ODS 层表（流量域，文件数据源，日增量）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202605 VALUES [(202605), (202606)),
+    PARTITION p202606 VALUES [(202606), (202607)),
+    PARTITION p202607 VALUES [(202607), (202608)),
+    PARTITION p202608 VALUES [(202608), (202609)),
+    PARTITION p202609 VALUES [(202609), (202610)),
+    PARTITION p202610 VALUES [(202610), (202611)),
+    PARTITION p202611 VALUES [(202611), (202612)),
+    PARTITION p202612 VALUES [(202612), (202701))
+)
+DISTRIBUTED BY HASH(product_id) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <hr />
+
     <h2 id="sec-3">四、DWD 层表结构</h2>
 
     <h3 id="tbl-dwd-sales-amount-detail-market-realtime">4.1 dwd_sales_amount_detail_market_realtime</h3>
@@ -2907,7 +3301,7 @@ PROPERTIES (
           <tr><td>ads_sales_pid_gmv_calc_realtime</td><td>dws_sales_pid_gmv_realtime</td></tr>
           <tr><td>dws_sales_pid_gmv_realtime</td><td>dwd_sales_order_item_market_wide_realtime</td></tr>
           <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
-          <tr><td>dwd_sales_pid_dashboard_wide_di</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
+          <tr><td>dwd_sales_pid_dashboard_wide_di</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_analysis_all_module_di（1-3 全模块合并格式）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
           <tr><td>dws_sales_pid_dashboard_1d</td><td>dwd_sales_pid_dashboard_wide_di</td></tr>
           <tr><td>ads_sales_pid_dashboard_1d</td><td>dws_sales_pid_dashboard_1d</td></tr>
           <tr><td>ads_sales_store_site_order_count_realtime</td><td>dws_sales_store_site_market_realtime</td></tr>
@@ -2964,7 +3358,7 @@ PROPERTIES (
       <p class="meta">产出表：<code>ads_sales_pid_dashboard_1d</code>（见第六节 6.2）</p>
       <h4>规则</h4>
       <ul>
-        <li><strong>底表</strong>：老版使用 <code>ods_traffic_file_tiktok_product_list_di</code>（product_list，兼容旧格式）；新版拆分为 <code>ods_traffic_file_tiktok_product_all_di</code>、<code>ods_traffic_file_tiktok_product_live_di</code>、<code>ods_traffic_file_tiktok_product_video_di</code>、<code>ods_traffic_file_tiktok_product_card_di</code>、<code>ods_traffic_file_tiktok_product_affiliate_di</code></li>
+        <li><strong>底表</strong>：老版使用 <code>ods_traffic_file_tiktok_product_list_di</code>（product_list，兼容旧格式）；1-3 合并版使用 <code>ods_traffic_file_tiktok_product_analysis_all_module_di</code>（第 3 行模块、第 4 行字段，全模块同表）；新版拆分为 <code>ods_traffic_file_tiktok_product_all_di</code>、<code>ods_traffic_file_tiktok_product_live_di</code>、<code>ods_traffic_file_tiktok_product_video_di</code>、<code>ods_traffic_file_tiktok_product_card_di</code>、<code>ods_traffic_file_tiktok_product_affiliate_di</code></li>
         <li><strong>关联</strong>：全渠道商品表、GMV 计算表、Product campaign data、Video Performance List、tk 账号信息</li>
       </ul>
       <p class="meta">说明：本次先在表结构设计文档中补齐 5 张新增 ODS 的命名与占位说明，字段结构和 DDL 后续再补充。</p>
