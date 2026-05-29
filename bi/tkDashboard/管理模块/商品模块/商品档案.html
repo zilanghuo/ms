@@ -112,7 +112,7 @@
         <div class="query-item">
           <div class="tabs" id="tabs">
             <button class="tab active" data-tab="sku">SKU看板</button>
-            <button class="tab" data-tab="spu">SPU看板</button>
+            <button class="tab" data-tab="spu">PID看板</button>
           </div>
         </div>
         <div class="query-item">
@@ -217,6 +217,7 @@
       <div class="form-section">
         <div class="field full"><label>商品中文名</label><input class="form-input error" id="editName" /></div>
         <div class="form-grid">
+          <div class="field"><label>产品主 SPU</label><input class="form-input" id="editSpu" /></div>
           <div class="field"><label>销售状态</label><select class="form-select" id="editStatus"><option>在售</option><option>停售</option></select></div>
           <div class="field"><label>PID作用</label><input class="form-input" id="editPidUse" value="-" /></div>
           <div class="field"><label>产品品类</label><input class="form-input" id="editCategory" /></div>
@@ -280,6 +281,7 @@
       { pid: '1731651043684028773', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'red', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-RED-L', name: '双拉链连帽卫衣-红色81-L', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' }
     ];
     var activeTab = 'sku';
+    var editingProduct = null;
     function short(text, n) { return String(text || '').length > n ? String(text).slice(0, n) + '...' : text; }
     function renderRows() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
@@ -330,7 +332,9 @@
       }).join('');
     }
     function openDrawer(item) {
+      editingProduct = item;
       document.getElementById('editName').value = item.name;
+      document.getElementById('editSpu').value = item.spu;
       document.getElementById('editStatus').value = item.status;
       document.getElementById('editPidUse').value = item.pidUse;
       document.getElementById('editCategory').value = item.category;
@@ -370,7 +374,20 @@
     document.getElementById('btnClose').addEventListener('click', closeDrawer);
     document.getElementById('btnCancel').addEventListener('click', closeDrawer);
     document.getElementById('drawerMask').addEventListener('click', closeDrawer);
-    document.getElementById('btnSave').addEventListener('click', function() { closeDrawer(); showToast(); });
+    document.getElementById('btnSave').addEventListener('click', function() {
+      if (editingProduct) {
+        editingProduct.name = document.getElementById('editName').value.trim() || editingProduct.name;
+        editingProduct.spu = document.getElementById('editSpu').value.trim() || editingProduct.spu;
+        editingProduct.status = document.getElementById('editStatus').value;
+        editingProduct.pidUse = document.getElementById('editPidUse').value.trim() || '-';
+        editingProduct.category = document.getElementById('editCategory').value.trim() || editingProduct.category;
+        editingProduct.tagPrice = document.getElementById('editTagPrice').value.trim() || editingProduct.tagPrice;
+        editingProduct.owner = document.getElementById('editOwner').value.trim() || '-';
+        renderRows();
+      }
+      closeDrawer();
+      showToast();
+    });
     renderRows();
   </script>
 </body>

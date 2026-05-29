@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>视频数据</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; --header-bg: #f8fafc; --danger: #dc2626; --success: #16a34a; --warning: #f59e0b; --blue: #2563eb; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.25rem; color: var(--text); }
+    .page-subtitle { color: #7b8da6; font-size: 0.86rem; margin-bottom: 1rem; }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 150px; cursor: pointer; height: 38px; }
+    .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 160px; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item .search-field-select { width: 128px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; margin-left: -1px; border-radius: 0; }
+    .search-query-item .search-input { width: 220px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: #fff; color: var(--text); display: inline-flex; align-items: center; gap: 0.35rem; height: 38px; }
+    .btn svg { width: 15px; height: 15px; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab:last-child { border-right: none; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .tab:hover:not(.active) { background: #f0fdfa; }
+    .tab .count { margin-left: 0.25rem; opacity: 0.85; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { color: var(--muted); font-size: 0.85rem; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 1760px; table-layout: fixed; }
+    th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
+    tbody tr:hover td { background: #f9fafb; }
+    .w-check { width: 44px; text-align: center; }
+    .w-video { width: 180px; }
+    .w-account { width: 150px; }
+    .w-date { width: 150px; }
+    .w-type { width: 96px; }
+    .w-small { width: 96px; }
+    .w-link { width: 112px; }
+    .w-product { width: 190px; }
+    .w-content { width: 118px; }
+    .w-op { width: 96px; text-align: center; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; padding: 0.12rem 0.45rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
+    .badge-blue { color: #0284c7; background: #e0f2fe; }
+    .badge-green { color: #15803d; background: #dcfce7; }
+    .badge-yellow { color: #a16207; background: #fef9c3; }
+    .badge-ai { color: #0f766e; background: #ccfbf1; }
+    .badge-pink { color: #be123c; background: #ffe4e6; }
+    .badge-purple { color: #7e22ce; background: #f3e8ff; }
+    .badge-on { color: var(--success); font-weight: 600; }
+    .badge-off { color: #64748b; }
+    .money { color: #059669; font-weight: 700; }
+    .video-link { color: #475569; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; }
+    .video-link:hover { color: var(--accent); text-decoration: underline; }
+    .icon-btn { border: none; background: #e0f2fe; color: #0284c7; border-radius: 4px; padding: 0.18rem 0.45rem; font-size: 0.72rem; cursor: pointer; }
+    .icon-btn:hover { background: #bae6fd; }
+    .pager { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.86rem; margin-bottom: 1rem; }
+    .pager select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.25rem 0.45rem; background: #fff; }
+    .drawer-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.38); opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 20; }
+    .drawer-mask.open { opacity: 1; pointer-events: auto; }
+    .drawer { position: fixed; top: 0; right: 0; width: 420px; max-width: 92vw; height: 100vh; background: #fff; transform: translateX(100%); transition: transform 0.2s ease; z-index: 21; display: flex; flex-direction: column; box-shadow: -6px 0 20px rgba(15, 23, 42, 0.12); }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { padding: 1rem 1.25rem 0.65rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+    .drawer-title { font-weight: 700; color: #1f2937; font-size: 1rem; }
+    .drawer-subtitle { margin-top: 0.25rem; color: #7b8da6; font-size: 0.82rem; }
+    .close { border: none; background: transparent; color: #64748b; cursor: pointer; font-size: 1.5rem; line-height: 1; }
+    .drawer-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
+    .form-section { margin-bottom: 1rem; }
+    .section-title { color: #7290af; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.65rem; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1rem; margin-bottom: 0.75rem; }
+    .info-label { color: #7b8da6; font-size: 0.78rem; }
+    .info-value { color: #334155; font-size: 0.9rem; font-weight: 600; margin-top: 0.1rem; word-break: break-all; }
+    .match-empty { background: #f8fafc; border-radius: 8px; padding: 0.8rem; color: #7b8da6; font-weight: 600; font-size: 0.86rem; }
+    .field { margin-bottom: 0.75rem; }
+    .field label { display: block; color: #7290af; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.3rem; }
+    .form-input, .form-select, textarea { width: 100%; border: 1px solid var(--input-border); border-radius: 5px; padding: 0.48rem 0.6rem; font-size: 0.9rem; background: #fff; color: #334155; }
+    .form-select { height: 38px; }
+    textarea { min-height: 82px; resize: vertical; }
+    .drawer-actions { border-top: 1px solid var(--border); padding: 0.8rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem; background: #fff; }
+    .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(12px); background: #111827; color: #fff; padding: 0.55rem 1rem; border-radius: 999px; opacity: 0; pointer-events: none; transition: all 0.18s ease; z-index: 30; font-size: 0.86rem; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .content-note { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
+    .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
+    .content-note ol { margin: 0; padding-left: 20px; }
+    .content-note li { margin: 0; line-height: 1.7; }
+    @media (max-width: 960px) { body { padding: 1rem; } .query-actions { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">视频数据</h1>
+    <div class="page-subtitle">管理联盟视频、自制视频、图文视频和 AI 视频的数据记录</div>
+
+    <section class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="all">全部视频 <span class="count">15</span></button>
+            <button class="tab" data-tab="affiliate">联盟视频 <span class="count">8</span></button>
+            <button class="tab" data-tab="self">自制视频 <span class="count">4</span></button>
+            <button class="tab" data-tab="image">图文视频 <span class="count">2</span></button>
+            <button class="tab" data-tab="ai">AI视频 <span class="count">1</span></button>
+          </div>
+        </div>
+        <div class="query-item">
+          <span class="label">开单状态</span>
+          <select id="orderFilter"><option value="">全部状态</option><option value="是">已开单</option><option value="否">未开单</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">内容类型</span>
+          <select id="contentFilter"><option value="">全部内容</option><option value="混剪">混剪</option><option value="实拍">实拍</option><option value="达人原生">达人原生</option><option value="达人AI">达人AI</option><option value="图文">图文</option><option value="达人图文">达人图文</option><option value="AI">AI</option></select>
+        </div>
+        <div class="query-item search-query-item">
+          <select class="search-field-select" id="searchField">
+            <option value="all">视频/达人/商品</option>
+            <option value="videoId">视频ID</option>
+            <option value="account">达人账号</option>
+            <option value="style">视频款号</option>
+            <option value="productId">Product ID</option>
+          </select>
+          <select class="search-mode-select" id="searchMode"><option value="fuzzy">模糊搜索</option><option value="exact">精确搜索</option></select>
+          <input type="text" class="search-input" id="searchInput" placeholder="请输入" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="action-bar">
+      <div class="meta-info">共 <strong id="totalCount">15</strong> 条记录</div>
+      <div class="btns">
+        <button class="btn btn-secondary" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
+      </div>
+    </div>
+
+    <section class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="w-check"><input type="checkbox" /></th>
+              <th class="w-video">视频ID</th>
+              <th class="w-account">达人账号</th>
+              <th class="w-date">发布时间</th>
+              <th class="w-type">视频类型</th>
+              <th class="w-small">播放量</th>
+              <th class="w-small">GMV($)</th>
+              <th class="w-small">是否开单</th>
+              <th class="w-small">总单量</th>
+              <th class="w-link">视频链接</th>
+              <th class="w-product">Product ID</th>
+              <th class="w-content">内容类型</th>
+              <th class="w-op">操作</th>
+            </tr>
+          </thead>
+          <tbody id="videoRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="pager"><span>共 <strong id="pagerCount">15</strong> 条记录</span></div>
+
+    <section class="content-note" aria-label="内容说明">
+      <div class="content-note-title">内容说明</div>
+      <ol>
+        <li>视频数据用于管理联盟视频、自制视频、图文视频和 AI 视频的数据记录。</li>
+        <li>手动输入筛选采用 searchField + searchKeyword / exactSearchKeyword 模式，支持模糊与精确搜索。</li>
+        <li>关联寄样记录：基于达人 UID / 达人账号与视频款号进行匹配，若同时命中寄样订单中的达人信息和寄样款号，则自动关联到对应寄样记录。</li>
+        <li>数据来源是已绑定账号和联盟账号。</li>
+      </ol>
+    </section>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="editDrawer" aria-label="编辑视频记录">
+    <div class="drawer-head">
+      <div><div class="drawer-title">编辑视频记录</div><div class="drawer-subtitle" id="drawerVideoId">-</div></div>
+      <button class="close" id="btnClose" aria-label="关闭">×</button>
+    </div>
+    <div class="drawer-body">
+      <div class="form-section">
+        <div class="section-title">基础信息</div>
+        <div class="info-grid">
+          <div><div class="info-label">达人账号</div><div class="info-value" id="infoAccount">-</div></div>
+          <div><div class="info-label">发布时间</div><div class="info-value" id="infoPublishTime">-</div></div>
+          <div><div class="info-label">视频链接</div><div class="info-value" id="infoLink">-</div></div>
+          <div><div class="info-label">播放量</div><div class="info-value" id="infoViews">-</div></div>
+          <div><div class="info-label">视频款号</div><div class="info-value" id="infoStyle">-</div></div>
+          <div><div class="info-label">GMV($)</div><div class="info-value money" id="infoGmv">-</div></div>
+        </div>
+      </div>
+      <div class="form-section">
+        <div class="section-title">关联寄样记录</div>
+        <div class="match-empty">未匹配到寄样记录（基于达人UID + 视频款号匹配）</div>
+      </div>
+      <div class="form-section">
+        <div class="section-title">手动维护字段</div>
+        <div class="field"><label>归属商务</label><select class="form-select" id="editOwner"><option>Alice Chen</option><option>Bob Wang</option><option>未分配</option></select></div>
+        <div class="field"><label>授权码</label><input class="form-input" id="editAuthCode" /></div>
+        <div class="field"><label>视频颜色</label><input class="form-input" id="editColor" /></div>
+        <div class="field"><label>寄样商务</label><input class="form-input" id="editSampleOwner" /></div>
+        <div class="field"><label>备注</label><textarea id="editRemark" placeholder="输入备注"></textarea></div>
+      </div>
+    </div>
+    <div class="drawer-actions"><button class="btn btn-secondary" id="btnCancel">取消</button><button class="btn btn-query" id="btnSave">保存</button></div>
+  </aside>
+  <div class="toast" id="toast">已保存当前视频记录</div>
+
+  <script>
+    var videos = [
+      { videoId: '7569654647774842142', account: 'chelly_15', publishTime: '2025/11/06 14:30', type: 'affiliate', typeName: '联盟', views: '9.2w', gmv: '$2651.03', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@chelly_15/video/7569654647774842142', productId: '1729773126172578149', contentType: '', style: 'AL-W0161-LL-M', owner: 'Alice Chen', authCode: 'AUTH-001', color: 'Pale Pink', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7586608447945395470', account: 'faiable.collectio', publishTime: '2025/12/25 17:28', type: 'affiliate', typeName: '联盟', views: '3,083', gmv: '$108.29', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@faiable.collectio/video/7586608447945395470', productId: '1730674849392267621', contentType: '', style: 'AL-W0518-WHT-S', owner: 'Alice Chen', authCode: 'AUTH-002', color: 'Ivory', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7618146777081892127', account: 'kai.didit', publishTime: '2026/03/17 13:27', type: 'affiliate', typeName: '联盟', views: '8.7w', gmv: '$105.42', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@kai.didit/video/7618146777081892127', productId: '1731902422767866213', contentType: '', style: 'AL-W5558-PPL-M', owner: 'Bob Wang', authCode: 'AUTH-003', color: 'Purple', sampleOwner: 'Bob Wang', remark: '' },
+      { videoId: '7538498588440087863', account: 'sosa2wavy', publishTime: '2026/01/15 10:00', type: 'affiliate', typeName: '联盟', views: '1,400', gmv: '$0.00', ordered: '否', orders: 0, link: 'https://www.tiktok.com/@sosa2wavy/video/7538498588440087863', productId: '1731657241623302501', contentType: '', style: 'AL-W6675-BLK-XS', owner: '未分配', authCode: '', color: '', sampleOwner: '', remark: '' },
+      { videoId: '7605078235029802253', account: 'carolsharing', publishTime: '2026/02/14 19:16', type: 'affiliate', typeName: '联盟', views: '67', gmv: '$0.00', ordered: '否', orders: 0, link: 'https://www.tiktok.com/@carolsharing/video/7605078235029802253', productId: '1731902422767866213', contentType: '', style: 'AL-W0169-DGN-L', owner: '未分配', authCode: '', color: '', sampleOwner: '', remark: '' },
+      { videoId: '7603317898312011022', account: '0900.act', publishTime: '2026/02/05 01:57', type: 'affiliate', typeName: '联盟', views: '1.3w', gmv: '$150.82', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@0900.act/video/7603317898312011022', productId: '1731902422767866213', contentType: '', style: 'AL-W0161-RED-L', owner: 'Alice Chen', authCode: 'AUTH-006', color: 'Red', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7468735562581609774', account: 'ellarellaaa', publishTime: '2025/10/01 09:00', type: 'affiliate', typeName: '联盟', views: '2.2w', gmv: '$320.50', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@ellarellaaa/video/7468735562581609774', productId: '1729773126172578149', contentType: '', style: 'AL-W0575-BLU-L', owner: 'Bob Wang', authCode: 'AUTH-007', color: 'Blue', sampleOwner: 'Bob Wang', remark: '' },
+      { videoId: '7619510978794769695', account: 'sillygeese5', publishTime: '2026/03/20 08:00', type: 'affiliate', typeName: '联盟', views: '4.5w', gmv: '$580.00', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@sillygeese5/video/7619510978794769695', productId: '1730674849392267621', contentType: '', style: 'ALYMX-DROPSW-YEL-M', owner: 'Alice Chen', authCode: 'AUTH-008', color: 'Yellow', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7618525560897162510', account: '0900.act', publishTime: '2026-03-20 21:58:00', type: 'self', typeName: '自制', views: '992', gmv: '$105.98', ordered: '是', orders: 2, link: 'https://www.tiktok.com/@0900.act/video/7618525560897162510', productId: '1729773126172578149', contentType: '混剪', style: 'AL-W6675-BLK-XS', owner: 'Alice Chen', authCode: 'AUTH-009', color: 'Black', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7619208092533787934', account: '0900.act', publishTime: '2026-03-21 17:56:00', type: 'self', typeName: '自制', views: '990', gmv: '$54.42', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@0900.act/video/7619208092533787934', productId: '1731657241623302501', contentType: '实拍', style: 'AL-W0518-WHT-S', owner: 'Bob Wang', authCode: 'AUTH-010', color: 'White', sampleOwner: 'Bob Wang', remark: '' },
+      { videoId: '7615000000000000001', account: 'faiable.collectio', publishTime: '2026-03-10 12:00:00', type: 'self', typeName: '自制', views: '4.5w', gmv: '$2658.40', ordered: '是', orders: 50, link: 'https://www.tiktok.com/@faiable.collectio/video/7615000000000000001', productId: '1731902422767866213', contentType: '达人原生', style: 'AL-W5558-PPL-M', owner: 'Alice Chen', authCode: 'AUTH-011', color: 'Lavender', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7610000000000000001', account: 'faiable_retrofit', publishTime: '2026-02-15 14:00:00', type: 'self', typeName: '自制', views: '8,200', gmv: '$424.96', ordered: '是', orders: 8, link: 'https://www.tiktok.com/@faiable_retrofit/video/7610000000000000001', productId: '1730674849392267621', contentType: '达人AI', style: 'AL-W0169-DGN-L', owner: 'Bob Wang', authCode: 'AUTH-012', color: 'Dark Green', sampleOwner: 'Bob Wang', remark: '' },
+      { videoId: '7620000000000000001', account: 'faiable.collectio', publishTime: '2026-03-25 10:00:00', type: 'image', typeName: '图文', views: '3,200', gmv: '$265.90', ordered: '是', orders: 5, link: 'https://www.tiktok.com/@faiable.collectio/video/7620000000000000001', productId: '1729773126172578149', contentType: '图文', style: 'AL-W6675-BLK-XS', owner: 'Alice Chen', authCode: 'AUTH-013', color: 'Black', sampleOwner: 'Alice Chen', remark: '' },
+      { videoId: '7622000000000000002', account: 'faiable_retrofit', publishTime: '2026-04-05 11:00:00', type: 'image', typeName: '图文', views: '1,800', gmv: '$106.40', ordered: '是', orders: 2, link: 'https://www.tiktok.com/@faiable_retrofit/video/7622000000000000002', productId: '1731657241623302501', contentType: '达人图文', style: 'AL-W0518-WHT-S', owner: 'Bob Wang', authCode: 'AUTH-014', color: 'White', sampleOwner: 'Bob Wang', remark: '' },
+      { videoId: '7621000000000000001', account: 'faiable_retrofit', publishTime: '2026-04-01 09:00:00', type: 'ai', typeName: 'AI', views: '8,900', gmv: '$584.54', ordered: '是', orders: 11, link: 'https://www.tiktok.com/@faiable_retrofit/video/7621000000000000001', productId: '1730674849392267621', contentType: 'AI', style: 'AL-W0161-RED-L', owner: 'Alice Chen', authCode: 'AUTH-015', color: 'Red', sampleOwner: 'Alice Chen', remark: '' }
+    ];
+    var activeTab = 'all';
+    var editingVideo = null;
+    function typeBadge(video) {
+      var cls = video.type === 'affiliate' ? 'badge-blue' : (video.type === 'self' ? 'badge-green' : (video.type === 'image' ? 'badge-yellow' : 'badge-ai'));
+      return '<span class="badge ' + cls + '">' + video.typeName + '</span>';
+    }
+    function contentBadge(contentType) {
+      if (!contentType) return '';
+      var cls = contentType.indexOf('达人') >= 0 ? 'badge-pink' : (contentType === 'AI' ? 'badge-ai' : (contentType === '混剪' ? 'badge-purple' : 'badge-blue'));
+      return '<span class="badge ' + cls + '">' + contentType + '</span>';
+    }
+    function getSearchTarget(video, field) {
+      if (field === 'videoId') return video.videoId;
+      if (field === 'account') return video.account;
+      if (field === 'style') return video.style;
+      if (field === 'productId') return video.productId;
+      return [video.videoId, video.account, video.style, video.productId].join(' ');
+    }
+    function renderRows() {
+      var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      var searchField = document.getElementById('searchField').value;
+      var searchMode = document.getElementById('searchMode').value;
+      var orderStatus = document.getElementById('orderFilter').value;
+      var contentType = document.getElementById('contentFilter').value;
+      var rows = videos.filter(function(video) {
+        if (activeTab !== 'all' && video.type !== activeTab) return false;
+        if (orderStatus && video.ordered !== orderStatus) return false;
+        if (contentType && video.contentType !== contentType) return false;
+        if (!keyword) return true;
+        var target = String(getSearchTarget(video, searchField)).toLowerCase();
+        return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) >= 0;
+      });
+      document.getElementById('totalCount').textContent = rows.length;
+      document.getElementById('pagerCount').textContent = rows.length;
+      var body = document.getElementById('videoRows');
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的视频数据</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map(function(video, index) {
+        return '<tr>' +
+          '<td class="w-check"><input type="checkbox" /></td>' +
+          '<td title="' + video.videoId + '">' + video.videoId + '</td>' +
+          '<td title="' + video.account + '">' + video.account + '</td>' +
+          '<td>' + video.publishTime + '</td>' +
+          '<td>' + typeBadge(video) + '</td>' +
+          '<td>' + video.views + '</td>' +
+          '<td class="' + (video.gmv !== '$0.00' ? 'money' : '') + '">' + video.gmv + '</td>' +
+          '<td><span class="' + (video.ordered === '是' ? 'badge-on' : 'badge-off') + '">' + video.ordered + '</span></td>' +
+          '<td>' + video.orders + '</td>' +
+          '<td><a class="video-link" href="' + video.link + '" target="_blank" rel="noopener">↗ 查看</a></td>' +
+          '<td title="' + video.productId + '">' + video.productId + '</td>' +
+          '<td>' + contentBadge(video.contentType) + '</td>' +
+          '<td><button class="icon-btn" data-edit="' + videos.indexOf(video) + '">编辑</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+    function openDrawer(video) {
+      editingVideo = video;
+      document.getElementById('drawerVideoId').textContent = video.videoId;
+      document.getElementById('infoAccount').textContent = video.account;
+      document.getElementById('infoPublishTime').textContent = video.publishTime;
+      document.getElementById('infoLink').innerHTML = '<a class="video-link" href="' + video.link + '" target="_blank" rel="noopener">在 TikTok 中查看</a>';
+      document.getElementById('infoViews').textContent = video.views;
+      document.getElementById('infoStyle').textContent = video.style;
+      document.getElementById('infoGmv').textContent = video.gmv;
+      document.getElementById('editOwner').value = video.owner || '未分配';
+      document.getElementById('editAuthCode').value = video.authCode || '';
+      document.getElementById('editColor').value = video.color || '';
+      document.getElementById('editSampleOwner').value = video.sampleOwner || '';
+      document.getElementById('editRemark').value = video.remark || '';
+      document.getElementById('drawerMask').classList.add('open');
+      document.getElementById('editDrawer').classList.add('open');
+    }
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('open');
+      document.getElementById('editDrawer').classList.remove('open');
+    }
+    function showToast() {
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 1400);
+    }
+    document.getElementById('tabs').addEventListener('click', function(e) {
+      var btn = e.target.closest('.tab');
+      if (!btn) return;
+      activeTab = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); });
+      btn.classList.add('active');
+      renderRows();
+    });
+    document.getElementById('videoRows').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-edit]');
+      if (!btn) return;
+      openDrawer(videos[parseInt(btn.getAttribute('data-edit'), 10)]);
+    });
+    document.getElementById('searchInput').addEventListener('input', renderRows);
+    document.getElementById('searchField').addEventListener('change', renderRows);
+    document.getElementById('searchMode').addEventListener('change', renderRows);
+    document.getElementById('orderFilter').addEventListener('change', renderRows);
+    document.getElementById('contentFilter').addEventListener('change', renderRows);
+    document.getElementById('btnReset').addEventListener('click', function() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('searchMode').value = 'fuzzy';
+      document.getElementById('searchField').value = 'all';
+      document.getElementById('orderFilter').value = '';
+      document.getElementById('contentFilter').value = '';
+      renderRows();
+    });
+    document.getElementById('btnClose').addEventListener('click', closeDrawer);
+    document.getElementById('btnCancel').addEventListener('click', closeDrawer);
+    document.getElementById('drawerMask').addEventListener('click', closeDrawer);
+    document.getElementById('btnSave').addEventListener('click', function() {
+      if (editingVideo) {
+        editingVideo.owner = document.getElementById('editOwner').value;
+        editingVideo.authCode = document.getElementById('editAuthCode').value.trim();
+        editingVideo.color = document.getElementById('editColor').value.trim();
+        editingVideo.sampleOwner = document.getElementById('editSampleOwner').value.trim();
+        editingVideo.remark = document.getElementById('editRemark').value.trim();
+        renderRows();
+      }
+      closeDrawer();
+      showToast();
+    });
+    renderRows();
+  </script>
+</body>
+</html>
