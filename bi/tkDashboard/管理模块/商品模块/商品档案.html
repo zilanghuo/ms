@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>商品档案</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; --header-bg: #f8fafc; --danger: #dc2626; --success: #16a34a; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 1.5rem; color: var(--text); }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 160px; cursor: pointer; height: 38px; }
+    .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 160px; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; margin-left: -1px; border-radius: 0; }
+    .search-query-item .search-input { width: 180px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: #fff; color: var(--text); display: inline-flex; align-items: center; gap: 0.35rem; height: 38px; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { color: var(--muted); font-size: 0.85rem; }
+    .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab:last-child { border-right: none; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .tab:hover:not(.active) { background: #f0fdfa; }
+    .tab .count { margin-left: 0.25rem; opacity: 0.85; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2220px; table-layout: fixed; }
+    th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
+    tbody tr:hover td { background: #f9fafb; }
+    .w-check { width: 44px; text-align: center; }
+    .w-pid { width: 190px; }
+    .w-shop { width: 190px; }
+    .w-site { width: 64px; }
+    .w-img { width: 70px; }
+    .w-status { width: 88px; }
+    .w-spu { width: 120px; }
+    .w-sku { width: 150px; }
+    .spu-board .sku-only { display: none; }
+    .w-name { width: 230px; }
+    .w-cat { width: 190px; }
+    .w-small { width: 104px; }
+    .w-op { width: 112px; }
+    .product-img { width: 34px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border); background: #f3f4f6; display: inline-flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 12px; }
+    .swatch { position: relative; overflow: hidden; }
+    .swatch::after { content: ''; position: absolute; left: 7px; right: 7px; top: 5px; bottom: 5px; border-radius: 8px 8px 4px 4px; background: rgba(255,255,255,.7); box-shadow: inset 0 -9px 0 rgba(0,0,0,.08); }
+    .swatch-ivory { background: linear-gradient(135deg,#f8fafc,#e9d5c2); }
+    .swatch-yellow { background: linear-gradient(135deg,#fef9c3,#d9f99d); }
+    .swatch-green { background: linear-gradient(135deg,#bbf7d0,#34d399); }
+    .swatch-dark { background: linear-gradient(135deg,#14532d,#111827); }
+    .swatch-red { background: linear-gradient(135deg,#fecaca,#b91c1c); }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 48px; height: 22px; padding: 0 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .badge-on { background: #dcfce7; color: var(--success); }
+    .badge-pass { background: #d1fae5; color: var(--success); }
+    .dot::before { content: ""; width: 5px; height: 5px; background: currentColor; border-radius: 50%; margin-right: 5px; }
+    .icon-btn { min-width: 30px; height: 30px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); cursor: pointer; margin-right: 0.35rem; }
+    .icon-btn:hover { background: #f9fafb; }
+    .drawer-mask { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; z-index: 50; }
+    .drawer-mask.open { display: block; }
+    .drawer { position: fixed; right: 0; top: 0; width: 560px; max-width: calc(100vw - 28px); height: 100vh; background: #fff; z-index: 60; box-shadow: 0 18px 50px rgba(15,23,42,.16); transform: translateX(105%); transition: transform .2s ease; display: flex; flex-direction: column; }
+    .drawer.open { transform: translateX(0); }
+    .drawer-head { height: 56px; padding: 0 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .drawer-title { font-weight: 600; font-size: 1rem; }
+    .close { border: 0; background: transparent; font-size: 22px; color: #9ca3af; cursor: pointer; }
+    .drawer-body { padding: 18px 22px 84px; overflow: auto; }
+    .form-section { border-top: 1px solid var(--border); padding-top: 14px; margin-top: 18px; }
+    .form-section:first-child { border-top: 0; margin-top: 0; padding-top: 0; }
+    .section-title { font-weight: 600; color: var(--text); margin-bottom: 10px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+    .form-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .field.full { grid-column: 1 / -1; }
+    label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 5px; }
+    .form-input, .form-select, textarea { width: 100%; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); padding: 0 10px; min-height: 34px; outline: none; }
+    .form-input:focus, .form-select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(13,148,136,.12); }
+    .form-input.error { border-color: var(--danger); box-shadow: 0 0 0 2px rgba(220,38,38,.12); }
+    textarea { min-height: 82px; padding: 8px 10px; resize: vertical; }
+    .checks { display: flex; gap: 12px; flex-wrap: wrap; min-height: 34px; align-items: center; }
+    .checks label { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-weight: 500; color: var(--text); }
+    .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 22px; }
+    .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 16px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
+    .toast.show { opacity: .94; }
+    .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
+    .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
+    .content-note ol { margin: 0; padding-left: 20px; }
+    .content-note li { margin: 0; line-height: 1.7; }
+    .doc-link { margin-top: 18px; text-align: left; font-size: 13px; color: var(--muted); }
+    .doc-link a { color: var(--accent); text-decoration: none; }
+    .doc-link a:hover { text-decoration: underline; }
+    @media (max-width: 960px) { body { padding: 1rem; } .query-actions { margin-left: 0; } .form-grid, .form-grid.three { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">商品档案</h1>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="query-item">
+          <div class="tabs" id="tabs">
+            <button class="tab active" data-tab="sku">SKU看板</button>
+            <button class="tab" data-tab="spu">SPU看板</button>
+          </div>
+        </div>
+        <div class="query-item">
+          <span class="label">平台</span>
+          <select id="platformFilter"><option value="">全部平台</option><option value="tiktok">TikTok</option><option value="site">独立站</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">状态</span>
+          <select id="statusFilter"><option value="">全部状态</option><option value="在售">在售</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">品类</span>
+          <select><option>产品品类</option><option>女式上衣</option><option>男式卫衣</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">品牌</span>
+          <select><option>产品品牌</option><option>FAIABLE</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">负责人</span>
+          <input type="text" placeholder="请输入" />
+        </div>
+        <div class="query-item search-query-item">
+          <select class="search-field-select" id="searchField"><option value="spu">SPU</option><option value="sku">SKU</option><option value="pid">PID</option></select>
+          <select class="search-mode-select" id="searchMode"><option value="fuzzy">模糊搜索</option><option value="exact">精确搜索</option></select>
+          <input type="text" class="search-input" id="searchInput" placeholder="请输入" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <div class="btns">
+        <button class="btn btn-secondary">产品说明</button>
+        <button class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="meta-info">数据更新时间：2026-05-28 09:12:59</div>
+    </div>
+
+    <div class="table-card">
+          <div class="table-wrap">
+            <table id="productTable" class="sku-board">
+              <thead>
+                <tr>
+                  <th class="w-check"><input type="checkbox" /></th>
+                  <th class="w-pid">PID</th>
+                  <th class="w-shop">所属店铺</th>
+                  <th class="w-site">站点</th>
+                  <th class="w-img">主图</th>
+                  <th class="w-status">商品状态</th>
+                  <th class="w-status">TK审核状态</th>
+                  <th class="w-spu">产品主 SPU</th>
+                  <th class="w-sku sku-only">SKU</th>
+                  <th class="w-name">产品中文名</th>
+                  <th class="w-small">产品品牌</th>
+                  <th class="w-cat">产品品类</th>
+                  <th class="w-small">PID 作用</th>
+                  <th class="w-small">更新日期</th>
+                  <th class="w-small">负责运营</th>
+                  <th class="w-small">吊牌价</th>
+                  <th class="w-small">日常折线价</th>
+                  <th class="w-small">独立站价格</th>
+                  <th class="w-small">亚马逊定价</th>
+                  <th class="w-op">操作</th>
+                </tr>
+              </thead>
+              <tbody id="productBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+    <section class="content-note" aria-label="内容说明">
+      <div class="content-note-title">内容说明</div>
+      <ol>
+        <li>产品的基础数据，来源于 TK 的 API。</li>
+        <li>产品的主 SPU，来源于 PID 需求看板的主 PID 维护（已经有）。</li>
+        <li>产品的中文名称，来源于积加的 SPU 中文名。</li>
+        <li>其他内容为人工维护。</li>
+        <li>PID 对应的责任人，这边完善后，PID 数据看板需要增加一列：运营责任人。</li>
+      </ol>
+    </section>
+
+    <section class="content-note" aria-label="疑问点">
+      <div class="content-note-title">疑问点</div>
+      <ol>
+        <li>在 SPU 维度、PID 层级下，价格如何获取？PID 是否也有一个主推 SKU 的价格？</li>
+      </ol>
+    </section>
+
+    <div class="doc-link">
+      <a href="需求文档.html">查看需求文档</a>
+    </div>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="editDrawer" aria-label="编辑商品">
+    <div class="drawer-head"><span class="drawer-title">编辑商品</span><button class="close" id="btnClose">×</button></div>
+    <div class="drawer-body">
+      <div class="form-section">
+        <div class="field full"><label>商品中文名</label><input class="form-input error" id="editName" /></div>
+        <div class="form-grid">
+          <div class="field"><label>销售状态</label><select class="form-select" id="editStatus"><option>在售</option><option>停售</option></select></div>
+          <div class="field"><label>PID作用</label><input class="form-input" id="editPidUse" value="-" /></div>
+          <div class="field"><label>产品品类</label><input class="form-input" id="editCategory" /></div>
+          <div class="field"><label>季节（多选）</label><div class="checks"><label><input type="checkbox" />春</label><label><input type="checkbox" />夏</label><label><input type="checkbox" />秋</label><label><input type="checkbox" />冬</label></div></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">价格信息</div>
+        <div class="form-grid three">
+          <div class="field"><label>日常折线价</label><input class="form-input" id="editDailyPrice" /></div>
+          <div class="field"><label>吊牌价</label><input class="form-input" id="editTagPrice" /></div>
+          <div class="field"><label>直播间秒杀价</label><input class="form-input" /></div>
+          <div class="field"><label>活动报名价</label><input class="form-input" /></div>
+          <div class="field"><label>亚马逊定价</label><input class="form-input" /></div>
+          <div class="field"><label>独立站价格</label><input class="form-input" /></div>
+          <div class="field"><label>公开佣金</label><input class="form-input" /></div>
+          <div class="field"><label>定向佣金</label><input class="form-input" /></div>
+          <div class="field"><label>广告佣金</label><input class="form-input" /></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">归属人员</div>
+        <div class="form-grid">
+          <div class="field"><label>负责运营</label><input class="form-input" id="editOwner" value="-" /></div>
+          <div class="field"><label>负责商务</label><input class="form-input" value="-" /></div>
+          <div class="field"><label>负责指导</label><input class="form-input" value="-" /></div>
+          <div class="field"><label>负责剪辑</label><input class="form-input" value="-" /></div>
+          <div class="field"><label>直播运营</label><input class="form-input" value="-" /></div>
+          <div class="field"><label>投放负责人</label><input class="form-input" value="-" /></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">知识产权</div>
+        <div class="form-grid">
+          <div class="field"><label>IPPC注册情况</label><select class="form-select"><option>请选择</option><option>已注册</option><option>未注册</option></select></div>
+          <div class="field full"><label>IPPC情况说明</label><textarea>-</textarea></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">内容运营</div>
+        <div class="field full"><label>产品卖点</label><textarea>-</textarea></div>
+      </div>
+    </div>
+    <div class="drawer-actions"><button class="btn" id="btnCancel">取消</button><button class="btn btn-query" id="btnSave">保存</button></div>
+  </aside>
+  <div class="toast" id="toast">已保存当前商品档案</div>
+
+  <script>
+    var products = [
+      { pid: '1732388385375162725', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W6675', sku: 'AL-W6675-BLK-XS', name: '男女正肩洗水T-黑色04-XS', brand: '-', category: 'NW122-女式上衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$39.99' },
+      { pid: '1731924731294158890', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'ivory', status: '在售', audit: '已通过', spu: 'AL-W0518', sku: 'AL-W0518-WHT-S', name: '一字领喇叭长袖散边T-白色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$36.99' },
+      { pid: '1732020753369305445', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W5558', sku: 'AL-W5558-PPL-M', name: '男女华夫格沙洗短袖-粉紫色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$45.99 ~ $99.99' },
+      { pid: '1731654013478146405', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'yellow', status: '在售', audit: '已通过', spu: 'ALYMX-DROPSW', sku: 'ALYMX-DROPSW-YEL-M', name: 'N036露肚脐下帽绳-黄色', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$49.99' },
+      { pid: '1730674849392267621', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'green', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-GRN-XL', name: '双拉链连帽卫衣-水绿71-XL', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
+      { pid: '1732358924023402853', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W0575', sku: 'AL-W0575-BLU-L', name: '男女炒洗亨利领卫衣-深天蓝', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$89.99' },
+      { pid: '1729439482671567205', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'dark', status: '在售', audit: '已通过', spu: 'AL-W0169', sku: 'AL-W0169-DGN-L', name: '复古加绒连帽卫衣-墨绿色', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
+      { pid: '1731651043684028773', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'red', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-RED-L', name: '双拉链连帽卫衣-红色81-L', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' }
+    ];
+    var activeTab = 'sku';
+    function short(text, n) { return String(text || '').length > n ? String(text).slice(0, n) + '...' : text; }
+    function renderRows() {
+      var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+      var searchField = document.getElementById('searchField').value;
+      var searchMode = document.getElementById('searchMode').value;
+      var platform = document.getElementById('platformFilter').value;
+      var isSkuBoard = activeTab === 'sku';
+      document.getElementById('productTable').className = isSkuBoard ? 'sku-board' : 'spu-board';
+      var skuOption = document.querySelector('#searchField option[value="sku"]');
+      if (skuOption) skuOption.hidden = !isSkuBoard;
+      if (!isSkuBoard && searchField === 'sku') {
+        document.getElementById('searchField').value = 'spu';
+        searchField = 'spu';
+      }
+      var rows = products.filter(function(item) {
+        if (platform && item.platform !== platform) return false;
+        if (!keyword) return true;
+        var target = String(searchField === 'pid' ? item.pid : (searchField === 'sku' ? item.sku : item.spu)).toLowerCase();
+        return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) >= 0;
+      });
+      var body = document.getElementById('productBody');
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="' + (isSkuBoard ? 20 : 19) + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map(function(item, index) {
+        var image = item.img ? '<span class="product-img swatch swatch-' + item.img + '"></span>' : '<span class="product-img">无图</span>';
+        return '<tr>' +
+          '<td class="w-check"><input type="checkbox" /></td>' +
+          '<td title="' + item.pid + '">' + item.pid + '</td>' +
+          '<td title="' + item.shop + '">' + short(item.shop, 14) + '</td>' +
+          '<td>' + item.site + '</td>' +
+          '<td>' + image + '</td>' +
+          '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
+          '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
+          '<td>' + item.spu + '</td>' +
+          '<td class="sku-only">' + item.sku + '</td>' +
+          '<td title="' + item.name + '">' + short(item.name, 16) + '</td>' +
+          '<td>' + item.brand + '</td>' +
+          '<td title="' + item.category + '">' + short(item.category, 16) + '</td>' +
+          '<td>' + item.pidUse + '</td>' +
+          '<td>' + item.date + '</td>' +
+          '<td>' + item.owner + '</td>' +
+          '<td>' + item.tagPrice + '</td>' +
+          '<td>-</td><td>-</td><td>-</td>' +
+          '<td><button class="icon-btn" title="编辑" data-edit="' + index + '">✎</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+    function openDrawer(item) {
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editStatus').value = item.status;
+      document.getElementById('editPidUse').value = item.pidUse;
+      document.getElementById('editCategory').value = item.category;
+      document.getElementById('editDailyPrice').value = '-';
+      document.getElementById('editTagPrice').value = item.tagPrice;
+      document.getElementById('editOwner').value = item.owner;
+      document.getElementById('drawerMask').classList.add('open');
+      document.getElementById('editDrawer').classList.add('open');
+    }
+    function closeDrawer() {
+      document.getElementById('drawerMask').classList.remove('open');
+      document.getElementById('editDrawer').classList.remove('open');
+    }
+    function showToast() {
+      var toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 1400);
+    }
+    document.getElementById('productBody').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-edit]');
+      if (!btn) return;
+      openDrawer(products[parseInt(btn.getAttribute('data-edit'), 10)]);
+    });
+    document.getElementById('tabs').addEventListener('click', function(e) {
+      var btn = e.target.closest('.tab');
+      if (!btn) return;
+      activeTab = btn.getAttribute('data-tab');
+      document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); });
+      btn.classList.add('active');
+      renderRows();
+    });
+    document.getElementById('searchInput').addEventListener('input', renderRows);
+    document.getElementById('searchField').addEventListener('change', renderRows);
+    document.getElementById('searchMode').addEventListener('change', renderRows);
+    document.getElementById('platformFilter').addEventListener('change', renderRows);
+    document.getElementById('btnReset').addEventListener('click', function() { document.getElementById('searchInput').value = ''; document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('platformFilter').value = ''; renderRows(); });
+    document.getElementById('btnClose').addEventListener('click', closeDrawer);
+    document.getElementById('btnCancel').addEventListener('click', closeDrawer);
+    document.getElementById('drawerMask').addEventListener('click', closeDrawer);
+    document.getElementById('btnSave').addEventListener('click', function() { closeDrawer(); showToast(); });
+    renderRows();
+  </script>
+</body>
+</html>

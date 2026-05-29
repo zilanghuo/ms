@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>联盟订单</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --accent-hover: #0f766e; --border: #e0e0e0; --input-border: #d1d5db; --header-bg: #f8fafc; --danger: #dc2626; --success: #16a34a; --warning: #f59e0b; --blue: #2563eb; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
+    .container { max-width: 100%; margin: 0 auto; }
+    .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; margin-bottom: 1rem; }
+    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: default; background: #fff; color: var(--accent); border: none; }
+    .tab.active { background: var(--accent); color: #fff; }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+    .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; align-items: center; gap: 0.85rem; min-height: 78px; }
+    .metric-icon { width: 36px; height: 36px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; flex: none; }
+    .metric-icon svg { width: 18px; height: 18px; }
+    .metric-blue { color: #3b82f6; background: #eff6ff; }
+    .metric-green { color: #22c55e; background: #ecfdf5; }
+    .metric-purple { color: #a855f7; background: #faf5ff; }
+    .metric-orange { color: #f97316; background: #fff7ed; }
+    .metric-label { color: #8a99aa; font-size: 0.85rem; font-weight: 600; }
+    .metric-value { color: #1f2937; font-size: 1.35rem; font-weight: 800; line-height: 1.2; }
+    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 0.75rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 130px; cursor: pointer; height: 38px; }
+    .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 160px; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item .search-field-select { width: 112px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; margin-left: -1px; border-radius: 0; }
+    .search-query-item .search-input { width: 230px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: #fff; color: var(--text); display: inline-flex; align-items: center; gap: 0.35rem; height: 38px; white-space: nowrap; }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .action-bar { background: transparent; padding: 0 0 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .meta-info { color: var(--muted); font-size: 0.85rem; }
+    .right-tools { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2180px; table-layout: fixed; }
+    th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
+    tbody tr:hover td { background: #f9fafb; }
+    .w-check { width: 44px; text-align: center; }
+    .w-index { width: 44px; text-align: center; }
+    .w-video { width: 170px; }
+    .w-account { width: 150px; }
+    .w-date { width: 112px; }
+    .w-month { width: 112px; }
+    .w-link { width: 90px; }
+    .w-title { width: 210px; }
+    .w-style { width: 165px; }
+    .w-product { width: 170px; }
+    .w-shop { width: 130px; }
+    .w-small { width: 92px; }
+    .w-status { width: 105px; }
+    .w-owner { width: 120px; }
+    .w-code { width: 130px; }
+    .w-color { width: 120px; }
+    .w-op { width: 74px; text-align: center; }
+    input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+    .badge-open { color: var(--success); background: #dcfce7; border: 1px solid #bbf7d0; }
+    .muted { color: #a0aec0; }
+    .select-pill { width: 82px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: #94a3b8; padding: 0 8px; }
+    .editable { color: #a0aec0; cursor: pointer; }
+    .editable:hover { color: var(--accent); }
+    .video-url { color: var(--accent); text-decoration: none; }
+    .video-url:hover { text-decoration: underline; }
+    .inline-edit { width: 100%; height: 30px; border: 1px solid var(--accent); border-radius: 4px; padding: 0 8px; color: var(--text); background: #fff; outline: none; box-shadow: 0 0 0 2px rgba(13,148,136,.12); }
+    .detail-link { border: none; background: transparent; color: var(--accent); cursor: pointer; padding: 0; font-weight: 600; }
+    .detail-link:hover { color: var(--accent-hover); text-decoration: underline; }
+    .pager { display: flex; justify-content: flex-end; align-items: center; gap: 10px; color: var(--muted); font-size: 0.85rem; margin-top: 0.75rem; }
+    .pager select { height: 32px; border: 1px solid var(--input-border); border-radius: 4px; color: var(--muted); background: #fff; }
+    .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
+    .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
+    .content-note ol { margin: 0; padding-left: 20px; }
+    .content-note li { margin: 0; line-height: 1.7; }
+    .modal-mask { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, .38); z-index: 80; }
+    .modal-mask.open { display: flex; }
+    .modal { width: min(1180px, 96vw); max-height: 86vh; background: #fff; border-radius: 8px; box-shadow: 0 20px 45px rgba(15, 23, 42, .2); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { height: 56px; padding: 0 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .modal-close { width: 30px; height: 30px; border: none; border-radius: 4px; background: #f5f6f8; color: #73869b; cursor: pointer; font-size: 20px; line-height: 1; }
+    .modal-close:hover { background: #edf2f7; }
+    .modal-body { padding: 16px 20px 18px; overflow: auto; }
+    .detail-meta { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
+    .detail-table { min-width: 980px; }
+    .detail-table th, .detail-table td { padding: 0.6rem 0.7rem; }
+    .detail-pager { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-top: 12px; color: var(--muted); font-size: 0.85rem; }
+    .page-btn { min-width: 30px; height: 30px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); cursor: pointer; }
+    .page-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 16px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
+    .toast.show { opacity: .94; }
+    .ai-float { position: fixed; right: -10px; bottom: 58px; width: 50px; height: 44px; border-radius: 22px 0 0 22px; border: none; background: #fff; box-shadow: 0 10px 30px rgba(20, 40, 70, .13); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .ai-float::before { content: ""; width: 26px; height: 26px; border-radius: 50%; background: conic-gradient(from 45deg, #4ade80, #22c55e, #93c5fd, #fef08a, #4ade80); clip-path: polygon(50% 0, 72% 31%, 100% 36%, 78% 58%, 84% 90%, 50% 75%, 16% 90%, 22% 58%, 0 36%, 28% 31%); }
+    @media (max-width: 960px) { body { padding: 1rem; } .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .query-actions { margin-left: 0; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs" aria-label="视频类型导航">
+      <button class="tab active" type="button">联盟视频</button>
+    </div>
+
+    <section class="query-card">
+      <div class="query-row">
+        <div class="query-item"><select id="openFilter"><option value="">全部开单</option><option value="已开单">已开单</option><option value="未开单">未开单</option></select></div>
+        <div class="query-item"><select id="launchFilter"><option value="">全部</option><option value="已投放">已投放</option><option value="未投放">未投放</option></select></div>
+        <div class="query-item"><select id="monthFilter"><option value="">全部年月</option><option value="2026年5月">2026年5月</option><option value="2026年4月">2026年4月</option></select></div>
+        <div class="query-item"><select id="ownerFilter"><option value="">全部商务</option><option value="Alice Chen">Alice Chen</option><option value="Bob Wang">Bob Wang</option><option value="未分配">未分配</option></select></div>
+        <div class="query-item search-query-item">
+          <select class="search-field-select" id="searchField">
+            <option value="all">视频/达人/款号</option>
+            <option value="videoId">视频ID</option>
+            <option value="account">达人账号</option>
+            <option value="style">视频款号</option>
+            <option value="productId">Product ID</option>
+          </select>
+          <select class="search-mode-select" id="searchMode">
+            <option value="fuzzy">模糊搜索</option>
+            <option value="exact">精确搜索</option>
+          </select>
+          <input type="text" class="search-input" id="searchInput" placeholder="请输入" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
+          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="metric-grid" aria-label="核心指标">
+      <div class="metric-card"><span class="metric-icon metric-blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h11v10H4z"/><path d="m15 10 5-3v10l-5-3z"/></svg></span><div><div class="metric-label">视频总数</div><div class="metric-value" id="metricVideo">507</div></div></div>
+      <div class="metric-card"><span class="metric-icon metric-green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m9 12 2 2 4-5"/></svg></span><div><div class="metric-label">开单视频数</div><div class="metric-value" id="metricOpen">507</div></div></div>
+      <div class="metric-card"><span class="metric-icon metric-purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17 10 11l4 4 6-8"/><path d="M15 7h5v5"/></svg></span><div><div class="metric-label">开单率</div><div class="metric-value" id="metricRate">100.0%</div></div></div>
+      <div class="metric-card"><span class="metric-icon metric-orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-2 8H8z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></span><div><div class="metric-label">总订单数</div><div class="metric-value" id="metricOrder">1,598</div></div></div>
+    </section>
+
+    <div class="action-bar">
+      <div class="meta-info">共 <strong id="totalCount">507</strong> 条记录</div>
+      <div class="right-tools">
+        <button class="btn btn-secondary" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
+        <button class="btn btn-secondary" id="btnHelp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg>说明</button>
+      </div>
+    </div>
+
+    <section class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="w-check"><input type="checkbox" /></th>
+              <th class="w-index">#</th>
+              <th class="w-video">视频ID</th>
+              <th class="w-account">达人账号</th>
+              <th class="w-date">最早下单时间</th>
+              <th class="w-month">视频年月</th>
+              <th class="w-link">视频链接</th>
+              <th class="w-title">商品标题</th>
+              <th class="w-style">视频款号</th>
+              <th class="w-product">Product ID</th>
+              <th class="w-shop">挂车店铺</th>
+              <th class="w-small">播放量</th>
+              <th class="w-small">GMV($)</th>
+              <th class="w-small">订单数</th>
+              <th class="w-status">是否开单</th>
+              <th class="w-status">是否投放</th>
+              <th class="w-owner">归属商务</th>
+              <th class="w-code">授权码</th>
+              <th class="w-color">视频颜色</th>
+              <th class="w-op">操作</th>
+            </tr>
+          </thead>
+          <tbody id="orderRows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div class="pager">
+      <span>每页</span>
+      <select><option>20</option><option>50</option><option>100</option></select>
+      <span>条</span>
+    </div>
+
+    <section class="content-note" aria-label="内容说明">
+      <div class="content-note-title">内容说明</div>
+      <ol>
+        <li>联盟订单页面用于汇总联盟视频维度的开单、订单、GMV、归属商务与授权码维护情况。</li>
+        <li>页面风格、筛选区、表格和按钮体系保持与商品档案页面一致。</li>
+      </ol>
+    </section>
+  </div>
+
+  <div class="modal-mask" id="detailModalMask">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="detailModalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="detailModalTitle">订单明细</div>
+        <button class="modal-close" id="detailModalClose" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-meta" id="detailMeta">共 0 条订单明细</div>
+        <div class="table-wrap">
+          <table class="detail-table">
+            <thead>
+              <tr>
+                <th>视频ID</th>
+                <th>达人账号</th>
+                <th>PID</th>
+                <th>视频款号</th>
+                <th>订单ID</th>
+                <th>下单时间</th>
+                <th>订单金额</th>
+                <th>订单状态</th>
+              </tr>
+            </thead>
+            <tbody id="detailRows"></tbody>
+          </table>
+        </div>
+        <div class="detail-pager" id="detailPager"></div>
+      </div>
+    </section>
+  </div>
+
+  <button class="ai-float" title="AI 助手" aria-label="AI 助手"></button>
+  <div class="toast" id="toast">操作成功</div>
+
+  <script>
+    var orders = [
+      { videoId: '7587973237045349662', account: 'kai.didit', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Acid Washed Tee', style: 'AL-W0161-LHH-M', productId: '1730674849392267621', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7593295159740140813', account: 'kai.didit', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Oversized Acid washed Hoodie', style: 'AL-W5558-ZGH-M', productId: '1732020914348724581', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7628883233232424222', account: 'shealift', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-NYS-XS, AL-W0169-NYS-S', productId: '1729439482671567205', shop: '-', play: '-', gmv: '-', orderCount: 3, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7634852148613762318', account: 'johnnn_td', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Oversized Quarter Zip Sweatshirt', style: 'AL-W0181-HEIS-XL, AL-W0181-HEIS-L', productId: '1732358886692000101', shop: '-', play: '-', gmv: '-', orderCount: 2, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7625518442623372574', account: 'krysta.between.innings', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex CrewNeck Sweatshirt', style: 'AL-W0166-BLS-2XL', productId: '1732187779687616869', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7637409534234955038', account: 'streetfitusa', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Hoodies Vintage Acid Washed', style: 'AL-W0180-HS-S', productId: '1731902422767866213', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: 'Alice Chen', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7479227754945219882', account: 'jodieping', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'Hatant Fleece Pullover Women casual', style: 'AL-WT2404-LHH-M', productId: '1730075990024360293', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: 'Bob Wang', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7615067596500585742', account: 'lukx.co', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Oversized Hoodie for Women', style: 'AL-W0180-LHH-2XL', productId: '1731657241623302501', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7389458484628196654', account: 'lifesrad', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-AQS-L, AL-W0169-AQS-M', productId: '1729439482671567205', shop: '-', play: '-', gmv: '-', orderCount: 2, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7568240553389788446', account: 'legendarylavv', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Sweatshirt', style: 'AL-W0161-QF-S', productId: '1731077240963502437', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7562313546797780238', account: 'aalanuhhh', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-LL-L', productId: '1729439482671567205', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
+      { videoId: '7589149938131520781', account: 'faiable.collectio', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Acid Washed Tee', style: 'AL-W0161-HS-L', productId: '1730674849392267621', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' }
+    ];
+    function byId(id) { return document.getElementById(id); }
+    function short(text, length) { return String(text || '').length > length ? String(text).slice(0, length) + '...' : text; }
+    function showToast(text) {
+      var toast = byId('toast');
+      toast.textContent = text || '操作成功';
+      toast.classList.add('show');
+      setTimeout(function() { toast.classList.remove('show'); }, 1400);
+    }
+    function renderVideoLink(item, index) {
+      var link = String(item.link || '');
+      if (link === '填写链接') return '<span class="editable" data-edit-field="link" data-edit-index="' + index + '">填写链接</span>';
+      return '<a class="video-url" href="' + link + '" target="_blank" rel="noopener">' + short(link, 12) + '</a><span class="editable" data-edit-field="link" data-edit-index="' + index + '" style="margin-left:8px;">编辑</span>';
+    }
+    function normalizeUrl(value) {
+      value = String(value || '').trim();
+      if (!value) return '填写链接';
+      return /^https?:\/\//i.test(value) ? value : 'https://' + value;
+    }
+    function renderRows() {
+      var keyword = byId('searchInput').value.trim().toLowerCase();
+      var searchField = byId('searchField').value;
+      var searchMode = byId('searchMode').value;
+      var open = byId('openFilter').value;
+      var launch = byId('launchFilter').value;
+      var month = byId('monthFilter').value;
+      var owner = byId('ownerFilter').value;
+      var rows = orders.filter(function(item) {
+        if (open && item.opened !== open) return false;
+        if (launch && item.launch !== launch) return false;
+        if (month && item.month !== month) return false;
+        if (owner && item.owner !== owner) return false;
+        if (!keyword) return true;
+        var targets = searchField === 'all' ? [item.videoId, item.account, item.style, item.productId, item.title] : [item[searchField]];
+        return targets.some(function(value) {
+          value = String(value || '').toLowerCase();
+          return searchMode === 'exact' ? value === keyword : value.indexOf(keyword) >= 0;
+        });
+      });
+      byId('totalCount').textContent = rows.length;
+      byId('metricVideo').textContent = rows.length || 0;
+      byId('metricOpen').textContent = rows.filter(function(item) { return item.opened === '已开单'; }).length;
+      byId('metricRate').textContent = rows.length ? ((rows.filter(function(item) { return item.opened === '已开单'; }).length / rows.length) * 100).toFixed(1) + '%' : '0.0%';
+      byId('metricOrder').textContent = rows.reduce(function(sum, item) { return sum + Number(item.orderCount || 0); }, 0).toLocaleString();
+      byId('orderRows').innerHTML = rows.map(function(item, index) {
+        return '<tr>' +
+          '<td class="w-check"><input type="checkbox" /></td>' +
+          '<td class="w-index">' + (index + 1) + '</td>' +
+          '<td title="' + item.videoId + '">' + item.videoId + '</td>' +
+          '<td title="' + item.account + '">' + item.account + '</td>' +
+          '<td>' + item.firstOrder + '</td>' +
+          '<td>' + item.month + '</td>' +
+          '<td>' + renderVideoLink(item, index) + '</td>' +
+          '<td title="' + item.title + '">' + short(item.title, 28) + '</td>' +
+          '<td title="' + item.style + '">' + short(item.style, 22) + '</td>' +
+          '<td title="' + item.productId + '">' + item.productId + '</td>' +
+          '<td>' + item.shop + '</td>' +
+          '<td class="muted">' + item.play + '</td>' +
+          '<td class="muted">' + item.gmv + '</td>' +
+          '<td>' + item.orderCount + '</td>' +
+          '<td><span class="badge badge-open">' + item.opened + '</span></td>' +
+          '<td>' + item.launch + '</td>' +
+          '<td><select class="select-pill"><option>' + item.owner + '</option><option>Alice Chen</option><option>Bob Wang</option></select></td>' +
+          '<td><span class="editable" data-edit-field="code" data-edit-index="' + index + '">' + item.code + '</span></td>' +
+          '<td><span class="editable" data-edit-field="color" data-edit-index="' + index + '">' + item.color + '</span></td>' +
+          '<td class="w-op"><button class="detail-link" data-detail="' + index + '">查看订单明细</button></td>' +
+        '</tr>';
+      }).join('') || '<tr><td colspan="20" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的联盟订单</td></tr>';
+    }
+    var currentDetailItem = null;
+    var currentDetailPage = 1;
+    var detailPageSize = 5;
+    function buildOrderDetails(item) {
+      var count = Math.max(Number(item.orderCount || 1), 1);
+      var rows = [];
+      for (var i = 0; i < count + 4; i++) {
+        rows.push({
+          videoId: item.videoId,
+          account: item.account,
+          pid: item.productId,
+          style: item.style,
+          orderId: 'TK' + item.videoId.slice(-6) + String(i + 1).padStart(3, '0'),
+          orderTime: item.firstOrder + ' ' + String(9 + (i % 8)).padStart(2, '0') + ':' + String((i * 7) % 60).padStart(2, '0'),
+          amount: '$' + (29.99 + i * 8.5).toFixed(2),
+          status: i % 3 === 0 ? '已支付' : (i % 3 === 1 ? '已发货' : '已完成')
+        });
+      }
+      return rows;
+    }
+    function renderDetailPage() {
+      var details = buildOrderDetails(currentDetailItem);
+      var totalPages = Math.max(Math.ceil(details.length / detailPageSize), 1);
+      currentDetailPage = Math.min(Math.max(currentDetailPage, 1), totalPages);
+      var start = (currentDetailPage - 1) * detailPageSize;
+      var pageRows = details.slice(start, start + detailPageSize);
+      byId('detailMeta').textContent = '视频ID：' + currentDetailItem.videoId + '，共 ' + details.length + ' 条订单明细';
+      byId('detailRows').innerHTML = pageRows.map(function(row) {
+        return '<tr>' +
+          '<td>' + row.videoId + '</td>' +
+          '<td>' + row.account + '</td>' +
+          '<td>' + row.pid + '</td>' +
+          '<td title="' + row.style + '">' + short(row.style, 20) + '</td>' +
+          '<td>' + row.orderId + '</td>' +
+          '<td>' + row.orderTime + '</td>' +
+          '<td>' + row.amount + '</td>' +
+          '<td>' + row.status + '</td>' +
+        '</tr>';
+      }).join('');
+      var pager = '<span>第 ' + currentDetailPage + ' / ' + totalPages + ' 页</span>' +
+        '<button class="page-btn" data-page="prev">‹</button>';
+      for (var i = 1; i <= totalPages; i++) {
+        pager += '<button class="page-btn ' + (i === currentDetailPage ? 'active' : '') + '" data-page="' + i + '">' + i + '</button>';
+      }
+      pager += '<button class="page-btn" data-page="next">›</button>';
+      byId('detailPager').innerHTML = pager;
+    }
+    function openDetailModal(item) {
+      currentDetailItem = item;
+      currentDetailPage = 1;
+      renderDetailPage();
+      byId('detailModalMask').classList.add('open');
+    }
+    function closeDetailModal() { byId('detailModalMask').classList.remove('open'); }
+    ['searchInput', 'searchField', 'searchMode', 'openFilter', 'launchFilter', 'monthFilter', 'ownerFilter'].forEach(function(id) { byId(id).addEventListener(id === 'searchInput' ? 'input' : 'change', renderRows); });
+    byId('btnQuery').addEventListener('click', renderRows);
+    byId('btnReset').addEventListener('click', function() {
+      byId('searchInput').value = '';
+      byId('searchField').value = 'all';
+      byId('searchMode').value = 'fuzzy';
+      byId('openFilter').value = '';
+      byId('launchFilter').value = '';
+      byId('monthFilter').value = '';
+      byId('ownerFilter').value = '';
+      renderRows();
+    });
+    byId('btnExport').addEventListener('click', function() { showToast('已生成联盟订单导出任务'); });
+    byId('btnHelp').addEventListener('click', function() { showToast('联盟订单说明待完善'); });
+    byId('orderRows').addEventListener('click', function(event) {
+      var detail = event.target.closest('[data-detail]');
+      if (detail) {
+        openDetailModal(orders[Number(detail.getAttribute('data-detail'))]);
+        return;
+      }
+      var editable = event.target.closest('[data-edit-field]');
+      if (editable) startInlineEdit(editable);
+    });
+    function startInlineEdit(target) {
+      if (target.querySelector('input')) return;
+      var index = Number(target.getAttribute('data-edit-index'));
+      var field = target.getAttribute('data-edit-field');
+      var emptyText = field === 'link' ? '填写链接' : '点击编辑';
+      var oldValue = orders[index][field] === emptyText ? '' : orders[index][field];
+      target.innerHTML = '<input class="inline-edit" value="' + oldValue + '" />';
+      var input = target.querySelector('input');
+      input.focus();
+      input.select();
+      function save() {
+        var value = field === 'link' ? normalizeUrl(input.value) : (input.value.trim() || '点击编辑');
+        orders[index][field] = value;
+        if (field === 'link' && value !== '填写链接') {
+          target.outerHTML = '<a class="video-url" href="' + value + '" target="_blank" rel="noopener">' + short(value, 12) + '</a><span class="editable" data-edit-field="link" data-edit-index="' + index + '" style="margin-left:8px;">编辑</span>';
+        } else {
+          target.textContent = value;
+        }
+        showToast('已保存' + (field === 'code' ? '授权码' : (field === 'color' ? '视频颜色' : '视频链接')));
+      }
+      input.addEventListener('blur', save, { once: true });
+      input.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') input.blur();
+        if (event.key === 'Escape') {
+          input.removeEventListener('blur', save);
+          target.textContent = orders[index][field];
+        }
+      });
+    }
+    byId('detailModalClose').addEventListener('click', closeDetailModal);
+    byId('detailModalMask').addEventListener('click', function(event) { if (event.target === event.currentTarget) closeDetailModal(); });
+    byId('detailPager').addEventListener('click', function(event) {
+      var btn = event.target.closest('[data-page]');
+      if (!btn) return;
+      var action = btn.getAttribute('data-page');
+      if (action === 'prev') currentDetailPage -= 1;
+      else if (action === 'next') currentDetailPage += 1;
+      else currentDetailPage = Number(action);
+      renderDetailPage();
+    });
+    renderRows();
+  </script>
+</body>
+</html>

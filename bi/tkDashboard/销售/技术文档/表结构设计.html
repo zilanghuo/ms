@@ -102,10 +102,12 @@
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-market-realtime">dws_sales_store_market_realtime</a></td><td>店铺销售额准实时汇总（约 10 分钟更新）</td><td>店铺汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-store-site-market-realtime">dws_sales_store_site_market_realtime</a></td><td>店铺站点销售额准实时汇总（站点粒度，约 10 分钟更新）</td><td>店铺站点汇总 准实时</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-realtime">dws_sales_pid_gmv_realtime</a></td><td>PID 维度 GMV 准实时汇总（按店铺+PID+日期，约 10 分钟更新）</td><td>PID 需求一</td></tr>
+          <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-product-sku-qty-1d">dws_sales_product_sku_qty_1d</a></td><td>商品统计 SKU 日销量汇总（按店铺+SPU+PID+SKU+日期）</td><td>销售数据 商品统计 1.3</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-gmv-calc-realtime-detail">dws_sales_pid_gmv_calc_realtime_detail</a></td><td>PID 维度 GMV 计算明细表（按店铺+PID+日期聚合，含补贴/折扣/运费/实付等口径）</td><td>PID 需求一（GMV计算）/ 需求二（数据看板）</td></tr>
           <tr><td><span class="layer-badge layer-dws">DWS</span></td><td><a href="#tbl-dws-sales-pid-dashboard-1d">dws_sales_pid_dashboard_1d</a></td><td>PID 维度数据看板 DWS 层（日粒度）</td><td>PID 需求二 数据看板</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-gmv-calc-realtime">ads_sales_pid_gmv_calc_realtime</a></td><td>PID 维度 GMV 计算表-准实时（来源 DWS）</td><td>PID 需求一</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-pid-dashboard-1d">ads_sales_pid_dashboard_1d</a></td><td>PID 维度数据看板</td><td>PID 需求二</td></tr>
+          <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-product-statistics-1d">ads_sales_product_statistics_1d</a></td><td>商品统计 1.3 查询表，支撑 SPU汇总 / PID明细 / SKU看板</td><td>销售数据 商品统计 1.3</td></tr>
           <tr><td><span class="layer-badge layer-ads">ADS</span></td><td><a href="#tbl-ads-sales-store-site-order-count-realtime">ads_sales_store_site_order_count_realtime</a></td><td>按店铺站点订单数+金额准实时播报表（站点粒度，约 10 分钟更新，保留历史；播报使用此表）</td><td>销售需求一</td></tr>
         </tbody>
       </table>
@@ -3004,6 +3006,66 @@ PROPERTIES (
 
     <hr />
 
+    <h3 id="tbl-dws-sales-product-sku-qty-1d">5.4 dws_sales_product_sku_qty_1d</h3>
+    <p>商品统计 SKU 日销量汇总表，支撑 <code>销售/销售数据/htmls/商品统计-1.3.html</code> 的 <strong>SPU汇总 / PID明细 / SKU看板</strong> 三种视图。该表以 <code>dwd_sales_order_item_market_wide_realtime</code> 为 DWD 明细来源，按市场本地支付日期 <code>sdt</code>、店铺、SPU、PID、SKU 聚合每日销量，并关联商品主数据补充 SKU 名称、颜色、尺码和积加 SPU 中文名称。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（归属月份）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期，格式：YYYYMMDD，按市场本地支付日期归集</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码（来自 market_id）</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU 编码</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN）</td></tr>
+          <tr><td>sku</td><td>VARCHAR(200)</td><td>SKU 编码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(500)</td><td>店铺名称（来自 market_name）</td></tr>
+          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
+          <tr><td>sku_name</td><td>STRING</td><td>SKU 产品中文名，优先取商品主数据 sku_name，缺失时取订单商品名称</td></tr>
+          <tr><td>color_name</td><td>VARCHAR(200)</td><td>颜色，由 SKU 名称拆分或规则映射得到</td></tr>
+          <tr><td>size_name</td><td>VARCHAR(200)</td><td>尺码，由 SKU 名称拆分或规则映射得到</td></tr>
+          <tr><td>spu_name</td><td>STRING</td><td>积加 SPU 中文名称，来自商品主数据 spu_name</td></tr>
+          <tr><td>order_quantity</td><td>BIGINT</td><td>订单数（order_id 去重）</td></tr>
+          <tr><td>sale_qty</td><td>BIGINT</td><td>SKU 销量汇总</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>销售金额，按 item_price * sale_qty 汇总</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_code, spu, pid, sku) | 来源：<code>dwd_sales_order_item_market_wide_realtime</code> + <code>ods_product_api_jijia_omnichannel_product_df</code>；DDL 文件：<code>ddl/sales/dws/dws_sales_product_sku_qty_1d.sql</code>；实时 SQL：<code>realtime/sales/dws/dws_sales_product_sku_qty_1d.sql</code></p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS dws.dws_sales_product_sku_qty_1d (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（归属月份）',
+    sdt                   VARCHAR(8)           COMMENT '统计日期，格式：YYYYMMDD，按市场本地支付日期归集',
+    store_code            VARCHAR(200)         COMMENT '店铺代码（来自 market_id）',
+    spu                   VARCHAR(200)         COMMENT 'SPU 编码',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN）',
+    sku                   VARCHAR(200)         COMMENT 'SKU 编码',
+    store_name            VARCHAR(500)         COMMENT '店铺名称（来自 market_name）',
+    msku                  VARCHAR(200)         COMMENT 'MSKU',
+    sku_name              STRING               COMMENT 'SKU 产品中文名，优先取商品主数据 sku_name，缺失时取订单商品名称',
+    color_name            VARCHAR(200)         COMMENT '颜色，由 SKU 名称拆分或规则映射得到',
+    size_name             VARCHAR(200)         COMMENT '尺码，由 SKU 名称拆分或规则映射得到',
+    spu_name              STRING               COMMENT '积加 SPU 中文名称，来自商品主数据 spu_name',
+    order_quantity        BIGINT               COMMENT '订单数（order_id 去重）',
+    sale_qty              BIGINT               COMMENT 'SKU 销量汇总',
+    paid_amount           DECIMAL(20,4)        COMMENT '销售金额，按 item_price * sale_qty 汇总',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_code, spu, pid, sku)
+COMMENT '商品统计 SKU 日销量汇总表（销售域，按店铺+SPU+PID+SKU+日期聚合，支撑商品统计1.3）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
+)
+DISTRIBUTED BY HASH(sku) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
     <h2 id="sec-4">六、ADS 层表结构</h2>
 
     <h3 id="tbl-ads-sales-pid-gmv-calc-realtime">6.1 ads_sales_pid_gmv_calc_realtime（准实时）</h3>
@@ -3247,7 +3309,67 @@ PROPERTIES (
     "enable_unique_key_merge_on_write" = "true"
 );</code></pre>
 
-    <h3 id="tbl-ads-sales-store-site-order-count-realtime">6.4 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
+    <h3 id="tbl-ads-sales-product-statistics-1d">6.4 ads_sales_product_statistics_1d</h3>
+    <p>商品统计 1.3 查询表，来源于 <code>dws_sales_product_sku_qty_1d</code>。表内保留 SKU 粒度明细，接口层可按视图聚合：SPU汇总按 <code>store_code + spu + sdt</code> 汇总，PID明细按 <code>store_code + spu + pid + sdt</code> 汇总，SKU看板按 <code>store_code + spu + pid + sku + sdt</code> 透出。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>smt</td><td>INT</td><td>月分区，格式：YYYYMM（归属月份）</td></tr>
+          <tr><td>sdt</td><td>VARCHAR(8)</td><td>统计日期，格式：YYYYMMDD，按市场本地支付日期归集</td></tr>
+          <tr><td>store_code</td><td>VARCHAR(200)</td><td>店铺代码（来自 market_id）</td></tr>
+          <tr><td>spu</td><td>VARCHAR(200)</td><td>SPU 编码</td></tr>
+          <tr><td>pid</td><td>VARCHAR(200)</td><td>PID（父 ASIN）</td></tr>
+          <tr><td>sku</td><td>VARCHAR(200)</td><td>SKU 编码</td></tr>
+          <tr><td>store_name</td><td>VARCHAR(500)</td><td>店铺名称（来自 market_name）</td></tr>
+          <tr><td>msku</td><td>VARCHAR(200)</td><td>MSKU</td></tr>
+          <tr><td>sku_name</td><td>STRING</td><td>SKU 产品中文名</td></tr>
+          <tr><td>color_name</td><td>VARCHAR(200)</td><td>颜色</td></tr>
+          <tr><td>size_name</td><td>VARCHAR(200)</td><td>尺码</td></tr>
+          <tr><td>spu_name</td><td>STRING</td><td>积加 SPU 中文名称</td></tr>
+          <tr><td>order_quantity</td><td>BIGINT</td><td>订单数（order_id 去重）</td></tr>
+          <tr><td>sale_qty</td><td>BIGINT</td><td>每日销量</td></tr>
+          <tr><td>paid_amount</td><td>DECIMAL(20,4)</td><td>销售金额，按 item_price * sale_qty 汇总</td></tr>
+          <tr><td>insert_time</td><td>DATETIME</td><td>数据插入时间戳</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="req-ref">UNIQUE KEY(smt, sdt, store_code, spu, pid, sku) | 来源：<code>dws_sales_product_sku_qty_1d</code>；DDL 文件：<code>ddl/sales/ads/ads_sales_product_statistics_1d.sql</code>；实时 SQL：<code>realtime/sales/ads/ads_sales_product_statistics_1d.sql</code></p>
+    <h4>DDL</h4>
+    <pre><code>CREATE TABLE IF NOT EXISTS ads.ads_sales_product_statistics_1d (
+    smt                   INT                  COMMENT '月分区，格式：YYYYMM（归属月份）',
+    sdt                   VARCHAR(8)           COMMENT '统计日期，格式：YYYYMMDD，按市场本地支付日期归集',
+    store_code            VARCHAR(200)         COMMENT '店铺代码（来自 market_id）',
+    spu                   VARCHAR(200)         COMMENT 'SPU 编码',
+    pid                   VARCHAR(200)         COMMENT 'PID（父 ASIN）',
+    sku                   VARCHAR(200)         COMMENT 'SKU 编码',
+    store_name            VARCHAR(500)         COMMENT '店铺名称（来自 market_name）',
+    msku                  VARCHAR(200)         COMMENT 'MSKU',
+    sku_name              STRING               COMMENT 'SKU 产品中文名',
+    color_name            VARCHAR(200)         COMMENT '颜色',
+    size_name             VARCHAR(200)         COMMENT '尺码',
+    spu_name              STRING               COMMENT '积加 SPU 中文名称',
+    order_quantity        BIGINT               COMMENT '订单数（order_id 去重）',
+    sale_qty              BIGINT               COMMENT '每日销量',
+    paid_amount           DECIMAL(20,4)        COMMENT '销售金额，按 item_price * sale_qty 汇总',
+    insert_time           DATETIME             DEFAULT CURRENT_TIMESTAMP COMMENT '数据插入时间戳'
+) ENGINE=OLAP
+UNIQUE KEY(smt, sdt, store_code, spu, pid, sku)
+COMMENT '商品统计1.3查询表（销售域，支撑 SPU汇总、PID明细、SKU看板）'
+PARTITION BY RANGE(smt) (
+    PARTITION p202601 VALUES [(202601), (202602)),
+    PARTITION p202602 VALUES [(202602), (202603)),
+    PARTITION p202603 VALUES [(202603), (202604)),
+    PARTITION p202604 VALUES [(202604), (202605)),
+    PARTITION p202605 VALUES [(202605), (202606))
+)
+DISTRIBUTED BY HASH(sku) BUCKETS 16
+PROPERTIES (
+    "replication_allocation" = "tag.location.default: 1",
+    "enable_unique_key_merge_on_write" = "true"
+);</code></pre>
+
+    <h3 id="tbl-ads-sales-store-site-order-count-realtime">6.5 ads_sales_store_site_order_count_realtime（店铺站点准实时）</h3>
     <p>按店铺站点维度的订单数与金额准实时播报表，<strong>播报为站点层级</strong>，直接使用本表。约 10 分钟刷新，保留历史数据；每日播报与准实时看板均按 sdt 取当日各站点 order_count、valid_order_count、sample_order_count、paid_amount。</p>
     <div class="table-wrap">
       <table>
@@ -3300,6 +3422,8 @@ PROPERTIES (
           <tr><td>dws_sales_store_site_market_realtime</td><td>dwd_sales_amount_detail_market_realtime</td></tr>
           <tr><td>ads_sales_pid_gmv_calc_realtime</td><td>dws_sales_pid_gmv_realtime</td></tr>
           <tr><td>dws_sales_pid_gmv_realtime</td><td>dwd_sales_order_item_market_wide_realtime</td></tr>
+          <tr><td>ads_sales_product_statistics_1d</td><td>dws_sales_product_sku_qty_1d</td></tr>
+          <tr><td>dws_sales_product_sku_qty_1d</td><td>dwd_sales_order_item_market_wide_realtime、ods_product_api_jijia_omnichannel_product_df</td></tr>
           <tr><td>dwd_sales_order_item_market_wide_realtime</td><td>ods_sales_api_jijia_omnichannel_order_item_di、ods_sales_api_jijia_omnichannel_order_di、ods_product_api_jijia_omnichannel_product_df</td></tr>
           <tr><td>dwd_sales_pid_dashboard_wide_di</td><td>ods_traffic_file_tiktok_product_list_di（老版格式兼容）、ods_traffic_file_tiktok_product_analysis_all_module_di（1-3 全模块合并格式）、ods_traffic_file_tiktok_product_all_di、ods_traffic_file_tiktok_product_live_di、ods_traffic_file_tiktok_product_video_di、ods_traffic_file_tiktok_product_card_di、ods_traffic_file_tiktok_product_affiliate_di、ods_product_api_jijia_omnichannel_product_df、ads_sales_pid_gmv_calc_realtime、ods_marketing_file_tiktok_campaign_di、ods_traffic_file_tiktok_video_performance_di、ods_platform_file_tiktok_account_df</td></tr>
           <tr><td>dws_sales_pid_dashboard_1d</td><td>dwd_sales_pid_dashboard_wide_di</td></tr>
@@ -3372,7 +3496,24 @@ PROPERTIES (
       <p><strong>执行顺序</strong>：先产出 GMV 计算表，再产出数据看板。</p>
     </div>
 
-    <h3>6.4 销售需求二：订单明细与销量趋势</h3>
+    <h3>6.4 销售数据：商品统计 1.3</h3>
+    <p class="meta">产出表：<code>ads_sales_product_statistics_1d</code>（见第六节 6.4）。DWS 层：<code>dws_sales_product_sku_qty_1d</code>（见五、5.4）。DWD 层：<code>dwd_sales_order_item_market_wide_realtime</code>（见四、4.2）。命名依据遵循 Doris 分层与字段小写下划线规范，接口层如需透出参数仍使用 Java DTO/VO 驼峰命名。</p>
+    <h4>规则</h4>
+    <ul>
+      <li><strong>DWD 来源</strong>：使用 <code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/realtime/sales/dwd/dwd_sales_order_item_market_wide_realtime.sql</code> 产出的订单商品宽表，按市场本地支付日期归集。</li>
+      <li><strong>DWS 汇总</strong>：按 <code>smt、sdt、store_code、spu、pid、sku</code> 聚合 <code>sale_qty</code>，并关联商品最新快照补充 <code>sku_name、spu_name</code>。</li>
+      <li><strong>ADS 查询</strong>：保留 SKU 粒度明细，接口按页面视图聚合为 SPU汇总、PID明细或 SKU看板。</li>
+      <li><strong>过滤口径</strong>：仅纳入金额大于 0、支付时间非空、订单状态非「已取消」的订单商品明细。</li>
+    </ul>
+    <h4>页面字段映射</h4>
+    <ul>
+      <li>SPU汇总：由 <code>ads_sales_product_statistics_1d</code> 按 <code>store_code + spu + sdt</code> 汇总 <code>sale_qty</code>。</li>
+      <li>PID明细：由同表按 <code>store_code + spu + pid + sdt</code> 汇总 <code>sale_qty</code>。</li>
+      <li>SKU看板：直接使用 <code>sku、sku_name、color_name、size_name、spu_name、sale_qty</code>，小计、平均值、环比由接口按查询日期窗口计算。</li>
+    </ul>
+    <p class="meta">风险说明：当前 DWD SQL 中 <code>sale_qty</code> 为订单商品行口径，若后续确认积加订单明细存在一行多件，需要先在 DWD 层补真实数量字段，再同步调整 DWS/ADS 汇总。</p>
+
+    <h3>6.5 销售需求二：订单明细与销量趋势</h3>
     <div class="section-card">
       <p class="meta">数据来源：<code>dwd_sales_amount_detail_market_realtime</code>（见四、4.1）。原 <code>dwd_sales_tiktok_trend_order_detail_di</code> 已废弃。</p>
       <h4>规则</h4>
@@ -3382,7 +3523,7 @@ PROPERTIES (
       </ul>
     </div>
 
-    <h3>6.5 销售需求一：每日订单数播报</h3>
+    <h3>6.6 销售需求一：每日订单数播报</h3>
     <div class="section-card">
       <p class="meta">取数表：<code>ads_sales_store_site_order_count_realtime</code>（见第六节 6.3）。播报为站点层级，该表保留历史数据，每日播报按 <code>sdt = 播报日期</code> 查询各站点即可，无需单独 1d 表。</p>
       <h4>规则</h4>
@@ -3402,7 +3543,7 @@ ELSE IF 店铺属于欧洲: 保留 IF paid_date_local = 播报日期</code></pre
       <p><code>2月27日（美国时间）订单数：1店230 / 2店0 / 3店3 / 英区12 / 独立站0 @所有人</code></p>
     </div>
 
-    <h3>6.6 准实时报表链路</h3>
+    <h3>6.7 准实时报表链路</h3>
     <div class="section-card">
       <p class="meta">参见本节前文「一、分层与表清单」下的<strong>准实时报表方案</strong>。</p>
       <h4>数据流</h4>
