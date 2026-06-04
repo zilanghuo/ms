@@ -391,7 +391,6 @@
         <div class="btns">
           <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
           <button type="button" class="btn btn-secondary" id="btnManagePidSpu">PID与主推SPU维护</button>
-          <button type="button" class="btn btn-secondary" id="btnManageVideoProduct">视频剪辑商品名维护</button>
           <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
           <button type="button" class="btn btn-secondary" id="btnExportImg">导出图片</button>
         </div>
@@ -421,10 +420,8 @@
     <div class="query-card">
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.3 版本说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;line-height:1.8;">
-        <li>1、新增 <code>视频剪辑商品名维护</code> 功能入口，用于维护视频剪辑数据中的商品名称。</li>
-        <li>2、维护弹框支持按 <code>日期</code>、<code>达人ID</code>、<code>视频ID</code> 筛选视频记录。</li>
-        <li>3、列表展示 <code>店铺名</code>、<code>视频ID</code>、<code>视频名称</code>、<code>达人ID</code>、<code>商品名称</code>、<code>发布时间</code>、<code>数据来源</code>；数据来源分为 <code>已绑定账号数据</code>、<code>联盟数据</code>。</li>
-        <li>4、每行支持编辑，仅允许调整 <code>商品名称</code>；店铺名、视频ID、视频名称、达人ID、发布时间、数据来源均只读。</li>
+        <li>1、视频源数据维护功能已迁移至管理模块 / 视频数据页面。</li>
+        <li>2、本页保留 PID 与主推 SPU 维护、数据统计说明、导出等 PID 看板能力。</li>
       </ul>
     </div>
 
@@ -538,102 +535,6 @@
         </div>
       </div>
     </div>
-    <div class="manage-modal-overlay" id="manageVideoProductModal" role="dialog" aria-modal="true" aria-labelledby="manageVideoProductTitle">
-      <div class="manage-modal-box" onclick="event.stopPropagation()">
-        <div class="manage-header">
-          <span class="manage-title" id="manageVideoProductTitle">视频剪辑商品名维护</span>
-          <button type="button" class="analysis-close" id="btnCloseManageVideoProduct" title="关闭">×</button>
-        </div>
-        <div class="manage-toolbar">
-          <div class="manage-query-row">
-            <div class="manage-query-item">
-              <span class="label">日期</span>
-              <input type="date" id="videoProductDate" />
-            </div>
-            <div class="manage-query-item">
-              <span class="label">达人ID</span>
-              <input type="text" id="videoProductCreatorId" placeholder="请输入达人ID" />
-            </div>
-            <div class="manage-query-item">
-              <span class="label">视频ID</span>
-              <input type="text" id="videoProductVideoId" placeholder="请输入视频ID" />
-            </div>
-            <div class="manage-query-actions">
-              <button type="button" class="btn btn-query" id="btnQueryVideoProduct">查询</button>
-              <button type="button" class="btn btn-secondary" id="btnResetVideoProduct">重置</button>
-            </div>
-          </div>
-        </div>
-        <div class="manage-body">
-          <div class="manage-summary" id="videoProductSummary">共 0 条记录</div>
-          <div class="manage-table-card">
-            <div class="manage-table-wrap">
-              <table class="manage-table" style="min-width:1180px;">
-                <thead>
-                  <tr>
-                    <th>店铺名</th>
-                    <th>视频ID</th>
-                    <th>视频名称</th>
-                    <th>达人ID</th>
-                    <th>商品名称</th>
-                    <th>发布时间</th>
-                    <th>数据来源</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-                <tbody id="videoProductBody">
-                  <tr><td colspan="8" class="manage-empty">暂无数据</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="edit-modal-overlay" id="editVideoProductModal" role="dialog" aria-modal="true" aria-labelledby="editVideoProductTitle">
-      <div class="edit-modal-box" onclick="event.stopPropagation()">
-        <div class="edit-modal-header">
-          <span class="edit-modal-title" id="editVideoProductTitle">编辑视频商品名称</span>
-          <button type="button" class="analysis-close" id="btnCloseEditVideoProduct" title="关闭">×</button>
-        </div>
-        <div class="edit-modal-body">
-          <div class="edit-form-item">
-            <label for="editVideoStore">店铺名</label>
-            <input type="text" id="editVideoStore" readonly />
-          </div>
-          <div class="edit-form-item">
-            <label for="editVideoId">视频ID</label>
-            <input type="text" id="editVideoId" readonly />
-          </div>
-          <div class="edit-form-item">
-            <label for="editVideoName">视频名称</label>
-            <input type="text" id="editVideoName" readonly />
-          </div>
-          <div class="edit-form-item">
-            <label for="editCreatorId">达人ID</label>
-            <input type="text" id="editCreatorId" readonly />
-          </div>
-          <div class="edit-form-item">
-            <label for="editProductName">商品名称</label>
-            <input type="text" id="editProductName" placeholder="请输入商品名称" />
-          </div>
-          <div class="edit-form-item">
-            <label for="editPublishTime">发布时间</label>
-            <input type="text" id="editPublishTime" readonly />
-          </div>
-          <div class="edit-form-item">
-            <label for="editDataSource">数据来源</label>
-            <input type="text" id="editDataSource" readonly />
-          </div>
-          <div class="edit-form-tip">当前原型仅支持调整商品名称，其余字段来自已绑定账号数据或联盟数据，不允许在弹框中编辑。</div>
-        </div>
-        <div class="edit-modal-actions">
-          <button type="button" class="btn btn-secondary" id="btnCancelEditVideoProduct">取消</button>
-          <button type="button" class="btn btn-query" id="btnSaveEditVideoProduct">保存</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <script>
     (function() {
       var GROUPS = [
@@ -753,15 +654,6 @@
         { store: '美国TK独立站-shopify:Global', pid: '1729300000112233443', mainSpu: 'AL-W5558', createdAt: '2026-03-21 08:35:56', updatedAt: '2026-04-16 09:05:17' }
       ];
       var editingPidSpuRecord = null;
-      var videoProductManageData = [
-        { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012165', videoName: '达人开箱短视频-美区爆款', creatorId: 'CR100238', productName: 'AL-W0161 护腰坐垫', publishTime: '2026-05-20 09:30:18', dataSource: '已绑定账号数据' },
-        { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012166', videoName: '办公室场景种草视频', creatorId: 'CR100238', productName: 'AL-W0161 Ergonomic Seat Cushion', publishTime: '2026-05-20 14:12:45', dataSource: '已绑定账号数据' },
-        { store: '美国 TK・艾斯特尼 - 美区特 2 店 US', videoId: '7349023312887654401', videoName: '家居收纳对比剪辑', creatorId: 'CR200516', productName: 'AL-W0180 收纳套装', publishTime: '2026-05-21 11:08:36', dataSource: '已绑定账号数据' },
-        { store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', videoId: '7349188890012367782', videoName: '德国达人测评视频', creatorId: 'CR300861', productName: 'ALYMX-DROPSW Dropshipping', publishTime: '2026-05-22 16:45:09', dataSource: '联盟数据' },
-        { store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', videoId: '7349321100987634210', videoName: '法区生活方式剪辑', creatorId: 'CR300862', productName: 'AL-W0169 家居好物', publishTime: '2026-05-23 10:18:27', dataSource: '联盟数据' },
-        { store: '美国TK独立站-shopify:Global', videoId: '7349456678123049988', videoName: '独立站素材二剪', creatorId: 'CR900128', productName: 'AL-W5558 Shopify Bundle', publishTime: '2026-05-24 19:26:51', dataSource: '联盟数据' }
-      ];
-      var editingVideoProductRecord = null;
       var exactSearchDraft = '';
       var exactSearchApplied = '';
 
@@ -1152,69 +1044,6 @@
       function closeEditPidSpuModal() {
         editingPidSpuRecord = null;
         document.getElementById('editPidSpuModal').classList.remove('visible');
-      }
-
-      function getVideoProductFilteredData() {
-        var date = (document.getElementById('videoProductDate').value || '').trim();
-        var creatorId = (document.getElementById('videoProductCreatorId').value || '').trim().toLowerCase();
-        var videoId = (document.getElementById('videoProductVideoId').value || '').trim().toLowerCase();
-        return videoProductManageData.filter(function(item) {
-          if (date && item.publishTime.slice(0, 10) !== date) return false;
-          if (creatorId && item.creatorId.toLowerCase().indexOf(creatorId) === -1) return false;
-          if (videoId && item.videoId.toLowerCase().indexOf(videoId) === -1) return false;
-          return true;
-        });
-      }
-
-      function renderVideoProductTable() {
-        var rows = getVideoProductFilteredData();
-        var tbody = document.getElementById('videoProductBody');
-        var summary = document.getElementById('videoProductSummary');
-        if (summary) summary.textContent = '共 ' + rows.length + ' 条记录';
-        if (!tbody) return;
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="8" class="manage-empty">未匹配到符合条件的视频剪辑商品记录</td></tr>';
-          return;
-        }
-        tbody.innerHTML = rows.map(function(item) {
-          return '<tr>' +
-            '<td>' + escapeHtml(item.store) + '</td>' +
-            '<td>' + escapeHtml(item.videoId) + '</td>' +
-            '<td>' + escapeHtml(item.videoName) + '</td>' +
-            '<td>' + escapeHtml(item.creatorId) + '</td>' +
-            '<td>' + escapeHtml(item.productName) + '</td>' +
-            '<td>' + escapeHtml(item.publishTime) + '</td>' +
-            '<td>' + escapeHtml(item.dataSource) + '</td>' +
-            '<td><button type="button" class="manage-action-btn" data-video-id="' + escapeHtml(item.videoId) + '">编辑</button></td>' +
-            '</tr>';
-        }).join('');
-      }
-
-      function openManageVideoProductModal() {
-        renderVideoProductTable();
-        document.getElementById('manageVideoProductModal').classList.add('visible');
-      }
-
-      function closeManageVideoProductModal() {
-        document.getElementById('manageVideoProductModal').classList.remove('visible');
-      }
-
-      function openEditVideoProductModal(record) {
-        if (!record) return;
-        editingVideoProductRecord = record;
-        document.getElementById('editVideoStore').value = record.store;
-        document.getElementById('editVideoId').value = record.videoId;
-        document.getElementById('editVideoName').value = record.videoName;
-        document.getElementById('editCreatorId').value = record.creatorId;
-        document.getElementById('editProductName').value = record.productName;
-        document.getElementById('editPublishTime').value = record.publishTime;
-        document.getElementById('editDataSource').value = record.dataSource;
-        document.getElementById('editVideoProductModal').classList.add('visible');
-      }
-
-      function closeEditVideoProductModal() {
-        editingVideoProductRecord = null;
-        document.getElementById('editVideoProductModal').classList.remove('visible');
       }
 
       initCascade();
@@ -2025,7 +1854,6 @@
 
       document.getElementById('btnQuery').onclick = function() { render(getFiltered()); };
       document.getElementById('btnManagePidSpu').onclick = openManagePidSpuModal;
-      document.getElementById('btnManageVideoProduct').onclick = openManageVideoProductModal;
       document.getElementById('btnCloseManagePidSpu').onclick = closeManagePidSpuModal;
       document.getElementById('managePidSpuModal').onclick = function(e) { if (e.target === this) closeManagePidSpuModal(); };
       document.getElementById('btnQueryManagePidSpu').onclick = renderManagePidSpuTable;
@@ -2058,37 +1886,6 @@
         renderManagePidSpuTable();
         closeEditPidSpuModal();
         alert('主推SPU 已更新');
-      };
-      document.getElementById('btnCloseManageVideoProduct').onclick = closeManageVideoProductModal;
-      document.getElementById('manageVideoProductModal').onclick = function(e) { if (e.target === this) closeManageVideoProductModal(); };
-      document.getElementById('btnQueryVideoProduct').onclick = renderVideoProductTable;
-      document.getElementById('btnResetVideoProduct').onclick = function() {
-        document.getElementById('videoProductDate').value = '';
-        document.getElementById('videoProductCreatorId').value = '';
-        document.getElementById('videoProductVideoId').value = '';
-        renderVideoProductTable();
-      };
-      document.getElementById('videoProductBody').addEventListener('click', function(e) {
-        var btn = e.target.closest('.manage-action-btn');
-        if (!btn) return;
-        var videoId = btn.getAttribute('data-video-id');
-        var record = videoProductManageData.find(function(item) { return item.videoId === videoId; });
-        openEditVideoProductModal(record);
-      });
-      document.getElementById('btnCloseEditVideoProduct').onclick = closeEditVideoProductModal;
-      document.getElementById('btnCancelEditVideoProduct').onclick = closeEditVideoProductModal;
-      document.getElementById('editVideoProductModal').onclick = function(e) { if (e.target === this) closeEditVideoProductModal(); };
-      document.getElementById('btnSaveEditVideoProduct').onclick = function() {
-        if (!editingVideoProductRecord) return;
-        var productName = (document.getElementById('editProductName').value || '').trim();
-        if (!productName) {
-          alert('请输入商品名称');
-          return;
-        }
-        editingVideoProductRecord.productName = productName;
-        renderVideoProductTable();
-        closeEditVideoProductModal();
-        alert('商品名称已更新');
       };
       document.getElementById('qCompareEnable').addEventListener('change', function() {
         document.getElementById('compareWrap').style.display = this.checked ? '' : 'none';

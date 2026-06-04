@@ -38,7 +38,7 @@
     .tab .count { margin-left: 0.25rem; opacity: 0.85; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2220px; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2320px; table-layout: fixed; }
     th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
     tbody tr:hover td { background: #f9fafb; }
@@ -50,6 +50,7 @@
     .w-status { width: 88px; }
     .w-spu { width: 120px; }
     .w-sku { width: 150px; }
+    .w-main-sku { width: 150px; }
     .spu-board .sku-only { display: none; }
     .w-name { width: 230px; }
     .w-cat { width: 190px; }
@@ -168,6 +169,7 @@
                   <th class="w-status">商品状态</th>
                   <th class="w-status">TK审核状态</th>
                   <th class="w-spu">产品主 SPU</th>
+                  <th class="w-main-sku">产品主 SKU</th>
                   <th class="w-sku sku-only">SKU</th>
                   <th class="w-name">产品中文名</th>
                   <th class="w-small">产品品牌</th>
@@ -190,18 +192,13 @@
     <section class="content-note" aria-label="内容说明">
       <div class="content-note-title">内容说明</div>
       <ol>
+        <li>关于主图：取 SKU 主属性图的第一张图。</li>
+        <li>价格归属产品主 SKU，列表与编辑功能均支持维护产品主 SKU。</li>
         <li>产品的基础数据，来源于 TK 的 API。</li>
         <li>产品的主 SPU，来源于 PID 需求看板的主 PID 维护（已经有）。</li>
         <li>产品的中文名称，来源于积加的 SPU 中文名。</li>
         <li>其他内容为人工维护。</li>
         <li>PID 对应的责任人，这边完善后，PID 数据看板需要增加一列：运营责任人。</li>
-      </ol>
-    </section>
-
-    <section class="content-note" aria-label="疑问点">
-      <div class="content-note-title">疑问点</div>
-      <ol>
-        <li>在 SPU 维度、PID 层级下，价格如何获取？PID 是否也有一个主推 SKU 的价格？</li>
       </ol>
     </section>
 
@@ -218,6 +215,7 @@
         <div class="field full"><label>商品中文名</label><input class="form-input error" id="editName" /></div>
         <div class="form-grid">
           <div class="field"><label>产品主 SPU</label><input class="form-input" id="editSpu" /></div>
+          <div class="field"><label>产品主 SKU</label><input class="form-input" id="editMainSku" /></div>
           <div class="field"><label>销售状态</label><select class="form-select" id="editStatus"><option>在售</option><option>停售</option></select></div>
           <div class="field"><label>PID作用</label><input class="form-input" id="editPidUse" value="-" /></div>
           <div class="field"><label>产品品类</label><input class="form-input" id="editCategory" /></div>
@@ -271,14 +269,14 @@
 
   <script>
     var products = [
-      { pid: '1732388385375162725', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W6675', sku: 'AL-W6675-BLK-XS', name: '男女正肩洗水T-黑色04-XS', brand: '-', category: 'NW122-女式上衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$39.99' },
-      { pid: '1731924731294158890', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'ivory', status: '在售', audit: '已通过', spu: 'AL-W0518', sku: 'AL-W0518-WHT-S', name: '一字领喇叭长袖散边T-白色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$36.99' },
-      { pid: '1732020753369305445', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W5558', sku: 'AL-W5558-PPL-M', name: '男女华夫格沙洗短袖-粉紫色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$45.99 ~ $99.99' },
-      { pid: '1731654013478146405', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'yellow', status: '在售', audit: '已通过', spu: 'ALYMX-DROPSW', sku: 'ALYMX-DROPSW-YEL-M', name: 'N036露肚脐下帽绳-黄色', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$49.99' },
-      { pid: '1730674849392267621', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'green', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-GRN-XL', name: '双拉链连帽卫衣-水绿71-XL', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
-      { pid: '1732358924023402853', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W0575', sku: 'AL-W0575-BLU-L', name: '男女炒洗亨利领卫衣-深天蓝', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$89.99' },
-      { pid: '1729439482671567205', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'dark', status: '在售', audit: '已通过', spu: 'AL-W0169', sku: 'AL-W0169-DGN-L', name: '复古加绒连帽卫衣-墨绿色', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
-      { pid: '1731651043684028773', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'red', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-RED-L', name: '双拉链连帽卫衣-红色81-L', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' }
+      { pid: '1732388385375162725', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W6675', sku: 'AL-W6675-BLK-XS', mainSku: 'AL-W6675-BLK-XS', name: '男女正肩洗水T-黑色04-XS', brand: '-', category: 'NW122-女式上衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$39.99' },
+      { pid: '1731924731294158890', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'ivory', status: '在售', audit: '已通过', spu: 'AL-W0518', sku: 'AL-W0518-WHT-S', mainSku: 'AL-W0518-WHT-S', name: '一字领喇叭长袖散边T-白色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$36.99' },
+      { pid: '1732020753369305445', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W5558', sku: 'AL-W5558-PPL-M', mainSku: 'AL-W5558-PPL-M', name: '男女华夫格沙洗短袖-粉紫色', brand: '-', category: 'NW109-女式上衣', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$45.99 ~ $99.99' },
+      { pid: '1731654013478146405', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'yellow', status: '在售', audit: '已通过', spu: 'ALYMX-DROPSW', sku: 'ALYMX-DROPSW-YEL-M', mainSku: 'ALYMX-DROPSW-YEL-M', name: 'N036露肚脐下帽绳-黄色', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$49.99' },
+      { pid: '1730674849392267621', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'green', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-GRN-XL', mainSku: 'AL-W0161-GRN-XL', name: '双拉链连帽卫衣-水绿71-XL', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
+      { pid: '1732358924023402853', platform: 'site', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: '', status: '在售', audit: '已通过', spu: 'AL-W0575', sku: 'AL-W0575-BLU-L', mainSku: 'AL-W0575-BLU-L', name: '男女炒洗亨利领卫衣-深天蓝', brand: '-', category: 'NW111-女式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$89.99' },
+      { pid: '1729439482671567205', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'dark', status: '在售', audit: '已通过', spu: 'AL-W0169', sku: 'AL-W0169-DGN-L', mainSku: 'AL-W0169-DGN-L', name: '复古加绒连帽卫衣-墨绿色', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
+      { pid: '1731651043684028773', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'red', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-RED-L', mainSku: 'AL-W0161-GRN-XL', name: '双拉链连帽卫衣-红色81-L', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' }
     ];
     var activeTab = 'sku';
     var editingProduct = null;
@@ -304,7 +302,7 @@
       });
       var body = document.getElementById('productBody');
       if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="' + (isSkuBoard ? 20 : 19) + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
+        body.innerHTML = '<tr><td colspan="' + (isSkuBoard ? 21 : 20) + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
         return;
       }
       body.innerHTML = rows.map(function(item, index) {
@@ -318,6 +316,7 @@
           '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
           '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
           '<td>' + item.spu + '</td>' +
+          '<td>' + (item.mainSku || '-') + '</td>' +
           '<td class="sku-only">' + item.sku + '</td>' +
           '<td title="' + item.name + '">' + short(item.name, 16) + '</td>' +
           '<td>' + item.brand + '</td>' +
@@ -335,6 +334,7 @@
       editingProduct = item;
       document.getElementById('editName').value = item.name;
       document.getElementById('editSpu').value = item.spu;
+      document.getElementById('editMainSku').value = item.mainSku || item.sku || '-';
       document.getElementById('editStatus').value = item.status;
       document.getElementById('editPidUse').value = item.pidUse;
       document.getElementById('editCategory').value = item.category;
@@ -378,6 +378,7 @@
       if (editingProduct) {
         editingProduct.name = document.getElementById('editName').value.trim() || editingProduct.name;
         editingProduct.spu = document.getElementById('editSpu').value.trim() || editingProduct.spu;
+        editingProduct.mainSku = document.getElementById('editMainSku').value.trim() || editingProduct.mainSku || editingProduct.sku;
         editingProduct.status = document.getElementById('editStatus').value;
         editingProduct.pidUse = document.getElementById('editPidUse').value.trim() || '-';
         editingProduct.category = document.getElementById('editCategory').value.trim() || editingProduct.category;

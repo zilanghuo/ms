@@ -97,6 +97,40 @@
     .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
     .content-note ol { margin: 0; padding-left: 20px; }
     .content-note li { margin: 0; line-height: 1.7; }
+    .manage-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .manage-modal-overlay.visible { display: flex; }
+    .manage-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 14px 48px rgba(0,0,0,0.24); width: min(1500px, 98vw); height: min(860px, 94vh); display: flex; flex-direction: column; overflow: hidden; }
+    .manage-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%); }
+    .manage-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .manage-toolbar { padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid var(--border); background: #fff; }
+    .manage-query-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
+    .manage-query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .manage-query-item .label { color: var(--text); font-size: 0.88rem; white-space: nowrap; }
+    .manage-query-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.88rem; color: var(--text); background: #fff; min-width: 180px; height: 38px; }
+    .manage-query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .manage-body { flex: 1; min-height: 0; padding: 1rem 1.25rem 1.25rem; background: #f8fafc; overflow: auto; }
+    .manage-summary { margin-bottom: 0.75rem; font-size: 0.82rem; color: var(--muted); }
+    .manage-table-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .manage-table-wrap { overflow: auto; }
+    .manage-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 1180px; }
+    .manage-table th, .manage-table td { padding: 0.6rem 0.75rem; border: 1px solid var(--border); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .manage-table th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    .manage-table tr:hover td { background: #f9fafb; }
+    .manage-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .manage-action-btn { padding: 0.28rem 0.72rem; font-size: 0.78rem; border: 1px solid var(--accent); border-radius: 4px; background: #fff; color: var(--accent); cursor: pointer; }
+    .manage-action-btn:hover { background: #f0fdfa; }
+    .edit-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1110; display: none; align-items: center; justify-content: center; padding: 1rem; }
+    .edit-modal-overlay.visible { display: flex; }
+    .edit-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); width: min(460px, 94vw); overflow: hidden; }
+    .edit-modal-header { padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .edit-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .edit-modal-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem; }
+    .edit-form-item { display: flex; flex-direction: column; gap: 0.35rem; }
+    .edit-form-item label { font-size: 0.84rem; color: var(--muted); }
+    .edit-form-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.5rem 0.65rem; font-size: 0.88rem; color: var(--text); background: #fff; }
+    .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
+    .edit-form-tip { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
+    .edit-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0 1rem 1rem; }
     @media (max-width: 960px) { body { padding: 1rem; } .query-actions { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -145,6 +179,7 @@
     <div class="action-bar">
       <div class="meta-info">共 <strong id="totalCount">15</strong> 条记录</div>
       <div class="btns">
+        <button class="btn btn-secondary" id="btnManageVideoSource">视频源数据维护</button>
         <button class="btn btn-secondary" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
       </div>
     </div>
@@ -220,6 +255,58 @@
     </div>
     <div class="drawer-actions"><button class="btn btn-secondary" id="btnCancel">取消</button><button class="btn btn-query" id="btnSave">保存</button></div>
   </aside>
+  <div class="manage-modal-overlay" id="manageVideoSourceModal" role="dialog" aria-modal="true" aria-labelledby="manageVideoSourceTitle">
+    <div class="manage-modal-box" onclick="event.stopPropagation()">
+      <div class="manage-header">
+        <span class="manage-title" id="manageVideoSourceTitle">视频源数据维护</span>
+        <button type="button" class="close" id="btnCloseManageVideoSource" title="关闭">×</button>
+      </div>
+      <div class="manage-toolbar">
+        <div class="manage-query-row">
+          <div class="manage-query-item"><span class="label">日期</span><input type="date" id="videoSourceDate" /></div>
+          <div class="manage-query-item"><span class="label">达人ID</span><input type="text" id="videoSourceCreatorId" placeholder="请输入达人ID" /></div>
+          <div class="manage-query-item"><span class="label">视频ID</span><input type="text" id="videoSourceVideoId" placeholder="请输入视频ID" /></div>
+          <div class="manage-query-actions">
+            <button type="button" class="btn btn-query" id="btnQueryVideoSource">查询</button>
+            <button type="button" class="btn btn-secondary" id="btnResetVideoSource">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="videoSourceSummary">共 0 条记录</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table">
+              <thead><tr><th>店铺名</th><th>视频ID</th><th>视频名称</th><th>达人ID</th><th>商品名称</th><th>发布时间</th><th>数据来源</th><th>操作</th></tr></thead>
+              <tbody id="videoSourceBody"><tr><td colspan="8" class="manage-empty">暂无数据</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="edit-modal-overlay" id="editVideoSourceModal" role="dialog" aria-modal="true" aria-labelledby="editVideoSourceTitle">
+    <div class="edit-modal-box" onclick="event.stopPropagation()">
+      <div class="edit-modal-header">
+        <span class="edit-modal-title" id="editVideoSourceTitle">编辑视频源数据</span>
+        <button type="button" class="close" id="btnCloseEditVideoSource" title="关闭">×</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="edit-form-item"><label for="editSourceStore">店铺名</label><input type="text" id="editSourceStore" readonly /></div>
+        <div class="edit-form-item"><label for="editSourceVideoId">视频ID</label><input type="text" id="editSourceVideoId" readonly /></div>
+        <div class="edit-form-item"><label for="editSourceVideoName">视频名称</label><input type="text" id="editSourceVideoName" readonly /></div>
+        <div class="edit-form-item"><label for="editSourceCreatorId">达人ID</label><input type="text" id="editSourceCreatorId" readonly /></div>
+        <div class="edit-form-item"><label for="editSourceProductName">商品名称</label><input type="text" id="editSourceProductName" placeholder="请输入商品名称" /></div>
+        <div class="edit-form-item"><label for="editSourcePublishTime">发布时间</label><input type="text" id="editSourcePublishTime" readonly /></div>
+        <div class="edit-form-item"><label for="editSourceDataSource">数据来源</label><input type="text" id="editSourceDataSource" readonly /></div>
+        <div class="edit-form-tip">当前原型仅支持调整商品名称，其余字段来自已绑定账号或联盟账号，不允许在弹框中编辑。</div>
+      </div>
+      <div class="edit-modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnCancelEditVideoSource">取消</button>
+        <button type="button" class="btn btn-query" id="btnSaveEditVideoSource">保存</button>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast">已保存当前视频记录</div>
 
   <script>
@@ -242,6 +329,15 @@
     ];
     var activeTab = 'all';
     var editingVideo = null;
+    var videoSourceManageData = [
+      { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012165', videoName: '达人开箱短视频-美区爆款', creatorId: 'CR100238', productName: 'AL-W0161 护腰坐垫', publishTime: '2026-05-20 09:30:18', dataSource: '已绑定账号' },
+      { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012166', videoName: '办公室场景种草视频', creatorId: 'CR100238', productName: 'AL-W0161 Ergonomic Seat Cushion', publishTime: '2026-05-20 14:12:45', dataSource: '已绑定账号' },
+      { store: '美国 TK・艾斯特尼 - 美区特 2 店 US', videoId: '7349023312887654401', videoName: '家居收纳对比剪辑', creatorId: 'CR200516', productName: 'AL-W0180 收纳套装', publishTime: '2026-05-21 11:08:36', dataSource: '已绑定账号' },
+      { store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', videoId: '7349188890012367782', videoName: '德国达人测评视频', creatorId: 'CR300861', productName: 'ALYMX-DROPSW Dropshipping', publishTime: '2026-05-22 16:45:09', dataSource: '联盟账号' },
+      { store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', videoId: '7349321100987634210', videoName: '法区生活方式剪辑', creatorId: 'CR300862', productName: 'AL-W0169 家居好物', publishTime: '2026-05-23 10:18:27', dataSource: '联盟账号' },
+      { store: '美国TK独立站-shopify:Global', videoId: '7349456678123049988', videoName: '独立站素材二剪', creatorId: 'CR900128', productName: 'AL-W5558 Shopify Bundle', publishTime: '2026-05-24 19:26:51', dataSource: '联盟账号' }
+    ];
+    var editingVideoSourceRecord = null;
     function typeBadge(video) {
       var cls = video.type === 'affiliate' ? 'badge-blue' : (video.type === 'self' ? 'badge-green' : (video.type === 'image' ? 'badge-yellow' : 'badge-ai'));
       return '<span class="badge ' + cls + '">' + video.typeName + '</span>';
@@ -318,6 +414,61 @@
       document.getElementById('drawerMask').classList.remove('open');
       document.getElementById('editDrawer').classList.remove('open');
     }
+    function getVideoSourceFilteredData() {
+      var date = (document.getElementById('videoSourceDate').value || '').trim();
+      var creatorId = (document.getElementById('videoSourceCreatorId').value || '').trim().toLowerCase();
+      var videoId = (document.getElementById('videoSourceVideoId').value || '').trim().toLowerCase();
+      return videoSourceManageData.filter(function(item) {
+        if (date && item.publishTime.slice(0, 10) !== date) return false;
+        if (creatorId && item.creatorId.toLowerCase().indexOf(creatorId) === -1) return false;
+        if (videoId && item.videoId.toLowerCase().indexOf(videoId) === -1) return false;
+        return true;
+      });
+    }
+    function renderVideoSourceTable() {
+      var rows = getVideoSourceFilteredData();
+      var tbody = document.getElementById('videoSourceBody');
+      document.getElementById('videoSourceSummary').textContent = '共 ' + rows.length + ' 条记录';
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="8" class="manage-empty">未匹配到符合条件的视频源数据记录</td></tr>';
+        return;
+      }
+      tbody.innerHTML = rows.map(function(item) {
+        return '<tr>' +
+          '<td title="' + item.store + '">' + item.store + '</td>' +
+          '<td title="' + item.videoId + '">' + item.videoId + '</td>' +
+          '<td title="' + item.videoName + '">' + item.videoName + '</td>' +
+          '<td>' + item.creatorId + '</td>' +
+          '<td title="' + item.productName + '">' + item.productName + '</td>' +
+          '<td>' + item.publishTime + '</td>' +
+          '<td>' + item.dataSource + '</td>' +
+          '<td><button type="button" class="manage-action-btn" data-source-video-id="' + item.videoId + '">编辑</button></td>' +
+        '</tr>';
+      }).join('');
+    }
+    function openManageVideoSourceModal() {
+      renderVideoSourceTable();
+      document.getElementById('manageVideoSourceModal').classList.add('visible');
+    }
+    function closeManageVideoSourceModal() {
+      document.getElementById('manageVideoSourceModal').classList.remove('visible');
+    }
+    function openEditVideoSourceModal(record) {
+      if (!record) return;
+      editingVideoSourceRecord = record;
+      document.getElementById('editSourceStore').value = record.store;
+      document.getElementById('editSourceVideoId').value = record.videoId;
+      document.getElementById('editSourceVideoName').value = record.videoName;
+      document.getElementById('editSourceCreatorId').value = record.creatorId;
+      document.getElementById('editSourceProductName').value = record.productName;
+      document.getElementById('editSourcePublishTime').value = record.publishTime;
+      document.getElementById('editSourceDataSource').value = record.dataSource;
+      document.getElementById('editVideoSourceModal').classList.add('visible');
+    }
+    function closeEditVideoSourceModal() {
+      editingVideoSourceRecord = null;
+      document.getElementById('editVideoSourceModal').classList.remove('visible');
+    }
     function showToast() {
       var toast = document.getElementById('toast');
       toast.classList.add('show');
@@ -352,6 +503,38 @@
     document.getElementById('btnClose').addEventListener('click', closeDrawer);
     document.getElementById('btnCancel').addEventListener('click', closeDrawer);
     document.getElementById('drawerMask').addEventListener('click', closeDrawer);
+    document.getElementById('btnManageVideoSource').addEventListener('click', openManageVideoSourceModal);
+    document.getElementById('btnCloseManageVideoSource').addEventListener('click', closeManageVideoSourceModal);
+    document.getElementById('manageVideoSourceModal').addEventListener('click', function(e) { if (e.target === this) closeManageVideoSourceModal(); });
+    document.getElementById('btnQueryVideoSource').addEventListener('click', renderVideoSourceTable);
+    document.getElementById('btnResetVideoSource').addEventListener('click', function() {
+      document.getElementById('videoSourceDate').value = '';
+      document.getElementById('videoSourceCreatorId').value = '';
+      document.getElementById('videoSourceVideoId').value = '';
+      renderVideoSourceTable();
+    });
+    document.getElementById('videoSourceBody').addEventListener('click', function(e) {
+      var btn = e.target.closest('[data-source-video-id]');
+      if (!btn) return;
+      var videoId = btn.getAttribute('data-source-video-id');
+      var record = videoSourceManageData.find(function(item) { return item.videoId === videoId; });
+      openEditVideoSourceModal(record);
+    });
+    document.getElementById('btnCloseEditVideoSource').addEventListener('click', closeEditVideoSourceModal);
+    document.getElementById('btnCancelEditVideoSource').addEventListener('click', closeEditVideoSourceModal);
+    document.getElementById('editVideoSourceModal').addEventListener('click', function(e) { if (e.target === this) closeEditVideoSourceModal(); });
+    document.getElementById('btnSaveEditVideoSource').addEventListener('click', function() {
+      if (!editingVideoSourceRecord) return;
+      var productName = document.getElementById('editSourceProductName').value.trim();
+      if (!productName) {
+        alert('请输入商品名称');
+        return;
+      }
+      editingVideoSourceRecord.productName = productName;
+      renderVideoSourceTable();
+      closeEditVideoSourceModal();
+      showToast();
+    });
     document.getElementById('btnSave').addEventListener('click', function() {
       if (editingVideo) {
         editingVideo.owner = document.getElementById('editOwner').value;

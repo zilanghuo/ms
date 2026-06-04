@@ -3,1587 +3,189 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>tkDashboard 接口文档</title>
+  <title>tkDashboard 销售接口文档</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
-    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    .doc { max-width: 1450px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
     h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
     h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
     h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
-    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    ul { margin: 0.5rem 0 1rem 1.25rem; }
     li { margin: 0.25rem 0; }
-    strong { color: var(--text); }
     hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
     .table-wrap { overflow-x: auto; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 400px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 760px; }
     th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
     th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
     tr:hover td { background: #f9fafb; }
-    .back { margin-top: 2rem; font-size: 0.9rem; }
-    .back a { color: var(--accent); text-decoration: none; }
-    .back a:hover { text-decoration: underline; }
-    .doc img { max-width: 100%; height: auto; border: 1px solid var(--border); border-radius: 4px; margin: 0.5rem 0; }
-    p { margin: 0.5rem 0 1rem; }
     code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
     pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
     pre code { background: none; padding: 0; }
+    .note { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
   <div class="doc">
-    <h1>tkDashboard 接口文档</h1>
-    <p>基于三个前端页面的交互与弹框设计，约定后端接口格式。对应页面：<br />
-    <code>销售/销售数据/htmls/店铺统计-1.0.html</code>、<code>销售/销售数据/htmls/商品统计-1.0.html</code>、<code>销售/销售数据/htmls/商品统计-1.3.html</code>、<code>销售/PID/htmls/数据看板-1.0.html</code>。</p>
+    <h1>tkDashboard 销售接口文档</h1>
+    <p>本文档以当前后端 Controller 代码为准，覆盖 <code>TkPidController</code>、<code>TkProductStatsController</code>、<code>TkStoreStatsController</code>、<code>TkOptionsController</code> 已暴露接口。</p>
+    <div class="note">
+      <strong>字段命名：</strong>接口请求参数与响应字段使用 Java DTO / VO 驼峰命名；底表字段仍按 Doris 小写下划线命名，如需映射请通过“接口字段 / 对应底表字段”说明。
+    </div>
     <hr />
 
-    <h2>通用约定</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>项</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>Base URL</td><td>待定（如 <code>/api/bi/tk</code>）</td></tr>
-          <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code></td></tr>
-          <tr><td>响应格式</td><td><code>application/json</code>（导出为 <code>text/csv</code> 或文件流）</td></tr>
-          <tr><td>分页</td><td><code>page</code>（从 1 开始）、<code>pageSize</code>（默认 20）；响应含 <code>total</code></td></tr>
-          <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
-          <tr><td>鉴权</td><td>待定（Cookie / Token）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>统一响应结构</strong></p>
+    <h2>一、通用约定</h2>
+    <div class="table-wrap"><table><tbody>
+      <tr><th>请求格式</th><td>GET 使用 query string；POST 使用 <code>application/json</code>。导出接口通过 <code>TkDashboardHttpUtil.readJsonBodyLoose</code> 兼容 JSON Body 与 Query。</td></tr>
+      <tr><th>响应格式</th><td>普通接口返回 <code>BaseResponse&lt;T&gt;</code>；导出接口直接返回文件流。</td></tr>
+      <tr><th>时间格式</th><td>请求日期使用 <code>YYYY-MM-DD</code>；分区字段不直接作为接口入参。</td></tr>
+      <tr><th>搜索规则</th><td><code>searchKeyword</code> 为模糊搜索；<code>exactSearchKeyword</code> 为精确搜索，支持逗号分隔。两者同时传入时后端可叠加生效。</td></tr>
+    </tbody></table></div>
     <pre><code>{
   "code": 0,
   "message": "",
   "data": { }
 }</code></pre>
-    <p><code>code !== 0</code> 表示业务错误，<code>data</code> 为接口约定结构。</p>
-    <hr />
 
-    <h2>零、下拉选项接口（三个页面共用）</h2>
-    <p>店铺统计、商品统计、PID 数据看板三个页面均有「站点」级联选择与「店铺」下拉，店铺可根据站点（区域/国家）筛选。以下接口供前端初始化或切换时调用。</p>
-    <h3>0.1 站点级联选项</h3>
-    <p>用于「站点」级联选择器：左侧为区域（如欧洲、北美洲），右侧为区域下的国家/站点。前端根据此数据渲染级联面板，选择后用于筛选店铺列表。</p>
-    <pre><code>GET /api/bi/tk/options/sites</code></pre>
-    <p><strong>查询参数</strong>：无。</p>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "regions": [
-    {
-      "name": "欧洲",
-      "children": [
-        { "label": "德国", "code": "DE" },
-        { "label": "西班牙", "code": "ES" },
-        { "label": "法国", "code": "FR" },
-        { "label": "意大利", "code": "IT" }
-      ]
-    },
-    {
-      "name": "北美洲",
-      "children": [
-        { "label": "美国", "code": "US" }
-      ]
-    },
-    {
-      "name": "其它",
-      "children": [
-        { "label": "Global", "code": "Global" }
-      ]
-    }
-  ]
-}</code></pre>
-    <p><strong>字段说明</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>regions</td><td>list</td><td>区域列表，顺序与前端级联左侧一致</td></tr>
-          <tr><td>regions[].name</td><td>string</td><td>区域名称，如「欧洲」「北美洲」</td></tr>
-          <tr><td>regions[].children</td><td>list</td><td>该区域下的国家/站点选项</td></tr>
-          <tr><td>regions[].children[].label</td><td>string</td><td>展示名称，如「德国」「美国」</td></tr>
-          <tr><td>regions[].children[].code</td><td>string</td><td>国家/站点代码，用于请求店铺列表，如 DE、US、Global</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>0.2 店铺列表（按站点筛选）</h3>
-    <p>根据站点获取店铺列表。不传 <code>siteCode</code> 时返回全部店铺；传 <code>siteCode</code> 时返回该站点下的店铺。前端在用户选择站点（国家）后调用本接口刷新「店铺」下拉选项。</p>
-    <pre><code>GET /api/bi/tk/options/stores</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>siteCode</td><td>string</td><td>否</td><td>站点代码，来自 0.1 的 <code>children[].code</code>，如 DE、US、Global。不传或空=全部店铺；传站点代码=该站点下的店铺</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "stores": [
-    { "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US", "siteCode": "US" },
-    { "storeName": "美国 TK・艾斯特尼 - 美区特 2 店 US", "siteCode": "US" },
-    { "storeName": "美国 TK・艾斯特尼 - 美区特 3 店 US", "siteCode": "US" },
-    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 DE", "siteCode": "DE" },
-    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 ES", "siteCode": "ES" },
-    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 FR", "siteCode": "FR" },
-    { "storeName": "美国 TK・艾斯特尼 - 欧洲直邮店 IT", "siteCode": "IT" },
-    { "storeName": "美国TK独立站-shopify:Global", "siteCode": "Global" }
-  ]
-}</code></pre>
-    <p><strong>字段说明</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>stores</td><td>list</td><td>店铺列表，顺序与前端下拉一致</td></tr>
-          <tr><td>stores[].storeName</td><td>string</td><td>店铺名称，用于下拉展示及主表接口的 storeName 参数</td></tr>
-          <tr><td>stores[].siteCode</td><td>string</td><td>所属站点代码，与 0.1 的 code 对应</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>前端使用流程</strong></p>
-    <ul>
-      <li>页面加载：调用 0.1 获取站点级联数据；调用 0.2（不传 siteCode）获取全部店铺，初始化「店铺」下拉。</li>
-      <li>用户选择站点（国家）：调用 0.2，传 <code>siteCode</code>，刷新「店铺」下拉选项。</li>
-      <li>用户清空站点：调用 0.2（不传参数），恢复全部店铺。</li>
-    </ul>
-    <h3>0.3 货币选项（店铺统计-销售额模式）</h3>
-    <p>店铺统计页切换到「销售额」指标时，显示货币下拉，用于统一展示币种。前端在进入销售额模式时调用本接口初始化货币下拉选项。</p>
-    <pre><code>GET /api/bi/tk/options/currencies</code></pre>
-    <p><strong>查询参数</strong>：无。</p>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "currencies": [
-    { "code": "", "label": "全部" },
-    { "code": "original", "label": "原币种" },
-    { "code": "CNY", "label": "CNY(本位币)" },
-    { "code": "USD", "label": "USD" },
-    { "code": "EUR", "label": "EUR" },
-    { "code": "GBP", "label": "GBP" },
-    { "code": "CAD", "label": "CAD" }
-  ]
-}</code></pre>
-    <p><strong>字段说明</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>currencies</td><td>list</td><td>货币选项列表，顺序与前端下拉一致</td></tr>
-          <tr><td>currencies[].code</td><td>string</td><td>货币代码，用于主表接口的 displayCurrency 参数。空=全部；original=原币种；CNY/USD/EUR/GBP/CAD 等=统一换算展示</td></tr>
-          <tr><td>currencies[].label</td><td>string</td><td>下拉展示名称</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <hr />
+    <h2>二、接口总览</h2>
+    <div class="table-wrap"><table><thead><tr><th>#</th><th>模块</th><th>方法</th><th>路径</th><th>说明</th><th>请求</th><th>响应</th></tr></thead><tbody><tr><td>1</td><td>选项</td><td>GET</td><td><code>/tk/options/sites</code></td><td>站点级联选项</td><td>query: siteName?</td><td>SitesOptionsResponse</td></tr>
+<tr><td>2</td><td>选项</td><td>GET</td><td><code>/tk/options/stores</code></td><td>店铺列表（按站点筛选）</td><td>query: siteCode?</td><td>StoresOptionsResponse</td></tr>
+<tr><td>3</td><td>选项</td><td>GET</td><td><code>/tk/options/currencies</code></td><td>货币选项</td><td>无</td><td>CurrenciesOptionsResponse</td></tr>
+<tr><td>4</td><td>店铺统计</td><td>GET</td><td><code>/tk/sales/storeSiteStats/dataLatestTime</code></td><td>数据最新时间</td><td>无</td><td>DataLatestTimeResponse</td></tr>
+<tr><td>5</td><td>店铺统计</td><td>POST</td><td><code>/tk/sales/storeSiteStats</code></td><td>店铺统计主表</td><td>StoreStatsRequest</td><td>StoreStatsResponse</td></tr>
+<tr><td>6</td><td>店铺统计</td><td>GET</td><td><code>/tk/sales/storeSiteStats/broadcast</code></td><td>今日订单播报文案</td><td>无</td><td>String</td></tr>
+<tr><td>7</td><td>店铺统计</td><td>POST</td><td><code>/tk/sales/storeSiteStats/export</code></td><td>店铺统计导出</td><td>StoreStatsRequest（JSON Body，兼容 Query）</td><td>文件流</td></tr>
+<tr><td>8</td><td>商品统计</td><td>GET</td><td><code>/tk/sales/productStats/dataLatestTime</code></td><td>数据最新时间</td><td>无</td><td>DataLatestTimeResponse</td></tr>
+<tr><td>9</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats</code></td><td>商品统计 PID 明细主表</td><td>ProductStatsRequest</td><td>ProductStatsResponse</td></tr>
+<tr><td>10</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/spu</code></td><td>商品统计 SPU 汇总</td><td>SpuStatsRequest</td><td>SpuStatsResponse</td></tr>
+<tr><td>11</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/aiAnalysis</code></td><td>PID 明细 AI 分析</td><td>ProductStatsAiAnalysisRequest</td><td>ProductStatsAiAnalysisResponse</td></tr>
+<tr><td>12</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/spu/aiAnalysis</code></td><td>SPU 汇总 AI 分析</td><td>ProductStatsAiAnalysisRequest</td><td>ProductStatsAiAnalysisResponse</td></tr>
+<tr><td>13</td><td>商品统计</td><td>GET</td><td><code>/tk/sales/productStats/spu/overallAnalysis</code></td><td>SPU 整体分析文案</td><td>无</td><td>String</td></tr>
+<tr><td>14</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/export</code></td><td>商品统计 PID 明细导出</td><td>ProductStatsRequest（JSON Body，兼容 Query）</td><td>文件流</td></tr>
+<tr><td>15</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/spu/export</code></td><td>商品统计 SPU 汇总导出</td><td>SpuStatsRequest（JSON Body，兼容 Query）</td><td>文件流</td></tr>
+<tr><td>16</td><td>商品统计</td><td>GET</td><td><code>/tk/sales/productStats/mainSpuMapping/syncMissing</code></td><td>同步缺失 PID 主推 SPU 映射</td><td>无</td><td>Integer</td></tr>
+<tr><td>17</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/exportImageAndSendWechat</code></td><td>导出商品统计图片并发送企业微信</td><td>ProductStatsRequest</td><td>String</td></tr>
+<tr><td>18</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/broadcast</code></td><td>广播商品统计图片</td><td>无</td><td>String</td></tr>
+<tr><td>19</td><td>商品统计</td><td>POST</td><td><code>/tk/sales/productStats/spu/broadcast</code></td><td>广播 SPU 汇总图片</td><td>无</td><td>String</td></tr>
+<tr><td>20</td><td>PID 看板</td><td>GET</td><td><code>/tk/pid/dataLatestTime</code></td><td>数据最新时间</td><td>无</td><td>DataLatestTimeResponse</td></tr>
+<tr><td>21</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/detail</code></td><td>PID 明细（商品统计/看板弹框共用）</td><td>PidDetailRequest</td><td>PidDetailResponse</td></tr>
+<tr><td>22</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/dashboard</code></td><td>PID 数据看板列表</td><td>PidDashboardRequest</td><td>PidDashboardResponse</td></tr>
+<tr><td>23</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/spu/detail</code></td><td>SPU 明细</td><td>SpuDetailRequest</td><td>SpuDetailResponse</td></tr>
+<tr><td>24</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/spu/dashboard</code></td><td>SPU 数据看板列表</td><td>SpuDashboardRequest</td><td>SpuDashboardResponse</td></tr>
+<tr><td>25</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/mainSpuMapping/list</code></td><td>PID 与主推 SPU 维护列表</td><td>MainSpuMappingListRequest</td><td>MainSpuMappingListResponse</td></tr>
+<tr><td>26</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/mainSpuMapping/update</code></td><td>PID 与主推 SPU 维护更新</td><td>MainSpuMappingUpdateRequest</td><td>MainSpuMappingResponse</td></tr>
+<tr><td>27</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/dashboard/export</code></td><td>PID 数据看板导出</td><td>PidDashboardRequest（JSON Body，兼容 Query）</td><td>文件流</td></tr>
+<tr><td>28</td><td>PID 看板</td><td>POST</td><td><code>/tk/pid/spu/dashboard/export</code></td><td>SPU 数据看板导出</td><td>SpuDashboardRequest（JSON Body，兼容 Query）</td><td>文件流</td></tr></tbody></table></div>
 
-    <h2>一、需求一：每日订单数播报（店铺统计）</h2>
-    <p>对应页面：<code>销售/销售数据/htmls/店铺统计-1.0.html</code>。无弹框。</p>
-    <h3>1.1 查询条件</h3>
-    <ul>
-      <li><strong>指标</strong>：销量（qty）/ 销售额（amount）</li>
-      <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
-      <li><strong>店铺</strong>：单选，空=全部</li>
-      <li><strong>日期范围</strong>：开始日期、结束日期</li>
-      <li><strong>日期类型</strong>：日 / 周 / 月 / 季 / 年（决定表头 bucket 与环比对比基准）</li>
-      <li><strong>销售额时</strong>：可选最低金额筛选、统一展示币种</li>
-    </ul>
-    <h3>1.2 主表接口：店铺统计列表</h3>
-    <p>实现类：<code>TkStoreStatsController#getStoreSiteStats</code>，数据来源：Doris <code>ads_sales_store_site_order_count_realtime</code>。</p>
-    <pre><code>POST /tk/sales/storeSiteStats
-Content-Type: application/json</code></pre>
-    <p><strong>请求体（JSON）</strong></p>
-    <pre><code>{
-  "metric": "qty",
-  "storeName": "",
-  "startDate": "2026-02-01",
-  "endDate": "2026-02-28",
-  "gran": "day",
-  "minAmount": null,
-  "displayCurrency": ""
-}</code></pre>
-    <p><strong>请求参数说明</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>metric</td><td>string</td><td>否</td><td><code>qty</code> 订单数 / <code>amount</code> 实付金额，默认 qty</td></tr>
-          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺站点名称（store_site_name）精确匹配；空=全部（或按配置 tk.jg.sync.storeSiteNames 限定）</td></tr>
-          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD</td></tr>
-          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
-          <tr><td>gran</td><td>string</td><td>否</td><td>日期类型：day / week / month / quarter / year，默认 day</td></tr>
-          <tr><td>minAmount</td><td>number</td><td>否</td><td>销售额模式下最低额过滤：<strong>按自然日</strong>比较，仅保留该日金额达标的明细。displayCurrency 空：阈值为原币，与 paid_amount 比较；非空：阈值先换人民币后与 paid_amount_rmb 比较</td></tr>
-          <tr><td>displayCurrency</td><td>string</td><td>否</td><td>销售额展示币种：CNY/USD/EUR/GBP/CAD 等；空或 original 表示原币（每店铺站点一种 currency_code）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "storeName": "全部",
-  "startDate": "2026-02-01",
-  "endDate": "2026-02-28",
-  "gran": "day",
-  "metric": "qty",
-  "displayCurrency": null,
-  "buckets": [
-    { "label": "2026/2/28" },
-    { "label": "2026/2/27" },
-    { "label": "2026/2/26" }
-  ],
-  "list": [
-    {
-      "store_site_name": "美国 TK・艾斯特尼 - 美区特 1 店 US",
-      "currency": null,
-      "total": 1250,
-      "ratio": "45.20%",
-      "avg": 44,
-      "chainRatio": "+12.5%",
-      "vals": [38, 42, 45]
-    }
-  ],
-  "totalRow": {
-    "store_site_name": "合计",
-    "currency": "—",
-    "total": 2760,
-    "ratio": "100%",
-    "avg": 98,
-    "chainRatio": "+8.2%",
-    "vals": [90, 95, 92]
-  }
-}</code></pre>
-    <p><strong>data 字段说明（按层级）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>storeName</td><td>string</td><td>当前筛选范围：传 storeName 时为该值，未传时为「全部」</td></tr>
-          <tr><td>1</td><td>startDate / endDate</td><td>string</td><td>查询日期范围，YYYY-MM-DD</td></tr>
-          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度，决定 bucket 与环比基准</td></tr>
-          <tr><td>1</td><td>metric</td><td>string</td><td>qty 订单数 / amount 实付金额</td></tr>
-          <tr><td>1</td><td>displayCurrency</td><td>string</td><td>销售额展示币种；未传或 original 时 list 各行用原币</td></tr>
-          <tr><td>1</td><td>buckets</td><td>list</td><td>时间 bucket 列表，与表头列一致，新→旧</td></tr>
-          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>展示标签，如「2026/2/28」</td></tr>
-          <tr><td>1</td><td>list</td><td>list</td><td>各店铺站点统计行，每行对应一个 store_site</td></tr>
-          <tr><td>2</td><td>list[].store_site_name</td><td>string</td><td>店铺站点名称（store_site_name 优先，空则 store_name，再空则 store_code|store_site_code）</td></tr>
-          <tr><td>2</td><td>list[].currency</td><td>string</td><td>该行金额币种；amount 模式且原币时为站点 currency_code；统一币种时为 displayCurrency；合计行多币种时为「—」</td></tr>
-          <tr><td>2</td><td>list[].total</td><td>number/string</td><td>汇总值；minAmount 按日过滤下无达标日时为 <code>--</code></td></tr>
-          <tr><td>2</td><td>list[].ratio</td><td>string</td><td>占合计百分比，如「45.20%」</td></tr>
-          <tr><td>2</td><td>list[].avg</td><td>number/string</td><td>各 bucket 值的算术平均；无有效数值时为 <code>--</code></td></tr>
-          <tr><td>2</td><td>list[].chainRatio</td><td>string</td><td>环比：首 bucket 与上一周期对比，如「+12.5%」</td></tr>
-          <tr><td>2</td><td>list[].vals</td><td>list</td><td>各 bucket 对应值，与 buckets 顺序一致；无达标日时为 <code>--</code></td></tr>
-          <tr><td>1</td><td>totalRow</td><td>object</td><td>合计行，结构同 list 单行</td></tr>
-          <tr><td>2</td><td>totalRow.store_site_name</td><td>string</td><td>固定「合计」</td></tr>
-          <tr><td>2</td><td>totalRow.ratio</td><td>string</td><td>固定「100%」或「—」（全表 -- 时）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>业务逻辑梳理</strong></p>
-    <ol>
-      <li><strong>参数校验</strong>：startDate、endDate 必填且格式 YYYY-MM-DD；startDate ≤ endDate；metric 仅支持 qty 或 amount。</li>
-      <li><strong>数据来源</strong>：查询 Doris <code>ads.ads_sales_store_site_order_count_realtime</code>，字段含 sdt、store_code、store_site_code、store_name、store_site_name、order_count、valid_order_count、paid_amount、currency_code（及 paid_amount_rmb 用于 minAmount 人民币比较）。</li>
-      <li><strong>店铺筛选</strong>：storeName 非空时按 store_site_name 精确匹配；为空时若配置了 tk.jg.sync.storeSiteNames 则限定在该列表，否则查全部。</li>
-      <li><strong>指标计算</strong>：metric=qty 时取 order_count 汇总；metric=amount 时取 paid_amount。按 gran 将 sdt 映射到 bucket（day→yyyyMMdd，week→周首日 yyyyMMdd，month→yyyyMM，quarter→yyyyQn，year→yyyy），同一 bucket 内聚合。</li>
-      <li><strong>minAmount 过滤</strong>（仅 amount 模式）：按<strong>自然日</strong>比较。原币：<code>COALESCE(paid_amount,0) >= minAmount</code>；指定展示币种：先将 minAmount 换算为人民币，与 <code>paid_amount_rmb</code> 比较。某日不达标则该日明细不参与该 bucket 汇总；整行无达标日时 total/avg/vals 为 <code>--</code>。</li>
-      <li><strong>展示币种换算</strong>（amount 且 displayCurrency 非空）：从 dim.dim_exchange_rate_df 取 USD→CNY 汇率，再按配置换算各币种→展示币种。每行金额统一换算后展示。</li>
-      <li><strong>环比</strong>：首 bucket 与上一周期（按 gran 推算）对比，计算百分比，格式如 +12.5%、-3.2%。</li>
-      <li><strong>占比</strong>：每行 total / 合计 total × 100%，保留两位小数。</li>
-    </ol>
-    <h3>1.3 导出</h3>
-    <pre><code>POST /tk/sales/storeSiteStats/export
-Content-Type: application/json</code></pre>
-    <p>请求体同 1.2，返回 Excel（<code>storeSiteStats.xlsx</code>）。表头：店铺、币种、小计、占比、平均值、环比、各 bucket 列（与 data.buckets 顺序一致）。</p>
-    <hr />
+    <h2>三、通用结构</h2>
+    <div class="table-wrap"><table><thead><tr><th>结构</th><th>字段</th><th>说明</th></tr></thead><tbody><tr><td><code>CompareTripleNumber</code></td><td><code>{ currentValue: BigDecimal, compareValue: BigDecimal, chainRatio: String }</code></td><td>数值型指标对比结构</td></tr>
+<tr><td><code>CompareTripleString</code></td><td><code>{ currentValue: String, compareValue: String, chainRatio: String }</code></td><td>金额、百分比等格式化字符串对比结构</td></tr>
+<tr><td><code>DataLatestTimeResponse</code></td><td><code>maxSdt, defaultQueryDate, lastUpdateTime</code></td><td>最大分区、默认查询日期、最后更新时间</td></tr></tbody></table></div>
 
-    <h2>二、需求二：订单明细与销量趋势（商品统计）</h2>
-    <p>对应页面：<code>销售/销售数据/htmls/商品统计-1.0.html</code>。含两个弹框：<strong>AI 分析</strong>、<strong>PID 明细</strong>。</p>
-    <h3>2.1 查询条件</h3>
+    <h2>四、请求 DTO</h2>
+    <h3>StoreStatsRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>metric</code></td><td><code>String</code></td><td>指标类型：订单数/销售额等，具体值以后端实现为准</td></tr>
+<tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名，可选</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期 YYYY-MM-DD</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期 YYYY-MM-DD</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>时间粒度</td></tr>
+<tr><td><code>minAmount</code></td><td><code>Double</code></td><td>最小金额过滤</td></tr>
+<tr><td><code>displayCurrency</code></td><td><code>String</code></td><td>展示货币</td></tr></tbody></table></div><h3>ProductStatsRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>粒度</td></tr>
+<tr><td><code>searchField</code></td><td><code>String</code></td><td>搜索字段</td></tr>
+<tr><td><code>searchKeyword</code></td><td><code>String</code></td><td>模糊搜索关键字</td></tr>
+<tr><td><code>exactSearchKeyword</code></td><td><code>String</code></td><td>精确搜索关键字，支持逗号分隔</td></tr></tbody></table></div><h3>SpuStatsRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>storeNames</code></td><td><code>List&lt;String&gt;</code></td><td>多店铺</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>粒度</td></tr>
+<tr><td><code>searchKeyword</code></td><td><code>String</code></td><td>模糊搜索关键字</td></tr>
+<tr><td><code>exactSearchKeyword</code></td><td><code>String</code></td><td>精确搜索关键字，支持逗号分隔</td></tr></tbody></table></div><h3>ProductStatsAiAnalysisRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>spu</code></td><td><code>String</code></td><td>SPU</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>粒度</td></tr></tbody></table></div><h3>PidDashboardRequest / SpuDashboardRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>searchField</code></td><td><code>String</code></td><td>搜索字段</td></tr>
+<tr><td><code>searchKeyword</code></td><td><code>String</code></td><td>模糊搜索关键字</td></tr>
+<tr><td><code>exactSearchKeyword</code></td><td><code>String</code></td><td>精确搜索关键字，支持逗号分隔</td></tr>
+<tr><td><code>compareStart</code></td><td><code>String</code></td><td>对比开始日期</td></tr>
+<tr><td><code>compareEnd</code></td><td><code>String</code></td><td>对比结束日期</td></tr>
+<tr><td><code>page</code></td><td><code>Integer</code></td><td>页码，从 1 开始</td></tr>
+<tr><td><code>pageSize</code></td><td><code>Integer</code></td><td>每页条数</td></tr></tbody></table></div><h3>PidDetailRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>spu</code></td><td><code>String</code></td><td>SPU</td></tr>
+<tr><td><code>pid</code></td><td><code>String</code></td><td>PID</td></tr>
+<tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>粒度</td></tr>
+<tr><td><code>exactSearchKeyword</code></td><td><code>String</code></td><td>精确搜索关键字</td></tr></tbody></table></div><h3>SpuDetailRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>spu</code></td><td><code>String</code></td><td>SPU</td></tr>
+<tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>startDate</code></td><td><code>String</code></td><td>开始日期</td></tr>
+<tr><td><code>endDate</code></td><td><code>String</code></td><td>结束日期</td></tr>
+<tr><td><code>gran</code></td><td><code>String</code></td><td>粒度</td></tr>
+<tr><td><code>exactSearchKeyword</code></td><td><code>String</code></td><td>精确搜索关键字</td></tr></tbody></table></div><h3>MainSpuMappingListRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>pid</code></td><td><code>String</code></td><td>PID</td></tr>
+<tr><td><code>mainSpu</code></td><td><code>String</code></td><td>主推 SPU</td></tr>
+<tr><td><code>page</code></td><td><code>Integer</code></td><td>页码</td></tr>
+<tr><td><code>pageSize</code></td><td><code>Integer</code></td><td>每页条数</td></tr></tbody></table></div><h3>MainSpuMappingUpdateRequest</h3><div class="table-wrap"><table><thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名，必填</td></tr>
+<tr><td><code>pid</code></td><td><code>String</code></td><td>PID，必填</td></tr>
+<tr><td><code>mainSpu</code></td><td><code>String</code></td><td>主推 SPU，必填</td></tr></tbody></table></div>
+
+    <h2>五、响应 DTO</h2>
+    <h3>SitesOptionsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>regions</code></td><td><code>List&lt;RegionOption&gt;</code></td><td>区域列表</td></tr>
+<tr><td><code>regions[].name</code></td><td><code>String</code></td><td>区域名</td></tr>
+<tr><td><code>regions[].children</code></td><td><code>List&lt;SiteOption&gt;</code></td><td>站点列表</td></tr>
+<tr><td><code>children[].label</code></td><td><code>String</code></td><td>站点展示名</td></tr>
+<tr><td><code>children[].code</code></td><td><code>String</code></td><td>站点代码</td></tr></tbody></table></div><h3>StoresOptionsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>stores</code></td><td><code>List&lt;StoreOption&gt;</code></td><td>店铺列表</td></tr>
+<tr><td><code>stores[].storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>stores[].siteCode</code></td><td><code>String</code></td><td>站点代码</td></tr></tbody></table></div><h3>CurrenciesOptionsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>currencies</code></td><td><code>List&lt;CurrencyOption&gt;</code></td><td>货币列表</td></tr>
+<tr><td><code>currencies[].code</code></td><td><code>String</code></td><td>货币代码</td></tr>
+<tr><td><code>currencies[].label</code></td><td><code>String</code></td><td>展示名</td></tr></tbody></table></div><h3>StoreStatsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName/startDate/endDate/gran/metric/displayCurrency</code></td><td><code>String</code></td><td>请求回显与展示口径</td></tr>
+<tr><td><code>buckets</code></td><td><code>List&lt;Bucket&gt;</code></td><td>横向日期/粒度桶，Bucket.label</td></tr>
+<tr><td><code>list</code></td><td><code>List&lt;StoreStatsRow&gt;</code></td><td>店铺站点行</td></tr>
+<tr><td><code>totalRow</code></td><td><code>StoreStatsRow</code></td><td>合计行</td></tr>
+<tr><td><code>StoreStatsRow</code></td><td><code>Object</code></td><td>storeSiteName、currency、total、ratio、avg、chainRatio、vals</td></tr></tbody></table></div><h3>ProductStatsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName/startDate/endDate/gran</code></td><td><code>String</code></td><td>请求回显</td></tr>
+<tr><td><code>buckets</code></td><td><code>List&lt;Bucket&gt;</code></td><td>横向日期/粒度桶</td></tr>
+<tr><td><code>groups</code></td><td><code>List&lt;ProductGroup&gt;</code></td><td>SPU 分组</td></tr>
+<tr><td><code>storeTotal</code></td><td><code>StoreTotal</code></td><td>店铺合计</td></tr>
+<tr><td><code>ProductGroup</code></td><td><code>Object</code></td><td>spu、totalSub、totalAvg、totalDiffNum、totalDiffStr、totals、pidRows</td></tr>
+<tr><td><code>PidRow</code></td><td><code>Object</code></td><td>pid、sub、avg、diffNum、diffStr、vals</td></tr></tbody></table></div><h3>SpuStatsResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>storeName/startDate/endDate/gran</code></td><td><code>String</code></td><td>请求回显</td></tr>
+<tr><td><code>buckets</code></td><td><code>List&lt;Bucket&gt;</code></td><td>横向日期/粒度桶</td></tr>
+<tr><td><code>rows</code></td><td><code>List&lt;SpuRow&gt;</code></td><td>SPU 行</td></tr>
+<tr><td><code>storeTotal</code></td><td><code>StoreTotal</code></td><td>店铺合计</td></tr>
+<tr><td><code>SpuRow</code></td><td><code>Object</code></td><td>spu、totalSub、totalAvg、totalDiffNum、totalDiffStr、totals</td></tr></tbody></table></div><h3>PidDashboardResponse / SpuDashboardResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>total/page/pageSize</code></td><td><code>Integer</code></td><td>分页信息</td></tr>
+<tr><td><code>list</code></td><td><code>List&lt;Row&gt;</code></td><td>指标行列表</td></tr>
+<tr><td><code>totalRow</code></td><td><code>Row</code></td><td>合计行</td></tr>
+<tr><td><code>Row.date/pid/spu/analysis</code></td><td><code>String</code></td><td>基础字段；SPU 看板无 pid</td></tr>
+<tr><td><code>Row.*</code></td><td><code>CompareTripleNumber / CompareTripleString</code></td><td>GMV、成交件数、曝光、转化率、广告等指标均为对比结构</td></tr></tbody></table></div><h3>PidDetailResponse / SpuDetailResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>spu/storeName/startDate/endDate/gran</code></td><td><code>String</code></td><td>请求回显</td></tr>
+<tr><td><code>headers</code></td><td><code>List&lt;String&gt;</code></td><td>明细表头</td></tr>
+<tr><td><code>rows</code></td><td><code>List&lt;PidDashboardRow 或 SpuDashboardRow&gt;</code></td><td>明细行</td></tr>
+<tr><td><code>totalRow</code></td><td><code>Row</code></td><td>合计行</td></tr></tbody></table></div><h3>MainSpuMappingListResponse / MainSpuMappingResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>total/page/pageSize</code></td><td><code>Integer</code></td><td>分页信息</td></tr>
+<tr><td><code>list</code></td><td><code>List&lt;MainSpuMappingResponse&gt;</code></td><td>维护列表</td></tr>
+<tr><td><code>sdt</code></td><td><code>String</code></td><td>分区日期</td></tr>
+<tr><td><code>storeName</code></td><td><code>String</code></td><td>店铺名</td></tr>
+<tr><td><code>pid</code></td><td><code>String</code></td><td>PID</td></tr>
+<tr><td><code>mainSpu</code></td><td><code>String</code></td><td>主推 SPU</td></tr>
+<tr><td><code>updatedTime</code></td><td><code>String</code></td><td>更新时间</td></tr></tbody></table></div><h3>ProductStatsAiAnalysisResponse</h3><div class="table-wrap"><table><thead><tr><th>路径/结构</th><th>类型</th><th>说明</th></tr></thead><tbody><tr><td><code>spu</code></td><td><code>String</code></td><td>SPU</td></tr>
+<tr><td><code>analysis</code></td><td><code>String</code></td><td>AI 分析文案</td></tr></tbody></table></div>
+
+    <h2>六、注意事项</h2>
     <ul>
-      <li><strong>站点</strong>：级联 → 店铺列表</li>
-      <li><strong>店铺</strong>：必选</li>
-      <li><strong>搜索</strong>：字段（SPU / PID）+ 关键词，模糊</li>
-      <li><strong>日期范围</strong>：开始、结束</li>
-      <li><strong>日期类型</strong>：日 / 周 / 月 / 季 / 年</li>
-    </ul>
-    <h3>2.2 主表接口：商品统计列表</h3>
-    <pre><code>GET /api/bi/tk/sales/product-stats</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称</td></tr>
-          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD</td></tr>
-          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
-          <tr><td>gran</td><td>string</td><td>否</td><td>day / week / month / quarter / year，默认 day</td></tr>
-          <tr><td>searchField</td><td>string</td><td>否</td><td>spu / pid</td></tr>
-          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
-  "startDate": "2026-02-21",
-  "endDate": "2026-02-27",
-  "gran": "day",
-  "buckets": [
-    { "label": "2026/2/27" },
-    { "label": "2026/2/26" },
-    { "label": "2026/2/25" },
-    { "label": "2026/2/24" },
-    { "label": "2026/2/23" },
-    { "label": "2026/2/22" },
-    { "label": "2026/2/21" }
-  ],
-  "groups": [
-    {
-      "spu": "AL-W0161",
-      "totalSub": 520,
-      "totalAvg": 74,
-      "totalDiffNum": -13,
-      "totalDiffStr": "-13.5%",
-      "totals": [82, 95, 78, 88, 90, 87, 100],
-      "pidRows": [
-        {
-          "pid": "1729439482671567205",
-          "sub": 120,
-          "avg": 17,
-          "diffNum": -3,
-          "diffStr": "-2.4%",
-          "vals": [5, 8, 18, 12, 22, 25, 30]
-        }
-      ]
-    }
-  ],
-  "storeTotal": {
-    "totalSub": 2100,
-    "totalAvg": 300,
-    "storeDiffStr": "-5.2%",
-    "storeTotals": [310, 298, 305, 290, 302, 298, 297]
-  }
-}</code></pre>
-    <p><strong>data 字段说明（按层级）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>storeName</td><td>string</td><td>当前查询的店铺名称，与请求参数 storeName 一致</td></tr>
-          <tr><td>1</td><td>startDate</td><td>string</td><td>查询开始日期，格式 YYYY-MM-DD</td></tr>
-          <tr><td>1</td><td>endDate</td><td>string</td><td>查询结束日期，格式 YYYY-MM-DD</td></tr>
-          <tr><td>1</td><td>gran</td><td>string</td><td>日期粒度：day / week / month / quarter / year</td></tr>
-          <tr><td>1</td><td>buckets</td><td>list</td><td>与表头列一致，按 gran 聚合后的时间 bucket 列表</td></tr>
-          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>单个 bucket 的展示标签，如「2026/2/27」，用于表头展示</td></tr>
-          <tr><td>1</td><td>groups</td><td>list</td><td>按 SPU 分组，每组含该 SPU 汇总及下辖 PID 行；按 totalSub 降序</td></tr>
-          <tr><td>2</td><td>groups[].spu</td><td>string</td><td>SPU(公式)</td></tr>
-          <tr><td>2</td><td>groups[].totalSub</td><td>number</td><td>该 SPU 在 startDate～endDate 内的销量汇总</td></tr>
-          <tr><td>2</td><td>groups[].totalAvg</td><td>number</td><td>该 SPU 各 bucket 值的算术平均</td></tr>
-          <tr><td>2</td><td>groups[].totalDiffNum</td><td>number</td><td>环比差值（当前期与上一周期销量之差）</td></tr>
-          <tr><td>2</td><td>groups[].totalDiffStr</td><td>string</td><td>环比百分比，如「-13.5%」</td></tr>
-          <tr><td>2</td><td>groups[].totals</td><td>list</td><td>该 SPU 各 bucket 的合计销量，与 buckets 顺序、长度一致</td></tr>
-          <tr><td>2</td><td>groups[].pidRows</td><td>list</td><td>该 SPU 下各 PID 明细行</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].pid</td><td>string</td><td>PID</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].sub</td><td>number</td><td>该 PID 在区间内的销量小计</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].avg</td><td>number</td><td>该 PID 各 bucket 值的算术平均</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].diffNum</td><td>number</td><td>该 PID 环比差值</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].diffStr</td><td>string</td><td>该 PID 环比百分比，如「-2.4%」</td></tr>
-          <tr><td>3</td><td>groups[].pidRows[].vals</td><td>list</td><td>该 PID 各 bucket 销量，与 buckets 顺序、长度一致</td></tr>
-          <tr><td>1</td><td>storeTotal</td><td>object</td><td>店铺小计合计行，表示当前店铺下所有 SPU 的汇总</td></tr>
-          <tr><td>2</td><td>storeTotal.totalSub</td><td>number</td><td>全店销量汇总</td></tr>
-          <tr><td>2</td><td>storeTotal.totalAvg</td><td>number</td><td>全店各 bucket 值的算术平均</td></tr>
-          <tr><td>2</td><td>storeTotal.storeDiffStr</td><td>string</td><td>全店环比百分比，如「-5.2%」</td></tr>
-          <tr><td>2</td><td>storeTotal.storeTotals</td><td>list</td><td>全店各 bucket 的合计销量，与 buckets 顺序、长度一致</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>2.3 主表接口：商品统计 1.3（SPU汇总 / PID明细 / SKU看板）</h3>
-    <p>对应页面：<code>销售/销售数据/htmls/商品统计-1.3.html</code>。本接口只描述页面新增的商品统计主体查询，站点级联、店铺列表等公共选项仍使用「零、下拉选项接口」。接口字段采用 Java DTO/VO 常用驼峰命名；底表字段仍按 Doris 规范使用小写下划线。</p>
-    <pre><code>GET /api/bi/tk/sales/product-statistics</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th><th>底表映射</th></tr></thead>
-        <tbody>
-          <tr><td>viewType</td><td>string</td><td>否</td><td>视图类型：<code>spu</code> SPU汇总、<code>pid</code> PID明细、<code>sku</code> SKU看板；默认 <code>spu</code></td><td>接口层聚合维度</td></tr>
-          <tr><td>siteCode</td><td>string</td><td>否</td><td>站点/国家代码；来自公共站点级联选项</td><td>店铺维度映射或接口层店铺过滤</td></tr>
-          <tr><td>storeCode</td><td>string</td><td>否</td><td>店铺代码；优先使用店铺代码查询</td><td><code>ads_sales_product_statistics_1d.store_code</code></td></tr>
-          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称；兼容旧页面按店铺名称查询</td><td><code>ads_sales_product_statistics_1d.store_name</code></td></tr>
-          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期，格式 <code>YYYY-MM-DD</code></td><td><code>sdt &gt;= yyyyMMdd(startDate)</code></td></tr>
-          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期，格式 <code>YYYY-MM-DD</code></td><td><code>sdt &lt;= yyyyMMdd(endDate)</code></td></tr>
-          <tr><td>gran</td><td>string</td><td>否</td><td>日期粒度：<code>day</code> / <code>week</code> / <code>month</code> / <code>quarter</code> / <code>year</code>；默认 <code>day</code></td><td>接口层按 <code>sdt</code> 聚合生成 buckets</td></tr>
-          <tr><td>searchField</td><td>string</td><td>否</td><td>搜索字段：<code>spu</code> / <code>pid</code> / <code>sku</code></td><td><code>spu</code> / <code>pid</code> / <code>sku</code></td></tr>
-          <tr><td>searchMode</td><td>string</td><td>否</td><td>搜索方式：<code>fuzzy</code> 模糊搜索、<code>exact</code> 精确搜索；默认 <code>fuzzy</code></td><td>接口层条件</td></tr>
-          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键词；当 <code>searchMode=fuzzy</code> 时使用</td><td>接口层 LIKE 条件</td></tr>
-          <tr><td>searchValues</td><td>list&lt;string&gt;</td><td>否</td><td>精确搜索值列表；当 <code>searchMode=exact</code> 时使用，最多 500 项，前端一行一项去重后传入</td><td>接口层 IN 条件</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>查询口径</strong></p>
-    <ul>
-      <li>数据来源：<code>ads.ads_sales_product_statistics_1d</code>，上游为 <code>dws_sales_product_sku_qty_1d</code>。</li>
-      <li>页面「小计」= 当前查询日期范围内各 bucket 的 <code>sale_qty</code> 合计。</li>
-      <li>页面「平均值」= 当前行各 bucket 的 <code>sale_qty</code> 算术平均，取整规则由后端统一。</li>
-      <li>页面「环比」= 当前展示 bucket 与上一周期 bucket 的销量环比百分比；日对比昨天、周对比上周、月对比上月、季对比上季、年对比去年。</li>
-      <li>当 <code>viewType=spu</code> 时按 <code>store_code + spu + bucket</code> 聚合；当 <code>viewType=pid</code> 时按 <code>store_code + spu + pid + bucket</code> 聚合；当 <code>viewType=sku</code> 时按 <code>store_code + spu + pid + sku + bucket</code> 聚合或透出。</li>
-    </ul>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "viewType": "sku",
-  "storeCode": "1000017",
-  "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
-  "startDate": "2026-04-07",
-  "endDate": "2026-04-13",
-  "gran": "day",
-  "updatedTime": "2026-04-13 16:00:20",
-  "buckets": [
-    { "key": "20260413", "label": "2026/4/13", "startDate": "2026-04-13", "endDate": "2026-04-13" }
-  ],
-  "rows": [
-    {
-      "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
-      "spu": "AL-W0161",
-      "pid": "1729439482671567205",
-      "sku": "AL-W0161-BLK-L",
-      "skuName": "半拉链炒洗卫衣-黑色-L",
-      "colorName": "黑色",
-      "sizeName": "L",
-      "spuName": "半拉链炒洗卫衣",
-      "subTotal": 120,
-      "avgQty": 17,
-      "chainDiffQty": -3,
-      "chainRatio": "-2.4%",
-      "bucketValues": [5]
-    }
-  ],
-  "summary": {
-    "subTotal": 2100,
-    "avgQty": 300,
-    "chainRatio": "-5.2%",
-    "bucketValues": [310]
-  }
-}</code></pre>
-    <p><strong>data 字段说明（按层级）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th><th>底表映射</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>viewType</td><td>string</td><td>当前视图类型：spu / pid / sku</td><td>请求参数回显</td></tr>
-          <tr><td>1</td><td>storeCode</td><td>string</td><td>店铺代码</td><td><code>store_code</code></td></tr>
-          <tr><td>1</td><td>storeName</td><td>string</td><td>店铺名称</td><td><code>store_name</code></td></tr>
-          <tr><td>1</td><td>updatedTime</td><td>string</td><td>数据更新时间，用于页面右上角展示</td><td><code>MAX(insert_time)</code></td></tr>
-          <tr><td>1</td><td>buckets</td><td>list</td><td>表头时间 bucket，与 <code>bucketValues</code> 顺序一致</td><td>由 <code>sdt</code> 聚合生成</td></tr>
-          <tr><td>2</td><td>buckets[].key</td><td>string</td><td>bucket 唯一键，日粒度为 YYYYMMDD，其它粒度由后端统一生成</td><td>接口层生成</td></tr>
-          <tr><td>2</td><td>buckets[].label</td><td>string</td><td>bucket 展示文案，用于表头</td><td>接口层生成</td></tr>
-          <tr><td>1</td><td>rows</td><td>list</td><td>表格行；字段随 <code>viewType</code> 控制展示</td><td>按视图聚合后的结果</td></tr>
-          <tr><td>2</td><td>rows[].spu</td><td>string</td><td>SPU 编码；SPU汇总、PID明细、SKU看板均展示</td><td><code>spu</code></td></tr>
-          <tr><td>2</td><td>rows[].pid</td><td>string</td><td>PID；SPU汇总可为空，PID明细和 SKU看板展示</td><td><code>pid</code></td></tr>
-          <tr><td>2</td><td>rows[].sku</td><td>string</td><td>SKU 编码；仅 SKU看板展示</td><td><code>sku</code></td></tr>
-          <tr><td>2</td><td>rows[].skuName</td><td>string</td><td>SKU 产品中文名；仅 SKU看板展示</td><td><code>sku_name</code></td></tr>
-          <tr><td>2</td><td>rows[].colorName</td><td>string</td><td>颜色；仅 SKU看板展示</td><td><code>color_name</code></td></tr>
-          <tr><td>2</td><td>rows[].sizeName</td><td>string</td><td>尺码；仅 SKU看板展示</td><td><code>size_name</code></td></tr>
-          <tr><td>2</td><td>rows[].spuName</td><td>string</td><td>积加 SPU 中文名称；仅 SKU看板展示</td><td><code>spu_name</code></td></tr>
-          <tr><td>2</td><td>rows[].subTotal</td><td>number</td><td>当前行查询区间销量小计</td><td><code>SUM(sale_qty)</code></td></tr>
-          <tr><td>2</td><td>rows[].avgQty</td><td>number</td><td>当前行 bucket 平均销量</td><td>接口层计算</td></tr>
-          <tr><td>2</td><td>rows[].chainDiffQty</td><td>number</td><td>当前行环比差值</td><td>接口层计算</td></tr>
-          <tr><td>2</td><td>rows[].chainRatio</td><td>string</td><td>当前行环比百分比，如 +12.5%、-2.4%、—</td><td>接口层计算</td></tr>
-          <tr><td>2</td><td>rows[].bucketValues</td><td>list&lt;number&gt;</td><td>当前行每个 bucket 的销量，与 buckets 顺序一致</td><td><code>SUM(sale_qty)</code></td></tr>
-          <tr><td>1</td><td>summary</td><td>object</td><td>当前店铺汇总行</td><td>当前查询结果汇总</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>排序与空值</strong></p>
-    <ul>
-      <li>默认按 <code>subTotal</code> 降序；同值时按 <code>spu</code>、<code>pid</code>、<code>sku</code> 升序。</li>
-      <li>SKU看板中 <code>colorName</code>、<code>sizeName</code> 若无法拆分，允许返回空字符串。</li>
-      <li>环比分母为 0 时：本期也为 0 返回 <code>0%</code>，本期大于 0 返回 <code>—</code>。</li>
+      <li>当前实际接口路径不再使用旧文档中的 <code>/api/bi/tk/...</code> 前缀，实际 Controller 前缀为 <code>/tk/options</code>、<code>/tk/sales/storeSiteStats</code>、<code>/tk/sales/productStats</code>、<code>/tk/pid</code>。</li>
+      <li>商品统计 Controller 当前实际路径为 <code>/tk/sales/productStats</code>，不是旧文档中的 <code>product-statistics</code> 或 <code>product-stats</code> 横线命名。</li>
+      <li>PID 与主推 SPU 维护当前仅包含 <code>storeName</code>、<code>pid</code>、<code>mainSpu</code>；如后续增加产品主 SKU，应以新的 DTO 字段为准同步本文档。</li>
+      <li>导出接口返回文件流，不再包装 <code>BaseResponse</code>。</li>
     </ul>
 
-    <h3>2.4 导出（商品统计 1.3）</h3>
-    <pre><code>GET /api/bi/tk/sales/product-statistics/export</code></pre>
-    <p>查询参数同 2.3，返回 CSV 或文件流。导出字段随 <code>viewType</code> 变化：SPU汇总导出店铺名、SPU、小计、平均值、环比、各 bucket 销量；PID明细增加 PID；SKU看板增加 SKU编码、SKU产品中文名、颜色、尺码、积加SPU中文名称。</p>
-
-    <h3>2.5 弹框接口：AI 分析（按 SPU）</h3>
-    <p>用于商品统计页「AI」按钮，弹框内展示该 SPU 的文本摘要。</p>
-    <pre><code>POST /api/bi/tk/sales/product-stats/ai-analysis</code></pre>
-    <p><strong>请求 Body</strong></p>
-    <pre><code>{
-  "storeName": "美国 TK・艾斯特尼 - 美区特 1 店 US",
-  "spu": "AL-W0161",
-  "startDate": "2026-02-21",
-  "endDate": "2026-02-27",
-  "gran": "day"
-}</code></pre>
-    <p><strong>响应 data</strong>：<code>spu</code>、<code>analysis</code>（文本摘要）。</p>
-    <h3>2.6 弹框接口：PID 明细（商品统计 / 数据看板共用）</h3>
-    <p>用于商品统计页「分析」、需求三数据看板「分析」按钮。弹框内<strong>固定主推 SPU</strong>（数据看板场景下为当前行的 SPU，对应行仅一个 PID 时可视为固定 PID），用户可在弹框内<strong>再筛选</strong>以刷新明细表。</p>
-    <p><strong>弹框界面要点</strong>（对应 <code>销售/PID/htmls/数据看板-1.0.html</code> 内 PID 明细弹框）：</p>
-    <ul>
-      <li><strong>标题</strong>：PID 明细</li>
-      <li><strong>筛选区</strong>：时间范围（开始日期、结束日期）、日期维度（日 / 周 / 月）；修改后前端带新参数重新请求本接口刷新表格</li>
-      <li><strong>表格</strong>：与主表一致的 51 列表头（日期、PID、主推SPU、分析、客单价、…、广告ROI设置数），支持合计行；按 <code>gran</code> 展示按日或按周/月聚合后的明细</li>
-    </ul>
-    <pre><code>GET /api/bi/tk/pid/detail</code></pre>
-    <p><strong>查询参数</strong>：<code>spu</code>（弹框固定，来自点击行）、<code>storeName</code>（弹框固定）、<code>startDate</code>、<code>endDate</code>（弹框内选择）、<code>gran</code>（day / week / month，弹框内切换后带新值请求）。</p>
-    <p><strong>响应 data</strong>：<code>spu</code>、<code>storeName</code>、<code>startDate</code>、<code>endDate</code>、<code>gran</code>、<code>headers</code>（51 列）、<code>rows</code>、<code>totalRow</code>。与需求文档「数据看板」映射一致。</p>
-    <h3>2.7 导出（商品统计）</h3>
-    <pre><code>GET /api/bi/tk/sales/product-stats/export</code></pre>
-    <p>查询参数同 2.2，返回 CSV：店铺名、SPU(公式)、PID、各 bucket 列、环比。</p>
     <hr />
-
-    <h2>三、需求二：PID 数据看板</h2>
-    <p>对应页面：<code>销售/PID/htmls/数据看板-1.0.html</code>。主表支持对比期；弹框为 <strong>PID 明细</strong>（与 2.6 同一接口）。</p>
-    <h3>3.0 贴源表：ods_traffic_file_tiktok_product_list_di（商品数据分析导出）</h3>
-    <p>TikTok Seller Center 「商品数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_product_list_di</code>，为数据看板等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/商品数据分析_美国TK-艾斯特尼-美区跨境1店_2026-03-29.xlsx</code>。</p>
-    <p><strong>文件行约定</strong>（以上述示例为准）：第 1 行为统计日期范围（如 <code>2026-03-28 ~ 2026-03-28</code>）；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。店铺名称可由<strong>文件名</strong>或调度参数解析后写入 <code>store_name</code>；业务日期写入 <code>sdt</code>（YYYYMMDD），月分区 <code>smt</code>（YYYYMM）。</p>
-    <p><strong>Excel 第 3 行列名 → 建议落库字段</strong>（共 39 列，顺序与导出一致）</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>序号</th><th>Excel 列名（第 3 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>ID</td><td>product_id</td><td>VARCHAR(200)</td><td>商品 ID，即 PID</td></tr>
-          <tr><td>2</td><td>商品</td><td>product_name</td><td>STRING</td><td>商品标题/名称</td></tr>
-          <tr><td>3</td><td>状态</td><td>product_status</td><td>VARCHAR(64)</td><td>如 Active</td></tr>
-          <tr><td>4</td><td>GMV</td><td>gmv</td><td>DECIMAL(20,4)</td><td>汇总 GMV；导入时去掉货币符号与千分位</td></tr>
-          <tr><td>5</td><td>成交件数</td><td>sold_quantity</td><td>INT</td><td>成交件数</td></tr>
-          <tr><td>6</td><td>订单数</td><td>order_count</td><td>INT</td><td>订单数</td></tr>
-          <tr><td>7</td><td>VoC 诊断</td><td>voc_diagnosis</td><td>VARCHAR(200)</td><td>如 Market average</td></tr>
-          <tr><td>8</td><td>商城页 GMV</td><td>mall_page_gmv</td><td>DECIMAL(20,4)</td><td>商城场景 GMV</td></tr>
-          <tr><td>9</td><td>商城商品成交件数</td><td>mall_sold_quantity</td><td>INT</td><td>商城成交件数</td></tr>
-          <tr><td>10</td><td>商城页发品曝光次数</td><td>mall_listing_exposure</td><td>BIGINT</td><td>发品曝光</td></tr>
-          <tr><td>11</td><td>商城页面浏览次数</td><td>mall_page_view</td><td>BIGINT</td><td>页面浏览（PV）</td></tr>
-          <tr><td>12</td><td>商城页去重页面浏览次数</td><td>mall_uv_view</td><td>BIGINT</td><td>去重浏览</td></tr>
-          <tr><td>13</td><td>商城页去重商品客户数</td><td>mall_uv_user</td><td>BIGINT</td><td>去重客户</td></tr>
-          <tr><td>14</td><td>商城点击率</td><td>mall_click_rate</td><td>DECIMAL(10,4)</td><td>如 3.03%，存小数或原样解析</td></tr>
-          <tr><td>15</td><td>商城转化率</td><td>mall_convert_rate</td><td>DECIMAL(10,4)</td><td>商城转化率</td></tr>
-          <tr><td>16</td><td>直播 GMV</td><td>live_gmv</td><td>DECIMAL(20,4)</td><td>直播 GMV</td></tr>
-          <tr><td>17</td><td>直播商品成交件数</td><td>live_sold_quantity</td><td>INT</td><td>直播成交件数</td></tr>
-          <tr><td>18</td><td>直播曝光次数</td><td>live_exposure</td><td>BIGINT</td><td>直播曝光</td></tr>
-          <tr><td>19</td><td>直播的页面浏览次数</td><td>live_page_view</td><td>BIGINT</td><td>直播 PV</td></tr>
-          <tr><td>20</td><td>直播的去重页面浏览次数</td><td>live_uv_view</td><td>BIGINT</td><td>直播去重浏览</td></tr>
-          <tr><td>21</td><td>直播去重商品客户数</td><td>live_uv_user</td><td>BIGINT</td><td>直播去重客户</td></tr>
-          <tr><td>22</td><td>直播点击率</td><td>live_click_rate</td><td>DECIMAL(10,4)</td><td>直播点击率</td></tr>
-          <tr><td>23</td><td>直播转化率</td><td>live_convert_rate</td><td>DECIMAL(10,4)</td><td>直播转化率</td></tr>
-          <tr><td>24</td><td>视频 GMV</td><td>video_gmv</td><td>DECIMAL(20,4)</td><td>短视频 GMV</td></tr>
-          <tr><td>25</td><td>视频商品成交件数</td><td>video_sold_quantity</td><td>INT</td><td>短视频成交件数</td></tr>
-          <tr><td>26</td><td>视频曝光次数</td><td>video_exposure</td><td>BIGINT</td><td>视频曝光</td></tr>
-          <tr><td>27</td><td>来自视频的页面浏览次数</td><td>video_page_view</td><td>BIGINT</td><td>来自视频的 PV</td></tr>
-          <tr><td>28</td><td>来自视频的去重页面浏览次数</td><td>video_uv_view</td><td>BIGINT</td><td>视频去重浏览</td></tr>
-          <tr><td>29</td><td>视频去重商品客户数</td><td>video_uv_user</td><td>BIGINT</td><td>视频去重客户</td></tr>
-          <tr><td>30</td><td>视频点击率</td><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>视频点击率</td></tr>
-          <tr><td>31</td><td>视频转化率</td><td>video_convert_rate</td><td>DECIMAL(10,4)</td><td>视频转化率</td></tr>
-          <tr><td>32</td><td>商品卡 GMV</td><td>product_card_gmv</td><td>DECIMAL(20,4)</td><td>商品卡 GMV</td></tr>
-          <tr><td>33</td><td>商品卡片商品成交件数</td><td>product_card_sold_quantity</td><td>INT</td><td>商品卡成交件数</td></tr>
-          <tr><td>34</td><td>商品卡曝光次数</td><td>product_card_exposure</td><td>BIGINT</td><td>商品卡曝光</td></tr>
-          <tr><td>35</td><td>商品卡的页面浏览次数</td><td>product_card_page_view</td><td>BIGINT</td><td>商品卡页面浏览次数（PV）</td></tr>
-          <tr><td>36</td><td>商品卡的去重页面浏览次数</td><td>product_card_uv_view</td><td>BIGINT</td><td>商品卡去重页面浏览（UV）</td></tr>
-          <tr><td>37</td><td>商品卡去重客户数</td><td>product_card_uv_user</td><td>BIGINT</td><td>商品卡去重客户</td></tr>
-          <tr><td>38</td><td>商品卡点击率</td><td>product_card_click_rate</td><td>DECIMAL(10,4)</td><td>商品卡点击率</td></tr>
-          <tr><td>39</td><td>商品卡转化率</td><td>product_card_convert_rate</td><td>DECIMAL(10,4)</td><td>商品卡转化率</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>销售/技术文档/表结构设计.html</code>「3.6 ods_traffic_file_tiktok_product_list_di」，与本节字段一致。</p>
-    <h3>3.0.1 贴源表：ods_marketing_file_tiktok_campaign_di（实时推广系列数据导出）</h3>
-    <p>TikTok Seller Center「实时推广系列数据」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_marketing_file_tiktok_campaign_di</code>，为数据看板广告相关指标（如 GMVMAX 消耗、广告 GMV、ROI 等）提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/实时推广系列数据 2026-03-28 - 2026-03-28.xlsx</code>（工作表可能非 Sheet1，以实际 workbook 为准）。</p>
-    <p><strong>文件行约定</strong>：<strong>第 1 行即为列名</strong>；第 2 行起为数据行。文件名或第 1 行附近常见统计日期范围，可与调度参数一起解析 <code>sdt</code>、<code>smt</code>；<code>store_name</code> 由文件名或任务参数补充。</p>
-    <p><strong>PID 解析</strong>：<code>广告计划名称</code> 中常以 <code>-</code> 分段，<strong>最后一段</strong>为数字时可视作 PID，与 <code>ods_traffic_file_tiktok_product_list_di.product_id</code> 或主表 PID 关联（形如 <code>新-AL-W0161-主PID-1729773126172578149</code>）；非纯数字时段落为运营命名，需按实际规则解析。</p>
-    <p><strong>Excel 第 1 行列名 → 建议落库字段</strong>（共 12 列，顺序与导出一致）</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>序号</th><th>Excel 列名（第 1 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>广告计划 ID</td><td>campaign_id</td><td>VARCHAR(200)</td><td>唯一键组成部分</td></tr>
-          <tr><td>2</td><td>广告计划名称</td><td>campaign_name</td><td>VARCHAR(500)</td><td>可解析出 PID</td></tr>
-          <tr><td>3</td><td>成本</td><td>cost</td><td>DECIMAL(20,4)</td><td>推广/GMVMAX 侧成本；导入时去货币符号与千分位</td></tr>
-          <tr><td>4</td><td>ROI 保护</td><td>roi_protection</td><td>VARCHAR(500)</td><td>文案类，如「符合投资回报率 (ROI) 保障资格」</td></tr>
-          <tr><td>5</td><td>净成本</td><td>net_cost</td><td>DECIMAL(20,4)</td><td>净成本</td></tr>
-          <tr><td>6</td><td>当前预算</td><td>current_budget</td><td>DECIMAL(20,4)</td><td>当前预算</td></tr>
-          <tr><td>7</td><td>SKU 订单数</td><td>sku_order_count</td><td>INT</td><td>SKU 订单数</td></tr>
-          <tr><td>8</td><td>平均下单成本</td><td>avg_order_cost</td><td>DECIMAL(20,4)</td><td>平均下单成本（单次或 per order，与后台口径一致）</td></tr>
-          <tr><td>9</td><td>总收入</td><td>total_revenue</td><td>DECIMAL(20,4)</td><td>广告带来的总收入 / 广告 GMV</td></tr>
-          <tr><td>10</td><td>ROI</td><td>roi</td><td>DECIMAL(10,4)</td><td>投资回报率</td></tr>
-          <tr><td>11</td><td>货币</td><td>currency</td><td>VARCHAR(10)</td><td>如 USD</td></tr>
-          <tr><td>12</td><td>当前优化模式</td><td>optimization_mode</td><td>VARCHAR(100)</td><td>如「促销日」</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。建表 DDL 见 <code>销售/技术文档/表结构设计.html</code>「3.7 ods_marketing_file_tiktok_campaign_di」，与本节字段一致。</p>
-    <h3>3.0.2 贴源表：ods_traffic_file_tiktok_video_performance_di（直播和视频数据分析导出）</h3>
-    <p>TikTok Seller Center「直播和视频数据分析」导出的 Excel，经解析写入 Doris ODS 表 <code>ods.ods_traffic_file_tiktok_video_performance_di</code>，为数据看板短视频曝光、互动、挂车与成交等指标提供贴源数据。示例文件：<code>bi/tkDashboard/PID/docs/直播和视频数据分析_20260330053533.xlsx</code>。</p>
-    <p><strong>文件行约定</strong>：第 1 行多为统计日期范围（如 <code>[日期范围]: 2026-03-28 ~ 2026-03-28</code>）；第 2 行可能为空；<strong>第 3 行为列名字段</strong>；第 4 行起为数据行。<code>store_name</code>、<code>sdt</code>、<code>smt</code> 由文件名或调度参数解析写入。导出列为美元标价时（如 <code>GMV（视频） ($)</code>），导入时去掉 <code>$</code> 与千分位后按数值落库。</p>
-    <p><strong>关联说明</strong>：<code>达人ID</code> 与 <code>ods_platform_file_tiktok_account_df.tiktok_uid</code> 关联，用于区分商务挂车 / 剪辑挂车等；<code>商品</code> 与积加全渠道商品 <code>listingTitle</code> 等标题字段对齐做挂车匹配。</p>
-    <p><strong>Excel 第 3 行列名 → 建议落库字段</strong>（共 25 列，顺序与导出一致）</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>序号</th><th>Excel 列名（第 3 行）</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>达人昵称</td><td>creator_name</td><td>VARCHAR(200)</td><td>达人展示昵称</td></tr>
-          <tr><td>2</td><td>达人ID</td><td>creator_id</td><td>VARCHAR(200)</td><td>与 tk 账号表 tiktok_uid 关联</td></tr>
-          <tr><td>3</td><td>视频信息</td><td>video_title</td><td>STRING</td><td>视频文案/描述（原「视频信息」列）</td></tr>
-          <tr><td>4</td><td>视频ID</td><td>video_id</td><td>VARCHAR(200)</td><td>唯一键组成部分</td></tr>
-          <tr><td>5</td><td>发布时间</td><td>publish_time</td><td>DATETIME</td><td>导入时规范为 <code>yyyy-MM-dd HH:mm:ss</code></td></tr>
-          <tr><td>6</td><td>商品</td><td>product_name</td><td>STRING</td><td>挂载商品标题，用于挂车关联</td></tr>
-          <tr><td>7</td><td>VV</td><td>video_views</td><td>BIGINT</td><td>播放量/VV</td></tr>
-          <tr><td>8</td><td>点赞数</td><td>like_count</td><td>INT</td><td>—</td></tr>
-          <tr><td>9</td><td>评论数</td><td>comment_count</td><td>INT</td><td>—</td></tr>
-          <tr><td>10</td><td>分享数</td><td>share_count</td><td>INT</td><td>—</td></tr>
-          <tr><td>11</td><td>新增粉丝数</td><td>new_follower_count</td><td>INT</td><td>—</td></tr>
-          <tr><td>12</td><td>引流次数</td><td>traffic_diversion_count</td><td>BIGINT</td><td>—</td></tr>
-          <tr><td>13</td><td>商品曝光次数</td><td>product_exposure_count</td><td>BIGINT</td><td>—</td></tr>
-          <tr><td>14</td><td>商品点击次数</td><td>product_click_count</td><td>BIGINT</td><td>—</td></tr>
-          <tr><td>15</td><td>去重客户数</td><td>dedup_customer_count</td><td>BIGINT</td><td>可为空</td></tr>
-          <tr><td>16</td><td>视频成交订单数</td><td>video_deal_order_count</td><td>INT</td><td>—</td></tr>
-          <tr><td>17</td><td>视频商品成交件数</td><td>video_sold_quantity</td><td>INT</td><td>—</td></tr>
-          <tr><td>18</td><td>GMV（视频） ($)</td><td>gmv</td><td>DECIMAL(20,4)</td><td>视频 GMV；列名带货币时仅作展示，数值已按店铺币种</td></tr>
-          <tr><td>19</td><td>GPM ($)</td><td>gpm</td><td>DECIMAL(20,4)</td><td>千次播放收入等指标口径与后台一致</td></tr>
-          <tr><td>20</td><td>归因于带货视频的 GMV ($)</td><td>attributed_shoppable_video_gmv</td><td>DECIMAL(20,4)</td><td>归因 GMV</td></tr>
-          <tr><td>21</td><td>点击率（视频）</td><td>video_click_rate</td><td>DECIMAL(10,4)</td><td>如导出为 1.65%，解析去掉 % 后存数值（建议统一为百分点 1.65 或小数 0.0165，与数仓约定一致）</td></tr>
-          <tr><td>22</td><td>引流率</td><td>traffic_diversion_rate</td><td>DECIMAL(10,4)</td><td>同上，百分比解析</td></tr>
-          <tr><td>23</td><td>视频完播率</td><td>video_completion_rate</td><td>DECIMAL(10,4)</td><td>同上</td></tr>
-          <tr><td>24</td><td>点击成交转化率（视频）</td><td>video_click_to_order_convert_rate</td><td>DECIMAL(10,4)</td><td>同上</td></tr>
-          <tr><td>25</td><td>诊断</td><td>diagnosis</td><td>VARCHAR(200)</td><td>如 No issues</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>表级补充字段</strong>（不在 Excel 列中，由任务写入）：<code>smt</code>、<code>sdt</code>、<code>store_name</code>、<code>insert_time</code>。唯一键建议 <code>(smt, sdt, store_name, creator_id, video_id, product_name)</code>，详见 <code>销售/技术文档/表结构设计.html</code>「3.8 ods_traffic_file_tiktok_video_performance_di」。若历史作业仍使用旧列名（<code>play_count</code>、<code>sku_order_count</code>、<code>click_count</code>、<code>click_rate</code>、<code>convert_rate</code>），需迁移为与上表一致的字段。</p>
-    <h3>3.1 查询条件</h3>
-    <ul>
-      <li><strong>站点</strong>：级联（区域 → 国家），仅用于前端筛选店铺列表，主表接口不传 region/country</li>
-      <li><strong>店铺</strong>：单选，空=全部</li>
-      <li><strong>日期范围</strong>：开始日期、结束日期</li>
-      <li><strong>对比时间</strong>：可选，用于主表环比（当期 vs 对比期）；传 compareStart、compareEnd</li>
-      <li><strong>搜索</strong>：字段（PID / SPU）+ 关键词，模糊</li>
-    </ul>
-    <h3>3.2 主表接口：数据看板列表</h3>
-    <pre><code>GET /api/bi/tk/pid/dashboard</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>startDate</td><td>string</td><td>否</td><td>开始日期 YYYY-MM-DD</td></tr>
-          <tr><td>endDate</td><td>string</td><td>否</td><td>结束日期 YYYY-MM-DD</td></tr>
-          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部</td></tr>
-          <tr><td>searchField</td><td>string</td><td>否</td><td>pid / spu，搜索维度</td></tr>
-          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
-          <tr><td>compareStart</td><td>string</td><td>否</td><td>对比期开始日期（主表环比用）</td></tr>
-          <tr><td>compareEnd</td><td>string</td><td>否</td><td>对比期结束日期</td></tr>
-          <tr><td>page</td><td>int</td><td>否</td><td>页码，从 1 开始，默认 1</td></tr>
-          <tr><td>pageSize</td><td>int</td><td>否</td><td>每页条数，默认 20</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>参与对比的字段</strong></p>
-    <p>除 date、pid、spu、分析 外的 <strong>47 个数据列</strong>统一以数组返回，结构一致：<code>[当前值, 对比值, 环比百分比]</code>。未开启对比（未传 compareStart/compareEnd）时，第二、第三项为空（<code>null</code> 或 <code>""</code>）；开启对比时，对比值、环比由后端计算并填入，环比格式如 <code>"+12.5%"</code>、<code>"-3.2%"</code>，无法计算时可返回 <code>null</code> 或 <code>"—"</code>。</p>
-    <p>参与对比的字段（序号 5～51）：atv, subsidyPer, financialGmv, tradeAmount, dealQty, orderQty, cardGmv, liveGmv, videoGmv, cardGmvRatio, liveGmvRatio, videoGmvRatio, cardTradeAmount, cardDealQty, cardAtv, cardExposure, cardPageView, cardUvView, cardUvUser, cardClick, cardConvert, cardVideoTradeAmount, videoDealQty, videoAtv, videoExposure, videoPageView, videoUvView, videoUvUser, videoClickRate, videoConvertRate, bizHangerQty, editHangerQty, totalHangerQty, bizOpenVideoQty, editOpenVideoQty, totalOpenVideoQty, vasConsume, gmvmaxConsume, adTotalConsume, adOrderCount, adOrderQty, adGmv, totalGmv, totalAcoas, adRoi, adAcoas, adRoiSettingCount。</p>
-    <p><strong>响应 data</strong></p>
-    <p>上述 47 个字段始终为三元数组 <code>[当前值, 对比值, 环比百分比]</code>；未开启对比时对比值、环比为空。</p>
-    <p><em>示例一：未开启对比（第二、第三项为空）</em></p>
-    <pre><code>{
-  "total": 100,
-  "page": 1,
-  "pageSize": 20,
-  "list": [
-    {
-      "date": "2026-02-23",
-      "pid": "1729773126172578149",
-      "spu": "AL-W0161",
-      "atv": [68, null, null],
-      "subsidyPer": [3.82, null, null],
-      "financialGmv": [28500, null, null],
-      "tradeAmount": [28500, null, null],
-      "dealQty": [419, null, null],
-      "orderQty": [377, null, null],
-      "cardGmv": [17100, null, null],
-      "liveGmv": [7125, null, null],
-      "videoGmv": [4275, null, null],
-      "cardGmvRatio": ["60.0%", null, null],
-      "liveGmvRatio": ["25.0%", null, null],
-      "videoGmvRatio": ["15.0%", null, null],
-      "cardTradeAmount": [17442, null, null],
-      "cardDealQty": [259, null, null],
-      "cardAtv": [67, null, null],
-      "cardExposure": [12500, null, null],
-      "cardPageView": [8200, null, null],
-      "cardUvView": [6500, null, null],
-      "cardUvUser": [4200, null, null],
-      "cardClick": [520, null, null],
-      "cardConvert": [4.16, null, null],
-      "cardVideoTradeAmount": [5125, null, null],
-      "videoDealQty": [92, null, null],
-      "videoAtv": [56, null, null],
-      "videoExposure": [5800, null, null],
-      "videoPageView": [3500, null, null],
-      "videoUvView": [2800, null, null],
-      "videoUvUser": [1850, null, null],
-      "videoClickRate": ["4.2%", null, null],
-      "videoConvertRate": ["2.8%", null, null],
-      "bizHangerQty": [25, null, null],
-      "editHangerQty": [15, null, null],
-      "totalHangerQty": [40, null, null],
-      "bizOpenVideoQty": [12, null, null],
-      "editOpenVideoQty": [8, null, null],
-      "totalOpenVideoQty": [20, null, null],
-      "vasConsume": [800, null, null],
-      "gmvmaxConsume": [350, null, null],
-      "adTotalConsume": [1150, null, null],
-      "adOrderCount": [48, null, null],
-      "adOrderQty": [56, null, null],
-      "adGmv": [3420, null, null],
-      "totalGmv": [29800, null, null],
-      "totalAcoas": [81.43, null, null],
-      "adRoi": [9.77, null, null],
-      "adAcoas": ["10.23%", null, null],
-      "adRoiSettingCount": [2, null, null]
-    }
-  ]
-}</code></pre>
-    <p><em>示例二：开启对比（compareStart/compareEnd 有值）时，第二、第三项有值</em></p>
-    <pre><code>{
-  "total": 100,
-  "page": 1,
-  "pageSize": 20,
-  "list": [
-    {
-      "date": "2026-02-23",
-      "pid": "1729773126172578149",
-      "spu": "AL-W0161",
-      "atv": [68, 65, "+4.62%"],
-      "subsidyPer": [3.82, 3.80, "+0.53%"],
-      "financialGmv": [28500, 27200, "+4.78%"],
-      "tradeAmount": [28500, 27200, "+4.78%"],
-      "dealQty": [419, 398, "+5.28%"],
-      "orderQty": [377, 360, "+4.72%"],
-      "cardGmv": [17100, 16320, "+4.78%"],
-      "liveGmv": [7125, 6800, "+4.78%"],
-      "videoGmv": [4275, 4080, "+4.78%"],
-      "cardGmvRatio": ["60.0%", "60.0%", "0%"],
-      "liveGmvRatio": ["25.0%", "25.0%", "0%"],
-      "videoGmvRatio": ["15.0%", "15.0%", "0%"],
-      "cardTradeAmount": [17442, 16646, "+4.78%"],
-      "cardDealQty": [259, 247, "+4.86%"],
-      "cardAtv": [67, 64, "+4.69%"],
-      "cardExposure": [12500, 12000, "+4.17%"],
-      "cardPageView": [8200, 7900, "+3.80%"],
-      "cardUvView": [6500, 6200, "+4.84%"],
-      "cardUvUser": [4200, 4000, "+5.00%"],
-      "cardClick": [520, 495, "+5.05%"],
-      "cardConvert": [4.16, 3.96, "+5.05%"],
-      "cardVideoTradeAmount": [5125, 4890, "+4.81%"],
-      "videoDealQty": [92, 88, "+4.55%"],
-      "videoAtv": [56, 54, "+3.70%"],
-      "videoExposure": [5800, 5500, "+5.45%"],
-      "videoPageView": [3500, 3320, "+5.42%"],
-      "videoUvView": [2800, 2650, "+5.66%"],
-      "videoUvUser": [1850, 1750, "+5.71%"],
-      "videoClickRate": ["4.2%", "4.0%", "+5.00%"],
-      "videoConvertRate": ["2.8%", "2.7%", "+3.70%"],
-      "bizHangerQty": [25, 23, "+8.70%"],
-      "editHangerQty": [15, 14, "+7.14%"],
-      "totalHangerQty": [40, 37, "+8.11%"],
-      "bizOpenVideoQty": [12, 11, "+9.09%"],
-      "editOpenVideoQty": [8, 7, "+14.29%"],
-      "totalOpenVideoQty": [20, 18, "+11.11%"],
-      "vasConsume": [800, 750, "+6.67%"],
-      "gmvmaxConsume": [350, 330, "+6.06%"],
-      "adTotalConsume": [1150, 1080, "+6.48%"],
-      "adOrderCount": [48, 45, "+6.67%"],
-      "adOrderQty": [56, 52, "+7.69%"],
-      "adGmv": [3420, 3260, "+4.91%"],
-      "totalGmv": [29800, 28400, "+4.93%"],
-      "totalAcoas": [81.43, 80.0, "+1.79%"],
-      "adRoi": [9.77, 9.45, "+3.39%"],
-      "adAcoas": ["10.23%", "10.12%", "+1.09%"],
-      "adRoiSettingCount": [2, 2, "0%"]
-    }
-  ]
-}</code></pre>
-    <p><strong>data 字段说明（按层级）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>total</td><td>number</td><td>符合查询条件的总条数，用于分页</td></tr>
-          <tr><td>1</td><td>page</td><td>number</td><td>当前页码，与请求参数一致</td></tr>
-          <tr><td>1</td><td>pageSize</td><td>number</td><td>每页条数，与请求参数一致</td></tr>
-          <tr><td>1</td><td>list</td><td>list</td><td>当前页的数据看板行，每行对应一个 PID 维度统计</td></tr>
-          <tr><td>2</td><td>list[].date</td><td>string</td><td>统计日期，格式 YYYY-MM-DD</td></tr>
-          <tr><td>2</td><td>list[].pid</td><td>string</td><td>PID</td></tr>
-          <tr><td>2</td><td>list[].spu</td><td>string</td><td>SPU(公式)</td></tr>
-          <tr><td>2</td><td>list[].atv</td><td>number</td><td>客单价</td></tr>
-          <tr><td>2</td><td>list[].subsidyPer</td><td>number</td><td>平均补贴/单</td></tr>
-          <tr><td>2</td><td>list[].financialGmv</td><td>number</td><td>财务 GMV</td></tr>
-          <tr><td>2</td><td>list[].tradeAmount</td><td>number</td><td>商品交易总额（与需求文档列名对应）</td></tr>
-          <tr><td>2</td><td>list[].dealQty</td><td>number</td><td>成交件数</td></tr>
-          <tr><td>2</td><td>list[].orderQty</td><td>number</td><td>订单数</td></tr>
-          <tr><td>2</td><td>list[].cardGmv</td><td>number</td><td>卡牌 GMV</td></tr>
-          <tr><td>2</td><td>list[].liveGmv</td><td>number</td><td>直播 GMV</td></tr>
-          <tr><td>2</td><td>list[].videoGmv</td><td>number</td><td>视频 GMV</td></tr>
-          <tr><td>2</td><td>list[].cardGmvRatio</td><td>string</td><td>卡牌 GMV 占比，如「60.0%」</td></tr>
-          <tr><td>2</td><td>list[].liveGmvRatio</td><td>string</td><td>直播 GMV 占比</td></tr>
-          <tr><td>2</td><td>list[].videoGmvRatio</td><td>string</td><td>视频 GMV 占比</td></tr>
-          <tr><td>2</td><td>list[].cardTradeAmount</td><td>number</td><td>卡牌交易额</td></tr>
-          <tr><td>2</td><td>list[].cardDealQty</td><td>number</td><td>卡牌成交件数</td></tr>
-          <tr><td>2</td><td>list[].bizHangerQty</td><td>number</td><td>业务挂载数</td></tr>
-          <tr><td>2</td><td>list[].editHangerQty</td><td>number</td><td>编辑挂载数</td></tr>
-          <tr><td>2</td><td>list[].totalHangerQty</td><td>number</td><td>挂载总数</td></tr>
-          <tr><td>2</td><td>list[].gmvmaxConsume</td><td>number</td><td>GMV 最大消耗</td></tr>
-          <tr><td>2</td><td>list[].adOrderQty</td><td>number</td><td>广告订单数</td></tr>
-          <tr><td>2</td><td>list[].adGmv</td><td>number</td><td>广告 GMV</td></tr>
-          <tr><td>2</td><td>list[].totalGmv</td><td>number</td><td>GMV 合计</td></tr>
-          <tr><td>2</td><td>list[].totalAcoas</td><td>number</td><td>总 ACoAS</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>list[] 与前端表头 51 列对应</strong>（<code>需求二-数据看板.html</code> 表头顺序）</p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>序号</th><th>表头名称</th><th>建议字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>日期</td><td>date</td><td>string</td><td>YYYY-MM-DD</td></tr>
-          <tr><td>2</td><td>PID</td><td>pid</td><td>string</td><td>—</td></tr>
-          <tr><td>3</td><td>主推SPU</td><td>spu</td><td>string</td><td>—</td></tr>
-          <tr><td>4</td><td>分析</td><td>—</td><td>—</td><td>前端操作列，接口可不返或返空</td></tr>
-          <tr><td>5</td><td>客单价</td><td>atv</td><td>number</td><td>GMV 情况-客单价</td></tr>
-          <tr><td>6</td><td>平均补贴/单</td><td>subsidyPer</td><td>number</td><td>—</td></tr>
-          <tr><td>7</td><td>财务GMV</td><td>financialGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>8</td><td>商品交易总额4</td><td>tradeAmount</td><td>number</td><td>—</td></tr>
-          <tr><td>9</td><td>成交件数5</td><td>dealQty</td><td>number</td><td>—</td></tr>
-          <tr><td>10</td><td>订单数6</td><td>orderQty</td><td>number</td><td>—</td></tr>
-          <tr><td>11</td><td>商品卡GMV31</td><td>cardGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>12</td><td>直播GMV15</td><td>liveGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>13</td><td>短视频GMV23</td><td>videoGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>14</td><td>商品卡GMV占比</td><td>cardGmvRatio</td><td>string</td><td>如 60.0%</td></tr>
-          <tr><td>15</td><td>直播GMV占比</td><td>liveGmvRatio</td><td>string</td><td>—</td></tr>
-          <tr><td>16</td><td>短视频GMV占比</td><td>videoGmvRatio</td><td>string</td><td>—</td></tr>
-          <tr><td>17</td><td>商品卡商品交易总额33</td><td>cardTradeAmount</td><td>number</td><td>—</td></tr>
-          <tr><td>18</td><td>商品卡成交件数32</td><td>cardDealQty</td><td>number</td><td>—</td></tr>
-          <tr><td>19</td><td>客单价</td><td>cardAtv</td><td>number</td><td>商品卡-客单价</td></tr>
-          <tr><td>20</td><td>曝光33</td><td>cardExposure</td><td>number</td><td>商品卡曝光</td></tr>
-          <tr><td>21</td><td>商品卡片的页面浏览次数36</td><td>cardPageView</td><td>number</td><td>—</td></tr>
-          <tr><td>22</td><td>去重浏览35</td><td>cardUvView</td><td>number</td><td>—</td></tr>
-          <tr><td>23</td><td>去重客户36</td><td>cardUvUser</td><td>number</td><td>—</td></tr>
-          <tr><td>24</td><td>商品卡点击37</td><td>cardClick</td><td>number</td><td>—</td></tr>
-          <tr><td>25</td><td>商品卡转化38</td><td>cardConvert</td><td>number</td><td>—</td></tr>
-          <tr><td>26</td><td>商品卡短视频商品交易总额25</td><td>cardVideoTradeAmount</td><td>number</td><td>—</td></tr>
-          <tr><td>27</td><td>短视频成交件数24</td><td>videoDealQty</td><td>number</td><td>—</td></tr>
-          <tr><td>28</td><td>客单价</td><td>videoAtv</td><td>number</td><td>短视频-客单价</td></tr>
-          <tr><td>29</td><td>视频曝光次数25</td><td>videoExposure</td><td>number</td><td>—</td></tr>
-          <tr><td>30</td><td>来自视频的页面浏览次数28</td><td>videoPageView</td><td>number</td><td>—</td></tr>
-          <tr><td>31</td><td>来自视频的去重页面浏览次数27</td><td>videoUvView</td><td>number</td><td>—</td></tr>
-          <tr><td>32</td><td>视频去重商品客户数28</td><td>videoUvUser</td><td>number</td><td>—</td></tr>
-          <tr><td>33</td><td>视频点击率29</td><td>videoClickRate</td><td>string</td><td>如 12.5%</td></tr>
-          <tr><td>34</td><td>视频转化率30</td><td>videoConvertRate</td><td>string</td><td>—</td></tr>
-          <tr><td>35</td><td>商务挂车量</td><td>bizHangerQty</td><td>number</td><td>—</td></tr>
-          <tr><td>36</td><td>剪辑挂车量</td><td>editHangerQty</td><td>number</td><td>—</td></tr>
-          <tr><td>37</td><td>合计挂车量</td><td>totalHangerQty</td><td>number</td><td>—</td></tr>
-          <tr><td>38</td><td>商务开单视频</td><td>bizOpenVideoQty</td><td>number</td><td>—</td></tr>
-          <tr><td>39</td><td>剪辑开单视频</td><td>editOpenVideoQty</td><td>number</td><td>—</td></tr>
-          <tr><td>40</td><td>开单视频合计</td><td>totalOpenVideoQty</td><td>number</td><td>—</td></tr>
-          <tr><td>41</td><td>vas消耗</td><td>vasConsume</td><td>number</td><td>—</td></tr>
-          <tr><td>42</td><td>GMVMAX消耗</td><td>gmvmaxConsume</td><td>number</td><td>—</td></tr>
-          <tr><td>43</td><td>广告总消耗</td><td>adTotalConsume</td><td>number</td><td>—</td></tr>
-          <tr><td>44</td><td>广告单量</td><td>adOrderCount</td><td>number</td><td>—</td></tr>
-          <tr><td>45</td><td>广告订单数</td><td>adOrderQty</td><td>number</td><td>—</td></tr>
-          <tr><td>46</td><td>广告GMV</td><td>adGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>47</td><td>总GMV</td><td>totalGmv</td><td>number</td><td>—</td></tr>
-          <tr><td>48</td><td>总ACOAS</td><td>totalAcoas</td><td>number</td><td>—</td></tr>
-          <tr><td>49</td><td>广告ROI（测算）</td><td>adRoi</td><td>number 或 string</td><td>—</td></tr>
-          <tr><td>50</td><td>广告AcoAs</td><td>adAcoas</td><td>number</td><td>—</td></tr>
-          <tr><td>51</td><td>广告ROI设置数</td><td>adRoiSettingCount</td><td>number</td><td>—</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p>接口返回的 <code>list[].*</code> 字段名与上表「建议字段名」一致，顺序与前端表头一致。序号 5～51 的字段均为三元数组 <code>[当前值, 对比值, 环比百分比]</code>，未开启对比时后两项为 <code>null</code>。</p>
-    <h3>3.3 每日明细接口（点击「每日」按钮）</h3>
-    <p>对应页面：<code>需求二-数据看板.html</code>。主表每行 PID 旁有「每日」按钮，点击后在该行下方展开该 PID 在<strong>当前查询日期范围内</strong>的按日明细表（表头与主表一致，每行一天）。</p>
-    <pre><code>GET /api/bi/tk/pid/dashboard/daily</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>pid</td><td>string</td><td>是</td><td>PID</td></tr>
-          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称</td></tr>
-          <tr><td>startDate</td><td>string</td><td>是</td><td>开始日期 YYYY-MM-DD（与主表查询条件一致）</td></tr>
-          <tr><td>endDate</td><td>string</td><td>是</td><td>结束日期 YYYY-MM-DD</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-    <p>返回该 PID + 店铺在 startDate～endDate 内<strong>按日</strong>的明细列表，结构与 3.2 主表 <code>list[]</code> 单条一致（51 列字段），无分页；按日期正序。字段：<code>pid</code>、<code>storeName</code>、<code>startDate</code>、<code>endDate</code>、<code>list</code>（每项含 date、pid、spu 及与主表相同的 51 列字段，可不含 <code>_compare</code>）。前端用 <code>list</code> 在「每日」展开区域渲染与主表同表头的表格，一行一天。</p>
-    <h3>3.4 弹框：PID 明细</h3>
-    <p>与 <strong>2.4</strong> 相同，使用 <code>GET /api/bi/tk/pid/detail</code>。数据看板主表点击某行「分析」时，<strong>固定该行的 SPU（及店铺）</strong>，打开弹框后用户可在弹框内<strong>再筛选</strong>：选择时间范围（startDate、endDate）、日期维度（gran：日/周/月），每次变更后前端带当前弹框参数重新请求接口，刷新 51 列明细表与合计行。参数：<code>spu</code>、<code>storeName</code>（来自点击行）、<code>startDate</code>、<code>endDate</code>、<code>gran</code>（来自弹框内选择）。</p>
-    <h3>3.5 导出</h3>
-    <pre><code>GET /api/bi/tk/pid/dashboard/export</code></pre>
-    <p>查询参数同 3.2（不含 page、pageSize），返回 CSV，列与主表一致。</p>
-    <h3>3.6 PID 与主推SPU维护：列表查询</h3>
-    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。点击页面右上角 <strong>PID与主推SPU维护</strong> 按钮后弹出维护弹框，支持按店铺、PID、主推SPU筛选维护记录。默认查询 <strong>最新 sdt</strong> 对应的整日全量快照；如后续需要回看历史，可扩展传入 <code>sdt</code> 指定历史快照日期。</p>
-    <pre><code>GET /api/bi/tk/pid/mainSpuMapping/list</code></pre>
-    <p><strong>查询参数</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>sdt</td><td>string</td><td>否</td><td>快照日期，格式 YYYYMMDD；不传时默认取最新 sdt</td></tr>
-          <tr><td>storeName</td><td>string</td><td>否</td><td>店铺名称，空=全部店铺</td></tr>
-          <tr><td>pid</td><td>string</td><td>否</td><td>PID，支持模糊匹配</td></tr>
-          <tr><td>mainSpu</td><td>string</td><td>否</td><td>主推SPU，支持模糊匹配</td></tr>
-          <tr><td>page</td><td>int</td><td>否</td><td>页码，从 1 开始，默认 1</td></tr>
-          <tr><td>pageSize</td><td>int</td><td>否</td><td>每页条数，默认 20</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "total": 2,
-  "page": 1,
-  "pageSize": 20,
-  "list": [
-    {
-      "sdt": "20260422",
-      "storeName": "美国TK-艾斯特尼-美区跨境1店",
-      "pid": "1729773126172578149",
-      "mainSpu": "AL-W0161",
-      "updatedTime": "2026-04-22 14:36:18"
-    },
-    {
-      "sdt": "20260422",
-      "storeName": "美国TK-艾斯特尼-美区跨境3店",
-      "pid": "1729439482671567205",
-      "mainSpu": "AL-M2301",
-      "updatedTime": "2026-04-22 11:08:27"
-    }
-  ]
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>total</td><td>number</td><td>符合查询条件的总条数</td></tr>
-          <tr><td>1</td><td>page</td><td>number</td><td>当前页码</td></tr>
-          <tr><td>1</td><td>pageSize</td><td>number</td><td>每页条数</td></tr>
-          <tr><td>1</td><td>list</td><td>list</td><td>维护列表</td></tr>
-          <tr><td>2</td><td>list[].sdt</td><td>string</td><td>快照日期，格式 YYYYMMDD</td></tr>
-          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称</td></tr>
-          <tr><td>2</td><td>list[].pid</td><td>string</td><td>PID</td></tr>
-          <tr><td>2</td><td>list[].mainSpu</td><td>string</td><td>主推SPU</td></tr>
-          <tr><td>2</td><td>list[].updatedTime</td><td>string</td><td>更新时间，格式 YYYY-MM-DD HH:mm:ss</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>3.7 PID 与主推SPU维护：更新映射</h3>
-    <p>对应页面：<code>销售/PID/htmls/数据看板-1.1.html</code>。维护列表点击「编辑」后弹出编辑框，仅允许修改主推SPU，店铺和 PID 只读展示。</p>
-    <pre><code>POST /api/bi/tk/pid/mainSpuMapping/update</code></pre>
-    <p><strong>请求体示例</strong></p>
-    <pre><code>{
-  "storeName": "美国TK-艾斯特尼-美区跨境1店",
-  "pid": "1729773126172578149",
-  "mainSpu": "AL-W0161"
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>storeName</td><td>string</td><td>是</td><td>店铺名称，和 PID 组成唯一定位键</td></tr>
-          <tr><td>pid</td><td>string</td><td>是</td><td>PID</td></tr>
-          <tr><td>mainSpu</td><td>string</td><td>是</td><td>主推SPU，不能为空</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data</strong></p>
-<pre><code>{
-  "sdt": "20260422",
-  "storeName": "美国TK-艾斯特尼-美区跨境1店",
-  "pid": "1729773126172578149",
-  "mainSpu": "AL-W0161",
-  "updatedTime": "2026-04-22 14:36:18"
-}</code></pre>
-    <p>更新成功后将写入当天 <code>sdt</code> 对应的 DIM 快照，前端关闭编辑弹框，并重新调用 <code>GET /api/bi/tk/pid/mainSpuMapping/list</code> 刷新维护列表。</p>
-    <hr />
-
-    <h2>五、积加对接：全渠道商品接口</h2>
-    <p>对接积加（Jijia）全渠道商品接口，用于获取商品分组及 SKU 明细。以下为请求与响应格式约定。</p>
-    <p><strong>接口地址</strong></p>
-    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/parent-page</code></pre>
-    <h3>5.1 请求</h3>
-    <p><strong>请求体示例</strong></p>
-    <pre><code>{
-  "marketIds": ["1000017"],
-  "salesState": "AVAILABLE_FOR_SALE",
-  "vague": false,
-  "page": 1,
-  "pagesize": 20
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>marketIds</td><td>string[]</td><td>店铺/市场 ID 列表，如 ["1000017"]</td></tr>
-          <tr><td>salesState</td><td>string</td><td>销售状态筛选，如 AVAILABLE_FOR_SALE（在售）</td></tr>
-          <tr><td>vague</td><td>boolean</td><td>是否模糊查询</td></tr>
-          <tr><td>page</td><td>number</td><td>页码，从 1 开始</td></tr>
-          <tr><td>pagesize</td><td>number</td><td>每页条数</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>5.2 响应结构</h3>
-    <p>根结构：<code>traceId</code>（string|null）、<code>code</code>（number）、<code>success</code>（number）、<code>data</code>（object）。<code>data</code> 内含：<code>total</code>（总条数）、<code>rows</code>（商品分组列表）、<code>condition</code>（回显的查询条件）、<code>from</code>、<code>page</code>、<code>pagesize</code>、<code>footer</code>（可为 null）。</p>
-    <p><code>data.rows[]</code> 每项为商品组，主要字段：<code>groupNum</code>、<code>groupKey</code>、<code>childIdList</code>（子项 ID 数组）、<code>childList</code>（子项明细数组）、<code>childSkuList</code>（SKU 编码数组）、<code>groupItemId</code>、<code>listingTagParam</code>、<code>mainImageUrl</code>、<code>marketId</code>、<code>marketName</code>、<code>platformCode</code>、<code>platformEnName</code>、<code>productManagerNames</code>、<code>selfDeliveryInventory</code>、<code>unfold</code> 等。</p>
-    <p><strong>childList 单条对象字段（data.rows[].childList[] 每一项）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
-          <tr><td>itemId</td><td>string</td><td>商品 itemId</td></tr>
-          <tr><td>itemIdUrl</td><td>string|null</td><td>商品链接</td></tr>
-          <tr><td>groupItemId</td><td>string</td><td>分组商品 ID</td></tr>
-          <tr><td>groupKey</td><td>string</td><td>分组键，如 marketId_itemId</td></tr>
-          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
-          <tr><td>platformEnName</td><td>string</td><td>平台英文名，如 Tiktok自运营</td></tr>
-          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
-          <tr><td>marketName</td><td>string</td><td>市场/店铺名称</td></tr>
-          <tr><td>sku</td><td>string</td><td>SKU 编码</td></tr>
-          <tr><td>msku</td><td>string</td><td>MSKU（与 sku 一致或平台 SKU）</td></tr>
-          <tr><td>skuName</td><td>string</td><td>SKU 名称</td></tr>
-          <tr><td>spu</td><td>string</td><td>SPU 编码</td></tr>
-          <tr><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
-          <tr><td>listingTitle</td><td>string</td><td>商品标题</td></tr>
-          <tr><td>mainImageUrl</td><td>string</td><td>主图 URL</td></tr>
-          <tr><td>adjustStandardPrice</td><td>number</td><td>调整后标准价</td></tr>
-          <tr><td>salePrice</td><td>number|null</td><td>售价</td></tr>
-          <tr><td>currency</td><td>string</td><td>币种，如 USD</td></tr>
-          <tr><td>currencySymbol</td><td>string</td><td>币种符号，如 $</td></tr>
-          <tr><td>b2bPrice</td><td>number|null</td><td>B2B 价格</td></tr>
-          <tr><td>b2bQuantityType</td><td>string|null</td><td>B2B 数量类型</td></tr>
-          <tr><td>category</td><td>string</td><td>类目编码，如 NW111</td></tr>
-          <tr><td>categoryTree</td><td>string</td><td>类目树，如 一级/二级/三级</td></tr>
-          <tr><td>firstLevelCategory</td><td>string</td><td>一级类目</td></tr>
-          <tr><td>secondLevelCategory</td><td>string</td><td>二级类目</td></tr>
-          <tr><td>thirdLevelCategory</td><td>string</td><td>三级类目</td></tr>
-          <tr><td>platformCategory</td><td>string</td><td>平台类目</td></tr>
-          <tr><td>brand</td><td>string</td><td>品牌</td></tr>
-          <tr><td>brandName</td><td>string|null</td><td>品牌名称</td></tr>
-          <tr><td>platformBrand</td><td>string</td><td>平台品牌</td></tr>
-          <tr><td>salesState</td><td>string</td><td>销售状态码，如 AVAILABLE_FOR_SALE</td></tr>
-          <tr><td>salesStateDesc</td><td>string</td><td>销售状态描述，如在售</td></tr>
-          <tr><td>salesStateDetail</td><td>string</td><td>销售状态明细描述</td></tr>
-          <tr><td>selfDeliveryInventory</td><td>number</td><td>自发货库存</td></tr>
-          <tr><td>fulfillment</td><td>string</td><td>履约方式</td></tr>
-          <tr><td>warehouseId</td><td>number|string|null</td><td>仓库 ID</td></tr>
-          <tr><td>warehouseName</td><td>string|null</td><td>仓库名称</td></tr>
-          <tr><td>firstSalesDate</td><td>string|null</td><td>首次销售日期</td></tr>
-          <tr><td>offerStartDate</td><td>string|null</td><td>促销开始日期</td></tr>
-          <tr><td>offerEndDate</td><td>string|null</td><td>促销结束日期</td></tr>
-          <tr><td>listingTime</td><td>string|null</td><td>上架时间</td></tr>
-          <tr><td>updateTime</td><td>string</td><td>更新时间，如 2026-03-16 12:59:05</td></tr>
-          <tr><td>operationLevel</td><td>string</td><td>运营层级</td></tr>
-          <tr><td>operationState</td><td>string</td><td>运营状态</td></tr>
-          <tr><td>productManagerName</td><td>string</td><td>产品经理姓名</td></tr>
-          <tr><td>listingManagerIdList</td><td>array|null</td><td>Listing 经理 ID 列表</td></tr>
-          <tr><td>listingManagerNames</td><td>array|null</td><td>Listing 经理姓名列表</td></tr>
-          <tr><td>listingTagParam</td><td>object</td><td>标签参数：bizId、bizKey、platformCode</td></tr>
-          <tr><td>listingTagVOList</td><td>array|null</td><td>标签 VO 列表</td></tr>
-          <tr><td>remarks</td><td>string</td><td>备注</td></tr>
-          <tr><td>single</td><td>boolean</td><td>是否单规格</td></tr>
-          <tr><td>sellingPartyId</td><td>number|string|null</td><td>销售方 ID</td></tr>
-          <tr><td>shopeeListingType</td><td>string|null</td><td>Shopee  listing 类型（跨平台字段）</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>listingTagParam 结构</strong>：<code>bizId</code>（number）、<code>bizKey</code>（string）、<code>platformCode</code>（string）。</p>
-    <p><strong>响应 data 示例（结构摘要）</strong></p>
-    <pre><code>{
-  "traceId": null,
-  "code": 0,
-  "success": 0,
-  "data": {
-    "total": 99,
-    "condition": { "page": 1, "rows": 20, "pagesize": 20, "sort": "seq", "order": "asc", "marketIds": [1000017], "skuList": null },
-    "from": 0,
-    "page": 1,
-    "pagesize": 20,
-    "footer": null,
-    "rows": [
-      {
-        "groupNum": 56,
-        "groupKey": "1000017_1729416165725475173",
-        "childIdList": [226854, 226853],
-        "childList": [
-          {
-            "id": 226854,
-            "itemId": "1732031340298539365",
-            "itemIdUrl": null,
-            "groupItemId": "1729416165725475173",
-            "groupKey": "1000017_1729416165725475173",
-            "platformCode": "TIKTOK",
-            "platformEnName": "Tiktok自运营",
-            "marketId": 1000017,
-            "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
-            "sku": "ALYMX-DROPSW-DARKGRAY-XL",
-            "msku": "ALYMX-DROPSW-DARKGRAY-XL",
-            "skuName": "N036露肚脐不帽绳-深灰-XL（需压缩）",
-            "spu": "ALYMX-DROPSW",
-            "spuName": "N039露肚脐不帽绳",
-            "listingTitle": "Hatant hoodies for women Hidden Cult Cropped V-Neck Sweatshirt -Vintage Style with Extra Long Sleeves sweatshirt ,True to Size and Flattering, Athletic Fit, Perfect for Women and Teens dealsforyoudays",
-            "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04d02b924fc74ae2b127667de3feccdc~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
-            "adjustStandardPrice": 49.99,
-            "salePrice": null,
-            "currency": "USD",
-            "currencySymbol": "$",
-            "b2bPrice": null,
-            "b2bQuantityType": null,
-            "category": "NW111",
-            "categoryTree": "AL-美亚项目/NvZhuang-女装/NW111-女式+卫衣（洗水）",
-            "firstLevelCategory": "AL-美亚项目",
-            "secondLevelCategory": "NvZhuang-女装",
-            "thirdLevelCategory": "NW111-女式+卫衣（洗水）",
-            "platformCategory": "",
-            "brand": "",
-            "brandName": null,
-            "platformBrand": "",
-            "salesState": "AVAILABLE_FOR_SALE",
-            "salesStateDesc": "在售",
-            "salesStateDetail": "在售",
-            "selfDeliveryInventory": 0,
-            "fulfillment": "",
-            "warehouseId": null,
-            "warehouseName": null,
-            "firstSalesDate": null,
-            "offerStartDate": null,
-            "offerEndDate": null,
-            "listingTime": null,
-            "updateTime": "2026-03-16 12:59:05",
-            "operationLevel": "",
-            "operationState": "",
-            "productManagerName": "李思唯",
-            "listingManagerIdList": null,
-            "listingManagerNames": null,
-            "listingTagParam": { "bizId": 108879, "bizKey": "TIKTOK_108879", "platformCode": "TIKTOK" },
-            "listingTagVOList": null,
-            "remarks": "",
-            "single": false,
-            "sellingPartyId": null,
-            "shopeeListingType": null
-          }
-        ],
-        "childSkuList": ["ALYMX-DROPSW-DARKGRAY-XL", "ALYMX-DROPSW-DARKGRAY-L"],
-        "groupItemId": "1729416165725475173",
-        "listingManagerIdList": null,
-        "listingManagerNames": null,
-        "listingTagParam": { "bizId": 108879, "bizKey": "TIKTOK_108879", "platformCode": "TIKTOK" },
-        "listingTagVOList": null,
-        "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/04d02b924fc74ae2b127667de3feccdc~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
-        "marketId": 1000017,
-        "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
-        "operationLevels": null,
-        "operationStates": null,
-        "platformCode": "TIKTOK",
-        "platformEnName": "Tiktok自运营",
-        "productManagerNames": "谢君堂,李思哈",
-        "selfDeliveryInventory": 5015,
-        "unfold": true
-      }
-    ]
-  }
-}</code></pre>
-    <p><strong>导出 Excel / 落库字段明细</strong></p>
-    <p>导出 Excel 及落库时，从 <code>childList</code> 单条对象中取以下字段：<code>groupItemId</code>（父 ASIN）、<code>itemId</code>（ASIN）、<code>marketId</code>、<code>marketName</code>、<code>sku</code>、<code>msku</code>、<code>skuName</code>、<code>spu</code>、<code>spuName</code>、<code>salePrice</code>、<code>adjustStandardPrice</code>、<code>currency</code>、<code>categoryTree</code>、<code>salesState</code>、<code>salesStateDesc</code>、<code>single</code>、<code>mainImageUrl</code>。</p>
-
-    <h3>5.3 对接方式：根据子体 ID 获取子体参数</h3>
-    <p>全渠道商品接口返回的 <code>data.rows[]</code> 为商品组列表，每组含 <code>childIdList</code>（子体 ID 数组）和 <code>childList</code>（子体明细）。若需按子体 ID 批量拉取完整子体参数，可再调用以下接口，请求体中的 <code>ids</code> 即由 <code>data.rows[].childIdList</code> 汇总得到。</p>
-    <p><strong>接口地址</strong></p>
-    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/child</code></pre>
-    <h4>5.3.1 请求</h4>
-    <p><strong>请求体示例</strong></p>
-    <pre><code>{
-  "ids": [226981, 226980, 226979, 226978, 226977, 226976, 226975, 226974, 226973, 226972, 226971, 226970, 226969, 226968, 226967, 226966, 226965, 226964, 226963, 226962, 226961, 226960, 226959, 226958, 226957]
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>ids</td><td>number[]</td><td>子体 ID 列表，来源于全渠道商品接口 <code>data.rows[].childIdList</code> 汇总</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h4>5.3.2 响应结构</h4>
-    <p>根结构：<code>traceId</code>（string|null）、<code>code</code>（number，0 表示成功）、<code>success</code>（number）、<code>data</code>（array）。<code>data</code> 为数组，每项为一条子体对象，结构与 5.2 中 <code>data.rows[].childList[]</code> 单条对象一致（即与上文「childList 单条对象字段」表格一致）。</p>
-    <p><strong>响应示例（结构摘要）</strong></p>
-    <pre><code>{
-  "traceId": null,
-  "code": 0,
-  "success": 0,
-  "data": [
-    {
-      "id": 226981,
-      "platformCode": "TIKTOK",
-      "platformEnName": "Tiktok自运营",
-      "adjustStandardPrice": 69.99,
-      "b2bPrice": null,
-      "b2bQuantityType": null,
-      "brand": "",
-      "brandName": null,
-      "category": "MW105",
-      "categoryTree": "AL-美亚项目/MY-男装/MW105-男式+卫衣(洗水)",
-      "currency": "USD",
-      "currencySymbol": "$",
-      "firstLevelCategory": "AL-美亚项目",
-      "groupItemId": "1729445816792093029",
-      "groupKey": "1000017_1729445816792093029",
-      "itemId": "1732031437114282341",
-      "marketId": 1000017,
-      "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
-      "msku": "AL-W0190B-MLS-2XL",
-      "listingTitle": "FAIABLE Ultimate Plain Comfort Acid Wash Long Sleeve tops...",
-      "mainImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/...",
-      "productManagerName": "李里唯",
-      "listingTagParam": { "bizId": 108996, "bizKey": "TIKTOK_108996", "platformCode": "TIKTOK" }
-    }
-  ]
-}</code></pre>
-    <p>字段完整说明见 5.2「childList 单条对象字段」表格；导出/落库所需字段与 5.2 末尾「导出 Excel / 落库字段明细」相同。</p>
-    <hr />
-
-    <h2>六、积加对接：全渠道订单数据</h2>
-    <p>对接积加全渠道订单列表接口，用于按店铺、购买日期等条件分页查询订单及明细。</p>
-    <p><strong>接口地址</strong></p>
-    <pre><code>POST https://gateway.apist.gerpgo.com/sales/listing/orderListPage</code></pre>
-    <h3>6.1 请求</h3>
-    <p><strong>请求体示例</strong></p>
-    <pre><code>{
-  "marketIds": ["1000017"],
-  "purchaseStartDate": "2026-03-03",
-  "purchaseEndDate": "2026-03-03",
-  "timeType": "MARKET",
-  "sort": "purchaseDate",
-  "order": "desc",
-  "page": 1,
-  "pagesize": 20
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>marketIds</td><td>string[]</td><td>店铺/市场 ID 列表</td></tr>
-          <tr><td>purchaseStartDate</td><td>string</td><td>购买开始日期 YYYY-MM-DD</td></tr>
-          <tr><td>purchaseEndDate</td><td>string</td><td>购买结束日期 YYYY-MM-DD</td></tr>
-          <tr><td>timeType</td><td>string</td><td>时间类型，如 MARKET</td></tr>
-          <tr><td>sort</td><td>string</td><td>排序字段，如 purchaseDate</td></tr>
-          <tr><td>order</td><td>string</td><td>排序方向，asc / desc</td></tr>
-          <tr><td>page</td><td>number</td><td>页码，从 1 开始</td></tr>
-          <tr><td>pagesize</td><td>number</td><td>每页条数</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <h3>6.2 响应结构</h3>
-    <p>根结构：<code>traceId</code>、<code>code</code>、<code>success</code>、<code>data</code>、<code>extObj</code>、<code>messages</code>、<code>error</code>。<code>data</code> 内含 <code>total</code>（总条数）、<code>rows</code>（订单列表）、<code>condition</code>（回显查询条件）、<code>from</code>、<code>page</code>、<code>pagesize</code>、<code>order</code>、<code>footer</code>（可为 null）。<code>data.rows[]</code> 每项为一笔订单。</p>
-    <p><strong>data.rows[] 单条对象字段（订单行）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
-          <tr><td>orderId</td><td>string</td><td>订单号</td></tr>
-          <tr><td>platformId</td><td>string</td><td>平台订单 ID</td></tr>
-          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
-          <tr><td>platformName</td><td>string</td><td>平台名称，如 Tiktok自运营</td></tr>
-          <tr><td>platformOrderNumber</td><td>string</td><td>平台订单编号</td></tr>
-          <tr><td>platformOrderStatus</td><td>string</td><td>平台订单状态，如 已收货</td></tr>
-          <tr><td>platformMarketId</td><td>string</td><td>平台市场 ID</td></tr>
-          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
-          <tr><td>marketName</td><td>string</td><td>市场/店铺名称</td></tr>
-          <tr><td>orderStatus</td><td>number</td><td>订单状态码</td></tr>
-          <tr><td>orderStatusName</td><td>string</td><td>订单状态名，如 已发货</td></tr>
-          <tr><td>orderType</td><td>string</td><td>订单类型</td></tr>
-          <tr><td>orderTotal</td><td>number</td><td>订单总金额</td></tr>
-          <tr><td>currencyCode</td><td>string</td><td>币种代码，如 USD</td></tr>
-          <tr><td>currencySymbol</td><td>string</td><td>币种符号，如 $</td></tr>
-          <tr><td>purchaseDate</td><td>string</td><td>购买日期（市场时间）</td></tr>
-          <tr><td>purchaseDateUtc</td><td>string</td><td>购买日期 UTC</td></tr>
-          <tr><td>paymentTime</td><td>string</td><td>支付时间</td></tr>
-          <tr><td>paymentTimeUtc</td><td>string</td><td>支付时间 UTC</td></tr>
-          <tr><td>paymentMarketTime</td><td>string</td><td>支付时间（市场时间）</td></tr>
-          <tr><td>paymentMethod</td><td>string</td><td>支付方式，如 ApplePay</td></tr>
-          <tr><td>platformOrderDeliveryMarketTime</td><td>string</td><td>平台订单配送市场时间</td></tr>
-          <tr><td>buyerPayAmount</td><td>number</td><td>买家实付金额</td></tr>
-          <tr><td>pointPayAmount</td><td>number|null</td><td>积分支付金额</td></tr>
-          <tr><td>buyerAccountId</td><td>string</td><td>买家账号 ID</td></tr>
-          <tr><td>buyerAccountName</td><td>string</td><td>买家账号名</td></tr>
-          <tr><td>buyerAccountEmail</td><td>string</td><td>买家邮箱</td></tr>
-          <tr><td>buyerMessage</td><td>string|null</td><td>买家留言</td></tr>
-          <tr><td>buyerTaxNumber</td><td>string|null</td><td>买家税号</td></tr>
-          <tr><td>receiverName</td><td>string</td><td>收件人姓名</td></tr>
-          <tr><td>receiverPhone</td><td>string</td><td>收件人电话</td></tr>
-          <tr><td>receiverMobilePhone</td><td>string|null</td><td>收件人手机</td></tr>
-          <tr><td>receiverAddressCountryCode</td><td>string</td><td>国家代码</td></tr>
-          <tr><td>receiverAddressCountry</td><td>string</td><td>国家</td></tr>
-          <tr><td>receiverAddressState</td><td>string</td><td>州/省</td></tr>
-          <tr><td>receiverAddressCity</td><td>string</td><td>城市</td></tr>
-          <tr><td>receiverAddressArea</td><td>string</td><td>区/县</td></tr>
-          <tr><td>receiverAddressStreet</td><td>string|null</td><td>街道</td></tr>
-          <tr><td>receiverAddressDetail1</td><td>string</td><td>地址详情 1</td></tr>
-          <tr><td>receiverAddressDetail2</td><td>string|null</td><td>地址详情 2</td></tr>
-          <tr><td>receiverAddressDetail3</td><td>string|null</td><td>地址详情 3</td></tr>
-          <tr><td>receiverAddressHouseNumber</td><td>string|null</td><td>门牌号</td></tr>
-          <tr><td>receiverAddressPostCode</td><td>string</td><td>邮编</td></tr>
-          <tr><td>earliestShip</td><td>string|null</td><td>最迟发货时间</td></tr>
-          <tr><td>earliestShipUtc</td><td>string|null</td><td>最迟发货时间 UTC</td></tr>
-          <tr><td>lastShip</td><td>string</td><td>最晚发货时间</td></tr>
-          <tr><td>lastShipUtc</td><td>string</td><td>最晚发货时间 UTC</td></tr>
-          <tr><td>earliestDelivery</td><td>string|null</td><td>最早妥投时间</td></tr>
-          <tr><td>earliestDeliveryUtc</td><td>string|null</td><td>最早妥投时间 UTC</td></tr>
-          <tr><td>lastDelivery</td><td>string|null</td><td>最晚妥投时间</td></tr>
-          <tr><td>lastDeliveryUtc</td><td>string|null</td><td>最晚妥投时间 UTC</td></tr>
-          <tr><td>carrier</td><td>string</td><td>承运商</td></tr>
-          <tr><td>shipTrack</td><td>string</td><td>物流单号</td></tr>
-          <tr><td>shipFulfillment</td><td>string</td><td>发货履约方式</td></tr>
-          <tr><td>platformShipFulfillment</td><td>number</td><td>平台发货履约</td></tr>
-          <tr><td>shipNumber</td><td>number</td><td>发货数量</td></tr>
-          <tr><td>shipServiceLevel</td><td>string|null</td><td>物流服务等级</td></tr>
-          <tr><td>shipmentWarehouseId</td><td>number|string|null</td><td>发货仓库 ID</td></tr>
-          <tr><td>refund</td><td>number</td><td>退款标识/金额</td></tr>
-          <tr><td>refundTotalAmount</td><td>number|null</td><td>退款总金额</td></tr>
-          <tr><td>returns</td><td>object|null</td><td>退货信息</td></tr>
-          <tr><td>omsPushStatus</td><td>number</td><td>OMS 推送状态</td></tr>
-          <tr><td>omsPushMessage</td><td>string</td><td>OMS 推送消息</td></tr>
-          <tr><td>createTime</td><td>string</td><td>创建时间</td></tr>
-          <tr><td>createUserName</td><td>string</td><td>创建人</td></tr>
-          <tr><td>lastUpdateDate</td><td>string</td><td>最后更新时间</td></tr>
-          <tr><td>timeZone</td><td>string</td><td>时区，如 US/Pacific</td></tr>
-          <tr><td>bogusFlag</td><td>number</td><td>伪订单标记</td></tr>
-          <tr><td>blockPrivateInfo</td><td>object|null</td><td>脱敏信息</td></tr>
-          <tr><td>sellerOrderId</td><td>string|null</td><td>卖家订单 ID</td></tr>
-          <tr><td>remarks</td><td>string|null</td><td>备注</td></tr>
-          <tr><td>itemVoList</td><td>array</td><td>订单商品明细列表，每项结构见下表</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>data.rows[].itemVoList[] 单条对象字段（订单商品行）</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段名</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>id</td><td>number</td><td>记录 ID</td></tr>
-          <tr><td>fid</td><td>number</td><td>订单主表 ID</td></tr>
-          <tr><td>itemId</td><td>string</td><td>商品 itemId</td></tr>
-          <tr><td>asin</td><td>string</td><td>ASIN</td></tr>
-          <tr><td>asinUrl</td><td>string|null</td><td>ASIN 链接</td></tr>
-          <tr><td>platformId</td><td>string</td><td>平台商品 ID</td></tr>
-          <tr><td>platformFid</td><td>string</td><td>平台订单 ID</td></tr>
-          <tr><td>platformCode</td><td>string</td><td>平台代码，如 TIKTOK</td></tr>
-          <tr><td>platformMarketId</td><td>string</td><td>平台市场 ID</td></tr>
-          <tr><td>platformOrderStatus</td><td>string</td><td>平台订单状态，如 已收货</td></tr>
-          <tr><td>marketId</td><td>number</td><td>市场/店铺 ID</td></tr>
-          <tr><td>sku</td><td>string</td><td>SKU 编码</td></tr>
-          <tr><td>msku</td><td>string</td><td>MSKU</td></tr>
-          <tr><td>productName</td><td>string</td><td>商品名称</td></tr>
-          <tr><td>listingTitle</td><td>string</td><td>Listing 标题</td></tr>
-          <tr><td>orderTitle</td><td>string</td><td>订单标题</td></tr>
-          <tr><td>category</td><td>string</td><td>类目编码，如 MW105</td></tr>
-          <tr><td>categoryName</td><td>string</td><td>类目名称</td></tr>
-          <tr><td>smallImageUrl</td><td>string</td><td>商品小图 URL</td></tr>
-          <tr><td>quantityOrdered</td><td>number</td><td>订购数量</td></tr>
-          <tr><td>quantityShipped</td><td>number|null</td><td>发货数量</td></tr>
-          <tr><td>sellingPrice</td><td>number</td><td>售价</td></tr>
-          <tr><td>itemPrice</td><td>number</td><td>商品单价</td></tr>
-          <tr><td>itemTax</td><td>number|null</td><td>商品税费</td></tr>
-          <tr><td>shippingPrice</td><td>number</td><td>运费</td></tr>
-          <tr><td>shippingTax</td><td>number|null</td><td>运费税</td></tr>
-          <tr><td>shippingDiscount</td><td>number|null</td><td>运费优惠</td></tr>
-          <tr><td>promotionDiscount</td><td>number</td><td>促销优惠</td></tr>
-          <tr><td>giftWrapPrice</td><td>number|null</td><td>礼品包装费</td></tr>
-          <tr><td>giftWrapTax</td><td>number|null</td><td>礼品包装税</td></tr>
-          <tr><td>refundTotal</td><td>number|null</td><td>退款金额</td></tr>
-          <tr><td>currencyCode</td><td>string</td><td>币种代码</td></tr>
-          <tr><td>currencySymbol</td><td>string</td><td>币种符号</td></tr>
-          <tr><td>orderStatus</td><td>number</td><td>订单状态码</td></tr>
-          <tr><td>orderStatusName</td><td>string</td><td>订单状态名</td></tr>
-          <tr><td>carrier</td><td>string</td><td>承运商</td></tr>
-          <tr><td>shipTrack</td><td>string</td><td>物流单号</td></tr>
-          <tr><td>shipFulfillment</td><td>string</td><td>发货履约方式</td></tr>
-          <tr><td>listingLevel</td><td>string|null</td><td>Listing 层级</td></tr>
-          <tr><td>listingManagerNames</td><td>string|null</td><td>Listing 经理姓名</td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p><strong>响应 data 示例（结构摘要）</strong></p>
-    <pre><code>{
-  "traceId": null,
-  "code": 0,
-  "success": 0,
-  "error": false,
-  "messages": [],
-  "extObj": null,
-  "data": {
-    "total": 219,
-    "condition": { "page": 1, "rows": 20, "pagesize": 20, "sort": "PURCHASE_DATE", "order": "desc", "marketIds": [1000017] },
-    "from": 0,
-    "page": 1,
-    "pagesize": 20,
-    "order": "desc",
-    "footer": null,
-    "rows": [
-      {
-        "id": 2964854,
-        "orderId": "576487217440920784",
-        "platformId": "2029103873761505281",
-        "platformCode": "TIKTOK",
-        "platformName": "Tiktok自运营",
-        "platformMarketId": "1759046833791422465",
-        "platformOrderNumber": "",
-        "platformOrderStatus": "已收货",
-        "marketId": 1000017,
-        "marketName": "美国TK-艾斯特尼-美区跨境1店:US",
-        "orderStatus": 3,
-        "orderStatusName": "已发货",
-        "orderType": "",
-        "orderTotal": 181.8,
-        "currencyCode": "USD",
-        "currencySymbol": "$",
-        "purchaseDate": "2026-03-03 23:55:32",
-        "purchaseDateUtc": "2026-03-04T07:55:32",
-        "paymentTime": "2026-03-04 07:55:36",
-        "paymentTimeUtc": "2026-03-04T07:55:36",
-        "paymentMarketTime": "2026-03-03 23:55:36",
-        "paymentMethod": "ApplePay",
-        "platformOrderDeliveryMarketTime": "2026-03-03 23:57:25",
-        "buyerPayAmount": 181.8,
-        "pointPayAmount": null,
-        "buyerAccountId": "7494214977714488528",
-        "buyerAccountName": "",
-        "buyerAccountEmail": "",
-        "buyerMessage": null,
-        "buyerTaxNumber": null,
-        "receiverName": "maxxie anyaegbunam ",
-        "receiverPhone": "(+1)2817263763",
-        "receiverMobilePhone": null,
-        "receiverAddressCountryCode": "US",
-        "receiverAddressCountry": "US",
-        "receiverAddressState": "Texas",
-        "receiverAddressCity": "Houston",
-        "receiverAddressArea": "Harris",
-        "receiverAddressStreet": null,
-        "receiverAddressDetail1": "3443 addicks clodine rd apt 6202",
-        "receiverAddressDetail2": null,
-        "receiverAddressDetail3": null,
-        "receiverAddressHouseNumber": null,
-        "receiverAddressPostCode": "77082",
-        "earliestShip": null,
-        "earliestShipUtc": null,
-        "lastShip": "2026-03-07 07:59:59",
-        "lastShipUtc": "2026-03-07T15:59:59",
-        "earliestDelivery": null,
-        "earliestDeliveryUtc": null,
-        "lastDelivery": null,
-        "lastDeliveryUtc": null,
-        "carrier": "",
-        "shipTrack": "JSECE0463567057YQ",
-        "shipFulfillment": "0",
-        "platformShipFulfillment": 1,
-        "shipNumber": 0,
-        "shipServiceLevel": null,
-        "shipmentWarehouseId": null,
-        "refund": 0,
-        "refundTotalAmount": null,
-        "returns": null,
-        "omsPushStatus": 2,
-        "omsPushMessage": "推送自发货成功",
-        "createTime": "2026-03-04 15:59:21",
-        "createUserName": "system",
-        "lastUpdateDate": "2026-03-16 10:17:52",
-        "timeZone": "US/Pacific",
-        "bogusFlag": 0,
-        "blockPrivateInfo": null,
-        "sellerOrderId": null,
-        "remarks": null,
-        "itemVoList": [
-          {
-            "id": 3364356,
-            "fid": 2964854,
-            "itemId": "576487217441051856",
-            "asin": "1731902466282525029",
-            "asinUrl": null,
-            "platformId": "2029103873761505282",
-            "platformFid": "2029103873761505281",
-            "platformCode": "TIKTOK",
-            "platformMarketId": "1759046833791422465",
-            "platformOrderStatus": "已收货",
-            "marketId": 1000017,
-            "sku": "AL-W0180-MLS-L",
-            "msku": "AL-W0180-MLS-L",
-            "productName": "半拉链炒洗卫衣-墨绿色142-L",
-            "listingTitle": "FAIABLE Oversized Hoodie for Women Vintage Acid Washed Heavyweight Fleece Half Zip Pullover with Kangaroo Pocket & Earbud Sleeve Pocket Casual Aesthetic Streetwear Style essential hoodies comfort hoodies zip hoodie",
-            "orderTitle": "FAIABLE Hoodies Vintage Acid Washed Heavyweight Fleece Half Zip Unisex Hoodie for Women with Kangaroo Pocket & Earbud Sleeve Pocket Casual Aesthetic Streetwear Style Essential Comfort Hoodies SpringStatements",
-            "category": "MW105",
-            "categoryName": "男式+卫衣（洗水）",
-            "smallImageUrl": "https://p16-oec-general-useast5.ttcdn-us.com/tos-useast5-i-omjb5zjo8w-tx/f581c7ad4b6d4cfc8947a49ff560d457~tplv-fhlh96nyum-resize-jpeg:300:300.jpeg",
-            "quantityOrdered": 1,
-            "quantityShipped": null,
-            "sellingPrice": 99.99,
-            "itemPrice": 99.99,
-            "itemTax": null,
-            "shippingPrice": 0,
-            "shippingTax": null,
-            "shippingDiscount": null,
-            "promotionDiscount": 44.01,
-            "giftWrapPrice": null,
-            "giftWrapTax": null,
-            "refundTotal": null,
-            "currencyCode": "USD",
-            "currencySymbol": "$",
-            "orderStatus": 3,
-            "orderStatusName": "已发货",
-            "carrier": "",
-            "shipTrack": "JSECE0463567057YQ",
-            "shipFulfillment": "0",
-            "listingLevel": null,
-            "listingManagerNames": null
-          }
-        ]
-      }
-    ]
-  }
-}</code></pre>
-    <p><strong>落库所需两份数据及字段</strong></p>
-    <p><strong>1. 订单数据</strong>（来自 <code>data.rows[]</code> 每行）：<code>orderId</code>、<code>platformId</code>、<code>platformMarketId</code>、<code>platformOrderStatus</code>、<code>marketId</code>、<code>marketName</code>、<code>orderStatusName</code>、<code>orderTotal</code>、<code>currencyCode</code>、<code>purchaseDate</code>、<code>paymentMarketTime</code>、<code>buyerPayAmount</code>、<code>refundTotalAmount</code>、<code>timeZone</code>。</p>
-    <p><strong>2. 订单商品明细</strong>（来自 <code>data.rows[].itemVoList[]</code> 每行）：<code>itemId</code>、<code>asin</code>、<code>platformId</code>、<code>platformFid</code>、<code>marketId</code>、<code>sku</code>、<code>msku</code>、<code>productName</code>、<code>orderTitle</code>、<code>categoryName</code>、<code>sellingPrice</code>、<code>itemPrice</code>、<code>orderStatusName</code>、<code>promotionDiscount</code>。</p>
-    <hr />
-
-    <h2>四、接口总览</h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>#</th><th>页面</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
-        <tbody>
-          <tr><td>1</td><td>三个页面共用</td><td>站点级联选项</td><td>GET</td><td><code>/api/bi/tk/options/sites</code></td></tr>
-          <tr><td>2</td><td>三个页面共用</td><td>店铺列表（按站点筛选）</td><td>GET</td><td><code>/api/bi/tk/options/stores</code></td></tr>
-          <tr><td>3</td><td>需求一 店铺统计</td><td>货币选项（销售额模式）</td><td>GET</td><td><code>/api/bi/tk/options/currencies</code></td></tr>
-          <tr><td>4</td><td>需求一 店铺统计</td><td>主表</td><td>POST</td><td><code>/tk/sales/storeSiteStats</code></td></tr>
-          <tr><td>5</td><td>需求一 店铺统计</td><td>导出</td><td>POST</td><td><code>/tk/sales/storeSiteStats/export</code></td></tr>
-          <tr><td>6</td><td>需求二 商品统计</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats</code></td></tr>
-          <tr><td>7</td><td>需求二 商品统计</td><td>弹框 AI 分析</td><td>POST</td><td><code>/api/bi/tk/sales/product-stats/ai-analysis</code></td></tr>
-          <tr><td>8</td><td>需求二 商品统计 / 需求三 数据看板</td><td>弹框 PID 明细</td><td>GET</td><td><code>/api/bi/tk/pid/detail</code></td></tr>
-          <tr><td>9</td><td>需求二 商品统计</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/product-stats/export</code></td></tr>
-          <tr><td>10</td><td>商品统计 1.3</td><td>主表（SPU汇总/PID明细/SKU看板）</td><td>GET</td><td><code>/api/bi/tk/sales/product-statistics</code></td></tr>
-          <tr><td>11</td><td>商品统计 1.3</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/sales/product-statistics/export</code></td></tr>
-          <tr><td>12</td><td>需求三 数据看板</td><td>主表</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard</code></td></tr>
-          <tr><td>13</td><td>需求三 数据看板</td><td>每日明细</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/daily</code></td></tr>
-          <tr><td>14</td><td>需求三 数据看板</td><td>导出</td><td>GET</td><td><code>/api/bi/tk/pid/dashboard/export</code></td></tr>
-          <tr><td>15</td><td>需求三 数据看板 1.1</td><td>PID与主推SPU维护列表</td><td>GET</td><td><code>/api/bi/tk/pid/mainSpuMapping/list</code></td></tr>
-          <tr><td>16</td><td>需求三 数据看板 1.1</td><td>PID与主推SPU维护更新</td><td>POST</td><td><code>/api/bi/tk/pid/mainSpuMapping/update</code></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <hr />
-    <h2>备注</h2>
-    <ul>
-      <li><strong>PID</strong>：全称 Product ID（产品 ID），对应 TikTok API 订单明细中的 <code>product_id</code> 字段。</li>
-      <li>对应产品 API 的字段为 <code>product_id</code>。</li>
-      <li><strong>SPU</strong>：积加自有概念。在积加产品资料界面可添加 SPU，SPU 与 <code>seller_sku</code> 进行绑定。</li>
-    </ul>
-    <hr />
-    <p><em>文档版本：按 店铺统计、商品统计、需求二-数据看板 三个 HTML 及其中弹框整理，数据规则以需求文档为准。</em></p>
-    <p class="back"><a href="../../index.html">← 返回首页</a></p>
+    <p><em>文档版本：按 ms-bi 当前 Controller 与 ms-api-bi DTO/VO 生成，最后修订以代码为准。</em></p>
+    <p class="back"><a href="../../index.html">← 返回首页</a> &nbsp; <a href="技术方案.html">技术方案</a> &nbsp; <a href="表结构设计.html">表结构设计</a></p>
   </div>
 </body>
 </html>

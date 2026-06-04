@@ -83,6 +83,10 @@
     .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
     .content-note ol { margin: 0; padding-left: 20px; }
     .content-note li { margin: 0; line-height: 1.7; }
+    .rpa-preview { margin-top: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .rpa-shot { margin: 0; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
+    .rpa-shot img { display: block; width: 100%; height: auto; }
+    .rpa-shot figcaption { padding: 8px 10px; color: var(--muted); font-size: 12px; background: #f8fafc; border-top: 1px solid var(--border); }
     .modal-mask { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, .38); z-index: 80; }
     .modal-mask.open { display: flex; }
     .modal { width: min(1180px, 96vw); max-height: 86vh; background: #fff; border-radius: 8px; box-shadow: 0 20px 45px rgba(15, 23, 42, .2); display: flex; flex-direction: column; overflow: hidden; }
@@ -194,8 +198,21 @@
       <div class="content-note-title">内容说明</div>
       <ol>
         <li>联盟订单页面用于汇总联盟视频维度的开单、订单、GMV、归属商务与授权码维护情况。</li>
+        <li>联盟订单的数据来源为 RPA，RPA 操作界面如下图所示。</li>
+        <li>一个视频 ID 专属于某一个达人，但同一个视频 ID 会产生多个订单。</li>
+        <li>联盟订单明细里有视频 ID 的关联字段，业务关系为：达人 → 视频 ID → 订单，整体为 1 对 N 对 N。</li>
         <li>页面风格、筛选区、表格和按钮体系保持与商品档案页面一致。</li>
       </ol>
+      <div class="rpa-preview" aria-label="RPA 操作界面截图">
+        <figure class="rpa-shot">
+          <img src="img/ScreenShot_2026-06-03_170619_339.png" alt="联盟订单 RPA 操作界面截图 1" />
+          <figcaption>RPA 操作界面截图 1</figcaption>
+        </figure>
+        <figure class="rpa-shot">
+          <img src="img/ScreenShot_2026-06-03_170648_612.png" alt="联盟订单 RPA 操作界面截图 2" />
+          <figcaption>RPA 操作界面截图 2</figcaption>
+        </figure>
+      </div>
     </section>
   </div>
 
