@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理模块 表结构设计</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --dim: #64748b; --ods: #3b82f6; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1450px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 820px; }
+    th, td { padding: 0.45rem 0.65rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.2rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.55; }
+    pre code { background: none; padding: 0; }
+    .badge { display: inline-block; padding: 0.15rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .dim { background: #e2e8f0; color: var(--dim); }
+    .ods { background: #dbeafe; color: var(--ods); }
+    .note { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>管理模块 表结构设计</h1>
+    <p>本文档为 <code>bi/tkDashboard/管理模块</code> 的统一表结构设计，当前覆盖 <code>商品模块/商品档案.html</code>、<code>账号模块/账号维护.html</code> 与 <code>视频数据/视频数据.html</code> 页面。表结构按 Doris 兼容语法与 <code>ms-warehouse-batch-data/AGENTS.md</code> 命名规范设计。</p>
+    <div class="note"><strong>命名依据：</strong>管理模块只是页面归属，不作为数仓业务域入表名；商品档案、账号维护与视频数据均归入商品域，优先使用 <code>dim_product_xxx_config</code> 配置维表命名；如后续需要保留每日快照或历史版本，再新增 <code>_df</code> 快照表或历史流水表。</div>
+    <hr />
+
+    <h2>一、表清单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>服务页面</th><th>粒度 / 主键</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-product-archive"><code>dim_product_archive_config</code></a></td><td>商品档案</td><td>平台 + 店铺 + PID + SKU</td><td>商品档案当前生效配置，承接 TK API、积加商品主数据与人工维护字段。</td></tr>
+          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-account-archive"><code>dim_product_tiktok_account_config</code></a></td><td>账号维护</td><td>TikTok UID</td><td>TikTok 账号当前生效档案，手动维护渠道号、达人号、TAP 机构号及运营归属。</td></tr>
+          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-video-config"><code>dim_product_tiktok_video_config</code></a></td><td>视频数据</td><td>视频 ID</td><td>TikTok 视频当前生效配置，承接已绑定账号 / 联盟账号源数据与人工维护字段。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二、设计原则</h2>
+    <ul>
+      <li><strong>商品档案</strong>：基础数据来源于 TK API 与积加商品主数据；主图取 SKU 主属性图第一张；产品主 SKU 决定价格归属；其他运营字段支持人工维护。</li>
+      <li><strong>账号维护</strong>：页面说明为手动维护，无第三方 API 数据源；登录凭证类内容正式落库时必须加密或脱敏存储。</li>
+      <li><strong>视频数据</strong>：视频基础信息与源数据来源于已绑定账号和联盟账号；列表、编辑抽屉与视频源数据维护中的可保存字段统一沉淀到商品域 DIM 层。</li>
+      <li><strong>字段命名</strong>：底表字段使用小写下划线；页面接口字段如后续实现，仍使用 Java DTO / VO 驼峰命名。</li>
+      <li><strong>状态字段</strong>：当前页面以中文枚举展示，底表保留 <code>status_name</code> 等展示字段；如后续需要统一枚举，可补充 <code>status_code</code>。</li>
+    </ul>
+
+    <h2 id="tbl-product-archive">三、dim_product_archive_config</h2>
+    <p>商品档案当前生效配置表，支撑商品档案 SKU 看板 / PID 看板、商品编辑抽屉与后续 PID 看板运营责任人扩展。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>来源 / 维护方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>platform_code</code></td><td><code>VARCHAR(30)</code></td><td>TK API / 人工维护</td><td>平台代码，如 tiktok、site。</td></tr>
+          <tr><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td>TK API</td><td>所属店铺。</td></tr>
+          <tr><td><code>site_code</code></td><td><code>VARCHAR(30)</code></td><td>TK API</td><td>站点代码，如 US。</td></tr>
+          <tr><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td>TK API</td><td>PID / 商品 ID，PID 看板关联键。</td></tr>
+          <tr><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td>PID 主推 SPU 维护 / 积加</td><td>产品主 SPU。</td></tr>
+          <tr><td><code>main_sku</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>产品主 SKU；价格归属该产品主 SKU。</td></tr>
+          <tr><td><code>sku</code></td><td><code>VARCHAR(100)</code></td><td>TK API / 积加</td><td>SKU 编码，SKU 看板展示字段。</td></tr>
+          <tr><td><code>product_name_cn</code></td><td><code>VARCHAR(500)</code></td><td>积加 SPU 中文名 / 人工维护</td><td>产品中文名。</td></tr>
+          <tr><td><code>product_brand</code></td><td><code>VARCHAR(100)</code></td><td>商品主数据 / 人工维护</td><td>产品品牌。</td></tr>
+          <tr><td><code>product_category</code></td><td><code>VARCHAR(200)</code></td><td>商品主数据 / 人工维护</td><td>产品品类。</td></tr>
+          <tr><td><code>main_image_url</code></td><td><code>STRING</code></td><td>TK API / 商品图片</td><td>主图 URL，取 SKU 主属性图第一张图。</td></tr>
+          <tr><td><code>product_status_name</code></td><td><code>VARCHAR(50)</code></td><td>TK API / 人工维护</td><td>商品状态，如在售、停售。</td></tr>
+          <tr><td><code>tk_audit_status_name</code></td><td><code>VARCHAR(50)</code></td><td>TK API</td><td>TK 审核状态，如已通过。</td></tr>
+          <tr><td><code>pid_usage</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>PID 作用。</td></tr>
+          <tr><td><code>season_tags</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>季节多选，逗号分隔：春、夏、秋、冬。</td></tr>
+          <tr><td><code>operator_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责运营；后续 PID 数据看板可扩展展示。</td></tr>
+          <tr><td><code>business_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责商务。</td></tr>
+          <tr><td><code>guidance_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责指导。</td></tr>
+          <tr><td><code>editor_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责剪辑。</td></tr>
+          <tr><td><code>live_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>直播运营。</td></tr>
+          <tr><td><code>ad_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>投放负责人。</td></tr>
+          <tr><td><code>tag_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>吊牌价。</td></tr>
+          <tr><td><code>daily_sale_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>日常折线价。</td></tr>
+          <tr><td><code>live_flash_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>直播间秒杀价。</td></tr>
+          <tr><td><code>campaign_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>活动报名价。</td></tr>
+          <tr><td><code>amazon_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>亚马逊定价。</td></tr>
+          <tr><td><code>site_price</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护 / 商品主 SKU 价格</td><td>独立站价格。</td></tr>
+          <tr><td><code>public_commission_rate</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护</td><td>公开佣金比例。</td></tr>
+          <tr><td><code>target_commission_rate</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护</td><td>定向佣金比例。</td></tr>
+          <tr><td><code>ad_commission_rate</code></td><td><code>DECIMAL(18,4)</code></td><td>人工维护</td><td>广告佣金比例。</td></tr>
+          <tr><td><code>ippc_register_status</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>IPPC 注册情况。</td></tr>
+          <tr><td><code>ippc_remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>IPPC 情况说明。</td></tr>
+          <tr><td><code>product_selling_points</code></td><td><code>STRING</code></td><td>人工维护</td><td>产品卖点。</td></tr>
+          <tr><td><code>source_update_date</code></td><td><code>DATE</code></td><td>TK API / 商品主数据</td><td>源数据更新日期。</td></tr>
+          <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记，0 否，1 是。</td></tr>
+          <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
+          <tr><td><code>updated_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>更新时间。</td></tr>
+          <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>Doris 入仓时间。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.1 DDL 草案</h3>
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_product_archive_config (
+    platform_code                 VARCHAR(30)    COMMENT '平台代码',
+    store_name                    VARCHAR(200)   COMMENT '所属店铺',
+    site_code                     VARCHAR(30)    COMMENT '站点代码',
+    pid                           VARCHAR(100)   COMMENT 'PID / 商品 ID',
+    spu                           VARCHAR(100)   COMMENT '产品主 SPU',
+    main_sku                      VARCHAR(100)   COMMENT '产品主 SKU，价格归属该 SKU',
+    sku                           VARCHAR(100)   COMMENT 'SKU 编码',
+    product_name_cn               VARCHAR(500)   COMMENT '产品中文名',
+    product_brand                 VARCHAR(100)   COMMENT '产品品牌',
+    product_category              VARCHAR(200)   COMMENT '产品品类',
+    main_image_url                STRING         COMMENT '主图 URL，SKU 主属性图第一张',
+    product_status_name           VARCHAR(50)    COMMENT '商品状态',
+    tk_audit_status_name          VARCHAR(50)    COMMENT 'TK 审核状态',
+    pid_usage                     VARCHAR(200)   COMMENT 'PID 作用',
+    season_tags                   VARCHAR(100)   COMMENT '季节标签，逗号分隔',
+    operator_owner                VARCHAR(100)   COMMENT '负责运营',
+    business_owner                VARCHAR(100)   COMMENT '负责商务',
+    guidance_owner                VARCHAR(100)   COMMENT '负责指导',
+    editor_owner                  VARCHAR(100)   COMMENT '负责剪辑',
+    live_owner                    VARCHAR(100)   COMMENT '直播运营',
+    ad_owner                      VARCHAR(100)   COMMENT '投放负责人',
+    tag_price                     DECIMAL(18,4)  COMMENT '吊牌价',
+    daily_sale_price              DECIMAL(18,4)  COMMENT '日常折线价',
+    live_flash_price              DECIMAL(18,4)  COMMENT '直播间秒杀价',
+    campaign_price                DECIMAL(18,4)  COMMENT '活动报名价',
+    amazon_price                  DECIMAL(18,4)  COMMENT '亚马逊定价',
+    site_price                    DECIMAL(18,4)  COMMENT '独立站价格',
+    public_commission_rate        DECIMAL(18,4)  COMMENT '公开佣金比例',
+    target_commission_rate        DECIMAL(18,4)  COMMENT '定向佣金比例',
+    ad_commission_rate            DECIMAL(18,4)  COMMENT '广告佣金比例',
+    ippc_register_status          VARCHAR(50)    COMMENT 'IPPC 注册情况',
+    ippc_remark                   STRING         COMMENT 'IPPC 情况说明',
+    product_selling_points        STRING         COMMENT '产品卖点',
+    source_update_date            DATE           COMMENT '源数据更新日期',
+    is_deleted                    TINYINT        DEFAULT '0' COMMENT '逻辑删除标记',
+    created_time                  DATETIME       COMMENT '创建时间',
+    updated_time                  DATETIME       COMMENT '更新时间',
+    insert_time                   DATETIME       DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(platform_code, store_name, pid, sku)
+COMMENT '商品域商品档案当前生效配置表'
+DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES (
+    "replication_num" = "1"
+);</code></pre>
+
+    <h2 id="tbl-account-archive">四、dim_product_tiktok_account_config</h2>
+    <p>TikTok 账号当前生效档案表，支撑账号类型、站点、状态、运营人员、账号 / UID 搜索，以及新增 / 编辑账号抽屉。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>来源 / 维护方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>tiktok_uid</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>TikTok UID，账号唯一主键。</td></tr>
+          <tr><td><code>handle_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>Handle Name，如 @faiable_official。</td></tr>
+          <tr><td><code>handle_url</code></td><td><code>STRING</code></td><td>人工维护</td><td>账号主页 URL；页面支持编辑 URL。</td></tr>
+          <tr><td><code>account_type_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>账号类型：渠道号、达人号、TAP 机构号。</td></tr>
+          <tr><td><code>site_code</code></td><td><code>VARCHAR(30)</code></td><td>人工维护</td><td>国家 / 站点，如 US、UK、AU。</td></tr>
+          <tr><td><code>cart_store_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>内容挂车店铺。</td></tr>
+          <tr><td><code>operator_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>运营人员。</td></tr>
+          <tr><td><code>account_status_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>账号状态：活跃、暂停、停用。</td></tr>
+          <tr><td><code>position_gender_name</code></td><td><code>VARCHAR(20)</code></td><td>人工维护</td><td>账号定位性别：未知、女、男。</td></tr>
+          <tr><td><code>credential_cipher_text</code></td><td><code>STRING</code></td><td>人工维护 / 加密存储</td><td>登录凭证密文；正式系统不得明文保存。</td></tr>
+          <tr><td><code>credential_remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>登录凭证备注 / 授权说明。</td></tr>
+          <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记；回收站使用。</td></tr>
+          <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
+          <tr><td><code>updated_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>更新时间。</td></tr>
+          <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>Doris 入仓时间。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.1 DDL 草案</h3>
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_product_tiktok_account_config (
+    tiktok_uid                    VARCHAR(100)   COMMENT 'TikTok UID',
+    handle_name                   VARCHAR(200)   COMMENT 'Handle Name',
+    handle_url                    STRING         COMMENT '账号主页 URL',
+    account_type_name             VARCHAR(50)    COMMENT '账号类型',
+    site_code                     VARCHAR(30)    COMMENT '国家 / 站点',
+    cart_store_name               VARCHAR(200)   COMMENT '内容挂车店铺',
+    operator_owner                VARCHAR(100)   COMMENT '运营人员',
+    account_status_name           VARCHAR(50)    COMMENT '账号状态',
+    position_gender_name          VARCHAR(20)    COMMENT '账号定位性别',
+    credential_cipher_text        STRING         COMMENT '登录凭证密文',
+    credential_remark             STRING         COMMENT '登录凭证备注 / 授权说明',
+    is_deleted                    TINYINT        DEFAULT '0' COMMENT '逻辑删除标记',
+    created_time                  DATETIME       COMMENT '创建时间',
+    updated_time                  DATETIME       COMMENT '更新时间',
+    insert_time                   DATETIME       DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(tiktok_uid)
+COMMENT '商品域 TikTok 账号当前生效配置表'
+DISTRIBUTED BY HASH(tiktok_uid) BUCKETS 8
+PROPERTIES (
+    "replication_num" = "1"
+);</code></pre>
+
+    <h2 id="tbl-video-config">五、dim_product_tiktok_video_config</h2>
+    <p>TikTok 视频当前生效配置表，支撑视频数据列表、视频记录编辑抽屉、视频源数据维护弹窗，以及按视频 / 达人 / 商品维度检索。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>来源 / 维护方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>video_id</code></td><td><code>VARCHAR(100)</code></td><td>已绑定账号 / 联盟账号</td><td>TikTok 视频 ID，视频记录唯一主键。</td></tr>
+          <tr><td><code>tiktok_uid</code></td><td><code>VARCHAR(100)</code></td><td>已绑定账号 / 联盟账号</td><td>达人 UID；用于关联账号维护与寄样记录。</td></tr>
+          <tr><td><code>creator_id</code></td><td><code>VARCHAR(100)</code></td><td>已绑定账号 / 联盟账号</td><td>达人 ID，视频源数据维护弹框展示与查询使用。</td></tr>
+          <tr><td><code>creator_account_name</code></td><td><code>VARCHAR(200)</code></td><td>已绑定账号 / 联盟账号</td><td>达人账号 / Handle Name，列表“达人账号”。</td></tr>
+          <tr><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td>已绑定账号 / 联盟账号</td><td>店铺名，视频源数据维护列表展示。</td></tr>
+          <tr><td><code>video_name</code></td><td><code>STRING</code></td><td>已绑定账号 / 联盟账号</td><td>视频名称，视频源数据维护列表展示。</td></tr>
+          <tr><td><code>video_url</code></td><td><code>STRING</code></td><td>已绑定账号 / 联盟账号</td><td>视频链接，列表与抽屉跳转 TikTok 使用。</td></tr>
+          <tr><td><code>publish_time</code></td><td><code>DATETIME</code></td><td>已绑定账号 / 联盟账号</td><td>发布时间，支持日期筛选。</td></tr>
+          <tr><td><code>video_type_name</code></td><td><code>VARCHAR(50)</code></td><td>系统识别 / 人工维护</td><td>视频类型：联盟、自制、图文、AI。</td></tr>
+          <tr><td><code>content_type_name</code></td><td><code>VARCHAR(50)</code></td><td>系统识别 / 人工维护</td><td>内容类型：混剪、实拍、达人原生、达人AI、图文、达人图文、AI。</td></tr>
+          <tr><td><code>play_cnt</code></td><td><code>BIGINT</code></td><td>已绑定账号 / 联盟账号</td><td>播放量；页面可格式化展示为 9.2w 等。</td></tr>
+          <tr><td><code>gmv_amount</code></td><td><code>DECIMAL(20,2)</code></td><td>已绑定账号 / 联盟账号</td><td>视频归因 GMV，美元口径。</td></tr>
+          <tr><td><code>is_ordered</code></td><td><code>TINYINT</code></td><td>系统计算</td><td>是否开单：1 是，0 否；页面展示为“是 / 否”。</td></tr>
+          <tr><td><code>order_cnt</code></td><td><code>BIGINT</code></td><td>系统计算</td><td>总单量。</td></tr>
+          <tr><td><code>product_id</code></td><td><code>VARCHAR(100)</code></td><td>已绑定账号 / 联盟账号</td><td>TikTok Product ID，支持精确 / 模糊搜索。</td></tr>
+          <tr><td><code>video_style_no</code></td><td><code>VARCHAR(100)</code></td><td>已绑定账号 / 联盟账号 / 人工维护</td><td>视频款号，用于关联寄样记录。</td></tr>
+          <tr><td><code>product_name</code></td><td><code>VARCHAR(500)</code></td><td>人工维护</td><td>商品名称，视频源数据编辑弹窗唯一可调整字段。</td></tr>
+          <tr><td><code>data_source_name</code></td><td><code>VARCHAR(50)</code></td><td>已绑定账号 / 联盟账号</td><td>数据来源：已绑定账号、联盟账号。</td></tr>
+          <tr><td><code>owner_business</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>归属商务，视频记录编辑抽屉维护。</td></tr>
+          <tr><td><code>auth_code</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>授权码，视频记录编辑抽屉维护。</td></tr>
+          <tr><td><code>video_color_name</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>视频颜色，视频记录编辑抽屉维护。</td></tr>
+          <tr><td><code>sample_business</code></td><td><code>VARCHAR(100)</code></td><td>人工维护 / 寄样记录匹配</td><td>寄样商务，可基于匹配到的寄样记录带出或人工维护。</td></tr>
+          <tr><td><code>sample_record_id</code></td><td><code>VARCHAR(100)</code></td><td>系统匹配</td><td>关联寄样记录 ID，按达人 UID / 达人账号 + 视频款号匹配。</td></tr>
+          <tr><td><code>remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>备注。</td></tr>
+          <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记。</td></tr>
+          <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
+          <tr><td><code>updated_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>更新时间。</td></tr>
+          <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>Doris 入仓时间。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.1 DDL 草案</h3>
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_product_tiktok_video_config (
+    video_id                      VARCHAR(100)   COMMENT 'TikTok 视频 ID',
+    tiktok_uid                    VARCHAR(100)   COMMENT '达人 UID',
+    creator_id                    VARCHAR(100)   COMMENT '达人 ID',
+    creator_account_name          VARCHAR(200)   COMMENT '达人账号 / Handle Name',
+    store_name                    VARCHAR(200)   COMMENT '店铺名',
+    video_name                    STRING         COMMENT '视频名称',
+    video_url                     STRING         COMMENT '视频链接',
+    publish_time                  DATETIME       COMMENT '发布时间',
+    video_type_name               VARCHAR(50)    COMMENT '视频类型',
+    content_type_name             VARCHAR(50)    COMMENT '内容类型',
+    play_cnt                      BIGINT         COMMENT '播放量',
+    gmv_amount                    DECIMAL(20,2)  COMMENT 'GMV 金额',
+    is_ordered                    TINYINT        DEFAULT '0' COMMENT '是否开单',
+    order_cnt                     BIGINT         DEFAULT '0' COMMENT '总单量',
+    product_id                    VARCHAR(100)   COMMENT 'TikTok Product ID',
+    video_style_no                VARCHAR(100)   COMMENT '视频款号',
+    product_name                  VARCHAR(500)   COMMENT '商品名称',
+    data_source_name              VARCHAR(50)    COMMENT '数据来源',
+    owner_business                VARCHAR(100)   COMMENT '归属商务',
+    auth_code                     VARCHAR(100)   COMMENT '授权码',
+    video_color_name              VARCHAR(100)   COMMENT '视频颜色',
+    sample_business               VARCHAR(100)   COMMENT '寄样商务',
+    sample_record_id              VARCHAR(100)   COMMENT '关联寄样记录 ID',
+    remark                        STRING         COMMENT '备注',
+    is_deleted                    TINYINT        DEFAULT '0' COMMENT '逻辑删除标记',
+    created_time                  DATETIME       COMMENT '创建时间',
+    updated_time                  DATETIME       COMMENT '更新时间',
+    insert_time                   DATETIME       DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(video_id)
+COMMENT '商品域 TikTok 视频当前生效配置表'
+DISTRIBUTED BY HASH(video_id) BUCKETS 16
+PROPERTIES (
+    "replication_num" = "1"
+);</code></pre>
+
+    <h3>5.2 视频源数据维护弹框字段覆盖</h3>
+    <p>“视频源数据维护”列表与“编辑视频源数据”弹框字段同样落入 <code>dim_product_tiktok_video_config</code>。其中仅 <code>product_name</code> 当前支持人工编辑，其余字段来自已绑定账号或联盟账号并只读保存。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>弹框字段</th><th>对应表字段</th><th>读写方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>店铺名</td><td><code>store_name</code></td><td>只读保存</td><td>来源于已绑定账号 / 联盟账号源数据。</td></tr>
+          <tr><td>视频ID</td><td><code>video_id</code></td><td>只读保存</td><td>视频记录唯一键。</td></tr>
+          <tr><td>视频名称</td><td><code>video_name</code></td><td>只读保存</td><td>源数据维护列表与编辑弹框展示。</td></tr>
+          <tr><td>达人ID</td><td><code>creator_id</code></td><td>只读保存</td><td>源数据维护查询条件与弹框字段；如能映射 TikTok UID，可同步写入 <code>tiktok_uid</code>。</td></tr>
+          <tr><td>商品名称</td><td><code>product_name</code></td><td>人工编辑</td><td>当前原型唯一允许调整的源数据字段。</td></tr>
+          <tr><td>发布时间</td><td><code>publish_time</code></td><td>只读保存</td><td>源数据维护日期筛选与列表展示字段。</td></tr>
+          <tr><td>数据来源</td><td><code>data_source_name</code></td><td>只读保存</td><td>枚举值：已绑定账号、联盟账号。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>六、页面字段映射</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>页面</th><th>页面字段</th><th>对应表字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>商品档案</td><td>主图</td><td><code>main_image_url</code></td><td>SKU 主属性图第一张。</td></tr>
+          <tr><td>商品档案</td><td>产品主 SKU</td><td><code>main_sku</code></td><td>价格归属该 SKU，编辑抽屉可维护。</td></tr>
+          <tr><td>商品档案</td><td>负责运营</td><td><code>operator_owner</code></td><td>后续可同步给 PID 数据看板运营责任人。</td></tr>
+          <tr><td>账号维护</td><td>Handle Name</td><td><code>handle_name</code></td><td>账号展示名，可生成主页 URL。</td></tr>
+          <tr><td>账号维护</td><td>TikTok UID</td><td><code>tiktok_uid</code></td><td>账号唯一键。</td></tr>
+          <tr><td>账号维护</td><td>登录凭证/备注</td><td><code>credential_cipher_text</code>、<code>credential_remark</code></td><td>正式系统需加密凭证并记录备注。</td></tr>
+          <tr><td>视频数据</td><td>视频ID</td><td><code>video_id</code></td><td>视频记录唯一键，列表、源数据维护和编辑抽屉共用。</td></tr>
+          <tr><td>视频数据</td><td>达人账号 / 达人ID</td><td><code>creator_account_name</code>、<code>creator_id</code>、<code>tiktok_uid</code></td><td>用于搜索、展示，并与账号维护 / 寄样记录关联。</td></tr>
+          <tr><td>视频数据</td><td>视频类型 / 内容类型</td><td><code>video_type_name</code>、<code>content_type_name</code></td><td>支撑全部视频、联盟视频、自制视频、图文视频、AI 视频切换与内容类型筛选。</td></tr>
+          <tr><td>视频数据</td><td>播放量 / GMV($) / 是否开单 / 总单量</td><td><code>play_cnt</code>、<code>gmv_amount</code>、<code>is_ordered</code>、<code>order_cnt</code></td><td>列表指标字段，GMV 使用 <code>DECIMAL(20,2)</code>。</td></tr>
+          <tr><td>视频数据</td><td>Product ID / 视频款号</td><td><code>product_id</code>、<code>video_style_no</code></td><td>支持搜索，并用于和商品档案、寄样记录做业务关联。</td></tr>
+          <tr><td>视频数据</td><td>归属商务 / 授权码 / 视频颜色 / 寄样商务 / 备注</td><td><code>owner_business</code>、<code>auth_code</code>、<code>video_color_name</code>、<code>sample_business</code>、<code>remark</code></td><td>视频记录编辑抽屉保存字段。</td></tr>
+          <tr><td>视频源数据维护</td><td>店铺名 / 视频ID / 视频名称 / 达人ID / 商品名称 / 发布时间 / 数据来源</td><td><code>store_name</code>、<code>video_id</code>、<code>video_name</code>、<code>creator_id</code>、<code>product_name</code>、<code>publish_time</code>、<code>data_source_name</code></td><td>完整覆盖源数据维护列表与编辑弹框字段；当前原型仅允许编辑商品名称。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr />
+    <p><em>文档版本：已覆盖管理模块商品档案、账号维护、视频数据三个页面；后续寄样管理、联盟订单等管理页可继续补充到同一文档。</em></p>
+    <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="商品模块/商品档案.html">商品档案</a> &nbsp; <a href="账号模块/账号维护.html">账号维护</a> &nbsp; <a href="视频数据/视频数据.html">视频数据</a></p>
+  </div>
+</body>
+</html>

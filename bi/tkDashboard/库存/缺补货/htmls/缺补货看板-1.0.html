@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>缺补货看板</title>
+  <title>发补货看板</title>
   <style>
     :root {
       --bg: #f5f6f8;
@@ -147,6 +147,10 @@
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
+    .btn-export-transfer { background: #e1f5ee; color: #085041; border-color: #5dcaa5; }
+    .btn-export-transfer:hover { background: #c8eddf; border-color: #3fb88f; }
+    .btn-export-purchase { background: #e6f1fb; color: #0c447c; border-color: #85b7eb; }
+    .btn-export-purchase:hover { background: #d4e8f8; border-color: #5f9fe2; }
     .tab-group {
       display: inline-flex;
       border: 1px solid var(--accent);
@@ -180,12 +184,47 @@
       gap: 0.75rem;
       margin-bottom: 1rem;
     }
+    .global-summary-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
     .summary-card { padding: 0.9rem 1rem; min-height: 90px; }
     .summary-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.45rem; }
     .summary-value { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
     .summary-sub { margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
     .summary-danger .summary-value { color: var(--danger); }
     .summary-note .summary-value { color: #1d4ed8; }
+    .global-alert-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0 0 1rem;
+    }
+    .alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #fdba74;
+      border-radius: 8px;
+      background: #fff7ed;
+      color: #9a3412;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+    .alert-item.urgent { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+    .alert-main { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .alert-index { font-weight: 700; color: inherit; }
+    .alert-count { font-weight: 700; color: inherit; }
+    .alert-action {
+      border: 1px solid currentColor;
+      border-radius: 4px;
+      background: transparent;
+      color: inherit;
+      padding: 0.25rem 0.65rem;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: 0.82rem;
+    }
+    .alert-action:hover { background: rgba(255,255,255,0.55); }
     .action-bar {
       padding: 0.75rem 1rem;
       margin-bottom: 1rem;
@@ -209,6 +248,162 @@
       padding: 0.08rem 0.25rem;
       border-radius: 3px;
     }
+    .export-modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.38);
+    }
+    .export-modal-mask.open { display: flex; }
+    .export-modal {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 3rem);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 1px solid #dbe7e2;
+      border-radius: 8px;
+      box-shadow: 0 22px 56px rgba(15, 23, 42, 0.22);
+    }
+    .export-modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.1rem 0.8rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .export-modal-title { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text); }
+    .export-modal-sub { margin: 0.25rem 0 0; font-size: 0.82rem; color: #64748b; }
+    .export-modal-close {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .export-modal-close:hover { background: #f8fafc; color: var(--text); }
+    .export-modal-body { padding: 1rem 1.1rem; overflow: auto; }
+    .export-modal-tip {
+      margin-bottom: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: 0.82rem;
+    }
+    .export-preview-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .export-preview-table th {
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      white-space: nowrap;
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .export-preview-table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid #edf2f7;
+      white-space: nowrap;
+    }
+    .export-modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.8rem 1.1rem 1rem;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .column-config-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 520;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.42);
+    }
+    .column-config-mask.open { display: flex; }
+    .column-config-modal {
+      width: min(620px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 22px 56px rgba(15, 23, 42, 0.22);
+      overflow: hidden;
+    }
+    .column-config-head {
+      height: 56px;
+      padding: 0 1.1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .column-config-title { font-weight: 600; font-size: 1rem; color: var(--text); }
+    .column-config-close {
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .column-config-body { padding: 1rem 1.1rem; }
+    .column-config-tip { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.75rem; line-height: 1.7; }
+    .column-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; }
+    .column-option {
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.42rem 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #52657a;
+      background: #fff;
+      font-size: 0.82rem;
+    }
+    .column-option input { width: 15px; height: 15px; accent-color: var(--accent); }
+    .column-config-actions {
+      height: 58px;
+      padding: 0.7rem 1.1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.65rem;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      z-index: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 0.86rem;
+    }
+    .toast.show { opacity: 0.94; }
     .table-card { overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow: auto; }
     table {
@@ -283,6 +478,73 @@
     .sticky-col-3 { left: 260px; min-width: 140px; }
     .sticky-col-4 { left: 400px; min-width: 180px; }
     .sticky-col-5 { left: 580px; min-width: 160px; }
+    .model-table th { min-width: 132px; vertical-align: top; }
+    .model-table th.model-key-col { min-width: 170px; }
+    .model-table td { white-space: nowrap; }
+    .field-head {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      width: 100%;
+      line-height: 1.35;
+    }
+    .field-help {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #93c5fd;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: help;
+    }
+    .field-tooltip {
+      position: fixed;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      padding: 0.65rem 0.75rem;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #fff;
+      color: #1e293b;
+      box-shadow: 0 12px 28px rgba(15,23,42,0.18);
+      white-space: pre-line;
+      text-align: left;
+      font-size: 0.82rem;
+      font-weight: 400;
+      line-height: 1.55;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
+      z-index: 9999;
+    }
+    .field-tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
+    .model-action-col { min-width: 88px; text-align: center; }
+    .row-edit-btn {
+      padding: 0.28rem 0.72rem;
+      font-size: 0.78rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .row-edit-btn:hover { background: #f0fdfa; }
     .status-tag {
       display: inline-flex;
       align-items: center;
@@ -561,7 +823,7 @@
       background: #fff;
       border-radius: 10px;
       box-shadow: 0 12px 40px rgba(0,0,0,0.2);
-      width: min(960px, 96vw);
+      width: min(680px, 96vw);
       overflow: hidden;
     }
     .edit-modal-header {
@@ -594,7 +856,7 @@
       font-size: 0.84rem;
       color: var(--muted);
     }
-    .edit-form-item input {
+    .edit-form-item input, .edit-form-item select {
       border: 1px solid var(--input-border);
       border-radius: 4px;
       padding: 0.5rem 0.65rem;
@@ -603,6 +865,7 @@
       background: #fff;
     }
     .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
+    .edit-form-item select { cursor: pointer; background: #fff; }
     .month-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -619,12 +882,263 @@
       gap: 0.5rem;
       padding: 0 1rem 1rem;
     }
+
+    .module-head-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+    }
+    .module-head-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.08rem;
+      color: var(--text);
+    }
+    .module-head-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+    .module-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .module-stats span {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid #ccfbf1;
+      border-radius: 999px;
+      background: #f0fdfa;
+      color: #0f766e;
+    }
+    .field-section-card {
+      overflow: hidden;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+    }
+    .field-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: #f9fafb;
+    }
+    .field-section-head h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+    .field-section-head span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .field-mapping-table {
+      width: 100%;
+      min-width: 760px;
+      table-layout: fixed;
+    }
+    .field-mapping-table th,
+    .field-mapping-table td {
+      white-space: normal;
+      line-height: 1.55;
+    }
+    .field-mapping-table .seq-col {
+      width: 76px;
+      text-align: center;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .field-mapping-table .field-col { width: 220px; }
+    .field-mapping-table .field-name {
+      color: #0f766e;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .dashboard-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .dashboard-table th,
+    .dashboard-table td {
+      min-width: 132px;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dashboard-table thead tr:first-child th {
+      top: 0;
+      background: #ecfdf5;
+      color: #047857;
+      text-align: center;
+      font-weight: 700;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(2) th {
+      top: 38px;
+      background: #f0fdfa;
+      color: #0f766e;
+      text-align: center;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(3) th {
+      top: 76px;
+      z-index: 4;
+    }
+    .dashboard-table .field-head {
+      justify-content: flex-start;
+    }
+    .module-group,
+    .submodule-group {
+      white-space: nowrap;
+    }
+
+    .module-tab-group { flex-wrap: wrap; max-width: 100%; }
+    .module-tab-group .tab { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .module-tab-group .tab span { opacity: 0.78; font-size: 0.76rem; }
+    .module-subtitle { margin-left: 0.6rem; color: var(--muted); font-size: 0.82rem; font-weight: 400; }
+    .dashboard-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .dashboard-table th,
+    .dashboard-table td {
+      min-width: 132px;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dashboard-table thead tr:first-child th {
+      top: 0;
+      background: #f0fdfa;
+      color: #0f766e;
+      text-align: center;
+      font-weight: 700;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(2) th {
+      top: 38px;
+      z-index: 4;
+    }
+    .dashboard-table .field-head { justify-content: flex-start; }
+    .submodule-group { white-space: nowrap; }
+
+    .dashboard-table .sticky-base {
+      position: sticky;
+      background: #fff;
+      z-index: 5;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.12);
+    }
+    .dashboard-table th.sticky-base {
+      background: #f9fafb;
+      z-index: 8;
+    }
+    .dashboard-table .base-group {
+      background: #dcfce7 !important;
+      color: #166534 !important;
+      text-align: center;
+      z-index: 7 !important;
+    }
+    .dashboard-table .sticky-base-group {
+      position: sticky;
+      left: 0;
+      min-width: 1300px;
+      width: 1300px;
+      max-width: 1300px;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.12);
+    }
+    .dashboard-table thead tr:nth-child(2) th.sticky-base {
+      top: 38px;
+      background: #f9fafb;
+      z-index: 8;
+    }
+    .dashboard-table .sticky-base-1 { left: 0; min-width: 120px; }
+    .dashboard-table .sticky-base-2 { left: 120px; min-width: 150px; }
+    .dashboard-table .sticky-base-3 { left: 270px; min-width: 140px; }
+    .dashboard-table .sticky-base-4 { left: 410px; min-width: 180px; }
+    .dashboard-table .sticky-base-5 { left: 590px; min-width: 120px; }
+    .dashboard-table .sticky-base-6 { left: 710px; min-width: 140px; }
+    .dashboard-table .sticky-base-7 { left: 850px; min-width: 130px; }
+    .dashboard-table .sticky-base-8 { left: 980px; min-width: 140px; }
+    .dashboard-table .sticky-base-9 { left: 1120px; min-width: 180px; }
+
+    .pagination {
+      border-top: 1px solid var(--border);
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background: #fff;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .pagination-left,
+    .pagination-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .page-size {
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 0.5rem;
+    }
+    .page-input {
+      width: 54px;
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0 0.45rem;
+      text-align: center;
+      color: var(--text);
+    }
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.55rem;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .page-btn:hover { background: #f8fafc; }
+    .page-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     @media (max-width: 1200px) {
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-grid, .global-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     }
     @media (max-width: 768px) {
       body { padding: 1rem; }
-      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .summary-grid, .global-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .query-actions { margin-left: 0; }
     }
   </style>
@@ -632,1255 +1146,1130 @@
 <body>
   <div class="container">
     <h1 class="page-title">
-      缺补货看板
-      <span class="badge">原型页</span>
+      发补货看板
     </h1>
 
     <div class="query-card">
       <div class="query-row">
-        <div class="tab-group" id="viewTabs">
-          <button type="button" class="tab active" data-view="spu">SPU冗余检视</button>
-          <button type="button" class="tab" data-view="ship">发货</button>
-          <button type="button" class="tab" data-view="restock">补货</button>
-          <button type="button" class="tab" data-view="all">发货+补货总和</button>
+        <div class="tab-group module-tab-group" id="moduleTabs">
+          <button type="button" class="tab active" data-target="view-module-1">库存看板</button>
+          <button type="button" class="tab" data-target="view-module-2">备货模型</button>
+          <button type="button" class="tab" data-target="view-module-3">发货模型</button>
         </div>
         <div class="query-item">
           <span class="label">站点</span>
-          <div class="cascade-wrap" id="cascadeWrap">
-            <div class="cascade-trigger" id="cascadeTrigger"><span class="placeholder">请选择</span></div>
-            <div class="cascade-panel" id="cascadePanel">
-              <div class="cascade-left" id="cascadeLeft"></div>
-              <div class="cascade-right" id="cascadeRight"></div>
-            </div>
-          </div>
+          <select><option>全部站点</option><option>US</option><option>UK</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select><option>全部店铺</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">生命周期</span>
+          <select>
+            <option>全部生命周期</option>
+            <option>上升期</option>
+            <option>平稳期</option>
+            <option>下降期</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">SKU分层</span>
+          <select>
+            <option>全部分层</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">是否发货</span>
+          <select>
+            <option>全部</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">是否采购</span>
+          <select>
+            <option>全部</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
         </div>
         <div class="query-item search-query-item">
           <span class="label">搜索</span>
-          <select id="qKeywordType" class="search-field-select">
-            <option value="SPU">SPU</option>
-            <option value="SKU">SKU</option>
-          </select>
-          <select id="qSearchMode" class="search-mode-select">
-            <option value="fuzzy">模糊搜索</option>
-            <option value="exact">精确搜索</option>
-          </select>
-          <input type="text" id="qSearchVal" class="search-fuzzy-input" placeholder="请输入" />
-          <div class="search-exact-trigger-wrap" id="searchExactTriggerWrap">
-            <button type="button" class="search-exact-trigger" id="searchExactTrigger" title="一行一项，按回车键换行">
-              <span class="value placeholder" id="searchExactPreview">请输入</span>
-              <span class="icon">⋯</span>
-            </button>
-            <div class="search-exact-panel" id="searchExactPanel">
-              <div class="search-exact-body">
-                <textarea id="qSearchExactVal" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
-                <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
-              </div>
-              <div class="search-exact-foot">
-                <button type="button" class="search-exact-btn" id="btnExactClear">清空</button>
-                <span class="search-exact-count" id="searchExactCount">0/500行</span>
-                <div class="search-exact-actions">
-                  <button type="button" class="search-exact-btn" id="btnExactCancel">取消</button>
-                  <button type="button" class="search-exact-btn primary" id="btnExactApply">搜索</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="query-item">
-          <span class="label">数据日期</span>
-          <input type="date" value="2026-04-12" />
+          <select class="search-field-select"><option>SPU</option><option>库存SKU</option><option>PID</option><option>MSKU</option></select>
+          <select class="search-mode-select"><option>模糊搜索</option><option>精确搜索</option></select>
+          <input type="text" class="search-fuzzy-input" placeholder="请输入" />
         </div>
         <div class="query-actions">
-          <button type="button" class="btn btn-query" id="btnQuery">查询</button>
-          <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
+          <button type="button" class="btn btn-query">查询</button>
+          <button type="button" class="btn btn-secondary">重置</button>
         </div>
-      </div>
-      <div class="tip-bar">
-        口径说明：当前原型仅保留站点筛选。<code>SPU冗余检视</code> 基于 <code>发货+补货总和</code> 底表按 SPU 聚合，<code>发货</code> 和 <code>补货</code> 视图基于同一底表按打钩字段拆分展示。
       </div>
     </div>
 
-    <div class="view-panel active" id="view-spu">
+    <div class="global-alert-bar" aria-label="全局告警">
+      <div class="alert-item urgent">
+        <div class="alert-main"><span class="alert-index">1、</span><span class="alert-count">3个SKU</span><span>海外可售天数低于安全库存，需紧急处理</span></div>
+        <button type="button" class="alert-action" data-alert-filter="overseas-low-days">点击跳转筛选</button>
+      </div>
+      <div class="alert-item">
+        <div class="alert-main"><span class="alert-index">2、</span><span class="alert-count">2个SKU</span><span>国内库存不足无法发货，需加急采购 + 空派</span></div>
+        <button type="button" class="alert-action" data-alert-filter="domestic-shortage">点击跳转筛选</button>
+      </div>
+    </div>
+
+    <div class="summary-grid global-summary-grid" aria-label="全局汇总指标">
+      <div class="summary-card summary-note">
+        <div class="summary-label">在售SKU总数</div>
+        <div class="summary-value">96</div>
+        <div class="summary-sub">当前筛选范围内在售库存 SKU 数。</div>
+      </div>
+      <div class="summary-card summary-danger">
+        <div class="summary-label">需发货SKU数</div>
+        <div class="summary-value">18</div>
+        <div class="summary-sub">发货模型中“是否发货 = 是”的 SKU 数。</div>
+      </div>
+      <div class="summary-card summary-danger">
+        <div class="summary-label">需采购SKU数</div>
+        <div class="summary-value">12</div>
+        <div class="summary-sub">备货模型中“是否采购 = 是”的 SKU 数。</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">海外在库总量</div>
+        <div class="summary-value">12,860</div>
+        <div class="summary-sub">海外仓在库库存汇总。</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">国内在库总量</div>
+        <div class="summary-value">8,432</div>
+        <div class="summary-sub">国内仓在库库存汇总。</div>
+      </div>
+      <div class="summary-card summary-note">
+        <div class="summary-label">下次截单日</div>
+        <div class="summary-value">2026-06-13</div>
+        <div class="summary-sub">用于发货模型截单与到仓测算。</div>
+      </div>
+    </div>
+
+
+
+    <section class="view-panel active" id="view-module-1">
       <div class="action-bar">
         <div class="action-head">
           <div class="btns">
-            <button type="button" class="btn btn-secondary" id="btnMetricHelpSpu">数据统计说明</button>
-            <button type="button" class="btn btn-secondary" id="btnManageSpuMonthFactor">SPU月度系数维护</button>
-            <button type="button" class="btn btn-secondary">导出数据</button>
+            <button type="button" class="btn btn-secondary product-desc-btn" data-product-desc="replenishment">产品说明</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
           </div>
           <div class="meta-info">
-            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
           </div>
         </div>
-        <div class="legend">
-          说明：SPU 视图聚焦库存冗余走势，按 <code>加权日销</code>、<code>未来四个月预估日均</code>、<code>月底冗余量</code> 展示。
-        </div>
+        <div class="legend">当前栏目：<code>库存看板</code>；商品基础信息固定前置，后续字段按该栏目的二级模块展开。</div>
       </div>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">SPU总数</div>
-          <div class="summary-value">186</div>
-          <div class="summary-sub">结果口径：当前查询范围内去重后的 SPU 数量。<br />计算逻辑：按时间 + 站点 + SPU 汇总后，对结果集中的 SPU 去重计数。</div>
-        </div>
-        <div class="summary-card summary-danger">
-          <div class="summary-label">高冗余SPU数</div>
-          <div class="summary-value">24</div>
-          <div class="summary-sub">结果口径：未来 4 个月月底冗余量持续为正的 SPU 数量。<br />计算逻辑：按 SPU 计算第 1 到第 4 个月底冗余量，若四个月结果均 &gt; 0，则计入高冗余 SPU 数。</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">现有库存汇总</div>
-          <div class="summary-value">48,260</div>
-          <div class="summary-sub">结果口径：按 SPU 聚合后的现有库存合计。<br />计算逻辑：先按 SPU 汇总现有库存字段，再对当前筛选范围内所有 SPU 的现有库存求和。</div>
-        </div>
-      </div>
-
       <div class="table-card">
         <div class="table-wrap">
-          <table>
+          <table class="dashboard-table">
             <thead>
               <tr>
-                <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">站点</th>
-                <th class="sticky-col-3">SPU</th>
-                <th class="sticky-col-4">SPU名称</th>
-                <th class="sticky-col-5">现有库存</th>
-                <th>加权日销</th>
-                <th>第一个月系数</th>
-                <th>第二个月系数</th>
-                <th>第三个月系数</th>
-                <th>第四个月系数</th>
-                <th>第一个月预估日均</th>
-                <th>第二个月预估日均</th>
-                <th>第三个月预估日均</th>
-                <th>第四个月预估日均</th>
-                <th>第一个月底冗余量</th>
-                <th>第二个月底冗余量</th>
-                <th>第三个月底冗余量</th>
-                <th>第四个月底冗余量</th>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="4" class="submodule-group">汇总库存</th>
+                  <th colspan="4" class="submodule-group">A.国内库存</th>
+                  <th colspan="8" class="submodule-group">B.海外在途库存</th>
+                  <th colspan="9" class="submodule-group">C.海外在库库存</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="全链路库存总量（国内+在途+海外在库）">
+                    <span class="field-head"><span>总库存</span><span class="field-help" data-tip="全链路库存总量（国内+在途+海外在库）">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有在途库存汇总（国内在途+海外在途）">
+                    <span class="field-head"><span>总在途库存</span><span class="field-help" data-tip="所有在途库存汇总（国内在途+海外在途）">?</span></span>
+                  </th>
+                  <th class="field-col" title="当前可用于销售的库存（国内在库+海外在库）">
+                    <span class="field-head"><span>总可用库存</span><span class="field-help" data-tip="当前可用于销售的库存（国内在库+海外在库）">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内仓全部库存合计">
+                    <span class="field-head"><span>总国内库存</span><span class="field-help" data-tip="国内仓全部库存合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="已下采购单、货在工厂或运往国内仓途中的库存">
+                    <span class="field-head"><span>采购在途库存</span><span class="field-help" data-tip="已下采购单、货在工厂或运往国内仓途中的库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="已下单但工厂尚未交货的数量">
+                    <span class="field-head"><span>工厂采购未交量</span><span class="field-help" data-tip="已下单但工厂尚未交货的数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="工厂已交货、正在运往国内仓的库存">
+                    <span class="field-head"><span>国内交货在途库存</span><span class="field-help" data-tip="工厂已交货、正在运往国内仓的库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内仓当前实际可用库存">
+                    <span class="field-head"><span>国内在库</span><span class="field-help" data-tip="国内仓当前实际可用库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有已发出但尚未到海外仓的库存合计">
+                    <span class="field-head"><span>海外在途总量</span><span class="field-help" data-tip="所有已发出但尚未到海外仓的库存合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往四个三方仓（万邑通各仓+谷仓）的在途汇总">
+                    <span class="field-head"><span>三方仓在途量</span><span class="field-help" data-tip="发往四个三方仓（万邑通各仓+谷仓）的在途汇总">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USKY3仓的在途量">
+                    <span class="field-head"><span>万邑通USKY3在途</span><span class="field-help" data-tip="发往万邑通USKY3仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USWC2仓的在途量">
+                    <span class="field-head"><span>万邑通USWC2在途</span><span class="field-help" data-tip="发往万邑通USWC2仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USWC仓的在途量">
+                    <span class="field-head"><span>万邑通USWC在途</span><span class="field-help" data-tip="发往万邑通USWC仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往美国谷仓美西仓库的在途量">
+                    <span class="field-head"><span>美国谷仓:美西仓库在途</span><span class="field-help" data-tip="发往美国谷仓美西仓库的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往FBT仓的在途量">
+                    <span class="field-head"><span>FBT在途量</span><span class="field-help" data-tip="发往FBT仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往英国退货仓的在途量">
+                    <span class="field-head"><span>英国退货仓在途量</span><span class="field-help" data-tip="发往英国退货仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有海外仓当前在库可用量合计">
+                    <span class="field-head"><span>海外在库总库存</span><span class="field-help" data-tip="所有海外仓当前在库可用量合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USKY3仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USKY3</span><span class="field-help" data-tip="万邑通USKY3仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USWC2仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USWC2</span><span class="field-help" data-tip="万邑通USWC2仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USWC仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USWC</span><span class="field-help" data-tip="万邑通USWC仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="美国谷仓美西仓库当前在库可用量">
+                    <span class="field-head"><span>积加-谷仓美西仓库</span><span class="field-help" data-tip="美国谷仓美西仓库当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="FBT仓当前可用库存">
+                    <span class="field-head"><span>FBT可用</span><span class="field-help" data-tip="FBT仓当前可用库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="FBA仓库存（预留字段）">
+                    <span class="field-head"><span>积加-FBA仓库</span><span class="field-help" data-tip="FBA仓库存（预留字段）">?</span></span>
+                  </th>
+                  <th class="field-col" title="英国退货仓当前在库可用量">
+                    <span class="field-head"><span>积加-英国退货仓</span><span class="field-help" data-tip="英国退货仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="四个三方仓可用库存合计">
+                    <span class="field-head"><span>三方仓可用量</span><span class="field-help" data-tip="四个三方仓可用库存合计">?</span></span>
+                  </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-W0161</td>
-                <td class="sticky-col-4">Women Lounge Set</td>
-                <td class="num sticky-col-5">2,560</td>
-                <td class="num">36.8</td>
-                <td class="num">0.90</td>
-                <td class="num">0.85</td>
-                <td class="num">0.80</td>
-                <td class="num">0.75</td>
-                <td class="num">33.1</td>
-                <td class="num">31.2</td>
-                <td class="num">29.4</td>
-                <td class="num">27.5</td>
-                <td class="num">1,900</td>
-                <td class="num">980</td>
-                <td class="num">110</td>
-                <td class="num">-720</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
               </tr>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-M2301</td>
-                <td class="sticky-col-4">Men Running Set</td>
-                <td class="num sticky-col-5">1,980</td>
-                <td class="num">18.2</td>
-                <td class="num">0.95</td>
-                <td class="num">0.90</td>
-                <td class="num">0.87</td>
-                <td class="num">0.82</td>
-                <td class="num">17.3</td>
-                <td class="num">16.4</td>
-                <td class="num">15.8</td>
-                <td class="num">15.0</td>
-                <td class="num">1,420</td>
-                <td class="num">910</td>
-                <td class="num">420</td>
-                <td class="num">-30</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
               </tr>
             </tbody>
           </table>
         </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 128 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><span>...</span><button type="button" class="page-btn">7</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
+          </div>
       </div>
-    </div>
+    </section>
 
-    <div class="view-panel" id="view-all">
+    <section class="view-panel" id="view-module-2">
       <div class="action-bar">
         <div class="action-head">
           <div class="btns">
-            <button type="button" class="btn btn-secondary" id="btnMetricHelpAll">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出数据</button>
+            <button type="button" class="btn btn-export-purchase" id="exportPurchaseBtn">导出采购计划</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
           </div>
           <div class="meta-info">
-            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
           </div>
         </div>
-        <div class="legend">
-          说明：该视图为统一底表，既包含补货字段，也包含发货字段，是后续两个动作视图的共同基础。
-        </div>
+        <div class="legend">当前栏目：<code>备货模型</code>；商品基础信息固定前置，后续字段按该栏目的二级模块展开。</div>
       </div>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">SKU总数</div>
-          <div class="summary-value">1,286</div>
-          <div class="summary-sub">结果口径：统一底表中命中的 SKU 数量。<br />计算逻辑：按当前筛选条件过滤后，对底表结果中的 SKU 明细行直接计数。</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">总可用库存</div>
-          <div class="summary-value">18,392</div>
-          <div class="summary-sub">结果口径：国内可用库存与海外仓可用总库存的汇总。<br />计算逻辑：按 SKU 取总可用库存字段，再对当前结果集逐行求和。</div>
-        </div>
-        <div class="summary-card summary-danger">
-          <div class="summary-label">缺口SKU数</div>
-          <div class="summary-value">76</div>
-          <div class="summary-sub">结果口径：存在库存缺口的 SKU 数量。<br />计算逻辑：按 SKU 比较所需的总库存与当前总的库存，若所需总库存 &gt; 当前总的库存，则计入缺口 SKU 数。</div>
-        </div>
-      </div>
-
       <div class="table-card">
         <div class="table-wrap">
-          <table>
+          <table class="dashboard-table">
             <thead>
               <tr>
-                <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">站点</th>
-                <th class="sticky-col-3">SPU</th>
-                <th class="sticky-col-4">SKU</th>
-                <th class="sticky-col-5">SKU中文名称</th>
-                <th>FBT总库存</th>
-                <th>FBT库存-可用</th>
-                <th>三方仓总库存</th>
-                <th>三方仓可用库存</th>
-                <th>万邑通USKY3可用量</th>
-                <th>万邑通USWC可用量</th>
-                <th>万邑通USW2可用量</th>
-                <th>谷仓可用量</th>
-                <th>三方仓在途库存</th>
-                <th>万邑通USKY3在途量</th>
-                <th>万邑通USWC在途量</th>
-                <th>万邑通USW2在途量</th>
-                <th>谷仓在途量</th>
-                <th>海外仓可用总库存</th>
-                <th>国内可用库存</th>
-                <th>采购+交货在途库存</th>
-                <th>FBA库存（空着）</th>
-                <th>总可用库存</th>
-                <th>当前总的库存</th>
-                <th>过去7天日销</th>
-                <th>过去30天日销</th>
-                <th>加权日销</th>
-                <th>第一月日均预估</th>
-                <th>第二月日均预估</th>
-                <th>第三月日均预估</th>
-                <th>第四月日均预估</th>
-                <th>所需的总库存</th>
-                <th>状态</th>
-                <th>需要采购的数量</th>
-                <th>需要采购的数量-实际</th>
-                <th>预计要断货天数</th>
-                <th>需要发货的数量-测算</th>
-                <th>FBT-实际要发的库存</th>
-                <th>FBT海派时间</th>
-                <th>当天时间</th>
-                <th>海派到的时间内需要的库存</th>
-                <th>在线还缺的数量</th>
-                <th>可调拨</th>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="5" class="submodule-group">动态加权日均</th>
+                  <th colspan="6" class="submodule-group">生命周期判断</th>
+                  <th colspan="5" class="submodule-group">SKU四层分层</th>
+                  <th colspan="3" class="submodule-group">目标库存计算</th>
+                  <th colspan="4" class="submodule-group">补货决策输出</th>
+                  <th colspan="1" class="submodule-group">操作</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="过去7天平均日销量（过滤爆发日前的原始值）">
+                    <span class="field-head"><span>7天日均（S7）</span><span class="field-help" data-tip="过去7天平均日销量（过滤爆发日前的原始值）">?</span></span>
+                  </th>
+                  <th class="field-col" title="过去30天平均日销量">
+                    <span class="field-head"><span>30天日均（S30）</span><span class="field-help" data-tip="过去30天平均日销量">?</span></span>
+                  </th>
+                  <th class="field-col" title="近7天日均与近30天日均的比值，用于判断趋势方向">
+                    <span class="field-head"><span>S7/S30比值</span><span class="field-help" data-tip="近7天日均与近30天日均的比值，用于判断趋势方向">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据S7/S30比值自动选择7天/30天权重组合">
+                    <span class="field-head"><span>动态权重档位</span><span class="field-help" data-tip="根据S7/S30比值自动选择7天/30天权重组合">?</span></span>
+                  </th>
+                  <th class="field-col" title="综合近期趋势的预测日销量，作为所有库存计算的基准">
+                    <span class="field-head"><span>加权日均</span><span class="field-help" data-tip="综合近期趋势的预测日销量，作为所有库存计算的基准">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU当前所处的销售生命周期">
+                    <span class="field-head"><span>生命周期</span><span class="field-help" data-tip="该SKU当前所处的销售生命周期">?</span></span>
+                  </th>
+                  <th class="field-col" title="标记该SKU上涨是否由单达人/单视频偶发导致（非真实需求上涨）">
+                    <span class="field-head"><span>是否内容爆发</span><span class="field-help" data-tip="标记该SKU上涨是否由单达人/单视频偶发导致（非真实需求上涨）">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU来自商务达人渠道的出单量占总出单量的比例">
+                    <span class="field-head"><span>商务出单占比</span><span class="field-help" data-tip="该SKU来自商务达人渠道的出单量占总出单量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU来自剪辑视频渠道的出单量占总出单量的比例">
+                    <span class="field-head"><span>剪辑出单占比</span><span class="field-help" data-tip="该SKU来自剪辑视频渠道的出单量占总出单量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据生命周期对海外仓基准安全库存天数的调整量">
+                    <span class="field-head"><span>安全库存调整天数（海外仓）</span><span class="field-help" data-tip="根据生命周期对海外仓基准安全库存天数的调整量">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据生命周期对直邮仓基准安全库存天数的调整量">
+                    <span class="field-head"><span>安全库存调整天数（直邮仓）</span><span class="field-help" data-tip="根据生命周期对直邮仓基准安全库存天数的调整量">?</span></span>
+                  </th>
+                  <th class="field-col" title="该子SKU（颜色×尺码）的备货优先级分层">
+                    <span class="field-head"><span>SKU分层</span><span class="field-help" data-tip="该子SKU（颜色×尺码）的备货优先级分层">?</span></span>
+                  </th>
+                  <th class="field-col" title="标记该SKU是否为SPU内主销颜色尺码组合">
+                    <span class="field-head"><span>是否热卖色码</span><span class="field-help" data-tip="标记该SKU是否为SPU内主销颜色尺码组合">?</span></span>
+                  </th>
+                  <th class="field-col" title="商品违规指数（Violation of Commerce），用于质量风险判断">
+                    <span class="field-head"><span>VOC值</span><span class="field-help" data-tip="商品违规指数（Violation of Commerce），用于质量风险判断">?</span></span>
+                  </th>
+                  <th class="field-col" title="近14天退货量占近14天销量的比例">
+                    <span class="field-head"><span>退货率（近14天）</span><span class="field-help" data-tip="近14天退货量占近14天销量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据SKU分层推荐的采购补货运输方式">
+                    <span class="field-head"><span>建议运输方式（补货）</span><span class="field-help" data-tip="根据SKU分层推荐的采购补货运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="海外仓应保持的理想库存水位">
+                    <span class="field-head"><span>目标库存（海外仓）</span><span class="field-help" data-tip="海外仓应保持的理想库存水位">?</span></span>
+                  </th>
+                  <th class="field-col" title="直邮仓应保持的理想库存水位">
+                    <span class="field-head"><span>目标库存（直邮仓）</span><span class="field-help" data-tip="直邮仓应保持的理想库存水位">?</span></span>
+                  </th>
+                  <th class="field-col" title="实际使用的安全库存天数（基准+生命周期调整）">
+                    <span class="field-head"><span>安全库存天数（最终）</span><span class="field-help" data-tip="实际使用的安全库存天数（基准+生命周期调整）">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU是否需要下采购单">
+                    <span class="field-head"><span>是否采购</span><span class="field-help" data-tip="该SKU是否需要下采购单">?</span></span>
+                  </th>
+                  <th class="field-col" title="建议向工厂下单的采购数量">
+                    <span class="field-head"><span>建议采购数量</span><span class="field-help" data-tip="建议向工厂下单的采购数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="采购场景的建议运输方式">
+                    <span class="field-head"><span>建议运输方式（采购）</span><span class="field-help" data-tip="采购场景的建议运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前建议运输方式预估货物到海外仓可售日期">
+                    <span class="field-head"><span>预计到仓日（采购）</span><span class="field-help" data-tip="按当前建议运输方式预估货物到海外仓可售日期">?</span></span>
+                  </th>
+                  <th class="field-col model-action-col">
+                    <span class="field-head"><span>操作</span></span>
+                  </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-W0161</td>
-                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-5">深灰 XL</td>
-                <td class="num">18</td>
-                <td class="num">14</td>
-                <td class="num">78</td>
-                <td class="num">52</td>
-                <td class="num">21</td>
-                <td class="num">17</td>
-                <td class="num">8</td>
-                <td class="num">6</td>
-                <td class="num">26</td>
-                <td class="num">10</td>
-                <td class="num">9</td>
-                <td class="num">4</td>
-                <td class="num">3</td>
-                <td class="num">66</td>
-                <td class="num">42</td>
-                <td class="num">138</td>
-                <td class="num">0</td>
-                <td class="num">108</td>
-                <td class="num">188</td>
-                <td class="num">10.2</td>
-                <td class="num">8.4</td>
-                <td class="num">9.7</td>
-                <td class="num">9.1</td>
-                <td class="num">8.8</td>
-                <td class="num">8.2</td>
-                <td class="num">7.9</td>
-                <td class="num">220</td>
-                <td><span class="status-tag status-warn">还可以卖11天</span></td>
-                <td class="num">32</td>
-                <td class="num">32</td>
-                <td class="num">11</td>
-                <td class="num">42</td>
-                <td class="num">28</td>
-                <td>2026-05-03</td>
-                <td>2026-04-01</td>
-                <td class="num">118</td>
-                <td class="num">52</td>
-                <td class="num">16</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-voc="0">编辑</button></td>
               </tr>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-M2301</td>
-                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-5">黑色 L</td>
-                <td class="num">9</td>
-                <td class="num">6</td>
-                <td class="num">45</td>
-                <td class="num">27</td>
-                <td class="num">12</td>
-                <td class="num">11</td>
-                <td class="num">6</td>
-                <td class="num">4</td>
-                <td class="num">12</td>
-                <td class="num">5</td>
-                <td class="num">4</td>
-                <td class="num">2</td>
-                <td class="num">1</td>
-                <td class="num">33</td>
-                <td class="num">20</td>
-                <td class="num">95</td>
-                <td class="num">0</td>
-                <td class="num">53</td>
-                <td class="num">92</td>
-                <td class="num">6.1</td>
-                <td class="num">4.7</td>
-                <td class="num">5.7</td>
-                <td class="num">5.5</td>
-                <td class="num">5.2</td>
-                <td class="num">4.8</td>
-                <td class="num">4.6</td>
-                <td class="num">145</td>
-                <td><span class="status-tag status-warn">还可以卖9天</span></td>
-                <td class="num">53</td>
-                <td class="num">53</td>
-                <td class="num">9</td>
-                <td class="num">26</td>
-                <td class="num">19</td>
-                <td>2026-05-03</td>
-                <td>2026-04-01</td>
-                <td class="num">80</td>
-                <td class="num">47</td>
-                <td class="num">8</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-voc="0">编辑</button></td>
               </tr>
             </tbody>
           </table>
         </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 96 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
+          </div>
       </div>
-    </div>
+    </section>
 
-    <div class="view-panel" id="view-ship">
+    <section class="view-panel" id="view-module-3">
       <div class="action-bar">
         <div class="action-head">
           <div class="btns">
-            <button type="button" class="btn btn-secondary" id="btnMetricHelpShip">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出数据</button>
+            <button type="button" class="btn btn-export-transfer" id="exportTransferBtn">导出发货调拨单</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
           </div>
           <div class="meta-info">
-            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
           </div>
         </div>
-        <div class="legend">
-          说明：发货视图聚焦 <code>需要发货的数量-测算</code>、<code>FBT-实际要发的库存</code>、<code>海派到的时间内需要的库存</code>、<code>在线还缺的数量</code>。
-        </div>
+        <div class="legend">当前栏目：<code>发货模型</code>；商品基础信息固定前置，后续字段按该栏目的二级模块展开。</div>
       </div>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">待发货SKU数</div>
-          <div class="summary-value">58</div>
-          <div class="summary-sub">结果口径：当前需要进入发货动作的 SKU 数量。<br />计算逻辑：按 SKU 判断需要发货的数量-测算 &gt; 0，满足条件的 SKU 计入待发货数。</div>
-        </div>
-        <div class="summary-card summary-danger">
-          <div class="summary-label">在线还缺SKU数</div>
-          <div class="summary-value">21</div>
-          <div class="summary-sub">结果口径：海派到货前仍然存在线上缺口的 SKU 数量。<br />计算逻辑：按 SKU 判断在线还缺的数量 &gt; 0，满足条件的 SKU 计入在线还缺数。</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">建议发货总量</div>
-          <div class="summary-value">4,260</div>
-          <div class="summary-sub">结果口径：当前筛选范围内建议发货量合计。<br />计算逻辑：对所有 SKU 的需要发货的数量-测算字段逐行求和。</div>
-        </div>
-        <div class="summary-card summary-note">
-          <div class="summary-label">可调拨SKU数</div>
-          <div class="summary-value">17</div>
-          <div class="summary-sub">结果口径：存在跨 SKU 或仓间调拨空间的 SKU 数量。<br />计算逻辑：按 SKU 判断可调拨字段 &gt; 0，满足条件的 SKU 计入可调拨数。</div>
-        </div>
-      </div>
-
       <div class="table-card">
         <div class="table-wrap">
-          <table>
+          <table class="dashboard-table">
             <thead>
               <tr>
-                <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">站点</th>
-                <th class="sticky-col-3">SPU</th>
-                <th class="sticky-col-4">SKU</th>
-                <th class="sticky-col-5">SKU中文名称</th>
-                <th>FBT总库存</th>
-                <th>FBT库存-可用</th>
-                <th>三方仓总库存</th>
-                <th>三方仓可用库存</th>
-                <th>万邑通USKY3可用量</th>
-                <th>万邑通USWC可用量</th>
-                <th>万邑通USW2可用量</th>
-                <th>谷仓可用量</th>
-                <th>三方仓在途库存</th>
-                <th>万邑通USKY3在途量</th>
-                <th>万邑通USWC在途量</th>
-                <th>万邑通USW2在途量</th>
-                <th>谷仓在途量</th>
-                <th>海外仓可用总库存</th>
-                <th>国内可用库存</th>
-                <th>总可用库存</th>
-                <th>当前总的库存</th>
-                <th>过去7天日销</th>
-                <th>过去30天日销</th>
-                <th>加权日销</th>
-                <th>第一月日均预估</th>
-                <th>第二月日均预估</th>
-                <th>第三月日均预估</th>
-                <th>第四月日均预估</th>
-                <th>所需的总库存</th>
-                <th>状态</th>
-                <th>预计要断货天数</th>
-                <th>需要发货的数量-测算</th>
-                <th>FBT-实际要发的库存</th>
-                <th>FBT海派时间</th>
-                <th>海派到的时间内需要的库存</th>
-                <th>在线还缺的数量</th>
-                <th>可调拨</th>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="4" class="submodule-group">发货触发条件</th>
+                  <th colspan="4" class="submodule-group">发货数量计算</th>
+                  <th colspan="2" class="submodule-group">最小批量校验</th>
+                  <th colspan="1" class="submodule-group">目的仓选择</th>
+                  <th colspan="7" class="submodule-group">运输方式判断</th>
+                  <th colspan="2" class="submodule-group">发货决策输出</th>
+                  <th colspan="1" class="submodule-group">联动输出字段</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="海外仓实际可用于覆盖未来销售的库存（在库+在途）">
+                    <span class="field-head"><span>海外有效库存</span><span class="field-help" data-tip="海外仓实际可用于覆盖未来销售的库存（在库+在途）">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前加权日均，海外有效库存还能支撑多少天">
+                    <span class="field-head"><span>海外可售天数</span><span class="field-help" data-tip="按当前加权日均，海外有效库存还能支撑多少天">?</span></span>
+                  </th>
+                  <th class="field-col" title="触发发货的可售天数下限（对应各类安全库存基准）">
+                    <span class="field-head"><span>发货触发阈值</span><span class="field-help" data-tip="触发发货的可售天数下限（对应各类安全库存基准）">?</span></span>
+                  </th>
+                  <th class="field-col" title="综合告警标记，标注当前SKU的紧急类型">
+                    <span class="field-head"><span>紧急标记</span><span class="field-help" data-tip="综合告警标记，标注当前SKU的紧急类型">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内库存中需预留给直邮渠道的数量，不可调拨到海外仓">
+                    <span class="field-head"><span>直邮预留量</span><span class="field-help" data-tip="国内库存中需预留给直邮渠道的数量，不可调拨到海外仓">?</span></span>
+                  </th>
+                  <th class="field-col" title="扣除直邮预留后，实际可调拨到海外仓的国内库存">
+                    <span class="field-head"><span>国内可发库存</span><span class="field-help" data-tip="扣除直邮预留后，实际可调拨到海外仓的国内库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="建议本次从国内仓调拨至FBT的数量">
+                    <span class="field-head"><span>建议发货数量</span><span class="field-help" data-tip="建议本次从国内仓调拨至FBT的数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="当前总库存与目标库存（海外仓）的差值，负数表示缺货，正数表示充裕">
+                    <span class="field-head"><span>库存缺口</span><span class="field-help" data-tip="当前总库存与目标库存（海外仓）的差值，负数表示缺货，正数表示充裕">?</span></span>
+                  </th>
+                  <th class="field-col" title="单次发货的重量下限（低于此值不建议发货）">
+                    <span class="field-head"><span>最小发货批量</span><span class="field-help" data-tip="单次发货的重量下限（低于此值不建议发货）">?</span></span>
+                  </th>
+                  <th class="field-col" title="本次建议发货数量是否达到最小批量要求">
+                    <span class="field-head"><span>是否满足最小批量</span><span class="field-help" data-tip="本次建议发货数量是否达到最小批量要求">?</span></span>
+                  </th>
+                  <th class="field-col" title="本次发货的目标海外仓库">
+                    <span class="field-head"><span>发货目的仓</span><span class="field-help" data-tip="本次发货的目标海外仓库">?</span></span>
+                  </th>
+                  <th class="field-col" title="距今最近的一次海派截单日期">
+                    <span class="field-head"><span>最近截单日</span><span class="field-help" data-tip="距今最近的一次海派截单日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="若本周六截单，货物预计到FBT可售的日期">
+                    <span class="field-head"><span>预计到仓可售日（发货）</span><span class="field-help" data-tip="若本周六截单，货物预计到FBT可售的日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="将最近截单日（字段69）与预计到仓可售日（字段70）合并为一列展示在UI主表，节省列宽">
+                    <span class="field-head"><span>截单/到仓（UI合并展示列）</span><span class="field-help" data-tip="将最近截单日（字段69）与预计到仓可售日（字段70）合并为一列展示在UI主表，节省列宽">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前加权日均，海外有效库存预计耗尽的日期">
+                    <span class="field-head"><span>预计断货日</span><span class="field-help" data-tip="按当前加权日均，海外有效库存预计耗尽的日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="从海外预计断货日到下批货到仓可售日之间的天数">
+                    <span class="field-head"><span>断货到到仓空窗期</span><span class="field-help" data-tip="从海外预计断货日到下批货到仓可售日之间的天数">?</span></span>
+                  </th>
+                  <th class="field-col" title="断货空窗期内直邮是否能覆盖，避免完全断货">
+                    <span class="field-head"><span>直邮可衔接</span><span class="field-help" data-tip="断货空窗期内直邮是否能覆盖，避免完全断货">?</span></span>
+                  </th>
+                  <th class="field-col" title="系统推荐的本次发货运输方式">
+                    <span class="field-head"><span>建议运输方式（发货）</span><span class="field-help" data-tip="系统推荐的本次发货运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU是否需要本周安排发货">
+                    <span class="field-head"><span>是否发货</span><span class="field-help" data-tip="该SKU是否需要本周安排发货">?</span></span>
+                  </th>
+                  <th class="field-col" title="本周需发货的SKU优先顺序">
+                    <span class="field-head"><span>发货优先级</span><span class="field-help" data-tip="本周需发货的SKU优先顺序">?</span></span>
+                  </th>
+                  <th class="field-col" title="补货模型与发货模型综合判断后的行动指令类型">
+                    <span class="field-head"><span>联动告警类型</span><span class="field-help" data-tip="补货模型与发货模型综合判断后的行动指令类型">?</span></span>
+                  </th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-W0161</td>
-                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-5">深灰 XL</td>
-                <td class="num">18</td>
-                <td class="num">14</td>
-                <td class="num">78</td>
-                <td class="num">52</td>
-                <td class="num">21</td>
-                <td class="num">17</td>
-                <td class="num">8</td>
-                <td class="num">6</td>
-                <td class="num">26</td>
-                <td class="num">10</td>
-                <td class="num">9</td>
-                <td class="num">4</td>
-                <td class="num">3</td>
-                <td class="num">66</td>
-                <td class="num">42</td>
-                <td class="num">108</td>
-                <td class="num">188</td>
-                <td class="num">10.2</td>
-                <td class="num">8.4</td>
-                <td class="num">9.7</td>
-                <td class="num">9.1</td>
-                <td class="num">8.8</td>
-                <td class="num">8.2</td>
-                <td class="num">7.9</td>
-                <td class="num">220</td>
-                <td><span class="status-tag status-warn">还可以卖11天</span></td>
-                <td class="num">11</td>
-                <td class="num">42</td>
-                <td class="num">28</td>
-                <td>2026-05-03</td>
-                <td class="num">118</td>
-                <td class="num">52</td>
-                <td class="num">16</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>示例状态</td>
               </tr>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-M2301</td>
-                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-5">黑色 L</td>
-                <td class="num">9</td>
-                <td class="num">6</td>
-                <td class="num">45</td>
-                <td class="num">33</td>
-                <td class="num">12</td>
-                <td class="num">11</td>
-                <td class="num">6</td>
-                <td class="num">4</td>
-                <td class="num">12</td>
-                <td class="num">5</td>
-                <td class="num">4</td>
-                <td class="num">2</td>
-                <td class="num">1</td>
-                <td class="num">33</td>
-                <td class="num">20</td>
-                <td class="num">53</td>
-                <td class="num">92</td>
-                <td class="num">6.1</td>
-                <td class="num">4.7</td>
-                <td class="num">5.7</td>
-                <td class="num">5.5</td>
-                <td class="num">5.2</td>
-                <td class="num">4.8</td>
-                <td class="num">4.6</td>
-                <td class="num">145</td>
-                <td><span class="status-tag status-warn">还可以卖9天</span></td>
-                <td class="num">9</td>
-                <td class="num">26</td>
-                <td class="num">19</td>
-                <td>2026-05-03</td>
-                <td class="num">80</td>
-                <td class="num">47</td>
-                <td class="num">8</td>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>示例状态</td>
               </tr>
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <div class="view-panel" id="view-restock">
-      <div class="action-bar">
-        <div class="action-head">
-          <div class="btns">
-            <button type="button" class="btn btn-secondary" id="btnMetricHelpRestock">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出数据</button>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 96 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
           </div>
-          <div class="meta-info">
-            <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
-          </div>
-        </div>
-        <div class="legend">
-          说明：补货视图聚焦 <code>采购+交货在途库存</code>、<code>所需的总库存</code>、<code>需要采购的数量</code>、<code>需要采购的数量-实际</code>、<code>预计要断货天数</code>。
-        </div>
       </div>
-
-      <div class="summary-grid">
-        <div class="summary-card">
-          <div class="summary-label">待补货SKU数</div>
-          <div class="summary-value">63</div>
-          <div class="summary-sub">结果口径：当前需要进入补货动作的 SKU 数量。<br />计算逻辑：按 SKU 判断需要采购的数量-实际 &gt; 0，满足条件的 SKU 计入待补货数。</div>
-        </div>
-        <div class="summary-card summary-danger">
-          <div class="summary-label">紧急补货SKU数</div>
-          <div class="summary-value">19</div>
-          <div class="summary-sub">结果口径：预计断货风险较高的 SKU 数量。<br />计算逻辑：按 SKU 判断预计要断货天数低于预设阈值，满足条件的 SKU 计入紧急补货数。</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">建议补货总量</div>
-          <div class="summary-value">5,880</div>
-          <div class="summary-sub">结果口径：当前筛选范围内建议补货量合计。<br />计算逻辑：对所有 SKU 的需要采购的数量-实际字段逐行求和。</div>
-        </div>
-        <div class="summary-card summary-note">
-          <div class="summary-label">平均断货天数</div>
-          <div class="summary-value">12</div>
-          <div class="summary-sub">结果口径：待补货 SKU 的平均断货天数。<br />计算逻辑：仅取需要采购的数量-实际 &gt; 0 的 SKU，对其预计要断货天数字段求平均值。</div>
-        </div>
-      </div>
-
-      <div class="table-card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th class="sticky-col-1">时间</th>
-                <th class="sticky-col-2">站点</th>
-                <th class="sticky-col-3">SPU</th>
-                <th class="sticky-col-4">SKU</th>
-                <th class="sticky-col-5">SKU中文名称</th>
-                <th>FBT总库存</th>
-                <th>三方仓总库存</th>
-                <th>海外仓可用总库存</th>
-                <th>采购+交货在途库存</th>
-                <th>FBA库存（空着）</th>
-                <th>国内可用库存</th>
-                <th>总可用库存</th>
-                <th>当前总的库存</th>
-                <th>过去7天日销</th>
-                <th>过去30天日销</th>
-                <th>加权日销</th>
-                <th>第一月日均预估</th>
-                <th>第二月日均预估</th>
-                <th>第三月日均预估</th>
-                <th>第四月日均预估</th>
-                <th>所需的总库存</th>
-                <th>需要采购的数量</th>
-                <th>需要采购的数量-实际</th>
-                <th>预计要断货天数</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-W0161</td>
-                <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
-                <td class="sticky-col-5">深灰 XL</td>
-                <td class="num">18</td>
-                <td class="num">78</td>
-                <td class="num">66</td>
-                <td class="num">138</td>
-                <td class="num">0</td>
-                <td class="num">42</td>
-                <td class="num">108</td>
-                <td class="num">188</td>
-                <td class="num">10.2</td>
-                <td class="num">8.4</td>
-                <td class="num">9.7</td>
-                <td class="num">9.1</td>
-                <td class="num">8.8</td>
-                <td class="num">8.2</td>
-                <td class="num">7.9</td>
-                <td class="num">220</td>
-                <td class="num">32</td>
-                <td class="num">32</td>
-                <td class="num">11</td>
-              </tr>
-              <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国站点</td>
-                <td class="sticky-col-3">AL-M2301</td>
-                <td class="sticky-col-4">AL-M2301-BLACK-L</td>
-                <td class="sticky-col-5">黑色 L</td>
-                <td class="num">9</td>
-                <td class="num">45</td>
-                <td class="num">33</td>
-                <td class="num">95</td>
-                <td class="num">0</td>
-                <td class="num">20</td>
-                <td class="num">53</td>
-                <td class="num">92</td>
-                <td class="num">6.1</td>
-                <td class="num">4.7</td>
-                <td class="num">5.7</td>
-                <td class="num">5.5</td>
-                <td class="num">5.2</td>
-                <td class="num">4.8</td>
-                <td class="num">4.6</td>
-                <td class="num">145</td>
-                <td class="num">53</td>
-                <td class="num">53</td>
-                <td class="num">9</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+    </section>
 
     <div class="mini-note">
-      <strong>待确认点：</strong><br />
-      1、是否需要导出明细。<br />
-      2、不需要图片定时播报。<br />
-      3、关于每个月的系数，使用界面进行 配置<br />
-      4、是否支持报表手动更新，需要调研下<br />
-      4、口径待确认：<code>TikTok.FBT库存-自定义导出</code> 属于店铺维度数据源，而 <code>发货+补货总和</code> 按 <code>SKU + 站点</code> 汇总；若美国站点下存在 3 个店铺，则 FBT 库存可能被合并统计。需确认业务是否接受按站点合并，还是必须保留店铺维度区分。
+      <strong>说明：</strong><br />
+      商品基础信息字段在所有栏目中固定展示；各栏目其余字段按对应一级模块下的二级模块展开；列表中不展示“更新时间”字段列。
     </div>
 
     <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
   </div>
-  <div class="manage-modal-overlay" id="spuFactorModal" role="dialog" aria-modal="true" aria-labelledby="spuFactorModalTitle">
-    <div class="manage-modal-box" onclick="event.stopPropagation()">
-      <div class="manage-header">
-        <span class="manage-title" id="spuFactorModalTitle">SPU 1月到12月系数维护</span>
-        <button type="button" class="modal-close" id="btnCloseSpuFactorModal" aria-label="关闭">&times;</button>
+  <div class="field-tooltip" id="fieldTooltip" role="tooltip"></div>
+  <div class="export-modal-mask" id="exportTransferModal" role="dialog" aria-modal="true" aria-labelledby="exportTransferTitle">
+    <div class="export-modal">
+      <div class="export-modal-head">
+        <div>
+          <h2 class="export-modal-title" id="exportTransferTitle">导出发货调拨单</h2>
+          <p class="export-modal-sub">格式对应积加「调拨单添加商品模板（非FBA仓）」，可直接导入。</p>
+        </div>
+        <button type="button" class="export-modal-close" data-export-close aria-label="关闭">×</button>
       </div>
-      <div class="manage-toolbar">
-        <div class="manage-query-row">
-          <div class="manage-query-item">
-            <span class="label">年份</span>
-            <select id="factorYear">
-              <option value="">全部年份</option>
-            </select>
-          </div>
-          <div class="manage-query-item">
-            <span class="label">站点</span>
-            <select id="factorSite">
-              <option value="">全部站点</option>
-            </select>
-          </div>
-          <div class="manage-query-item">
-            <span class="label">SPU</span>
-            <input type="text" id="factorSpuKeyword" placeholder="请输入 SPU" />
-          </div>
-          <div class="manage-query-actions">
-            <button type="button" class="btn btn-query" id="btnQuerySpuFactor">查询</button>
-            <button type="button" class="btn btn-secondary" id="btnResetSpuFactor">重置</button>
-          </div>
+      <div class="export-modal-body">
+        <div class="export-modal-tip">仅导出当前筛选结果中“建议发货数量 &gt; 0”的 SKU；“*数量”来源于发货模型字段“建议发货数量”。以下为示例预览。</div>
+        <div class="table-wrap">
+          <table class="export-preview-table">
+            <thead>
+              <tr>
+                <th>*SKU</th>
+                <th>MSKU</th>
+                <th>*平台站点</th>
+                <th>*数量</th>
+                <th>FNSKU</th>
+                <th>明细备注</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>INV-SKU-001</td><td>MSKU-001</td><td>US</td><td>180</td><td>-</td><td>空运｜紧急补货</td></tr>
+              <tr><td>INV-SKU-002</td><td>MSKU-002</td><td>UK</td><td>96</td><td>-</td><td>海运｜常规调拨</td></tr>
+              <tr><td>INV-SKU-003</td><td>MSKU-003</td><td>US</td><td>72</td><td>-</td><td>空运｜可售天数低</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
-      <div class="manage-body">
-        <div class="manage-summary" id="factorSummary">共 0 条记录</div>
-        <div class="manage-table-card">
-          <div class="manage-table-wrap">
-            <table class="manage-table">
-              <thead>
-                <tr>
-                  <th>年份</th>
-                  <th>站点</th>
-                  <th>SPU</th>
-                  <th>SPU名称</th>
-                  <th id="factorMonthHead1">1月系数</th>
-                  <th id="factorMonthHead2">2月系数</th>
-                  <th id="factorMonthHead3">3月系数</th>
-                  <th id="factorMonthHead4">4月系数</th>
-                  <th id="factorMonthHead5">5月系数</th>
-                  <th id="factorMonthHead6">6月系数</th>
-                  <th id="factorMonthHead7">7月系数</th>
-                  <th id="factorMonthHead8">8月系数</th>
-                  <th id="factorMonthHead9">9月系数</th>
-                  <th id="factorMonthHead10">10月系数</th>
-                  <th id="factorMonthHead11">11月系数</th>
-                  <th id="factorMonthHead12">12月系数</th>
-                  <th>更新时间</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="spuFactorBody">
-                <tr><td colspan="18" class="manage-empty">暂无数据</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div class="export-modal-foot">
+        <button type="button" class="btn btn-secondary" data-export-close>关闭</button>
+        <button type="button" class="btn btn-export-transfer">确认导出 3 条</button>
       </div>
     </div>
   </div>
-  <div class="edit-modal-overlay" id="editSpuFactorModal" role="dialog" aria-modal="true" aria-labelledby="editSpuFactorTitle">
-    <div class="edit-modal-box" onclick="event.stopPropagation()">
+  <div class="export-modal-mask" id="exportPurchaseModal" role="dialog" aria-modal="true" aria-labelledby="exportPurchaseTitle">
+    <div class="export-modal">
+      <div class="export-modal-head">
+        <div>
+          <h2 class="export-modal-title" id="exportPurchaseTitle">导出采购计划</h2>
+          <p class="export-modal-sub">格式对应积加「采购计划导入产品模板（单仓）」，可直接导入。</p>
+        </div>
+        <button type="button" class="export-modal-close" data-export-close aria-label="关闭">×</button>
+      </div>
+      <div class="export-modal-body">
+        <div class="export-modal-tip">仅导出当前筛选结果中“建议采购数量 &gt; 0”的 SKU。以下为示例预览。</div>
+        <div class="table-wrap">
+          <table class="export-preview-table">
+            <thead>
+              <tr>
+                <th>*MSKU(SKU)</th>
+                <th>平台站点</th>
+                <th>*计划量</th>
+                <th>计划交期</th>
+                <th>备注</th>
+                <th>物流方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>INV-SKU-004</td><td>US</td><td>240</td><td>2026-06-20</td><td>核心款补采</td><td>空运</td></tr>
+              <tr><td>INV-SKU-005</td><td>UK</td><td>160</td><td>2026-06-25</td><td>低库存补采</td><td>海运</td></tr>
+              <tr><td>INV-SKU-006</td><td>US</td><td>120</td><td>2026-06-18</td><td>活动备货</td><td>空运</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="export-modal-tip" style="margin-top: 0.75rem; margin-bottom: 0;">
+          备注：计划量 = 建议采购数量（字段56）；计划交期 = 预计到仓日采购（字段58）。
+        </div>
+      </div>
+      <div class="export-modal-foot">
+        <button type="button" class="btn btn-secondary" data-export-close>关闭</button>
+        <button type="button" class="btn btn-export-purchase">确认导出 3 条</button>
+      </div>
+    </div>
+  </div>
+  <div class="column-config-mask" id="columnConfigMask">
+    <div class="column-config-modal" role="dialog" aria-modal="true" aria-labelledby="columnConfigTitle">
+      <div class="column-config-head">
+        <span class="column-config-title" id="columnConfigTitle">自定义列配置</span>
+        <button type="button" class="column-config-close" data-column-close aria-label="关闭">×</button>
+      </div>
+      <div class="column-config-body">
+        <div class="column-config-tip">按当前栏目配置列表展示字段；保存后影响页面展示与导出字段，实际开发时按用户维度持久化。</div>
+        <div class="column-grid">
+          <label class="column-option"><input type="checkbox" checked />商品基础信息</label>
+          <label class="column-option"><input type="checkbox" checked />汇总库存</label>
+          <label class="column-option"><input type="checkbox" checked />国内库存</label>
+          <label class="column-option"><input type="checkbox" checked />海外在途库存</label>
+          <label class="column-option"><input type="checkbox" checked />海外在库库存</label>
+          <label class="column-option"><input type="checkbox" checked />备货测算字段</label>
+          <label class="column-option"><input type="checkbox" checked />发货测算字段</label>
+          <label class="column-option"><input type="checkbox" checked />联动输出字段</label>
+        </div>
+      </div>
+      <div class="column-config-actions">
+        <button type="button" class="btn btn-secondary" data-column-close>取消</button>
+        <button type="button" class="btn btn-query" id="columnConfigSave">保存配置</button>
+      </div>
+    </div>
+  </div>
+  <div class="column-config-mask" id="productDescMask">
+    <div class="column-config-modal" role="dialog" aria-modal="true" aria-labelledby="productDescTitle">
+      <div class="column-config-head">
+        <span class="column-config-title" id="productDescTitle">产品说明</span>
+        <button type="button" class="column-config-close" data-product-desc-close aria-label="关闭">×</button>
+      </div>
+      <div class="column-config-body">
+        <div class="column-config-tip">发补货看板当前第一个栏目为“库存看板”，产品说明参考商品档案的说明展示方式，用于解释商品基础数据与人工维护字段来源。</div>
+        <ol class="product-desc-list">
+          <li>商品基础信息字段在所有栏目中固定展示，包含站点、店铺、SPU、PID、MSKU、SKU ID、库存 SKU、SKU 名称等。</li>
+          <li>产品基础数据优先来源于 TikTok 在线商品与积加商品主数据，后续补充人工维护字段。</li>
+          <li>库存看板用于展示商品基础信息、汇总库存、国内库存、海外在途库存、海外在库库存等库存现状。</li>
+          <li>备货模型、发货模型会继续复用同一套商品基础信息，并在各自栏目下展开模型测算字段。</li>
+          <li>自定义列配置结果用于控制列表展示字段，并影响后续导出字段范围。</li>
+        </ol>
+      </div>
+      <div class="column-config-actions">
+        <button type="button" class="btn btn-query" data-product-desc-close>我知道了</button>
+      </div>
+    </div>
+  </div>
+  <div class="edit-modal-overlay" id="restockEditModal">
+    <div class="edit-modal-box" role="dialog" aria-modal="true" aria-labelledby="restockEditTitle">
       <div class="edit-modal-header">
-        <span class="edit-modal-title" id="editSpuFactorTitle">编辑SPU 1月到12月系数</span>
-        <button type="button" class="modal-close" id="btnCloseEditSpuFactor" aria-label="关闭">&times;</button>
+        <div>
+          <div class="edit-modal-title" id="restockEditTitle">编辑备货模型字段</div>
+          <div class="export-modal-sub">仅支持编辑“生命周期、是否内容爆发、商务出单占比、剪辑出单占比、VOC值”。</div>
+        </div>
+        <button type="button" class="modal-close" data-restock-edit-close aria-label="关闭">×</button>
       </div>
       <div class="edit-modal-body">
         <div class="edit-base-grid">
           <div class="edit-form-item">
-            <label for="editFactorYear">年份</label>
-            <input type="text" id="editFactorYear" readonly />
+            <label>SPU编码</label>
+            <input type="text" id="restockEditSpu" readonly />
           </div>
           <div class="edit-form-item">
-            <label for="editFactorSite">站点</label>
-            <input type="text" id="editFactorSite" readonly />
+            <label>库存SKU</label>
+            <input type="text" id="restockEditSku" readonly />
           </div>
           <div class="edit-form-item">
-            <label for="editFactorSpu">SPU</label>
-            <input type="text" id="editFactorSpu" readonly />
+            <label>是否内容爆发</label>
+            <select id="restockEditContentBurst">
+              <option value="否">否</option>
+              <option value="是">是</option>
+            </select>
           </div>
           <div class="edit-form-item">
-            <label for="editFactorSpuName">SPU名称</label>
-            <input type="text" id="editFactorSpuName" readonly />
+            <label>生命周期</label>
+            <select id="restockEditLifecycle">
+              <option value="上升期">上升期</option>
+              <option value="平稳期">平稳期</option>
+              <option value="下降期">下降期</option>
+            </select>
+          </div>
+          <div class="edit-form-item">
+            <label>商务出单占比</label>
+            <input type="text" id="restockEditBusinessRatio" placeholder="例如：35%" />
+          </div>
+          <div class="edit-form-item">
+            <label>剪辑出单占比</label>
+            <input type="text" id="restockEditClipRatio" placeholder="例如：20%" />
+          </div>
+          <div class="edit-form-item">
+            <label>VOC值</label>
+            <input type="text" id="restockEditVoc" placeholder="请输入 VOC 值" />
           </div>
         </div>
-        <div class="month-grid">
-          <div class="edit-form-item"><label for="factorMonth1" id="factorMonthLabel1">1月系数</label><input type="number" step="0.01" id="factorMonth1" /></div>
-          <div class="edit-form-item"><label for="factorMonth2" id="factorMonthLabel2">2月系数</label><input type="number" step="0.01" id="factorMonth2" /></div>
-          <div class="edit-form-item"><label for="factorMonth3" id="factorMonthLabel3">3月系数</label><input type="number" step="0.01" id="factorMonth3" /></div>
-          <div class="edit-form-item"><label for="factorMonth4" id="factorMonthLabel4">4月系数</label><input type="number" step="0.01" id="factorMonth4" /></div>
-          <div class="edit-form-item"><label for="factorMonth5" id="factorMonthLabel5">5月系数</label><input type="number" step="0.01" id="factorMonth5" /></div>
-          <div class="edit-form-item"><label for="factorMonth6" id="factorMonthLabel6">6月系数</label><input type="number" step="0.01" id="factorMonth6" /></div>
-          <div class="edit-form-item"><label for="factorMonth7" id="factorMonthLabel7">7月系数</label><input type="number" step="0.01" id="factorMonth7" /></div>
-          <div class="edit-form-item"><label for="factorMonth8" id="factorMonthLabel8">8月系数</label><input type="number" step="0.01" id="factorMonth8" /></div>
-          <div class="edit-form-item"><label for="factorMonth9" id="factorMonthLabel9">9月系数</label><input type="number" step="0.01" id="factorMonth9" /></div>
-          <div class="edit-form-item"><label for="factorMonth10" id="factorMonthLabel10">10月系数</label><input type="number" step="0.01" id="factorMonth10" /></div>
-          <div class="edit-form-item"><label for="factorMonth11" id="factorMonthLabel11">11月系数</label><input type="number" step="0.01" id="factorMonth11" /></div>
-          <div class="edit-form-item"><label for="factorMonth12" id="factorMonthLabel12">12月系数</label><input type="number" step="0.01" id="factorMonth12" /></div>
-        </div>
-        <div class="edit-form-tip">当前原型支持按 SPU 维护 1-12 月系数，用于后续预估日均测算。保存后会同步刷新列表中的更新时间。</div>
+        <div class="edit-form-tip">保存后用于备货模型人工修正示意；正式开发时按库存 SKU 维度落库并刷新当前行。</div>
       </div>
       <div class="edit-modal-actions">
-        <button type="button" class="btn btn-secondary" id="btnCancelEditSpuFactor">取消</button>
-        <button type="button" class="btn btn-query" id="btnSaveSpuFactor">保存</button>
+        <button type="button" class="btn btn-secondary" data-restock-edit-close>取消</button>
+        <button type="button" class="btn btn-query" id="restockEditSave">保存</button>
       </div>
     </div>
   </div>
+  <div class="toast" id="toast">已保存自定义列配置</div>
 
   <script>
     (function() {
-      var regionTree = [
-        { name: '欧洲', children: [
-          { label: '德国', code: 'DE' },
-          { label: '西班牙', code: 'ES' },
-          { label: '法国', code: 'FR' },
-          { label: '意大利', code: 'IT' }
-        ]},
-        { name: '北美洲', children: [{ label: '美国', code: 'US' }] },
-        { name: '其它', children: [{ label: 'Global', code: 'Global' }] }
-      ];
-      var codeToStores = {
-        DE: ['美国 TK・艾斯特尼 - 欧洲直邮店 DE'],
-        ES: ['美国 TK・艾斯特尼 - 欧洲直邮店 ES'],
-        FR: ['美国 TK・艾斯特尼 - 欧洲直邮店 FR'],
-        IT: ['美国 TK・艾斯特尼 - 欧洲直邮店 IT'],
-        US: ['美国 TK・艾斯特尼 - 美区特 1 店 US', '美国 TK・艾斯特尼 - 美区特 2 店 US', '美国 TK・艾斯特尼 - 美区特 3 店 US'],
-        Global: ['美国TK独立站-shopify:Global']
-      };
-      var siteCodeToLabel = { DE: '德国站点', ES: '西班牙站点', FR: '法国站点', IT: '意大利站点', US: '美国站点', Global: 'Global站点' };
-      var cascadeSelection = { region: '', country: '', stores: [] };
-      var spuMonthFactorData = [
-        { year: 2025, site: '美国站点', spu: 'AL-W0161', spuName: 'Women Lounge Set', months: [0.88, 0.85, 0.90, 0.96, 1.01, 1.08, 1.14, 1.10, 0.99, 0.95, 0.92, 0.89], updatedAt: '2025-12-28 18:12:05' },
-        { year: 2025, site: '德国站点', spu: 'AL-W0180', spuName: 'Women Knit Dress', months: [0.79, 0.82, 0.88, 0.95, 1.00, 1.05, 1.11, 1.08, 0.97, 0.92, 0.87, 0.83], updatedAt: '2025-12-28 18:15:40' },
-        { year: 2026, site: '美国站点', spu: 'AL-W0161', spuName: 'Women Lounge Set', months: [0.92, 0.88, 0.95, 1.00, 1.06, 1.12, 1.18, 1.15, 1.02, 0.98, 0.94, 0.90], updatedAt: '2026-04-12 16:10:08' },
-        { year: 2026, site: '美国站点', spu: 'AL-M2301', spuName: 'Men Running Set', months: [0.97, 0.94, 0.99, 1.03, 1.08, 1.14, 1.20, 1.17, 1.05, 1.01, 0.96, 0.93], updatedAt: '2026-04-12 16:10:08' },
-        { year: 2026, site: '德国站点', spu: 'AL-W0180', spuName: 'Women Knit Dress', months: [0.84, 0.86, 0.92, 0.98, 1.03, 1.07, 1.12, 1.10, 1.01, 0.95, 0.90, 0.87], updatedAt: '2026-04-13 09:32:41' },
-        { year: 2026, site: '法国站点', spu: 'AL-W0169', spuName: 'Women Yoga Romper', months: [0.89, 0.91, 0.96, 1.01, 1.05, 1.10, 1.14, 1.11, 1.00, 0.97, 0.92, 0.88], updatedAt: '2026-04-13 09:32:41' },
-        { year: 2026, site: '意大利站点', spu: 'AL-W5558', spuName: 'Women Summer Jumpsuit', months: [0.81, 0.83, 0.88, 0.95, 1.02, 1.08, 1.16, 1.13, 1.03, 0.96, 0.91, 0.86], updatedAt: '2026-04-13 09:32:41' },
-        { year: 2026, site: 'Global站点', spu: 'ALYMX-DROPSW', spuName: 'Dropship Warm Set', months: [0.93, 0.90, 0.96, 1.02, 1.07, 1.11, 1.15, 1.12, 1.04, 0.99, 0.95, 0.92], updatedAt: '2026-04-13 10:18:27' }
-      ];
-      var editingSpuFactorRecord = null;
-
-      function escapeHtml(v) {
-        return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-      }
-
-      function getNowDateTime() {
-        var d = new Date();
-        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') + ' ' +
-          String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ':' + String(d.getSeconds()).padStart(2, '0');
-      }
-
-      function initCascade() {
-        var trigger = document.getElementById('cascadeTrigger');
-        var panel = document.getElementById('cascadePanel');
-        var left = document.getElementById('cascadeLeft');
-        var right = document.getElementById('cascadeRight');
-        var activeIdx = -1;
-
-        function renderLeft() {
-          left.innerHTML = regionTree.map(function(region, idx) {
-            return '<div class="cl-item" data-idx="' + idx + '"><span>' + region.name + '</span><button type="button" class="only-btn" data-idx="' + idx + '">仅选此项</button><span class="arrow">›</span></div>';
-          }).join('');
-        }
-
-        function renderRight(idx) {
-          if (idx < 0 || idx >= regionTree.length) {
-            right.innerHTML = '';
-            return;
-          }
-          right.innerHTML = regionTree[idx].children.map(function(country) {
-            return '<div class="cr-item" data-code="' + country.code + '">' + country.label + '</div>';
-          }).join('');
-        }
-
-        function closePanel() {
-          panel.classList.remove('open');
-          trigger.classList.remove('open');
-          activeIdx = -1;
-        }
-
-        function setSelection(region, country, stores, label) {
-          cascadeSelection = { region: region, country: country, stores: stores };
-          if (label) {
-            trigger.innerHTML = '<span class="tag">' + label + '<span class="tag-close" id="cascadeClear">&times;</span></span>';
-            document.getElementById('cascadeClear').addEventListener('click', function(e) {
-              e.stopPropagation();
-              setSelection('', '', [], '');
-            });
-          } else {
-            trigger.innerHTML = '<span class="placeholder">请选择</span>';
-          }
-          closePanel();
-        }
-
-        renderLeft();
-
-        left.addEventListener('mouseover', function(e) {
-          var item = e.target.closest('.cl-item');
-          if (!item) return;
-          var idx = parseInt(item.getAttribute('data-idx'), 10);
-          if (idx === activeIdx) return;
-          activeIdx = idx;
-          left.querySelectorAll('.cl-item').forEach(function(el, i) {
-            el.classList.toggle('active', i === idx);
-          });
-          renderRight(idx);
-        });
-
-        left.addEventListener('click', function(e) {
-          var btn = e.target.closest('.only-btn');
-          if (!btn) return;
-          e.stopPropagation();
-          var idx = parseInt(btn.getAttribute('data-idx'), 10);
-          var region = regionTree[idx];
-          var stores = [];
-          region.children.forEach(function(country) {
-            stores = stores.concat(codeToStores[country.code] || []);
-          });
-          stores = Array.from(new Set(stores));
-          setSelection(region.name, '', stores, region.name);
-        });
-
-        right.addEventListener('click', function(e) {
-          var item = e.target.closest('.cr-item');
-          if (!item) return;
-          var code = item.getAttribute('data-code');
-          var regionName = activeIdx >= 0 ? regionTree[activeIdx].name : '';
-          setSelection(regionName, code, codeToStores[code] || [], regionName + ' / ' + item.textContent);
-        });
-
-        trigger.addEventListener('click', function() {
-          panel.classList.toggle('open');
-          trigger.classList.toggle('open');
-        });
-
-        document.addEventListener('click', function(e) {
-          if (!document.getElementById('cascadeWrap').contains(e.target)) closePanel();
-        });
-
-        window._resetCascadeStore = function() {
-          setSelection('', '', [], '');
-        };
-      }
-
-      function initFactorSiteOptions() {
-        var sel = document.getElementById('factorSite');
-        if (!sel) return;
-        var siteLabels = Object.keys(codeToStores).map(function(code) { return siteCodeToLabel[code]; });
-        sel.innerHTML = '<option value="">全部站点</option>' + siteLabels.map(function(site) {
-          return '<option value="' + escapeHtml(site) + '">' + escapeHtml(site) + '</option>';
-        }).join('');
-      }
-
-      function initFactorYearOptions() {
-        var sel = document.getElementById('factorYear');
-        if (!sel) return;
-        var years = Array.from(new Set(spuMonthFactorData.map(function(item) { return String(item.year); }))).sort();
-        sel.innerHTML = '<option value="">全部年份</option>' + years.map(function(year) {
-          return '<option value="' + escapeHtml(year) + '">' + escapeHtml(year) + '</option>';
-        }).join('');
-      }
-
-      function getSelectedFactorYear() {
-        var year = (document.getElementById('factorYear').value || '').trim();
-        if (year) return year;
-        if (spuMonthFactorData.length) return String(spuMonthFactorData[spuMonthFactorData.length - 1].year);
-        return '';
-      }
-
-      function syncFactorMonthHeaders() {
-        for (var i = 1; i <= 12; i++) {
-          var th = document.getElementById('factorMonthHead' + i);
-          if (th) th.textContent = i + '月系数';
-        }
-      }
-
-      function syncEditMonthLabels(year) {
-        var title = document.getElementById('editSpuFactorTitle');
-        if (title) title.textContent = year ? ('编辑SPU 1月到12月系数（' + year + '年）') : '编辑SPU 1月到12月系数';
-        for (var i = 1; i <= 12; i++) {
-          var label = document.getElementById('factorMonthLabel' + i);
-          if (label) label.textContent = (year ? year + '年' : '') + i + '月系数';
-        }
-      }
-
-      function getSelectedSiteLabel() {
-        if (!cascadeSelection.country) return '';
-        return siteCodeToLabel[cascadeSelection.country] || '';
-      }
-
-      function getFilteredSpuFactorData() {
-        var year = (document.getElementById('factorYear').value || '').trim();
-        var site = (document.getElementById('factorSite').value || '').trim();
-        var spuKeyword = (document.getElementById('factorSpuKeyword').value || '').trim().toLowerCase();
-        return spuMonthFactorData.filter(function(item) {
-          if (year && String(item.year) !== year) return false;
-          if (site && item.site !== site) return false;
-          if (spuKeyword) {
-            var hitSpu = item.spu.toLowerCase().indexOf(spuKeyword) !== -1;
-            var hitName = item.spuName.toLowerCase().indexOf(spuKeyword) !== -1;
-            if (!hitSpu && !hitName) return false;
-          }
-          return true;
-        });
-      }
-
-      function renderSpuFactorTable() {
-        var rows = getFilteredSpuFactorData();
-        var tbody = document.getElementById('spuFactorBody');
-        var summary = document.getElementById('factorSummary');
-        syncFactorMonthHeaders();
-        if (summary) summary.textContent = '共 ' + rows.length + ' 条记录';
-        if (!tbody) return;
-        if (!rows.length) {
-          tbody.innerHTML = '<tr><td colspan="18" class="manage-empty">未匹配到符合条件的 SPU 月度系数记录</td></tr>';
-          return;
-        }
-        tbody.innerHTML = rows.map(function(item) {
-          var monthCells = item.months.map(function(val) { return '<td class="num">' + Number(val).toFixed(2) + '</td>'; }).join('');
-          return '<tr>' +
-            '<td>' + escapeHtml(item.year) + '</td>' +
-            '<td>' + escapeHtml(item.site) + '</td>' +
-            '<td>' + escapeHtml(item.spu) + '</td>' +
-            '<td>' + escapeHtml(item.spuName) + '</td>' +
-            monthCells +
-            '<td>' + escapeHtml(item.updatedAt) + '</td>' +
-            '<td><button type="button" class="manage-action-btn" data-site="' + escapeHtml(item.site) + '" data-spu="' + escapeHtml(item.spu) + '">编辑</button></td>' +
-            '</tr>';
-        }).join('');
-      }
-
-      function openSpuFactorModal() {
-        var currentSite = getSelectedSiteLabel();
-        var year = getSelectedFactorYear();
-        if (year) document.getElementById('factorYear').value = year;
-        if (currentSite) document.getElementById('factorSite').value = currentSite;
-        renderSpuFactorTable();
-        document.getElementById('spuFactorModal').classList.add('visible');
-      }
-
-      function closeSpuFactorModal() {
-        document.getElementById('spuFactorModal').classList.remove('visible');
-      }
-
-      function openEditSpuFactorModal(record) {
-        if (!record) return;
-        editingSpuFactorRecord = record;
-        document.getElementById('editFactorYear').value = record.year;
-        document.getElementById('editFactorSite').value = record.site;
-        document.getElementById('editFactorSpu').value = record.spu;
-        document.getElementById('editFactorSpuName').value = record.spuName;
-        syncEditMonthLabels(record.year);
-        record.months.forEach(function(val, idx) {
-          var input = document.getElementById('factorMonth' + (idx + 1));
-          if (input) input.value = Number(val).toFixed(2);
-        });
-        document.getElementById('editSpuFactorModal').classList.add('visible');
-      }
-
-      function closeEditSpuFactorModal() {
-        editingSpuFactorRecord = null;
-        document.getElementById('editSpuFactorModal').classList.remove('visible');
-      }
-
-      var exactSearchDraft = '';
-      var exactSearchApplied = '';
-
-      function normalizeExactSearchLines(raw) {
-        var seen = {};
-        var result = [];
-        String(raw || '').split(/\r?\n/).forEach(function(line) {
-          var value = line.trim();
-          if (!value || result.length >= 500) return;
-          var key = value.toLowerCase();
-          if (seen[key]) return;
-          seen[key] = true;
-          result.push(value);
-        });
-        return result;
-      }
-
-      function updateExactSearchPreview() {
-        var preview = document.getElementById('searchExactPreview');
-        var count = document.getElementById('searchExactCount');
-        var lines = normalizeExactSearchLines(exactSearchDraft);
-        if (count) count.textContent = lines.length + '/500行';
-        if (!preview) return;
-        if (!lines.length) {
-          preview.textContent = '请输入';
-          preview.classList.add('placeholder');
-          return;
-        }
-        preview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
-        preview.classList.remove('placeholder');
-      }
-
-      function closeExactSearchPanel(restoreDraft) {
-        var panel = document.getElementById('searchExactPanel');
-        var trigger = document.getElementById('searchExactTrigger');
-        var textarea = document.getElementById('qSearchExactVal');
-        if (!panel || !trigger || !textarea) return;
-        if (restoreDraft) {
-          exactSearchDraft = exactSearchApplied;
-          textarea.value = exactSearchDraft;
-        }
-        panel.classList.remove('open');
-        trigger.classList.remove('active');
-        updateExactSearchPreview();
-      }
-
-      function openExactSearchPanel() {
-        var panel = document.getElementById('searchExactPanel');
-        var trigger = document.getElementById('searchExactTrigger');
-        var textarea = document.getElementById('qSearchExactVal');
-        if (!panel || !trigger || !textarea) return;
-        exactSearchDraft = exactSearchApplied;
-        textarea.value = exactSearchDraft;
-        updateExactSearchPreview();
-        panel.classList.add('open');
-        trigger.classList.add('active');
-        setTimeout(function() { textarea.focus(); }, 0);
-      }
-
-      function syncSearchModeUI() {
-        var mode = (document.getElementById('qSearchMode') && document.getElementById('qSearchMode').value) || 'fuzzy';
-        var fuzzyInput = document.getElementById('qSearchVal');
-        var exactWrap = document.getElementById('searchExactTriggerWrap');
-        if (fuzzyInput) fuzzyInput.style.display = mode === 'exact' ? 'none' : '';
-        if (exactWrap) exactWrap.classList.toggle('active', mode === 'exact');
-        closeExactSearchPanel(true);
-      }
-
-      initCascade();
-      initFactorSiteOptions();
-      initFactorYearOptions();
-      syncFactorMonthHeaders();
-      syncEditMonthLabels('');
-
-      var tabs = document.querySelectorAll('#viewTabs .tab');
-      var panels = {
-        spu: document.getElementById('view-spu'),
-        all: document.getElementById('view-all'),
-        ship: document.getElementById('view-ship'),
-        restock: document.getElementById('view-restock')
-      };
-
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('#moduleTabs .tab'));
+      var panels = Array.prototype.slice.call(document.querySelectorAll('.view-panel'));
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
-          var view = tab.getAttribute('data-view');
-          tabs.forEach(function(item) { item.classList.remove('active'); });
-          tab.classList.add('active');
-          Object.keys(panels).forEach(function(key) {
-            panels[key].classList.toggle('active', key === view);
-          });
-          var keywordType = document.getElementById('qKeywordType');
-          if (view === 'spu') {
-            keywordType.innerHTML = '<option value="SPU">SPU</option>';
-          } else {
-            keywordType.innerHTML = '<option value="SKU">SKU</option><option value="SPU">SPU</option>';
-          }
+          var target = tab.getAttribute('data-target');
+          tabs.forEach(function(item) { item.classList.toggle('active', item === tab); });
+          panels.forEach(function(panel) { panel.classList.toggle('active', panel.id === target); });
         });
       });
-
-      document.getElementById('qSearchMode').addEventListener('change', function() {
-        syncSearchModeUI();
+      var tooltip = document.getElementById('fieldTooltip');
+      Array.prototype.slice.call(document.querySelectorAll('.field-help')).forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+          if (!tooltip) return;
+          tooltip.textContent = el.getAttribute('data-tip') || '';
+          var rect = el.getBoundingClientRect();
+          tooltip.style.left = Math.min(rect.left, window.innerWidth - 360) + 'px';
+          tooltip.style.top = (rect.bottom + 8) + 'px';
+          tooltip.classList.add('visible');
+        });
+        el.addEventListener('mouseleave', function() { if (tooltip) tooltip.classList.remove('visible'); });
       });
-      document.getElementById('searchExactTrigger').addEventListener('click', function(e) {
-        e.stopPropagation();
-        var panel = document.getElementById('searchExactPanel');
-        if (panel && panel.classList.contains('open')) closeExactSearchPanel(true);
-        else openExactSearchPanel();
+      function bindExportModal(buttonId, modalId) {
+        var button = document.getElementById(buttonId);
+        var modal = document.getElementById(modalId);
+        if (!button || !modal) return;
+        function closeExportModal() { modal.classList.remove('open'); }
+        button.addEventListener('click', function() { modal.classList.add('open'); });
+        Array.prototype.slice.call(modal.querySelectorAll('[data-export-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeExportModal);
+        });
+        modal.addEventListener('click', function(event) {
+          if (event.target === modal) closeExportModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') closeExportModal();
+        });
+      }
+      bindExportModal('exportTransferBtn', 'exportTransferModal');
+      bindExportModal('exportPurchaseBtn', 'exportPurchaseModal');
+      var columnConfigMask = document.getElementById('columnConfigMask');
+      var toast = document.getElementById('toast');
+      function closeColumnConfig() {
+        if (columnConfigMask) columnConfigMask.classList.remove('open');
+      }
+      function showToast(text) {
+        if (!toast) return;
+        if (text) toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 1400);
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.btn-column-config')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (columnConfigMask) columnConfigMask.classList.add('open');
+        });
       });
-      document.getElementById('qSearchExactVal').addEventListener('input', function() {
-        exactSearchDraft = this.value;
-        updateExactSearchPreview();
+      if (columnConfigMask) {
+        Array.prototype.slice.call(columnConfigMask.querySelectorAll('[data-column-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeColumnConfig);
+        });
+        columnConfigMask.addEventListener('click', function(event) {
+          if (event.target === columnConfigMask) closeColumnConfig();
+        });
+      }
+      var columnConfigSave = document.getElementById('columnConfigSave');
+      if (columnConfigSave) {
+        columnConfigSave.addEventListener('click', function() {
+          closeColumnConfig();
+          showToast('已保存自定义列配置');
+        });
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.export-data-source-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          showToast('导出全部数据：包含库存看板、备货模型、发货模型三个栏目的所有字段数据');
+        });
       });
-      document.getElementById('btnExactClear').addEventListener('click', function() {
-        exactSearchDraft = '';
-        document.getElementById('qSearchExactVal').value = '';
-        updateExactSearchPreview();
+      Array.prototype.slice.call(document.querySelectorAll('[data-alert-filter]')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var filterType = btn.getAttribute('data-alert-filter');
+          var message = filterType === 'overseas-low-days'
+            ? '已筛选：海外可售天数低于安全库存的 3 个 SKU'
+            : '已筛选：国内库存不足无法发货，需加急采购 + 空派的 2 个 SKU';
+          showToast(message);
+        });
       });
-      document.getElementById('btnExactCancel').addEventListener('click', function() {
-        closeExactSearchPanel(true);
+      var productDescMask = document.getElementById('productDescMask');
+      function closeProductDesc() {
+        if (productDescMask) productDescMask.classList.remove('open');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.product-desc-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (productDescMask) productDescMask.classList.add('open');
+        });
       });
-      document.getElementById('btnExactApply').addEventListener('click', function() {
-        exactSearchApplied = normalizeExactSearchLines(document.getElementById('qSearchExactVal').value).join('\n');
-        exactSearchDraft = exactSearchApplied;
-        closeExactSearchPanel(false);
+      if (productDescMask) {
+        Array.prototype.slice.call(productDescMask.querySelectorAll('[data-product-desc-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeProductDesc);
+        });
+        productDescMask.addEventListener('click', function(event) {
+          if (event.target === productDescMask) closeProductDesc();
+        });
+      }
+      var restockEditModal = document.getElementById('restockEditModal');
+      var restockEditSpu = document.getElementById('restockEditSpu');
+      var restockEditSku = document.getElementById('restockEditSku');
+      var restockEditContentBurst = document.getElementById('restockEditContentBurst');
+      var restockEditLifecycle = document.getElementById('restockEditLifecycle');
+      var restockEditBusinessRatio = document.getElementById('restockEditBusinessRatio');
+      var restockEditClipRatio = document.getElementById('restockEditClipRatio');
+      var restockEditVoc = document.getElementById('restockEditVoc');
+      function closeRestockEdit() {
+        if (restockEditModal) restockEditModal.classList.remove('visible');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.restock-edit-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (!restockEditModal) return;
+          if (restockEditSpu) restockEditSpu.value = btn.getAttribute('data-spu') || '';
+          if (restockEditSku) restockEditSku.value = btn.getAttribute('data-sku') || '';
+          if (restockEditContentBurst) restockEditContentBurst.value = btn.getAttribute('data-content-burst') || '否';
+          if (restockEditLifecycle) restockEditLifecycle.value = btn.getAttribute('data-lifecycle') || '平稳期';
+          if (restockEditBusinessRatio) restockEditBusinessRatio.value = btn.getAttribute('data-business-ratio') || '';
+          if (restockEditClipRatio) restockEditClipRatio.value = btn.getAttribute('data-clip-ratio') || '';
+          if (restockEditVoc) restockEditVoc.value = btn.getAttribute('data-voc') || '';
+          restockEditModal.classList.add('visible');
+        });
       });
-      document.addEventListener('click', function(e) {
-        var panel = document.getElementById('searchExactPanel');
-        var wrap = document.getElementById('searchExactTriggerWrap');
-        if (!panel || !wrap || !panel.classList.contains('open')) return;
-        if (wrap.contains(e.target)) return;
-        closeExactSearchPanel(true);
-      });
-
-      document.getElementById('btnReset').addEventListener('click', function() {
-        if (window._resetCascadeStore) window._resetCascadeStore();
-        document.getElementById('qKeywordType').selectedIndex = 0;
-        document.getElementById('qSearchMode').value = 'fuzzy';
-        document.getElementById('qSearchVal').value = '';
-        exactSearchDraft = '';
-        exactSearchApplied = '';
-        document.getElementById('qSearchExactVal').value = '';
-        syncSearchModeUI();
-      });
-
-      document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
-        alert('数据统计说明：\n1. SPU冗余检视基于发货+补货总和底表按 SPU 聚合。\n2. 重点展示现有库存、加权日销、未来四个月预估日均和月底冗余量。\n3. 用于判断 SPU 冗余和消化风险。');
-      });
-
-      document.getElementById('btnMetricHelpAll').addEventListener('click', function() {
-        alert('数据统计说明：\n1. 发货+补货总和为统一底表。\n2. 同时承载补货和发货两个场景的公共字段。\n3. 重点字段包括库存结构、销量结构、加权日销、所需总库存和预计断货天数。');
-      });
-
-      document.getElementById('btnMetricHelpShip').addEventListener('click', function() {
-        alert('数据统计说明：\n1. 发货视图基于统一底表中的发货字段。\n2. 重点输出需要发货的数量、FBT实际要发库存、海派到货前缺口和可调拨量。\n3. 用于支持发货决策。');
-      });
-
-      document.getElementById('btnMetricHelpRestock').addEventListener('click', function() {
-        alert('数据统计说明：\n1. 补货视图基于统一底表中的补货字段。\n2. 重点输出所需总库存、需要采购的数量、需要采购的数量-实际和预计断货天数。\n3. 用于支持补货决策。');
-      });
-
-      document.getElementById('btnManageSpuMonthFactor').addEventListener('click', openSpuFactorModal);
-      document.getElementById('btnCloseSpuFactorModal').addEventListener('click', closeSpuFactorModal);
-      document.getElementById('spuFactorModal').addEventListener('click', function(e) {
-        if (e.target === this) closeSpuFactorModal();
-      });
-      document.getElementById('btnQuerySpuFactor').addEventListener('click', renderSpuFactorTable);
-      document.getElementById('btnResetSpuFactor').addEventListener('click', function() {
-        document.getElementById('factorYear').value = '';
-        document.getElementById('factorSite').value = '';
-        document.getElementById('factorSpuKeyword').value = '';
-        renderSpuFactorTable();
-      });
-      document.getElementById('spuFactorBody').addEventListener('click', function(e) {
-        var btn = e.target.closest('.manage-action-btn');
-        if (!btn) return;
-        var site = btn.getAttribute('data-site');
-        var spu = btn.getAttribute('data-spu');
-        var record = spuMonthFactorData.find(function(item) { return item.site === site && item.spu === spu; });
-        openEditSpuFactorModal(record);
-      });
-      document.getElementById('btnCloseEditSpuFactor').addEventListener('click', closeEditSpuFactorModal);
-      document.getElementById('btnCancelEditSpuFactor').addEventListener('click', closeEditSpuFactorModal);
-      document.getElementById('editSpuFactorModal').addEventListener('click', function(e) {
-        if (e.target === this) closeEditSpuFactorModal();
-      });
-      document.getElementById('btnSaveSpuFactor').addEventListener('click', function() {
-        if (!editingSpuFactorRecord) return;
-        var months = [];
-        for (var i = 1; i <= 12; i++) {
-          var val = parseFloat(document.getElementById('factorMonth' + i).value);
-          if (isNaN(val)) {
-            alert('请填写完整的 1-12 月系数');
-            return;
-          }
-          months.push(val);
-        }
-        editingSpuFactorRecord.months = months;
-        editingSpuFactorRecord.updatedAt = getNowDateTime();
-        renderSpuFactorTable();
-        closeEditSpuFactorModal();
-        alert('SPU 月度系数已更新');
-      });
-
+      if (restockEditModal) {
+        Array.prototype.slice.call(restockEditModal.querySelectorAll('[data-restock-edit-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeRestockEdit);
+        });
+        restockEditModal.addEventListener('click', function(event) {
+          if (event.target === restockEditModal) closeRestockEdit();
+        });
+      }
+      var restockEditSave = document.getElementById('restockEditSave');
+      if (restockEditSave) {
+        restockEditSave.addEventListener('click', function() {
+          closeRestockEdit();
+          showToast('已保存备货模型编辑内容');
+        });
+      }
       function parseNumericCell(text) {
         var raw = String(text || '').trim();
-        if (!raw || raw === '—' || raw === '待确认') return null;
-        var normalized = raw.replace(/,/g, '');
+        if (!raw || raw === '—' || raw === '-' || raw === '待确认') return null;
+        var normalized = raw.replace(/,/g, '').replace(/%$/, '');
         var num = Number(normalized);
         return isNaN(num) ? null : num;
       }
-
+      function isNumericColumn(tbody, columnIndex) {
+        var hasNumericValue = false;
+        return Array.prototype.every.call(tbody.rows, function(row) {
+          var cell = row.cells[columnIndex];
+          if (!cell || cell.querySelector('button, input, select, textarea')) return false;
+          var value = parseNumericCell(cell.textContent);
+          if (value == null) return false;
+          hasNumericValue = true;
+          return true;
+        }) && hasNumericValue;
+      }
       function initNumericTableSort(table) {
         if (!table || !table.tHead || !table.tBodies || !table.tBodies[0]) return;
         var tbody = table.tBodies[0];
@@ -1889,25 +2278,22 @@
         var sortRow = headerRows[headerRows.length - 1];
         if (!sortRow) return;
 
-        Array.prototype.forEach.call(sortRow.cells, function(th, idx) {
-          if (th.className.indexOf('sticky-col-') !== -1) return;
-          var hasNumericCell = Array.prototype.some.call(tbody.rows, function(row) {
-            var cell = row.cells[idx];
-            return cell && cell.className.indexOf('num') !== -1;
-          });
-          if (!hasNumericCell) return;
-
+        Array.prototype.forEach.call(sortRow.cells, function(th, index) {
+          if (th.className.indexOf('sticky-base') !== -1) return;
+          if (!isNumericColumn(tbody, index)) return;
           th.classList.add('sortable-num');
           th.dataset.sortState = '';
+          Array.prototype.forEach.call(tbody.rows, function(row) {
+            if (row.cells[index]) row.cells[index].classList.add('num');
+          });
           if (!th.querySelector('.sort-trigger')) {
             var trigger = document.createElement('span');
             trigger.className = 'sort-trigger';
             trigger.textContent = '⇅';
             th.appendChild(trigger);
           }
-
-          th.querySelector('.sort-trigger').addEventListener('click', function(e) {
-            e.stopPropagation();
+          th.querySelector('.sort-trigger').addEventListener('click', function(event) {
+            event.stopPropagation();
             var nextState = th.dataset.sortState === 'asc' ? 'desc' : (th.dataset.sortState === 'desc' ? '' : 'asc');
             Array.prototype.forEach.call(sortRow.cells, function(cell) {
               cell.dataset.sortState = '';
@@ -1916,89 +2302,32 @@
               if (cellTrigger) cellTrigger.textContent = '⇅';
             });
             th.dataset.sortState = nextState;
-            var trigger = th.querySelector('.sort-trigger');
+            var currentTrigger = th.querySelector('.sort-trigger');
             if (nextState) {
               th.classList.add(nextState === 'asc' ? 'sort-asc' : 'sort-desc');
-              if (trigger) trigger.textContent = nextState === 'asc' ? '↑' : '↓';
+              if (currentTrigger) currentTrigger.textContent = nextState === 'asc' ? '↑' : '↓';
             }
-
-            var totalRow = tbody.querySelector('tr.row-total');
-            var rows = Array.prototype.slice.call(tbody.rows).filter(function(row) {
-              return row !== totalRow;
-            }).map(function(row, originalIndex) {
+            var rows = Array.prototype.slice.call(tbody.rows).map(function(row, originalIndex) {
               return { row: row, originalIndex: originalIndex };
             });
-
             if (!nextState) {
               rows.sort(function(a, b) { return a.originalIndex - b.originalIndex; });
             } else {
               rows.sort(function(a, b) {
-                var av = parseNumericCell(a.row.cells[idx] ? a.row.cells[idx].textContent : '');
-                var bv = parseNumericCell(b.row.cells[idx] ? b.row.cells[idx].textContent : '');
-                var aNull = av == null;
-                var bNull = bv == null;
-                if (aNull && bNull) return a.originalIndex - b.originalIndex;
-                if (aNull) return 1;
-                if (bNull) return -1;
-                var result = av - bv;
-                if (result === 0) return a.originalIndex - b.originalIndex;
-                return nextState === 'asc' ? result : -result;
+                var aValue = parseNumericCell(a.row.cells[index] ? a.row.cells[index].textContent : '');
+                var bValue = parseNumericCell(b.row.cells[index] ? b.row.cells[index].textContent : '');
+                if (aValue == null && bValue == null) return a.originalIndex - b.originalIndex;
+                if (aValue == null) return 1;
+                if (bValue == null) return -1;
+                if (aValue === bValue) return a.originalIndex - b.originalIndex;
+                return nextState === 'asc' ? aValue - bValue : bValue - aValue;
               });
             }
-
             rows.forEach(function(item) { tbody.appendChild(item.row); });
-            if (totalRow) tbody.appendChild(totalRow);
           });
         });
       }
-
-      function appendTableTotalRow(table) {
-        if (!table || !table.tBodies || !table.tBodies[0]) return;
-        var tbody = table.tBodies[0];
-        var sourceRows = Array.prototype.slice.call(tbody.rows).filter(function(row) {
-          return !row.classList.contains('row-total');
-        });
-        if (!sourceRows.length) return;
-        var firstRow = sourceRows[0];
-        var totalRow = document.createElement('tr');
-        totalRow.className = 'row-total';
-
-        Array.prototype.forEach.call(firstRow.cells, function(_, idx) {
-          var td = document.createElement('td');
-          td.className = firstRow.cells[idx].className || '';
-          if (idx === 0) {
-            td.textContent = '合计';
-          } else {
-            var hasNumericCell = sourceRows.some(function(row) {
-              return row.cells[idx] && row.cells[idx].className.indexOf('num') !== -1;
-            });
-            if (hasNumericCell) {
-              var sum = 0;
-              var hasValue = false;
-              sourceRows.forEach(function(row) {
-                var cell = row.cells[idx];
-                if (!cell || cell.className.indexOf('num') === -1) return;
-                var num = parseNumericCell(cell.textContent);
-                if (num == null) return;
-                sum += num;
-                hasValue = true;
-              });
-              if (hasValue) {
-                td.textContent = Number.isInteger(sum) ? String(sum) : sum.toFixed(2);
-                if (td.className.indexOf('num') === -1) td.className += (td.className ? ' ' : '') + 'num';
-              }
-            }
-          }
-          totalRow.appendChild(td);
-        });
-
-        tbody.appendChild(totalRow);
-      }
-
-      document.querySelectorAll('.view-panel table').forEach(appendTableTotalRow);
-      document.querySelectorAll('.view-panel table').forEach(initNumericTableSort);
-      syncSearchModeUI();
-      updateExactSearchPreview();
+      Array.prototype.slice.call(document.querySelectorAll('.dashboard-table')).forEach(initNumericTableSort);
     })();
   </script>
 </body>

@@ -347,10 +347,12 @@
         <li>1、新增 <code>SKU看板</code> Tab，放在 <code>PID明细</code> 后面。</li>
         <li>2、SKU看板字段：店铺名、SPU、PID、SKU编码、SKU产品中文名、颜色、尺码、积加SPU中文名称、小计、平均值、环比、每日销量；SPU 不合并、不展示 SPU 合计行。</li>
         <li>3、筛选区新增 <code>SKU</code> 搜索项，其他筛选功能沿用原商品统计。</li>
-        <li>4、增加导出功能，导出字段随当前维度变化。</li>
-        <li>5、增加导出图片功能，用于保存当前查询结果截图。</li>
-        <li>6、不需要每天播报。</li>
-        <li>7、颜色、尺码由 SKU 名称拆分展示；“积加SPU中文名称”即原父产品中文名。</li>
+        <li>4、店铺内容不再做单元格合并，店铺名平铺到每一行，便于复制、导出和逐行核对。</li>
+        <li>5、PID明细中的 SPU 不再做单元格合并，SPU 平铺到每一行，和店铺名展示方式保持一致。</li>
+        <li>6、增加导出功能，导出字段随当前维度变化。</li>
+        <li>7、增加导出图片功能，用于保存当前查询结果截图。</li>
+        <li>8、不需要每天播报。</li>
+        <li>9、颜色、尺码由 SKU 名称拆分展示；“积加SPU中文名称”即原父产品中文名。</li>
       </ul>
     </div>
 
@@ -832,12 +834,9 @@
 
         var html = '';
         if (curView === 'spu') {
-          var spuRowCount = groups.length + 1;
-          groups.forEach(function(group, gidx) {
+          groups.forEach(function(group) {
             html += '<tr class="spu-row">';
-            if (gidx === 0) {
-              html += '<td class="sticky-col-1" rowspan="' + spuRowCount + '">' + data.name + '</td>';
-            }
+            html += '<td class="sticky-col-1">' + data.name + '</td>';
             html += '<td class="sticky-col-2"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span></span></td>';
             html += '<td class="sticky-col-3" style="font-weight:600;">' + group.totalSub + '</td>';
             html += '<td class="sticky-col-4" style="font-weight:600;">' + group.totalAvg + '</td>';
@@ -901,15 +900,10 @@
           storeT2 = storeTotals.length >= 2 ? storeTotals[storeTotals.length - 2] : 0;
           storeDiffStr = fmtChainRatio(storeT1, storeT2);
 
-          var skuTotalRowCount = skuRows.length + 1;
-          var skuFirstRow = true;
           skuGroups.forEach(function(group) {
             group.rows.forEach(function(row) {
               html += '<tr>';
-              if (skuFirstRow) {
-                html += '<td class="sku-sticky sku-sticky-1" rowspan="' + skuTotalRowCount + '">' + data.name + '</td>';
-                skuFirstRow = false;
-              }
+              html += '<td class="sku-sticky sku-sticky-1">' + data.name + '</td>';
               html += '<td class="sku-sticky sku-sticky-2"><span class="spu-cell"><span class="spu-name">' + row.spu + '</span></span></td>';
               html += '<td class="sku-sticky sku-sticky-3">' + row.pid + '</td>';
               html += '<td class="sku-sticky sku-sticky-4">' + row.sku + '</td>';
@@ -925,20 +919,10 @@
             });
           });
         } else {
-          var totalRowCount = 0;
-          groups.forEach(function(g) { totalRowCount += 1 + g.pidRows.length; });
-          totalRowCount += 1;
-
-          var firstRow = true;
           groups.forEach(function(group, gidx) {
-            var rowspan = 1 + group.pidRows.length;
-
             html += '<tr class="spu-row">';
-            if (firstRow) {
-              html += '<td class="sticky-col-1" rowspan="' + totalRowCount + '">' + data.name + '</td>';
-              firstRow = false;
-            }
-            html += '<td class="sticky-col-2" rowspan="' + rowspan + '"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
+            html += '<td class="sticky-col-1">' + data.name + '</td>';
+            html += '<td class="sticky-col-2"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span> <button type="button" class="btn-ai-spu" data-gidx="' + gidx + '" title="AI 分析（' + group.spu + '）"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L9.5 8.5L3 9l5 4.5L6.5 21L12 17l5.5 4-1.5-7.5L21 9l-6.5-.5L12 2z"/></svg></button></span></td>';
             html += '<td class="sticky-col-3">合计</td>';
             html += '<td class="sticky-col-4">—</td>';
             html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalSub + '</td>';
@@ -951,6 +935,8 @@
             var storeEnc = encodeURIComponent(data.name || '');
             group.pidRows.forEach(function(pr) {
               html += '<tr>';
+              html += '<td class="sticky-col-1">' + data.name + '</td>';
+              html += '<td class="sticky-col-2"><span class="spu-cell"><span class="spu-name">' + group.spu + '</span></span></td>';
               html += '<td class="sticky-col-3">' + pr.pid + '</td>';
               html += '<td class="sticky-col-4"><button type="button" class="btn-detail-analysis" title="PID 明细" data-spu="' + spuEnc + '" data-store="' + storeEnc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
               html += '<td class="sticky-col-5">' + pr.sub + '</td>';
@@ -963,12 +949,13 @@
         }
 
         html += '<tr class="row-store-total">';
-        if (curView !== 'sku') html += '<td class="sticky-col-2">店铺小计合计</td>';
+        if (curView !== 'sku') html += '<td class="sticky-col-1">' + data.name + '</td><td class="sticky-col-2">店铺小计合计</td>';
         if (curView === 'spu') {
           html += '<td class="sticky-col-3">' + storeTotalSub + '</td>';
           html += '<td class="sticky-col-4">' + storeTotalAvg + '</td>';
           html += '<td class="sticky-col-5">' + storeDiffStr + '</td>';
         } else if (curView === 'sku') {
+          html += '<td class="sku-sticky sku-sticky-1">' + data.name + '</td>';
           html += '<td class="sku-sticky sku-sticky-2">店铺小计合计</td>';
           html += '<td class="sku-sticky sku-sticky-3">—</td>';
           html += '<td class="sku-sticky sku-sticky-4">—</td>';

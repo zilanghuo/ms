@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>现有数仓表明细</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --ods: #2563eb; --dim: #64748b; --dwd: #7c3aed; --dws: #0891b2; --ads: #ea580c; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1480px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    p { margin: 0.5rem 0 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; padding: 0; }
+    li { margin: 0.25rem 0; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 980px; }
+    th, td { padding: 0.45rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .note { background: #f8fafc; border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0 1.25rem; }
+    .stat { border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; background: #fff; }
+    .stat strong { display: block; font-size: 1.4rem; color: var(--accent); margin-bottom: 0.25rem; }
+    .muted { color: var(--muted); }
+    .badge { display: inline-block; min-width: 42px; text-align: center; padding: 0.12rem 0.45rem; border-radius: 4px; font-size: 0.72rem; font-weight: 700; }
+    .badge-ods { color: var(--ods); background: #dbeafe; }
+    .badge-dim { color: var(--dim); background: #e2e8f0; }
+    .badge-dwd { color: var(--dwd); background: #ede9fe; }
+    .badge-dws { color: var(--dws); background: #cffafe; }
+    .badge-ads { color: var(--ads); background: #ffedd5; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    @media (max-width: 960px) { body { padding: 1rem; } .doc { padding: 1.25rem; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>现有数仓表明细</h1>
+    <p>基于目录 <code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl</code> 最新 DDL 文件自动整理，用于快速查看当前数仓各业务域、各分层已存在表结构分布，并为 tkDashboard 后续表设计提供参考。</p>
+
+    <div class="note">
+      <strong>整理口径</strong>
+      <ul>
+        <li>业务域以 DDL 一级目录为准；分层以表名前缀和二级目录为准。</li>
+        <li>当前统计覆盖 <strong>9 个业务域</strong>、<strong>113 张表</strong>、<strong>54 张 ODS 表</strong>、<strong>59 张非 ODS 表</strong>。</li>
+        <li>表命名遵循 Doris 规范：<code>ods_*</code>、<code>dim_*</code>、<code>dwd_*</code>、<code>dws_*</code>、<code>ads_*</code>；配置维表使用 <code>_config</code>，日全量使用 <code>_df</code>，日增量使用 <code>_di</code>。</li>
+        <li>本页只做已有 DDL 汇总，不替代各业务域正式 <code>表结构设计.html</code>；新增表仍需回到对应业务域技术文档中说明加工链路和字段口径。</li>
+      </ul>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><strong>9</strong><span class="muted">业务域</span></div>
+      <div class="stat"><strong>113</strong><span class="muted">现有表数量</span></div>
+      <div class="stat"><strong>54</strong><span class="muted">ODS 表</span></div>
+      <div class="stat"><strong>15</strong><span class="muted">DIM 表</span></div>
+      <div class="stat"><strong>44</strong><span class="muted">DWD/DWS/ADS 表</span></div>
+    </div>
+
+    <h2>一、业务域与分层概览</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>业务域</th><th>ODS</th><th>DIM</th><th>DWD</th><th>DWS</th><th>ADS</th><th>合计</th><th>业务覆盖说明</th></tr></thead>
+        <tbody>
+<tr><td><strong>销售域</strong><br /><code>sales</code></td><td>5</td><td>1</td><td>6</td><td>12</td><td>12</td><td><strong>36</strong></td><td>覆盖销售看板、PID 看板、销售趋势、店铺 / 项目 / 部门维度汇总，以及准实时销售订单指标。</td></tr>
+<tr><td><strong>库存域</strong><br /><code>inventory</code></td><td>6</td><td>1</td><td>3</td><td>4</td><td>6</td><td><strong>20</strong></td><td>覆盖库存检查、缺补货、补货 / 发货建议、SPU 冗余分析、仓库库存与月均系数配置。</td></tr>
+<tr><td><strong>商品域</strong><br /><code>product</code></td><td>17</td><td>1</td><td>1</td><td>0</td><td>0</td><td><strong>19</strong></td><td>覆盖 TikTok 商品、SKU、图片、类目、属性、审核失败原因、积加商品与商品主数据。</td></tr>
+<tr><td><strong>平台公共域</strong><br /><code>platform</code></td><td>3</td><td>12</td><td>0</td><td>0</td><td>0</td><td><strong>15</strong></td><td>公共维度与平台基础资料，包含店铺、站点、项目、部门、时区、汇率、销售目标、订单状态等。</td></tr>
+<tr><td><strong>交易域</strong><br /><code>trade</code></td><td>11</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>11</strong></td><td>多平台交易 ODS 贴源数据，包含 TikTok、Amazon、Walmart、Shopify、马帮、联盟订单等来源。</td></tr>
+<tr><td><strong>流量域</strong><br /><code>traffic</code></td><td>9</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>9</strong></td><td>TikTok 商品、视频、直播、联盟推广、PID-SPU 关系等流量与内容表现贴源数据。</td></tr>
+<tr><td><strong>财务域</strong><br /><code>finance</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>1</strong></td><td>财务基础数据，目前主要为汇率 ODS。</td></tr>
+<tr><td><strong>营销域</strong><br /><code>marketing</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>1</strong></td><td>营销投放基础数据，目前主要为 TikTok Campaign 文件增量。</td></tr>
+<tr><td><strong>运维日志域</strong><br /><code>oplog</code></td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>1</strong></td><td>ETL / 调度运行日志贴源数据。</td></tr>
+          <tr><td><strong>合计</strong></td><td><strong>54</strong></td><td><strong>15</strong></td><td><strong>10</strong></td><td><strong>16</strong></td><td><strong>18</strong></td><td><strong>113</strong></td><td>-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>二、总体统计结论</h2>
+    <ul>
+      <li><strong>销售域最完整</strong>：销售域共 36 张表，已经覆盖 ODS、DIM、DWD、DWS、ADS 与 realtime，支撑销售看板、PID 看板、GMV 计算、店铺 / 项目 / 部门维度分析。</li>
+      <li><strong>库存域已形成完整链路</strong>：库存域共 20 张表，覆盖 ODS → DWD → DWS → ADS，并有 <code>dim_inventory_monthly_factor_config</code> 配置表支撑月均系数。</li>
+      <li><strong>商品域以贴源为主</strong>：商品域共 19 张表，ODS 占比高，主要沉淀 TikTok 商品、SKU、图片、类目、属性、积加商品等原始资料，后续商品档案配置表应继续归入商品域。</li>
+      <li><strong>平台公共域承担公共维度</strong>：平台域共 15 张表，DIM 较多，适合作为店铺、站点、项目、部门、时区、汇率、订单状态等跨业务域公共维度来源。</li>
+      <li><strong>交易与流量仍偏 ODS</strong>：交易域 11 张、流量域 9 张，当前主要是贴源层，后续如进入看板分析，应补 DWD/DWS/ADS 明细和汇总层。</li>
+    </ul>
+
+    <h2>三、按业务域表清单</h2>
+
+    <h3>销售域（<code>sales</code>，36 张）</h3>
+    <p class="muted">覆盖销售看板、PID 看板、销售趋势、店铺 / 项目 / 部门维度汇总，以及准实时销售订单指标。 分层分布：ODS 5 张、DIM 1 张、DWD 6 张、DWS 12 张、ADS 12 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_history_project_sales_di</code></td><td><code>ods</code></td><td>di</td><td>30</td><td><code>sales/ods/ods_history_project_sales_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_sales_api_jijia_omnichannel_order_di</code></td><td><code>ods</code></td><td>di</td><td>18</td><td><code>sales/ods/ods_sales_api_jijia_omnichannel_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_sales_api_jijia_omnichannel_order_item_di</code></td><td><code>ods</code></td><td>di</td><td>19</td><td><code>sales/ods/ods_sales_api_jijia_omnichannel_order_item_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_sales_file_jijia_order_di</code></td><td><code>ods</code></td><td>di</td><td>12</td><td><code>sales/ods/ods_sales_file_jijia_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_sales_tiktok_order_di</code></td><td><code>ods</code></td><td>di</td><td>107</td><td><code>sales/ods/ods_sales_tiktok_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_sales_pid_main_spu_mapping_df</code></td><td><code>dim</code></td><td>df</td><td>7</td><td><code>sales/dim/dim_sales_pid_main_spu_mapping_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_amount_detail_market_di</code></td><td><code>dwd</code></td><td>di</td><td>41</td><td><code>sales/dwd/dwd_sales_amount_detail_market_di.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_amount_detail_market_hour_di</code></td><td><code>dwd</code></td><td>di</td><td>47</td><td><code>sales/dwd/dwd_sales_amount_detail_market_hour_di.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_amount_detail_market_realtime</code></td><td><code>dwd</code></td><td>realtime</td><td>50</td><td><code>sales/dwd/dwd_sales_amount_detail_market_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_order_item_market_realtime</code></td><td><code>dwd</code></td><td>realtime</td><td>27</td><td><code>sales/dwd/dwd_sales_order_item_market_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_order_item_market_wide_realtime</code></td><td><code>dwd</code></td><td>realtime</td><td>24</td><td><code>sales/dwd/dwd_sales_order_item_market_wide_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_sales_pid_dashboard_wide_di</code></td><td><code>dwd</code></td><td>di</td><td>87</td><td><code>sales/dwd/dwd_sales_pid_dashboard_wide_di.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_department_market_1d</code></td><td><code>dws</code></td><td>1d</td><td>19</td><td><code>sales/dws/dws_sales_department_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_pid_dashboard_1d</code></td><td><code>dws</code></td><td>1d</td><td>92</td><td><code>sales/dws/dws_sales_pid_dashboard_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_pid_gmv_calc_detail_realtime</code></td><td><code>dws</code></td><td>realtime</td><td>15</td><td><code>sales/dws/dws_sales_pid_gmv_calc_detail_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_pid_gmv_realtime</code></td><td><code>dws</code></td><td>realtime</td><td>11</td><td><code>sales/dws/dws_sales_pid_gmv_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_platform_market_1d</code></td><td><code>dws</code></td><td>1d</td><td>19</td><td><code>sales/dws/dws_sales_platform_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_product_sku_qty_1d</code></td><td><code>dws</code></td><td>1d</td><td>16</td><td><code>sales/dws/dws_sales_product_sku_qty_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_project_market_1d</code></td><td><code>dws</code></td><td>1d</td><td>30</td><td><code>sales/dws/dws_sales_project_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_project_market_1m</code></td><td><code>dws</code></td><td>1m</td><td>29</td><td><code>sales/dws/dws_sales_project_market_1m.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_store_market_1d</code></td><td><code>dws</code></td><td>1d</td><td>33</td><td><code>sales/dws/dws_sales_store_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_store_market_payment_1d</code></td><td><code>dws</code></td><td>1d</td><td>33</td><td><code>sales/dws/dws_sales_store_market_payment_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_store_market_realtime</code></td><td><code>dws</code></td><td>realtime</td><td>31</td><td><code>sales/dws/dws_sales_store_market_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_sales_store_site_market_realtime</code></td><td><code>dws</code></td><td>realtime</td><td>35</td><td><code>sales/dws/dws_sales_store_site_market_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_department_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>13</td><td><code>sales/ads/ads_sales_department_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_overview_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>13</td><td><code>sales/ads/ads_sales_overview_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_pid_dashboard_1d</code></td><td><code>ads</code></td><td>1d</td><td>92</td><td><code>sales/ads/ads_sales_pid_dashboard_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_pid_gmv_calc_realtime</code></td><td><code>ads</code></td><td>realtime</td><td>11</td><td><code>sales/ads/ads_sales_pid_gmv_calc_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_product_statistics_1d</code></td><td><code>ads</code></td><td>1d</td><td>16</td><td><code>sales/ads/ads_sales_product_statistics_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_project_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>13</td><td><code>sales/ads/ads_sales_project_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_store_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>13</td><td><code>sales/ads/ads_sales_store_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_store_market_payment_1d</code></td><td><code>ads</code></td><td>1d</td><td>13</td><td><code>sales/ads/ads_sales_store_market_payment_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_store_site_order_count_realtime</code></td><td><code>ads</code></td><td>realtime</td><td>12</td><td><code>sales/ads/ads_sales_store_site_order_count_realtime.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_target_completion_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>29</td><td><code>sales/ads/ads_sales_target_completion_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_trend_market_1d</code></td><td><code>ads</code></td><td>1d</td><td>22</td><td><code>sales/ads/ads_sales_trend_market_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_sales_trend_market_1m</code></td><td><code>ads</code></td><td>1m</td><td>20</td><td><code>sales/ads/ads_sales_trend_market_1m.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>库存域（<code>inventory</code>，20 张）</h3>
+    <p class="muted">覆盖库存检查、缺补货、补货 / 发货建议、SPU 冗余分析、仓库库存与月均系数配置。 分层分布：ODS 6 张、DIM 1 张、DWD 3 张、DWS 4 张、ADS 6 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_jijia_pid_warehouse_stock_df</code></td><td><code>ods</code></td><td>df</td><td>27</td><td><code>inventory/ods/ods_inventory_jijia_pid_warehouse_stock_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_manual_available_warehouse_df</code></td><td><code>ods</code></td><td>df</td><td>7</td><td><code>inventory/ods/ods_inventory_manual_available_warehouse_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_multi_platform_sales_performance_df</code></td><td><code>ods</code></td><td>df</td><td>34</td><td><code>inventory/ods/ods_inventory_multi_platform_sales_performance_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_tiktok_fbt_stock_df</code></td><td><code>ods</code></td><td>df</td><td>54</td><td><code>inventory/ods/ods_inventory_tiktok_fbt_stock_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_tiktok_product_online_product_df</code></td><td><code>ods</code></td><td>df</td><td>32</td><td><code>inventory/ods/ods_inventory_tiktok_product_online_product_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_inventory_tiktok_site_product_stock_df</code></td><td><code>ods</code></td><td>df</td><td>63</td><td><code>inventory/ods/ods_inventory_tiktok_site_product_stock_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_inventory_monthly_factor_config</code></td><td><code>dim</code></td><td>config</td><td>16</td><td><code>inventory/dim/dim_inventory_monthly_factor_config.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_inventory_platform_sales_sku_detail_1d</code></td><td><code>dwd</code></td><td>1d</td><td>34</td><td><code>inventory/dwd/dwd_inventory_platform_sales_sku_detail_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_inventory_replenishment_sku_snapshot_1d</code></td><td><code>dwd</code></td><td>1d</td><td>35</td><td><code>inventory/dwd/dwd_inventory_replenishment_sku_snapshot_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_inventory_stock_check_sku_snapshot_1d</code></td><td><code>dwd</code></td><td>1d</td><td>52</td><td><code>inventory/dwd/dwd_inventory_stock_check_sku_snapshot_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_inventory_platform_sales_sku_daily_1d</code></td><td><code>dws</code></td><td>1d</td><td>12</td><td><code>inventory/dws/dws_inventory_platform_sales_sku_daily_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_inventory_replenishment_all_detail_1d</code></td><td><code>dws</code></td><td>1d</td><td>51</td><td><code>inventory/dws/dws_inventory_replenishment_all_detail_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_inventory_stock_check_sku_1d</code></td><td><code>dws</code></td><td>1d</td><td>52</td><td><code>inventory/dws/dws_inventory_stock_check_sku_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-dws">DWS</span></td><td><code>dws_inventory_stock_check_spu_1d</code></td><td><code>dws</code></td><td>1d</td><td>49</td><td><code>inventory/dws/dws_inventory_stock_check_spu_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_sku_replenishment_all_1d</code></td><td><code>ads</code></td><td>1d</td><td>51</td><td><code>inventory/ads/ads_inventory_sku_replenishment_all_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_sku_replenishment_restock_1d</code></td><td><code>ads</code></td><td>1d</td><td>27</td><td><code>inventory/ads/ads_inventory_sku_replenishment_restock_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_sku_replenishment_ship_1d</code></td><td><code>ads</code></td><td>1d</td><td>41</td><td><code>inventory/ads/ads_inventory_sku_replenishment_ship_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_spu_redundancy_analysis_1d</code></td><td><code>ads</code></td><td>1d</td><td>20</td><td><code>inventory/ads/ads_inventory_spu_redundancy_analysis_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_stock_check_sku_1d</code></td><td><code>ads</code></td><td>1d</td><td>52</td><td><code>inventory/ads/ads_inventory_stock_check_sku_1d.sql</code></td></tr>
+<tr><td><span class="badge badge-ads">ADS</span></td><td><code>ads_inventory_stock_check_spu_1d</code></td><td><code>ads</code></td><td>1d</td><td>49</td><td><code>inventory/ads/ads_inventory_stock_check_spu_1d.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>商品域（<code>product</code>，19 张）</h3>
+    <p class="muted">覆盖 TikTok 商品、SKU、图片、类目、属性、审核失败原因、积加商品与商品主数据。 分层分布：ODS 17 张、DIM 1 张、DWD 1 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_api_jijia_omnichannel_product_df</code></td><td><code>ods</code></td><td>df</td><td>20</td><td><code>product/ods/ods_product_api_jijia_omnichannel_product_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_api_jijia_sku_spu_detail_df</code></td><td><code>ods</code></td><td>df</td><td>69</td><td><code>product/ods/ods_product_api_jijia_sku_spu_detail_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_file_jijia_product_df</code></td><td><code>ods</code></td><td>df</td><td>11</td><td><code>product/ods/ods_product_file_jijia_product_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_file_product_stage_df</code></td><td><code>ods</code></td><td>df</td><td>5</td><td><code>product/ods/ods_product_file_product_stage_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_attribute_df</code></td><td><code>ods</code></td><td>df</td><td>20</td><td><code>product/ods/ods_product_tiktok_product_attribute_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_audit_failed_reason_df</code></td><td><code>ods</code></td><td>df</td><td>20</td><td><code>product/ods/ods_product_tiktok_product_audit_failed_reason_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_category_df</code></td><td><code>ods</code></td><td>df</td><td>23</td><td><code>product/ods/ods_product_tiktok_product_category_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_combined_sku_df</code></td><td><code>ods</code></td><td>df</td><td>27</td><td><code>product/ods/ods_product_tiktok_product_combined_sku_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_delivery_option_df</code></td><td><code>ods</code></td><td>df</td><td>19</td><td><code>product/ods/ods_product_tiktok_product_delivery_option_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_df</code></td><td><code>ods</code></td><td>df</td><td>39</td><td><code>product/ods/ods_product_tiktok_product_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_family_df</code></td><td><code>ods</code></td><td>df</td><td>18</td><td><code>product/ods/ods_product_tiktok_product_family_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_global_sku_mapping_df</code></td><td><code>ods</code></td><td>df</td><td>20</td><td><code>product/ods/ods_product_tiktok_product_global_sku_mapping_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_image_df</code></td><td><code>ods</code></td><td>df</td><td>26</td><td><code>product/ods/ods_product_tiktok_product_image_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_sku_attribute_df</code></td><td><code>ods</code></td><td>df</td><td>25</td><td><code>product/ods/ods_product_tiktok_product_sku_attribute_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_sku_df</code></td><td><code>ods</code></td><td>df</td><td>33</td><td><code>product/ods/ods_product_tiktok_product_sku_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_subscribe_discount_df</code></td><td><code>ods</code></td><td>df</td><td>22</td><td><code>product/ods/ods_product_tiktok_product_subscribe_discount_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_product_tiktok_product_warehouse_df</code></td><td><code>ods</code></td><td>df</td><td>22</td><td><code>product/ods/ods_product_tiktok_product_warehouse_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_product_tiktok_product_enum_df</code></td><td><code>dim</code></td><td>df</td><td>10</td><td><code>product/dim/dim_product_tiktok_product_enum_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dwd">DWD</span></td><td><code>dwd_product_tiktok_product_detail_df</code></td><td><code>dwd</code></td><td>df</td><td>43</td><td><code>product/dwd/dwd_product_tiktok_product_detail_df.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>平台公共域（<code>platform</code>，15 张）</h3>
+    <p class="muted">公共维度与平台基础资料，包含店铺、站点、项目、部门、时区、汇率、销售目标、订单状态等。 分层分布：ODS 3 张、DIM 12 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_platform_erp_shop_df</code></td><td><code>ods</code></td><td>df</td><td>34</td><td><code>platform/ods/ods_platform_erp_shop_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_platform_erp_shop_site_df</code></td><td><code>ods</code></td><td>df</td><td>25</td><td><code>platform/ods/ods_platform_erp_shop_site_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_platform_file_tiktok_account_df</code></td><td><code>ods</code></td><td>df</td><td>6</td><td><code>platform/ods/ods_platform_file_tiktok_account_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_department_info_df</code></td><td><code>dim</code></td><td>df</td><td>13</td><td><code>platform/dim/dim_department_info_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_exchange_rate_df</code></td><td><code>dim</code></td><td>df</td><td>12</td><td><code>platform/dim/dim_exchange_rate_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_jijia_store_site_df</code></td><td><code>dim</code></td><td>df</td><td>12</td><td><code>platform/dim/dim_jijia_store_site_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_platform_info_df</code></td><td><code>dim</code></td><td>df</td><td>10</td><td><code>platform/dim/dim_platform_info_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_platform_order_status_df</code></td><td><code>dim</code></td><td>df</td><td>13</td><td><code>platform/dim/dim_platform_order_status_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_project_department_mapping_df</code></td><td><code>dim</code></td><td>df</td><td>12</td><td><code>platform/dim/dim_project_department_mapping_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_project_info_df</code></td><td><code>dim</code></td><td>df</td><td>14</td><td><code>platform/dim/dim_project_info_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_sales_target_df</code></td><td><code>dim</code></td><td>df</td><td>20</td><td><code>platform/dim/dim_sales_target_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_store_info_df</code></td><td><code>dim</code></td><td>df</td><td>16</td><td><code>platform/dim/dim_store_info_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_store_project_mapping_df</code></td><td><code>dim</code></td><td>df</td><td>11</td><td><code>platform/dim/dim_store_project_mapping_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_store_site_info_df</code></td><td><code>dim</code></td><td>df</td><td>18</td><td><code>platform/dim/dim_store_site_info_df.sql</code></td></tr>
+<tr><td><span class="badge badge-dim">DIM</span></td><td><code>dim_timezone_info_df</code></td><td><code>dim</code></td><td>df</td><td>23</td><td><code>platform/dim/dim_timezone_info_df.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>交易域（<code>trade</code>，11 张）</h3>
+    <p class="muted">多平台交易 ODS 贴源数据，包含 TikTok、Amazon、Walmart、Shopify、马帮、联盟订单等来源。 分层分布：ODS 11 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_api_trade_jijia_amazon_order_di</code></td><td><code>ods</code></td><td>di</td><td>47</td><td><code>trade/ods/ods_api_trade_jijia_amazon_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_api_trade_jijia_multi_platform_order_di</code></td><td><code>ods</code></td><td>di</td><td>71</td><td><code>trade/ods/ods_api_trade_jijia_multi_platform_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_api_trade_jijia_walmart_order_di</code></td><td><code>ods</code></td><td>di</td><td>47</td><td><code>trade/ods/ods_api_trade_jijia_walmart_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_file_trade_daily_project_stats_di</code></td><td><code>ods</code></td><td>di</td><td>11</td><td><code>trade/ods/ods_file_trade_daily_project_stats_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_file_trade_mabang_shop_di</code></td><td><code>ods</code></td><td>di</td><td>17</td><td><code>trade/ods/ods_file_trade_mabang_shop_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_file_trade_shopify_daily_summary_df</code></td><td><code>ods</code></td><td>df</td><td>8</td><td><code>trade/ods/ods_file_trade_shopify_daily_summary_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_file_trade_tiktok_affiliate_order_di</code></td><td><code>ods</code></td><td>di</td><td>39</td><td><code>trade/ods/ods_file_trade_tiktok_affiliate_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_file_trade_tiktok_order_di</code></td><td><code>ods</code></td><td>di</td><td>92</td><td><code>trade/ods/ods_file_trade_tiktok_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_sync_record_di</code></td><td><code>ods</code></td><td>di</td><td>15</td><td><code>trade/ods/ods_sync_record_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_trade_api_tiktok_order_di</code></td><td><code>ods</code></td><td>di</td><td>107</td><td><code>trade/ods/ods_trade_api_tiktok_order_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_trade_api_tiktok_order_item_di</code></td><td><code>ods</code></td><td>di</td><td>61</td><td><code>trade/ods/ods_trade_api_tiktok_order_item_di.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>流量域（<code>traffic</code>，9 张）</h3>
+    <p class="muted">TikTok 商品、视频、直播、联盟推广、PID-SPU 关系等流量与内容表现贴源数据。 分层分布：ODS 9 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_pid_spu_relation_df</code></td><td><code>ods</code></td><td>df</td><td>10</td><td><code>traffic/ods/ods_traffic_file_tiktok_pid_spu_relation_df.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_affiliate_di</code></td><td><code>ods</code></td><td>di</td><td>56</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_affiliate_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_all_di</code></td><td><code>ods</code></td><td>di</td><td>48</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_all_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_analysis_all_module_di</code></td><td><code>ods</code></td><td>di</td><td>180</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_analysis_all_module_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_card_di</code></td><td><code>ods</code></td><td>di</td><td>27</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_card_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_list_di</code></td><td><code>ods</code></td><td>di</td><td>43</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_list_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_live_di</code></td><td><code>ods</code></td><td>di</td><td>28</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_live_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_product_video_di</code></td><td><code>ods</code></td><td>di</td><td>28</td><td><code>traffic/ods/ods_traffic_file_tiktok_product_video_di.sql</code></td></tr>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_traffic_file_tiktok_video_performance_di</code></td><td><code>ods</code></td><td>di</td><td>30</td><td><code>traffic/ods/ods_traffic_file_tiktok_video_performance_di.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>财务域（<code>finance</code>，1 张）</h3>
+    <p class="muted">财务基础数据，目前主要为汇率 ODS。 分层分布：ODS 1 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_api_finance_exchange_rate_df</code></td><td><code>ods</code></td><td>df</td><td>19</td><td><code>finance/ods/ods_api_finance_exchange_rate_df.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>营销域（<code>marketing</code>，1 张）</h3>
+    <p class="muted">营销投放基础数据，目前主要为 TikTok Campaign 文件增量。 分层分布：ODS 1 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_marketing_file_tiktok_campaign_di</code></td><td><code>ods</code></td><td>di</td><td>16</td><td><code>marketing/ods/ods_marketing_file_tiktok_campaign_di.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>运维日志域（<code>oplog</code>，1 张）</h3>
+    <p class="muted">ETL / 调度运行日志贴源数据。 分层分布：ODS 1 张。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>层级</th><th>表名</th><th>库 / Schema</th><th>后缀</th><th>字段数</th><th>DDL 文件</th></tr></thead>
+        <tbody>
+<tr><td><span class="badge badge-ods">ODS</span></td><td><code>ods_oplog_etl_log_df</code></td><td><code>ods</code></td><td>df</td><td>4</td><td><code>oplog/ods/ods_oplog_etl_log_df.sql</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>四、后缀与来源分布</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>统计项</th><th>数量</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>_df</code></td><td>45</td><td>日全量 / 快照类表，常见于 ODS 与 DIM。</td></tr>
+          <tr><td><code>_di</code></td><td>27</td><td>日增量类表，常见于订单、文件导入、交易流水。</td></tr>
+          <tr><td><code>_1d</code></td><td>29</td><td>天粒度汇总或应用层结果表。</td></tr>
+          <tr><td><code>_1m</code></td><td>2</td><td>月粒度汇总表。</td></tr>
+          <tr><td><code>_realtime</code></td><td>9</td><td>准实时表，必须以 realtime 结尾。</td></tr>
+          <tr><td><code>_config</code></td><td>1</td><td>当前生效配置表，通过页面或人工方式维护。</td></tr>
+          <tr><td>API 来源</td><td>10</td><td>表名中包含 <code>_api_</code> 的数据源。</td></tr>
+          <tr><td>文件来源</td><td>19</td><td>表名中包含 <code>_file_</code> 的数据源。</td></tr>
+          <tr><td>TikTok 来源</td><td>19</td><td>表名中包含 <code>_tiktok_</code> 的数据源或业务对象。</td></tr>
+          <tr><td>积加来源</td><td>2</td><td>表名中包含 <code>_jijia_</code> 的数据源或业务对象。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>五、对 tkDashboard 表设计的使用建议</h2>
+    <ol>
+      <li>新增销售看板、PID、GMV、订单统计类表时，优先复用销售域已有链路，不要把同类销售结果落到其他业务域。</li>
+      <li>新增库存检查、缺补货、补货 / 发货建议类表时，优先参考库存域 DWD/DWS/ADS 的粒度和字段命名。</li>
+      <li>新增商品档案、账号维护、视频商品关联等配置表时，业务域应归入商品域或流量域，不要用页面模块名如 <code>management</code> 作为数仓业务域。</li>
+      <li>新增达人、视频、联盟内容表现相关分析时，先检查 traffic ODS 是否已有来源，再补 DWD/DWS/ADS，不要直接用 ADS 反查 ODS 堆逻辑。</li>
+      <li>涉及店铺、站点、平台、项目、部门、时区、汇率等公共字段时，优先关联 platform DIM 表，避免每个业务域重复维护一套口径。</li>
+      <li>接口文档字段继续使用 Java DTO / VO 驼峰命名；底表字段继续使用 Doris 小写下划线命名，两者通过字段映射说明关联。</li>
+    </ol>
+
+    <p class="back"><a href="index.html">← 返回首页</a> &nbsp; <a href="销售/技术文档/表结构设计.html">销售表结构设计</a> &nbsp; <a href="库存/技术文档/表结构设计.html">库存表结构设计</a> &nbsp; <a href="管理模块/表结构设计.html">管理模块表结构设计</a></p>
+  </div>
+</body>
+</html>

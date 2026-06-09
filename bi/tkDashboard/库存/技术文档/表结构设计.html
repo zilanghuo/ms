@@ -74,7 +74,7 @@
         <tbody>
           <tr><th>库表</th><td><code>ods.ods_inventory_jijia_pid_warehouse_stock_df</code></td><th>服务页面</th><td>库存检查</td></tr>
           <tr><th>主键模型</th><td><code>UNIQUE KEY(smt, sdt, store_id, pid, sku_id)</code></td><th>分桶</th><td><code>HASH(pid) BUCKETS 16</code></td></tr>
-          <tr><th>字段数</th><td>27</td><th>命名依据</th><td><code>ms-warehouse-batch-data/AGENTS.md</code> Doris 规范</td></tr>
+          <tr><th>字段数</th><td>28</td><th>命名依据</th><td><code>ms-warehouse-batch-data/AGENTS.md</code> Doris 规范</td></tr>
         </tbody>
       </table>
     </div>
@@ -89,7 +89,6 @@
 <tr><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td>SKU ID</td></tr>
 <tr><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td>站点代码</td></tr>
 <tr><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td>店铺名称</td></tr>
-<tr><td><code>available_qty_us_tk_xiamen_domestic</code></td><td><code>DECIMAL(18,2)</code></td><td>美国TK-国内厦门仓 可用库存</td></tr>
 <tr><td><code>available_qty_winit_usky3</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通:USKY3_Warehouse 可用库存</td></tr>
 <tr><td><code>available_qty_winit_uswc2</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通:USWC2_Warehouse 可用库存</td></tr>
 <tr><td><code>available_qty_winit_uswc</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通:USWC_Warehouse 可用库存</td></tr>
@@ -97,6 +96,8 @@
 <tr><td><code>available_qty_us_tk_xiamen_direct</code></td><td><code>DECIMAL(18,2)</code></td><td>美国TK-厦门直邮仓 可用库存</td></tr>
 <tr><td><code>available_qty_uk_est_return</code></td><td><code>DECIMAL(18,2)</code></td><td>美国TK-艾斯特尼-英国退件仓:英国仓 可用库存</td></tr>
 <tr><td><code>available_qty_winit_uktw</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通:UKTW Warehouse 可用库存</td></tr>
+<tr><td><code>fba_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBA 仓可用库存</td></tr>
+<tr><td><code>fbt_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT 仓可用库存</td></tr>
 <tr><td><code>ext_warehouse_01_name</code></td><td><code>VARCHAR(200)</code></td><td>预留扩展仓库 01 名称</td></tr>
 <tr><td><code>ext_warehouse_01_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>预留扩展仓库 01 可用库存</td></tr>
 <tr><td><code>ext_warehouse_02_name</code></td><td><code>VARCHAR(200)</code></td><td>预留扩展仓库 02 名称</td></tr>
@@ -537,8 +538,8 @@
       <table class="meta-table">
         <tbody>
           <tr><th>库表</th><td><code>dwd.dwd_inventory_stock_check_sku_snapshot_1d</code></td><th>服务页面</th><td>库存检查</td></tr>
-          <tr><th>主键模型</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_id, pid, sku)</code></td><th>分桶</th><td><code>HASH(sku) BUCKETS 16</code></td></tr>
-          <tr><th>字段数</th><td>52</td><th>命名依据</th><td><code>ms-warehouse-batch-data/AGENTS.md</code> Doris 规范</td></tr>
+          <tr><th>主键模型</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_id, pid, sku_id)</code></td><th>分桶</th><td><code>HASH(sku_id) BUCKETS 16</code></td></tr>
+          <tr><th>字段数</th><td>61</td><th>命名依据</th><td><code>ms-warehouse-batch-data/AGENTS.md</code> Doris 规范</td></tr>
         </tbody>
       </table>
     </div>
@@ -548,55 +549,64 @@
         <tbody>
           <tr><td><code>smt</code></td><td><code>INT</code></td><td>月分区，YYYYMM</td></tr>
 <tr><td><code>sdt</code></td><td><code>VARCHAR(8)</code></td><td>业务日期，YYYYMMDD</td></tr>
-<tr><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td>站点代码</td></tr>
+<tr><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td>站点</td></tr>
 <tr><td><code>store_id</code></td><td><code>VARCHAR(100)</code></td><td>店铺 ID</td></tr>
-<tr><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td>PID</td></tr>
-<tr><td><code>sku</code></td><td><code>VARCHAR(100)</code></td><td>SKU</td></tr>
-<tr><td><code>site_name</code></td><td><code>VARCHAR(100)</code></td><td>站点名称</td></tr>
-<tr><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td>店铺名称</td></tr>
+<tr><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td>店铺</td></tr>
 <tr><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td>SPU</td></tr>
-<tr><td><code>spu_name</code></td><td><code>VARCHAR(500)</code></td><td>SPU 名称</td></tr>
-<tr><td><code>sku_name</code></td><td><code>VARCHAR(500)</code></td><td>SKU 名称</td></tr>
-<tr><td><code>purchase_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>采购量</td></tr>
-<tr><td><code>delivery_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>交货在途库存</td></tr>
-<tr><td><code>domestic_inventory_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内库存</td></tr>
+<tr><td><code>spu_name</code></td><td><code>VARCHAR(500)</code></td><td>SPU名称</td></tr>
+<tr><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td>PID</td></tr>
+<tr><td><code>msku</code></td><td><code>VARCHAR(100)</code></td><td>MSKU</td></tr>
+<tr><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td>SKU ID</td></tr>
+<tr><td><code>inventory_sku</code></td><td><code>VARCHAR(100)</code></td><td>库存SKU</td></tr>
+<tr><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td>库存SKU名称</td></tr>
+<tr><td><code>total_inventory_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总库存</td></tr>
+<tr><td><code>total_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总在途库存</td></tr>
+<tr><td><code>total_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总可用库存</td></tr>
+<tr><td><code>total_domestic_inventory_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总国内库存</td></tr>
+<tr><td><code>purchase_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>采购在途库存</td></tr>
+<tr><td><code>factory_purchase_undelivered_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>工厂采购未交量</td></tr>
+<tr><td><code>domestic_delivery_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内交货在途库存</td></tr>
+<tr><td><code>domestic_on_hand_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内在库库存</td></tr>
+<tr><td><code>oversea_in_transit_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>海外在途总量</td></tr>
 <tr><td><code>third_party_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>三方仓在途量</td></tr>
-<tr><td><code>fbt_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT 在途量</td></tr>
-<tr><td><code>fbt_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT 可用量</td></tr>
-<tr><td><code>warehouse_guchang_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>谷仓-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_guchang_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>谷仓-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_guchang_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>谷仓-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_winit_usky3_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USKY3-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_winit_usky3_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USKY3-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_winit_usky3_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USKY3-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_winit_uswc_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_winit_uswc_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_winit_uswc_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_winit_uswc2_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC2-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_winit_uswc2_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC2-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_winit_uswc2_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC2-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_domestic_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内仓-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_domestic_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内仓-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_domestic_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内仓-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_fbt_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_fbt_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT-2，店铺后台实际被同步库存，当前预留</td></tr>
-<tr><td><code>warehouse_fbt_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_fba_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBA-1，我们有的库存，当前预留</td></tr>
-<tr><td><code>warehouse_fba_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBA-2，店铺后台实际被同步库存，当前预留</td></tr>
-<tr><td><code>warehouse_fba_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBA-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>warehouse_uk_return_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>英国退货仓-1，我们有的库存</td></tr>
-<tr><td><code>warehouse_uk_return_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>英国退货仓-2，店铺后台实际被同步库存</td></tr>
-<tr><td><code>warehouse_uk_return_3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>英国退货仓-3，差异值 = 1 - 2</td></tr>
-<tr><td><code>oversea_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>海外在途库存 = 三方仓在途量 + 国内库存</td></tr>
-<tr><td><code>oversea_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>海外可用库存，按站点分支：美国站点=谷仓-1+万邑通USKY3-1+万邑通USWC-1+万邑通USWC2-1+国内仓-1+FBT-1+FBA-1；英国站点=国内仓-1+英国退货仓-1</td></tr>
-<tr><td><code>total_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总在途库存 = 海外在途库存 + 三方仓在途量 + FBT 在途量 + 交货在途库存</td></tr>
-<tr><td><code>total_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总可用库存 = 海外可用库存 + 国内库存</td></tr>
-<tr><td><code>total_inventory_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总库存 = 总在途库存 + 总可用库存</td></tr>
-<tr><td><code>total_inventory_1_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总库存-1，我们有的库存汇总，按站点分支：美国站点=谷仓-1+万邑通USKY3-1+万邑通USWC-1+万邑通USWC2-1+国内仓-1+FBT-1+FBA-1；英国站点=国内仓-1+英国退货仓-1</td></tr>
-<tr><td><code>total_inventory_2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>总库存-2，店铺后台实际被同步库存汇总，按站点分支：美国站点=谷仓-2+万邑通USKY3-2+万邑通USWC-2+万邑通USWC2-2+国内仓-2+FBT-2+FBA-2；英国站点=国内仓-2+英国退货仓-2</td></tr>
-<tr><td><code>inventory_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>库存差异 = 总库存-1 - 总库存-2</td></tr>
-<tr><td><code>inventory_status_code</code></td><td><code>VARCHAR(50)</code></td><td>库存异常状态编码：less_sync / oversold_risk / synced</td></tr>
-<tr><td><code>inventory_status_name</code></td><td><code>VARCHAR(100)</code></td><td>库存异常状态名称：少同步 / 超卖风险 / 同步正确</td></tr>
+<tr><td><code>winit_usky3_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USKY3在途</td></tr>
+<tr><td><code>winit_uswc2_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC2在途</td></tr>
+<tr><td><code>winit_uswc_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC在途</td></tr>
+<tr><td><code>guchang_west_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>美国谷仓:美西仓库在途</td></tr>
+<tr><td><code>fbt_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT在途量</td></tr>
+<tr><td><code>uk_return_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>英国退货仓在途量</td></tr>
+<tr><td><code>oversea_on_hand_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>海外在库总库存</td></tr>
+<tr><td><code>jijia_winit_usky3_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-万邑通USKY3</td></tr>
+<tr><td><code>jijia_winit_uswc2_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-万邑通USWC2</td></tr>
+<tr><td><code>jijia_winit_uswc_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-万邑通USWC</td></tr>
+<tr><td><code>jijia_guchang_west_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-谷仓美西仓库</td></tr>
+<tr><td><code>jijia_fba_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-FBA仓库</td></tr>
+<tr><td><code>jijia_fbt_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-FBT可用</td></tr>
+<tr><td><code>third_party_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>三方仓可用量</td></tr>
+<tr><td><code>jijia_uk_return_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>积加-英国退货仓</td></tr>
+<tr><td><code>store_should_sync_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺应该被同步的库存</td></tr>
+<tr><td><code>store_synced_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧被同步的总库存</td></tr>
+<tr><td><code>store_us_tk_xiamen_direct_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-美国TK厦门直邮仓</td></tr>
+<tr><td><code>store_winit_usky3_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-万邑通USKY3</td></tr>
+<tr><td><code>store_winit_uswc2_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-万邑通USWC2</td></tr>
+<tr><td><code>store_winit_uswc_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-万邑通USWC</td></tr>
+<tr><td><code>store_guchang_west_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-谷仓美西仓库</td></tr>
+<tr><td><code>store_fba_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-FBA仓库</td></tr>
+<tr><td><code>store_fbt_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-FBT可用</td></tr>
+<tr><td><code>store_uk_return_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>店铺侧-英国退货仓</td></tr>
+<tr><td><code>inventory_total_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>库存总差异</td></tr>
+<tr><td><code>domestic_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>国内仓-3</td></tr>
+<tr><td><code>winit_usky3_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USKY3-3</td></tr>
+<tr><td><code>winit_uswc2_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC2-3</td></tr>
+<tr><td><code>winit_uswc_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>万邑通USWC-3</td></tr>
+<tr><td><code>guchang_west_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>谷仓-3</td></tr>
+<tr><td><code>fba_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBA(空着)-3</td></tr>
+<tr><td><code>fbt_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>FBT-3</td></tr>
+<tr><td><code>uk_return_diff_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>英国退货仓-3</td></tr>
+<tr><td><code>abnormal_warehouse_names</code></td><td><code>VARCHAR(500)</code></td><td>异常仓库</td></tr>
+<tr><td><code>inventory_threshold_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>库存阀值设置</td></tr>
+<tr><td><code>is_inventory_abnormal</code></td><td><code>TINYINT</code></td><td>库存是否异常：1 是，0 否</td></tr>
+<tr><td><code>abnormal_type</code></td><td><code>VARCHAR(100)</code></td><td>异常类型：阀值同步异常 / 少同步 / 超卖风险</td></tr>
 <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>处理时间</td></tr>
         </tbody>
       </table>

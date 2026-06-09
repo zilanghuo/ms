@@ -52,7 +52,7 @@
           <li><a href="#inventory-check-page">1.2 主表接口：库存检查列表</a></li>
           <li><a href="#inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</a></li>
           <li><a href="#inventory-check-spu-summary">1.4 汇总卡片接口：SPU维度</a></li>
-          <li><a href="#inventory-check-export">1.6 导出接口</a></li>
+          <li><a href="#inventory-check-export">1.5 导出接口</a></li>
           <li><a href="#replenishment-board">二、缺补货看板</a></li>
           <li><a href="#replenishment-spu">2.1 SPU冗余检视</a></li>
           <li><a href="#replenishment-ship">2.3 发货视图</a></li>
@@ -117,28 +117,34 @@
     <hr />
 
     <h2 id="inventory-check">一、库存检查</h2>
-    <p>对应页面：<code>TK库存检查-PID&amp;SKU看板.html</code>。页面包含两个 Tab：<strong>PID&amp;SKU维度</strong>、<strong>SPU维度</strong>。两个 Tab 共用筛选区，分别有列表、汇总卡片、导出按钮和“数据统计说明”弹框。</p>
+    <p>对应页面：<code>库存/库存检查/htmls/库存检查看板-1.0.html</code>，需求文档：<code>库存/库存检查/需求文档.html</code>。页面包含两个 Tab：<strong>PID&amp;SKU维度</strong>、<strong>SPU维度</strong>。接口按最新原型拆为：每个栏目对应统计接口、列表接口、导出接口三个核心能力；页面数据更新时间随列表或统计接口返回，不单独设计库存检查最新时间接口。</p>
+    <div class="note">
+      <strong>本次调整口径：</strong>不再设计“异常状态下拉选项接口”。异常状态筛选项由前端按固定枚举展示；异常卡片点击时通过列表接口的 <code>abnormalType</code> 参数刷新列表，不弹框、不额外请求下拉接口。
+    </div>
 
     <h3>1.1 查询条件</h3>
     <ul>
-      <li><strong>视图</strong>：<code>sku</code>（PID&amp;SKU维度） / <code>spu</code>（SPU维度）</li>
-      <li><strong>站点</strong>：前端筛选条件，直接将选中的站点代码传给列表和汇总接口</li>
-      <li><strong>异常状态</strong>：全部 / 仅看异常 / 仅看正常 / 仅看待确认</li>
-      <li><strong>搜索</strong>：搜索类型 + 关键字</li>
-      <li><strong>同步日期</strong>：按日期查询当日库存快照</li>
+      <li><strong>视图</strong>：<code>sku</code>（PID&amp;SKU维度） / <code>spu</code>（SPU维度）。</li>
+      <li><strong>站点</strong>：按区域级联选择后传 <code>siteCodes</code>；接口只接收站点代码列表。</li>
+      <li><strong>店铺</strong>：传 <code>storeNames</code> 或后续可替换为 <code>storeIds</code>。</li>
+      <li><strong>异常筛选</strong>：固定枚举 <code>all</code>、<code>threshold</code>、<code>lessSync</code>、<code>oversoldRisk</code>；不提供下拉接口。</li>
+      <li><strong>搜索</strong>：使用 <code>searchField</code> + <code>searchKeyword</code> / <code>exactSearchKeyword</code>。SKU 维度支持 <code>pid</code>、<code>sku</code>、<code>spu</code>；SPU 维度固定支持 <code>spu</code>。</li>
+      <li><strong>日期</strong>：最新原型已移除同步日期筛选，接口默认查询最新快照；如后端保留历史能力，可传可选参数 <code>snapshotDate</code>。</li>
     </ul>
 
-    <h3 id="inventory-check-page">1.2 主表接口：库存检查列表</h3>
-    <p>根据当前 Tab 返回对应粒度列表。建议一个接口通过 <code>viewType</code> 区分 SKU / SPU 两个视图。</p>
+    <h3 id="inventory-check-page">1.2 列表接口：库存检查列表</h3>
+    <p>根据当前 Tab 返回对应粒度列表。一个接口通过 <code>viewType</code> 区分 SKU / SPU 两个视图。</p>
     <pre><code>POST /tk/inventory/check/page</code></pre>
     <p><strong>请求体（JSON）</strong></p>
     <pre><code>{
   "viewType": "sku",
   "siteCodes": ["US"],
-  "statusFilter": "all",
+  "storeNames": ["美国TK-艾斯特尼-美区跨境1店"],
+  "abnormalType": "all",
   "searchField": "sku",
   "searchKeyword": "",
-  "syncDate": "2026-04-12",
+  "exactSearchKeyword": "",
+  "snapshotDate": "",
   "page": 1,
   "pageSize": 20
 }</code></pre>
@@ -148,302 +154,254 @@
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td>viewType</td><td>string</td><td>是</td><td><code>sku</code> / <code>spu</code></td></tr>
-          <tr><td>siteCodes</td><td>list&lt;string&gt;</td><td>否</td><td>站点代码列表；支持多选或按区域展开</td></tr>
-          <tr><td>statusFilter</td><td>string</td><td>否</td><td><code>all</code> / <code>abnormal</code> / <code>normal</code> / <code>pending</code></td></tr>
-          <tr><td>searchField</td><td>string</td><td>否</td><td>SKU 视图支持 <code>pid</code>、<code>sku</code>、<code>spu</code>；SPU 视图建议固定为 <code>spu</code></td></tr>
-          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>搜索关键字，支持模糊匹配</td></tr>
-          <tr><td>syncDate</td><td>string</td><td>是</td><td>同步日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td>siteCodes</td><td>list&lt;string&gt;</td><td>否</td><td>站点代码列表；来自前端级联选择结果</td></tr>
+          <tr><td>storeNames</td><td>list&lt;string&gt;</td><td>否</td><td>店铺名称列表；后续若接店铺维表，可改为 <code>storeIds</code></td></tr>
+          <tr><td>abnormalType</td><td>string</td><td>否</td><td><code>all</code> 全部；<code>threshold</code> 阀值同步异常；<code>lessSync</code> 少同步；<code>oversoldRisk</code> 超卖风险。来自卡片点击或固定筛选项，不需要下拉接口</td></tr>
+          <tr><td>searchField</td><td>string</td><td>否</td><td>SKU 维度：<code>pid</code> / <code>sku</code> / <code>spu</code>；SPU 维度：<code>spu</code></td></tr>
+          <tr><td>searchKeyword</td><td>string</td><td>否</td><td>模糊搜索关键字</td></tr>
+          <tr><td>exactSearchKeyword</td><td>string</td><td>否</td><td>精确搜索关键字，支持逗号或换行分隔，最多 500 项</td></tr>
+          <tr><td>snapshotDate</td><td>string</td><td>否</td><td>历史快照日期，格式 <code>YYYY-MM-DD</code>；为空默认最新快照</td></tr>
           <tr><td>page</td><td>number</td><td>否</td><td>页码，默认 1</td></tr>
           <tr><td>pageSize</td><td>number</td><td>否</td><td>每页条数，默认 20</td></tr>
         </tbody>
       </table>
     </div>
     <div class="note">
-      <strong>合计行约定：</strong>参考 <code>com.ms.bi.tkdashboard.controller.TkPidController#getPidDetail</code> 的返回与导出处理方式，库存检查与缺补货列表接口统一使用独立字段 <code>totalRow</code> 返回底部合计行，不混入 <code>list</code>。前端渲染时固定展示在表格最后一行。
+      <strong>合计行约定：</strong>PID&amp;SKU 维度不返回合计行；SPU 维度可返回 <code>totalRow</code>，前端固定展示在列表最后一行，不计入 <code>list</code> 和 <code>total</code>。
     </div>
-    <p><strong>响应 data</strong></p>
+    <p><strong>响应 data 示例</strong></p>
     <pre><code>{
   "viewType": "sku",
-  "syncDate": "2026-04-12",
-  "updateTime": "2026-04-13 16:00:20",
+  "snapshotDate": "2026-06-08",
+  "updateTime": "2026-06-08 16:00:20",
   "list": [
     {
-      "date": "2026-04-12",
+      "siteCode": "US",
       "storeName": "美国TK-艾斯特尼-美区跨境1店",
+      "spu": "AL-W0161",
+      "spuName": "Women Lounge Set",
       "pid": "1729439482671567205",
-      "spu": null,
-      "spuName": null,
-      "sku": "AL-W0161-DARKGRAY-XL",
-      "skuName": "深灰 XL",
-      "purchaseQty": 120,
-      "domesticInventoryQty": 18,
-      "deliveryInTransitQty": 42,
-      "warehouseDomestic1Qty": 26,
-      "warehouseDomestic2Qty": 9,
-      "warehouseDomestic3Qty": 14,
-      "thirdPartyInTransitQty": 68,
-      "warehouseGuchang1Qty": 95,
-      "warehouseGuchang2Qty": 103,
-      "warehouseGuchang3Qty": -8,
-      "fbtInTransitQty": 21,
-      "fbtAvailableQty": 18,
-      "warehouseWinitUsky31Qty": 12,
-      "warehouseWinitUsky32Qty": 10,
-      "warehouseWinitUsky33Qty": 2,
-      "overseaAvailableQty": 38,
-      "overseaInTransitQty": 35,
-      "totalInTransitQty": 59,
-      "totalAvailableQty": 56,
-      "totalInventoryQty": 115,
-      "warehouseUkReturn1Qty": null,
-      "warehouseUkReturn2Qty": null,
-      "warehouseUkReturn3Qty": null,
-      "inventoryStatusName": "少同步",
-      "inventoryStatusCode": "abnormal"
+      "msku": "AL-W0161",
+      "skuId": "1729439482671567205-01",
+      "inventorySku": "AL-W0161-DARKGRAY-XL",
+      "inventorySkuName": "深灰 XL",
+      "totalInventoryQty": 2568,
+      "overseaOnHandTotalQty": 1118,
+      "overseaInTransitTotalQty": 944,
+      "totalDomesticInventoryQty": 168,
+      "storeShouldSyncQty": 1148,
+      "storeSyncedTotalQty": 1184,
+      "inventoryTotalDiffQty": 36,
+      "inventoryThresholdQty": 10,
+      "isInventoryAbnormal": true,
+      "abnormalType": "少同步"
     }
   ],
   "total": 1286,
-  "totalRow": {
-    "date": "合计",
-    "storeName": null,
-    "pid": null,
-    "spu": null,
-    "spuName": null,
-    "sku": null,
-    "skuName": null,
-    "purchaseQty": 24560,
-    "domesticInventoryQty": 1830,
-    "deliveryInTransitQty": 4260,
-    "warehouseDomestic1Qty": 1730,
-    "warehouseDomestic2Qty": 1688,
-    "warehouseDomestic3Qty": 42,
-    "thirdPartyInTransitQty": 6168,
-    "warehouseGuchang1Qty": 4280,
-    "warehouseGuchang2Qty": 4218,
-    "warehouseGuchang3Qty": 62,
-    "fbtInTransitQty": 1260,
-    "fbtAvailableQty": 5380,
-    "warehouseWinitUsky31Qty": 2860,
-    "warehouseWinitUsky32Qty": 2788,
-    "warehouseWinitUsky33Qty": 72,
-    "overseaAvailableQty": 16562,
-    "overseaInTransitQty": 4908,
-    "totalInTransitQty": 9168,
-    "totalAvailableQty": 18392,
-    "totalInventoryQty": 27560,
-    "warehouseUkReturn1Qty": 118,
-    "warehouseUkReturn2Qty": 112,
-    "warehouseUkReturn3Qty": 6,
-    "inventoryStatusName": null,
-    "inventoryStatusCode": null
-  }
+  "totalRow": null
 }</code></pre>
-    <p><strong>data 字段说明（按层级）</strong></p>
+
+    <h4>1.2.1 SKU 维度列表字段</h4>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>层级</th><th>路径</th><th>类型</th><th>说明</th></tr></thead>
+        <thead><tr><th>接口字段</th><th>类型</th><th>页面字段</th></tr></thead>
         <tbody>
-          <tr><td>1</td><td>viewType</td><td>string</td><td>当前返回的视图类型</td></tr>
-          <tr><td>1</td><td>syncDate</td><td>string</td><td>本次查询日期，YYYY-MM-DD</td></tr>
-          <tr><td>1</td><td>updateTime</td><td>string</td><td>页面右上角“数据更新时间”</td></tr>
-          <tr><td>1</td><td>list</td><td>list</td><td>列表数据</td></tr>
-          <tr><td>1</td><td>total</td><td>number</td><td>总记录数</td></tr>
-          <tr><td>1</td><td>totalRow</td><td>object</td><td>底部合计行，单独返回，不计入 <code>list</code> 与 <code>total</code></td></tr>
-          <tr><td>2</td><td>list[].storeName</td><td>string</td><td>店铺名称；库存检查原型表格固定展示该列</td></tr>
-          <tr><td>2</td><td>list[].pid / sku / skuName</td><td>string</td><td>SKU 视图主维度字段</td></tr>
-          <tr><td>2</td><td>list[].spu / spuName</td><td>string</td><td>SPU 视图主维度字段；SKU 视图下可为空或不返回</td></tr>
-          <tr><td>2</td><td>list[].inventoryStatusName</td><td>string</td><td>库存状态：少同步 / 超卖风险 / 正常 / 待确认</td></tr>
-          <tr><td>2</td><td>totalRow.*</td><td>mixed</td><td>字段结构与当前视图列表行保持一致；维度字段建议首列返回 <code>合计</code>，数值字段按当前筛选结果汇总，状态类字段可返回空</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点</td></tr>
+<tr><td><code>storeName</code></td><td>string</td><td>店铺</td></tr>
+<tr><td><code>spu</code></td><td>string</td><td>SPU</td></tr>
+<tr><td><code>spuName</code></td><td>string</td><td>SPU名称</td></tr>
+<tr><td><code>pid</code></td><td>string</td><td>PID</td></tr>
+<tr><td><code>msku</code></td><td>string</td><td>MSKU</td></tr>
+<tr><td><code>skuId</code></td><td>string</td><td>SKU ID</td></tr>
+<tr><td><code>inventorySku</code></td><td>string</td><td>库存SKU</td></tr>
+<tr><td><code>inventorySkuName</code></td><td>string</td><td>库存SKU名称</td></tr>
+<tr><td><code>totalInventoryQty</code></td><td>number</td><td>总库存</td></tr>
+<tr><td><code>totalInTransitQty</code></td><td>number</td><td>总在途库存</td></tr>
+<tr><td><code>totalAvailableQty</code></td><td>number</td><td>总可用库存</td></tr>
+<tr><td><code>totalDomesticInventoryQty</code></td><td>number</td><td>总国内库存</td></tr>
+<tr><td><code>purchaseInTransitQty</code></td><td>number</td><td>采购在途库存</td></tr>
+<tr><td><code>factoryPurchaseUndeliveredQty</code></td><td>number</td><td>工厂采购未交量</td></tr>
+<tr><td><code>domesticDeliveryInTransitQty</code></td><td>number</td><td>国内交货在途库存</td></tr>
+<tr><td><code>domesticOnHandQty</code></td><td>number</td><td>国内在库库存</td></tr>
+<tr><td><code>overseaInTransitTotalQty</code></td><td>number</td><td>海外在途总量</td></tr>
+<tr><td><code>thirdPartyInTransitQty</code></td><td>number</td><td>三方仓在途量</td></tr>
+<tr><td><code>winitUsky3InTransitQty</code></td><td>number</td><td>万邑通USKY3在途</td></tr>
+<tr><td><code>winitUswc2InTransitQty</code></td><td>number</td><td>万邑通USWC2在途</td></tr>
+<tr><td><code>winitUswcInTransitQty</code></td><td>number</td><td>万邑通USWC在途</td></tr>
+<tr><td><code>guchangWestInTransitQty</code></td><td>number</td><td>美国谷仓:美西仓库在途</td></tr>
+<tr><td><code>fbtInTransitQty</code></td><td>number</td><td>FBT在途量</td></tr>
+<tr><td><code>ukReturnInTransitQty</code></td><td>number</td><td>英国退货仓在途量</td></tr>
+<tr><td><code>overseaOnHandTotalQty</code></td><td>number</td><td>海外在库总库存</td></tr>
+<tr><td><code>jijiaWinitUsky3AvailableQty</code></td><td>number</td><td>积加-万邑通USKY3</td></tr>
+<tr><td><code>jijiaWinitUswc2AvailableQty</code></td><td>number</td><td>积加-万邑通USWC2</td></tr>
+<tr><td><code>jijiaWinitUswcAvailableQty</code></td><td>number</td><td>积加-万邑通USWC</td></tr>
+<tr><td><code>jijiaGuchangWestAvailableQty</code></td><td>number</td><td>积加-谷仓美西仓库</td></tr>
+<tr><td><code>jijiaFbaAvailableQty</code></td><td>number</td><td>积加-FBA仓库</td></tr>
+<tr><td><code>jijiaFbtAvailableQty</code></td><td>number</td><td>积加-FBT可用</td></tr>
+<tr><td><code>thirdPartyAvailableQty</code></td><td>number</td><td>三方仓可用量</td></tr>
+<tr><td><code>jijiaUkReturnAvailableQty</code></td><td>number</td><td>积加-英国退货仓</td></tr>
+<tr><td><code>storeShouldSyncQty</code></td><td>number</td><td>店铺应该被同步的库存</td></tr>
+<tr><td><code>storeSyncedTotalQty</code></td><td>number</td><td>店铺侧被同步的总库存</td></tr>
+<tr><td><code>storeUsTkXiamenDirectQty</code></td><td>number</td><td>店铺侧-美国TK厦门直邮仓</td></tr>
+<tr><td><code>storeWinitUsky3Qty</code></td><td>number</td><td>店铺侧-万邑通USKY3</td></tr>
+<tr><td><code>storeWinitUswc2Qty</code></td><td>number</td><td>店铺侧-万邑通USWC2</td></tr>
+<tr><td><code>storeWinitUswcQty</code></td><td>number</td><td>店铺侧-万邑通USWC</td></tr>
+<tr><td><code>storeGuchangWestQty</code></td><td>number</td><td>店铺侧-谷仓美西仓库</td></tr>
+<tr><td><code>storeFbaQty</code></td><td>number</td><td>店铺侧-FBA仓库</td></tr>
+<tr><td><code>storeFbtAvailableQty</code></td><td>number</td><td>店铺侧-FBT可用</td></tr>
+<tr><td><code>storeUkReturnQty</code></td><td>number</td><td>店铺侧-英国退货仓</td></tr>
+<tr><td><code>inventoryTotalDiffQty</code></td><td>number</td><td>库存总差异</td></tr>
+<tr><td><code>domesticDiffQty</code></td><td>number</td><td>国内仓-3</td></tr>
+<tr><td><code>winitUsky3DiffQty</code></td><td>number</td><td>万邑通USKY3-3</td></tr>
+<tr><td><code>winitUswc2DiffQty</code></td><td>number</td><td>万邑通USWC2-3</td></tr>
+<tr><td><code>winitUswcDiffQty</code></td><td>number</td><td>万邑通USWC-3</td></tr>
+<tr><td><code>guchangWestDiffQty</code></td><td>number</td><td>谷仓-3</td></tr>
+<tr><td><code>fbaDiffQty</code></td><td>number</td><td>FBA(空着)-3</td></tr>
+<tr><td><code>fbtDiffQty</code></td><td>number</td><td>FBT-3</td></tr>
+<tr><td><code>ukReturnDiffQty</code></td><td>number</td><td>英国退货仓-3</td></tr>
+<tr><td><code>abnormalWarehouseNames</code></td><td>string</td><td>异常仓库</td></tr>
+<tr><td><code>inventoryTotalDiffQty</code></td><td>number</td><td>异常判断模块复用字段：库存总差异</td></tr>
+<tr><td><code>inventoryThresholdQty</code></td><td>number</td><td>库存阀值设置</td></tr>
+<tr><td><code>isInventoryAbnormal</code></td><td>boolean</td><td>库存是否异常</td></tr>
+<tr><td><code>abnormalType</code></td><td>string</td><td>异常类型</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4>1.2.2 SPU 维度列表字段</h4>
+    <p>SPU 维度字段来自 PID&amp;SKU 明细聚合，产品基础信息只保留 <code>siteCode</code>、<code>storeName</code>、<code>spu</code>、<code>spuName</code>，库存、差异和异常字段与 SKU 维度保持一致。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口字段</th><th>类型</th><th>页面字段</th></tr></thead>
+        <tbody>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点</td></tr>
+<tr><td><code>storeName</code></td><td>string</td><td>店铺</td></tr>
+<tr><td><code>spu</code></td><td>string</td><td>SPU</td></tr>
+<tr><td><code>spuName</code></td><td>string</td><td>SPU名称</td></tr>
+<tr><td><code>totalInventoryQty</code></td><td>number</td><td>总库存</td></tr>
+<tr><td><code>totalInTransitQty</code></td><td>number</td><td>总在途库存</td></tr>
+<tr><td><code>totalAvailableQty</code></td><td>number</td><td>总可用库存</td></tr>
+<tr><td><code>totalDomesticInventoryQty</code></td><td>number</td><td>总国内库存</td></tr>
+<tr><td><code>purchaseInTransitQty</code></td><td>number</td><td>采购在途库存</td></tr>
+<tr><td><code>factoryPurchaseUndeliveredQty</code></td><td>number</td><td>工厂采购未交量</td></tr>
+<tr><td><code>domesticDeliveryInTransitQty</code></td><td>number</td><td>国内交货在途库存</td></tr>
+<tr><td><code>domesticOnHandQty</code></td><td>number</td><td>国内在库库存</td></tr>
+<tr><td><code>overseaInTransitTotalQty</code></td><td>number</td><td>海外在途总量</td></tr>
+<tr><td><code>thirdPartyInTransitQty</code></td><td>number</td><td>三方仓在途量</td></tr>
+<tr><td><code>winitUsky3InTransitQty</code></td><td>number</td><td>万邑通USKY3在途</td></tr>
+<tr><td><code>winitUswc2InTransitQty</code></td><td>number</td><td>万邑通USWC2在途</td></tr>
+<tr><td><code>winitUswcInTransitQty</code></td><td>number</td><td>万邑通USWC在途</td></tr>
+<tr><td><code>guchangWestInTransitQty</code></td><td>number</td><td>美国谷仓:美西仓库在途</td></tr>
+<tr><td><code>fbtInTransitQty</code></td><td>number</td><td>FBT在途量</td></tr>
+<tr><td><code>ukReturnInTransitQty</code></td><td>number</td><td>英国退货仓在途量</td></tr>
+<tr><td><code>overseaOnHandTotalQty</code></td><td>number</td><td>海外在库总库存</td></tr>
+<tr><td><code>jijiaWinitUsky3AvailableQty</code></td><td>number</td><td>积加-万邑通USKY3</td></tr>
+<tr><td><code>jijiaWinitUswc2AvailableQty</code></td><td>number</td><td>积加-万邑通USWC2</td></tr>
+<tr><td><code>jijiaWinitUswcAvailableQty</code></td><td>number</td><td>积加-万邑通USWC</td></tr>
+<tr><td><code>jijiaGuchangWestAvailableQty</code></td><td>number</td><td>积加-谷仓美西仓库</td></tr>
+<tr><td><code>jijiaFbaAvailableQty</code></td><td>number</td><td>积加-FBA仓库</td></tr>
+<tr><td><code>jijiaFbtAvailableQty</code></td><td>number</td><td>积加-FBT可用</td></tr>
+<tr><td><code>thirdPartyAvailableQty</code></td><td>number</td><td>三方仓可用量</td></tr>
+<tr><td><code>jijiaUkReturnAvailableQty</code></td><td>number</td><td>积加-英国退货仓</td></tr>
+<tr><td><code>storeShouldSyncQty</code></td><td>number</td><td>店铺应该被同步的库存</td></tr>
+<tr><td><code>storeSyncedTotalQty</code></td><td>number</td><td>店铺侧被同步的总库存</td></tr>
+<tr><td><code>storeUsTkXiamenDirectQty</code></td><td>number</td><td>店铺侧-美国TK厦门直邮仓</td></tr>
+<tr><td><code>storeWinitUsky3Qty</code></td><td>number</td><td>店铺侧-万邑通USKY3</td></tr>
+<tr><td><code>storeWinitUswc2Qty</code></td><td>number</td><td>店铺侧-万邑通USWC2</td></tr>
+<tr><td><code>storeWinitUswcQty</code></td><td>number</td><td>店铺侧-万邑通USWC</td></tr>
+<tr><td><code>storeGuchangWestQty</code></td><td>number</td><td>店铺侧-谷仓美西仓库</td></tr>
+<tr><td><code>storeFbaQty</code></td><td>number</td><td>店铺侧-FBA仓库</td></tr>
+<tr><td><code>storeFbtAvailableQty</code></td><td>number</td><td>店铺侧-FBT可用</td></tr>
+<tr><td><code>storeUkReturnQty</code></td><td>number</td><td>店铺侧-英国退货仓</td></tr>
+<tr><td><code>inventoryTotalDiffQty</code></td><td>number</td><td>库存总差异</td></tr>
+<tr><td><code>domesticDiffQty</code></td><td>number</td><td>国内仓-3</td></tr>
+<tr><td><code>winitUsky3DiffQty</code></td><td>number</td><td>万邑通USKY3-3</td></tr>
+<tr><td><code>winitUswc2DiffQty</code></td><td>number</td><td>万邑通USWC2-3</td></tr>
+<tr><td><code>winitUswcDiffQty</code></td><td>number</td><td>万邑通USWC-3</td></tr>
+<tr><td><code>guchangWestDiffQty</code></td><td>number</td><td>谷仓-3</td></tr>
+<tr><td><code>fbaDiffQty</code></td><td>number</td><td>FBA(空着)-3</td></tr>
+<tr><td><code>fbtDiffQty</code></td><td>number</td><td>FBT-3</td></tr>
+<tr><td><code>ukReturnDiffQty</code></td><td>number</td><td>英国退货仓-3</td></tr>
+<tr><td><code>abnormalWarehouseNames</code></td><td>string</td><td>异常仓库</td></tr>
+<tr><td><code>inventoryTotalDiffQty</code></td><td>number</td><td>异常判断模块复用字段：库存总差异</td></tr>
+<tr><td><code>inventoryThresholdQty</code></td><td>number</td><td>库存阀值设置</td></tr>
+<tr><td><code>isInventoryAbnormal</code></td><td>boolean</td><td>库存是否异常</td></tr>
+<tr><td><code>abnormalType</code></td><td>string</td><td>异常类型</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="inventory-check-sku-summary">1.3 汇总卡片接口：PID&amp;SKU维度</h3>
-    <p>PID&amp;SKU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
+    <p>返回 PID&amp;SKU 维度顶部 7 个卡片。异常类卡片点击后调用列表接口，并传入对应 <code>abnormalType</code>。</p>
     <pre><code>POST /tk/inventory/check/sku/summary</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "statusFilter": "all",
-  "searchField": "sku",
-  "searchKeyword": "",
-  "syncDate": "2026-04-12"
+  "storeNames": [],
+  "snapshotDate": ""
 }</code></pre>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "updateTime": "2026-04-13 16:00:20",
-  "skuCount": 1286,
-  "abnormalSkuCount": 93,
-  "totalInventoryQty": 24560,
-  "totalAvailableQty": 18392,
-  "totalInTransitQty": 6168
-}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <thead><tr><th>接口字段</th><th>类型</th><th>页面卡片</th></tr></thead>
         <tbody>
-          <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
-          <tr><td>skuCount</td><td>number</td><td>SKU总数</td></tr>
-          <tr><td>abnormalSkuCount</td><td>number</td><td>异常SKU数</td></tr>
-          <tr><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td><code>totalCount</code></td><td>number</td><td>SKU总数 / SPU总数</td></tr>
+<tr><td><code>overseaOnHandTotalQty</code></td><td>number</td><td>海外在库总库存</td></tr>
+<tr><td><code>overseaInTransitTotalQty</code></td><td>number</td><td>海外在途总库存</td></tr>
+<tr><td><code>totalDomesticInventoryQty</code></td><td>number</td><td>国内总库存</td></tr>
+<tr><td><code>thresholdSyncAbnormalCount</code></td><td>number</td><td>阀值同步异常数；点击后列表按 <code>abnormalType=threshold</code> 刷新</td></tr>
+<tr><td><code>lessSyncAbnormalCount</code></td><td>number</td><td>少同步异常数；点击后列表按 <code>abnormalType=lessSync</code> 刷新</td></tr>
+<tr><td><code>oversoldRiskAbnormalCount</code></td><td>number</td><td>超卖风险异常数；点击后列表按 <code>abnormalType=oversoldRisk</code> 刷新</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="inventory-check-spu-summary">1.4 汇总卡片接口：SPU维度</h3>
-    <p>SPU 视图使用独立汇总接口，单接口返回该视图下全部汇总指标。</p>
+    <p>返回 SPU 维度顶部 7 个卡片。字段结构与 SKU 维度一致，仅 <code>totalCount</code> 语义为 <strong>SPU总数</strong>。</p>
     <pre><code>POST /tk/inventory/check/spu/summary</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
   "siteCodes": ["US"],
-  "statusFilter": "all",
-  "searchField": "spu",
-  "searchKeyword": "",
-  "syncDate": "2026-04-12"
+  "storeNames": [],
+  "snapshotDate": ""
 }</code></pre>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "updateTime": "2026-04-13 16:00:20",
-  "spuCount": 216,
-  "abnormalSpuCount": 28,
-  "totalInventoryQty": 24560,
-  "totalAvailableQty": 18392,
-  "totalInTransitQty": 6168
-}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <thead><tr><th>接口字段</th><th>类型</th><th>页面卡片</th></tr></thead>
         <tbody>
-          <tr><td>updateTime</td><td>string</td><td>页面右上角数据更新时间</td></tr>
-          <tr><td>spuCount</td><td>number</td><td>SPU总数</td></tr>
-          <tr><td>abnormalSpuCount</td><td>number</td><td>异常SPU数</td></tr>
-          <tr><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
+          <tr><td><code>totalCount</code></td><td>number</td><td>SPU总数</td></tr>
+<tr><td><code>overseaOnHandTotalQty</code></td><td>number</td><td>海外在库总库存</td></tr>
+<tr><td><code>overseaInTransitTotalQty</code></td><td>number</td><td>海外在途总库存</td></tr>
+<tr><td><code>totalDomesticInventoryQty</code></td><td>number</td><td>国内总库存</td></tr>
+<tr><td><code>thresholdSyncAbnormalCount</code></td><td>number</td><td>阀值同步异常数；点击后列表按 <code>abnormalType=threshold</code> 刷新</td></tr>
+<tr><td><code>lessSyncAbnormalCount</code></td><td>number</td><td>少同步异常数；点击后列表按 <code>abnormalType=lessSync</code> 刷新</td></tr>
+<tr><td><code>oversoldRiskAbnormalCount</code></td><td>number</td><td>超卖风险异常数；点击后列表按 <code>abnormalType=oversoldRisk</code> 刷新</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>1.5 数据统计说明接口</h3>
-    <p>页面点击“数据统计说明”时，弹出当前视图的统计口径说明。若口径说明固定，也可前端静态写死；这里给出后端配置化方案。</p>
-    <pre><code>GET /tk/inventory/check/metric/desc?viewType=sku</code></pre>
-    <p><strong>响应 data</strong></p>
-    <pre><code>{
-  "title": "数据统计说明",
-  "items": [
-    {
-      "label": "SKU总数",
-      "definition": "当前查询范围内的 PID&SKU 数量",
-      "formula": "按当前筛选条件过滤后，对 PID&SKU 明细结果逐行计数"
-    },
-    {
-      "label": "异常SKU数",
-      "definition": "少同步或超卖风险项数量",
-      "formula": "库存是否异常字段不等于同步正确的 SKU 数"
-    }
-  ]
-}</code></pre>
-
-    <h3 id="inventory-check-export">1.6 导出接口：导出明细 / 导出汇总 / 导出异常SPU</h3>
-    <p>原型中 SKU 视图有“导出明细”，SPU 视图有“导出汇总”“导出异常SPU”。建议统一为一个导出接口，通过 <code>exportType</code> 区分。</p>
+    <h3 id="inventory-check-export">1.5 导出接口</h3>
+    <p>导出当前视图、当前筛选条件下的明细。导出字段与列表接口当前 <code>viewType</code> 的字段完全一致。</p>
     <pre><code>POST /tk/inventory/check/export</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
-  "viewType": "spu",
-  "exportType": "abnormal",
+  "viewType": "sku",
   "siteCodes": ["US"],
-  "statusFilter": "abnormal",
-  "searchField": "spu",
+  "storeNames": [],
+  "abnormalType": "all",
+  "searchField": "sku",
   "searchKeyword": "",
-  "syncDate": "2026-04-12"
+  "exactSearchKeyword": "",
+  "snapshotDate": ""
 }</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>参数</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>exportType</td><td><code>detail</code>（明细导出） / <code>summary</code>（SPU汇总导出） / <code>abnormal</code>（异常SPU导出）</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3>1.7 列表字段明细：PID&amp;SKU维度</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
-          <tr><td>店铺</td><td>storeName</td><td>string</td><td>店铺名称</td></tr>
-          <tr><td>PID</td><td>pid</td><td>string</td><td>商品 PID</td></tr>
-          <tr><td>SKU</td><td>sku</td><td>string</td><td>商品 SKU</td></tr>
-          <tr><td>SKU名称</td><td>skuName</td><td>string</td><td>SKU 中文名称</td></tr>
-          <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>采购数量</td></tr>
-          <tr><td>国内库存</td><td>domesticInventoryQty</td><td>number</td><td>国内可用库存</td></tr>
-          <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>交货在途库存</td></tr>
-          <tr><td>国内仓-1</td><td>warehouseDomestic1Qty</td><td>number</td><td>我们有的库存口径</td></tr>
-          <tr><td>国内仓-2</td><td>warehouseDomestic2Qty</td><td>number</td><td>店铺后台实际同步库存口径</td></tr>
-          <tr><td>国内仓-3</td><td>warehouseDomestic3Qty</td><td>number</td><td>差异值 = -1 - -2</td></tr>
-          <tr><td>三方仓在途量</td><td>thirdPartyInTransitQty</td><td>number</td><td>三方仓在途汇总</td></tr>
-          <tr><td>谷仓-1</td><td>warehouseGuchang1Qty</td><td>number</td><td>谷仓我们有的库存</td></tr>
-          <tr><td>谷仓-2</td><td>warehouseGuchang2Qty</td><td>number</td><td>谷仓同步库存</td></tr>
-          <tr><td>谷仓-3</td><td>warehouseGuchang3Qty</td><td>number</td><td>谷仓差异</td></tr>
-          <tr><td>FBT在途量</td><td>fbtInTransitQty</td><td>number</td><td>FBT 在途量</td></tr>
-          <tr><td>FBT可用量</td><td>fbtAvailableQty</td><td>number</td><td>FBT 可用量</td></tr>
-          <tr><td>万邑通USKY3-1</td><td>warehouseWinitUsky31Qty</td><td>number</td><td>USKY3 我们有的库存</td></tr>
-          <tr><td>万邑通USKY3-2</td><td>warehouseWinitUsky32Qty</td><td>number</td><td>USKY3 同步库存</td></tr>
-          <tr><td>万邑通USKY3-3</td><td>warehouseWinitUsky33Qty</td><td>number</td><td>USKY3 差异</td></tr>
-          <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>海外可用库存汇总</td></tr>
-          <tr><td>海外在途库存</td><td>overseaInTransitQty</td><td>number</td><td>海外在途库存汇总</td></tr>
-          <tr><td>总在途库存</td><td>totalInTransitQty</td><td>number</td><td>总在途库存</td></tr>
-          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>总可用库存</td></tr>
-          <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>总库存</td></tr>
-          <tr><td>英国退货仓-1</td><td>warehouseUkReturn1Qty</td><td>number</td><td>英国退货仓我们有的库存</td></tr>
-          <tr><td>英国退货仓-2</td><td>warehouseUkReturn2Qty</td><td>number</td><td>英国退货仓同步库存</td></tr>
-          <tr><td>英国退货仓-3</td><td>warehouseUkReturn3Qty</td><td>number</td><td>英国退货仓差异</td></tr>
-          <tr><td>库存是否异常</td><td>inventoryStatusName</td><td>string</td><td>少同步 / 超卖风险 / 正常 / 待确认</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <h3>1.8 列表字段明细：SPU维度</h3>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>原型表头</th><th>返回字段</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td>时间</td><td>date</td><td>string</td><td>同步日期，YYYY-MM-DD</td></tr>
-          <tr><td>店铺</td><td>storeName</td><td>string</td><td>店铺名称</td></tr>
-          <tr><td>SPU</td><td>spu</td><td>string</td><td>SPU 编码</td></tr>
-          <tr><td>SPU名称</td><td>spuName</td><td>string</td><td>SPU 名称</td></tr>
-          <tr><td>采购量</td><td>purchaseQty</td><td>number</td><td>SPU 维度汇总值</td></tr>
-          <tr><td>国内库存</td><td>domesticInventoryQty</td><td>number</td><td>SPU 汇总</td></tr>
-          <tr><td>交货在途库存</td><td>deliveryInTransitQty</td><td>number</td><td>SPU 汇总</td></tr>
-          <tr><td>国内仓-1</td><td>warehouseDomestic1Qty</td><td>number</td><td>SPU 聚合后国内仓-1</td></tr>
-          <tr><td>国内仓-2</td><td>warehouseDomestic2Qty</td><td>number</td><td>SPU 聚合后国内仓-2</td></tr>
-          <tr><td>国内仓-3</td><td>warehouseDomestic3Qty</td><td>number</td><td>SPU 聚合后国内仓-3</td></tr>
-          <tr><td>三方仓在途量</td><td>thirdPartyInTransitQty</td><td>number</td><td>SPU 聚合后三方仓在途量</td></tr>
-          <tr><td>谷仓-1</td><td>warehouseGuchang1Qty</td><td>number</td><td>SPU 聚合后谷仓-1</td></tr>
-          <tr><td>谷仓-2</td><td>warehouseGuchang2Qty</td><td>number</td><td>SPU 聚合后谷仓-2</td></tr>
-          <tr><td>谷仓-3</td><td>warehouseGuchang3Qty</td><td>number</td><td>SPU 聚合后谷仓-3</td></tr>
-          <tr><td>FBT在途量</td><td>fbtInTransitQty</td><td>number</td><td>SPU 聚合后 FBT 在途量</td></tr>
-          <tr><td>FBT可用量</td><td>fbtAvailableQty</td><td>number</td><td>SPU 聚合后 FBT 可用量</td></tr>
-          <tr><td>万邑通USKY3-1</td><td>warehouseWinitUsky31Qty</td><td>number</td><td>SPU 聚合后 USKY3-1</td></tr>
-          <tr><td>万邑通USKY3-2</td><td>warehouseWinitUsky32Qty</td><td>number</td><td>SPU 聚合后 USKY3-2</td></tr>
-          <tr><td>万邑通USKY3-3</td><td>warehouseWinitUsky33Qty</td><td>number</td><td>SPU 聚合后 USKY3-3</td></tr>
-          <tr><td>海外可用库存</td><td>overseaAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>海外在途库存</td><td>overseaInTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>总在途库存</td><td>totalInTransitQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>总可用库存</td><td>totalAvailableQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>总库存</td><td>totalInventoryQty</td><td>number</td><td>SPU 聚合后重算</td></tr>
-          <tr><td>英国退货仓-1</td><td>warehouseUkReturn1Qty</td><td>number</td><td>SPU 聚合后英国退货仓-1</td></tr>
-          <tr><td>英国退货仓-2</td><td>warehouseUkReturn2Qty</td><td>number</td><td>SPU 聚合后英国退货仓-2</td></tr>
-          <tr><td>英国退货仓-3</td><td>warehouseUkReturn3Qty</td><td>number</td><td>SPU 聚合后英国退货仓-3</td></tr>
-          <tr><td>库存是否异常</td><td>inventoryStatusName</td><td>string</td><td>SPU 粒度重新判断结果</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <hr />
+    <p><strong>响应</strong></p>
+    <ul>
+      <li>文件流：<code>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code></li>
+      <li>文件名建议：<code>TK库存检查_{viewType}_{yyyyMMddHHmmss}.xlsx</code></li>
+      <li>SKU 维度导出 58 个列表字段；SPU 维度导出 53 个列表字段。</li>
+      <li>SPU 维度若页面展示合计行，导出可在末尾追加合计行；PID&amp;SKU 维度不追加合计行。</li>
+    </ul>
 
     <h2 id="replenishment-board">二、缺补货看板</h2>
     <p>对应页面：<code>库存/缺补货/htmls/缺补货看板-1.0.html</code>。页面包含四个独立视图：<strong>SPU冗余检视</strong>、<strong>发货</strong>、<strong>补货</strong>、<strong>发货+补货总和</strong>。每个视图单独成立一套接口，不混用。</p>
@@ -2093,37 +2051,34 @@ Content-Type：application/json</code></pre>
       <table>
         <thead><tr><th>序号</th><th>页面/模块</th><th>功能</th><th>Method</th><th>路径</th></tr></thead>
         <tbody>
+          <tr><td>1</td><td>库存检查</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/check/page</code></td></tr>
+          <tr><td>2</td><td>库存检查</td><td>PID&amp;SKU汇总</td><td>POST</td><td><code>/tk/inventory/check/sku/summary</code></td></tr>
+          <tr><td>3</td><td>库存检查</td><td>SPU汇总</td><td>POST</td><td><code>/tk/inventory/check/spu/summary</code></td></tr>
+          <tr><td>4</td><td>库存检查</td><td>导出</td><td>POST</td><td><code>/tk/inventory/check/export</code></td></tr>
+          <tr><td>5</td><td>缺补货</td><td>数据最新时间</td><td>GET</td><td><code>/tk/inventory/replenishment/dataLatestTime</code></td></tr>
+          <tr><td>6</td><td>缺补货-SPU冗余检视</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/page</code></td></tr>
+          <tr><td>7</td><td>缺补货-SPU冗余检视</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/summary</code></td></tr>
+          <tr><td>8</td><td>缺补货-SPU冗余检视</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/spu/metric/desc</code></td></tr>
+          <tr><td>9</td><td>缺补货-SPU冗余检视</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/export</code></td></tr>
+          <tr><td>10</td><td>缺补货-发货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/page</code></td></tr>
+          <tr><td>11</td><td>缺补货-发货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/summary</code></td></tr>
+          <tr><td>12</td><td>缺补货-发货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/ship/metric/desc</code></td></tr>
+          <tr><td>13</td><td>缺补货-发货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/export</code></td></tr>
+          <tr><td>14</td><td>缺补货-补货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/page</code></td></tr>
+          <tr><td>15</td><td>缺补货-补货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/summary</code></td></tr>
+          <tr><td>16</td><td>缺补货-补货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/restock/metric/desc</code></td></tr>
+          <tr><td>17</td><td>缺补货-补货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/export</code></td></tr>
+          <tr><td>18</td><td>缺补货-发货+补货总和</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/all/page</code></td></tr>
+          <tr><td>19</td><td>缺补货-发货+补货总和</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/all/summary</code></td></tr>
+          <tr><td>20</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/all/metric/desc</code></td></tr>
+          <tr><td>21</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/all/export</code></td></tr>
           
-          <tr><td>2</td><td>库存检查</td><td>数据最新时间</td><td>GET</td><td><code>/tk/inventory/check/dataLatestTime</code></td></tr>
-          <tr><td>3</td><td>库存检查</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/check/page</code></td></tr>
-          <tr><td>4</td><td>库存检查</td><td>PID&amp;SKU汇总</td><td>POST</td><td><code>/tk/inventory/check/sku/summary</code></td></tr>
-          <tr><td>5</td><td>库存检查</td><td>SPU汇总</td><td>POST</td><td><code>/tk/inventory/check/spu/summary</code></td></tr>
-          <tr><td>6</td><td>库存检查</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/check/metric/desc</code></td></tr>
-          <tr><td>7</td><td>库存检查</td><td>导出</td><td>POST</td><td><code>/tk/inventory/check/export</code></td></tr>
-          <tr><td>8</td><td>缺补货</td><td>数据最新时间</td><td>GET</td><td><code>/tk/inventory/replenishment/dataLatestTime</code></td></tr>
-          <tr><td>9</td><td>缺补货-SPU冗余检视</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/page</code></td></tr>
-          <tr><td>10</td><td>缺补货-SPU冗余检视</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/summary</code></td></tr>
-          <tr><td>11</td><td>缺补货-SPU冗余检视</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/spu/metric/desc</code></td></tr>
-          <tr><td>12</td><td>缺补货-SPU冗余检视</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/spu/export</code></td></tr>
-          <tr><td>13</td><td>缺补货-发货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/page</code></td></tr>
-          <tr><td>14</td><td>缺补货-发货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/summary</code></td></tr>
-          <tr><td>15</td><td>缺补货-发货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/ship/metric/desc</code></td></tr>
-          <tr><td>16</td><td>缺补货-发货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/export</code></td></tr>
-          <tr><td>17</td><td>缺补货-补货</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/page</code></td></tr>
-          <tr><td>18</td><td>缺补货-补货</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/summary</code></td></tr>
-          <tr><td>19</td><td>缺补货-补货</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/restock/metric/desc</code></td></tr>
-          <tr><td>20</td><td>缺补货-补货</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/export</code></td></tr>
-          <tr><td>21</td><td>缺补货-发货+补货总和</td><td>列表查询</td><td>POST</td><td><code>/tk/inventory/replenishment/all/page</code></td></tr>
-          <tr><td>22</td><td>缺补货-发货+补货总和</td><td>汇总</td><td>POST</td><td><code>/tk/inventory/replenishment/all/summary</code></td></tr>
-          <tr><td>23</td><td>缺补货-发货+补货总和</td><td>统计说明</td><td>GET</td><td><code>/tk/inventory/replenishment/all/metric/desc</code></td></tr>
-          <tr><td>24</td><td>缺补货-发货+补货总和</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/all/export</code></td></tr>
-          
-          <tr><td>25</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
-          <tr><td>26</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
-          <tr><td>27</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
-          <tr><td>28</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
-          <tr><td>29</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
-          <tr><td>30</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
+          <tr><td>22</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
+          <tr><td>23</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
+          <tr><td>24</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
+          <tr><td>25</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
+          <tr><td>26</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
+          <tr><td>27</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
         </tbody>
       </table>
     </div>

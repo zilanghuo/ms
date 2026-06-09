@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TK库存检查看板</title>
+  <title>库存检查看板</title>
   <style>
     :root {
       --bg: #f5f6f8;
@@ -79,7 +79,6 @@
       font-size: 0.9rem;
       white-space: nowrap;
     }
-    .query-item input[type="date"],
     .query-item input[type="text"],
     .query-item select {
       border: 1px solid var(--input-border);
@@ -153,6 +152,67 @@
     .search-exact-btn:hover { background: #f8fafc; }
     .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
     .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .saved-view-wrap { position: relative; display: inline-flex; }
+    .saved-view-btn {
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0 0.55rem;
+      border: 1px solid #1677ff;
+      border-radius: 4px;
+      background: #fff;
+      color: #0958d9;
+      cursor: pointer;
+      font-size: 0.86rem;
+      line-height: 1;
+    }
+    .saved-view-btn:hover { background: #f0f7ff; }
+    .saved-view-icon { font-size: 0.95rem; line-height: 1; }
+    .saved-view-arrow { padding-left: 0.35rem; border-left: 1px solid #91caff; font-size: 0.78rem; }
+    .saved-view-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      width: 260px;
+      padding: 0.65rem 0;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+      z-index: 260;
+    }
+    .saved-view-panel.open { display: block; }
+    .saved-view-panel::before {
+      content: "";
+      position: absolute;
+      top: -6px;
+      left: 44px;
+      width: 10px;
+      height: 10px;
+      border-left: 1px solid #e5e7eb;
+      border-top: 1px solid #e5e7eb;
+      background: #fff;
+      transform: rotate(45deg);
+    }
+    .saved-view-group-title { padding: 0.25rem 1rem 0.45rem; color: #475569; font-size: 0.86rem; }
+    .saved-view-item {
+      width: 100%;
+      border: 0;
+      background: #fff;
+      color: #0958d9;
+      text-align: left;
+      padding: 0.45rem 1rem;
+      cursor: pointer;
+      font-size: 0.86rem;
+    }
+    .saved-view-item:hover { background: #f5f8ff; }
+    .saved-view-save {
+      border-top: 1px solid #edf2f7;
+      margin-top: 0.45rem;
+      padding-top: 0.45rem;
+    }
     .cascade-wrap { position: relative; display: inline-block; }
     .cascade-trigger {
       display: inline-flex;
@@ -259,7 +319,7 @@
       transition: background 0.1s;
     }
     .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
-    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .query-actions { display: flex; gap: 0.5rem; }
     .btn {
       border-radius: 4px;
       padding: 0.45rem 1rem;
@@ -304,9 +364,28 @@
       gap: 0.75rem;
       margin-bottom: 1rem;
     }
+    .sku-summary-grid {
+      grid-template-columns: repeat(7, minmax(120px, 1fr));
+      gap: 0.6rem;
+    }
     .summary-card {
       padding: 0.9rem 1rem;
       min-height: 90px;
+    }
+    .sku-summary-grid .summary-card {
+      padding: 0.75rem 0.8rem;
+      min-height: 78px;
+    }
+    .sku-summary-grid .summary-label {
+      font-size: 0.78rem;
+      margin-bottom: 0.32rem;
+      white-space: nowrap;
+    }
+    .sku-summary-grid .summary-value {
+      font-size: 1.18rem;
+    }
+    .sku-summary-grid .summary-sub {
+      display: none;
     }
     .summary-label {
       font-size: 0.82rem;
@@ -324,7 +403,62 @@
       color: var(--muted);
     }
     .summary-danger .summary-value { color: var(--danger); }
+    .summary-card.clickable { cursor: pointer; transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease; }
+    .summary-card.clickable:hover { border-color: var(--danger); box-shadow: 0 10px 24px rgba(220, 38, 38, 0.12); transform: translateY(-1px); }
+    .summary-card.clickable.active { border-color: var(--danger); box-shadow: 0 10px 24px rgba(220, 38, 38, 0.14); }
     .summary-note .summary-value { color: #1d4ed8; }
+    .field-head {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      width: 100%;
+      line-height: 1.35;
+    }
+    .field-help {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #93c5fd;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: help;
+    }
+    .field-tooltip {
+      position: fixed;
+      width: 360px;
+      max-width: calc(100vw - 32px);
+      padding: 0.65rem 0.75rem;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #fff;
+      color: #1e293b;
+      box-shadow: 0 12px 28px rgba(15,23,42,0.18);
+      white-space: pre-line;
+      text-align: left;
+      font-size: 0.82rem;
+      font-weight: 400;
+      line-height: 1.55;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
+      z-index: 9999;
+    }
+    .field-tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
     .action-bar {
       padding: 0.75rem 1rem;
       margin-bottom: 1rem;
@@ -411,6 +545,10 @@
     .group-oversea { background: #fef3c7 !important; color: #92400e !important; }
     .group-summary { background: #fee2e2 !important; color: #b91c1c !important; }
     .group-detail { background: #f1f5f9 !important; color: #475569 !important; }
+    .group-store-sync { background: #ccfbf1 !important; color: #0f766e !important; }
+    .group-store-actual { background: #e0e7ff !important; color: #3730a3 !important; }
+    .group-diff { background: #ffe4e6 !important; color: #be123c !important; }
+    .group-exception { background: #ffedd5 !important; color: #c2410c !important; }
     td.num { text-align: right; font-variant-numeric: tabular-nums; }
     td.center { text-align: center; }
     tr:hover td { background: #f9fafb; }
@@ -421,23 +559,59 @@
     tr.row-total:hover td {
       background: #dcfce7;
     }
-    .sticky-col-1, .sticky-col-2, .sticky-col-3, .sticky-col-4, .sticky-col-5, .sticky-col-6, .sticky-col-7 {
+    .inventory-spu-table tbody tr.spu-expandable { cursor: pointer; }
+    .inventory-spu-table tbody tr.spu-expandable:hover td { background: #f8fafc; }
+    .inventory-spu-table tbody tr.spu-expanded td { background: #f0fdfa; }
+    .spu-toggle { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-right: 4px; color: var(--accent); font-size: 0.78rem; }
+    .sku-detail-row td { background: #f8fafc !important; padding: 0.75rem 1rem; }
+    .sku-detail-panel { border: 1px solid #dbeafe; border-radius: 8px; background: #fff; overflow: hidden; width: max-content; min-width: 1400px; max-width: none; }
+    .sku-detail-title { padding: 0.65rem 0.8rem; background: #eff6ff; color: #1d4ed8; font-weight: 600; font-size: 0.86rem; border-bottom: 1px solid #dbeafe; }
+    .sku-detail-wrap { overflow: auto; max-height: 360px; }
+    .sku-detail-table { width: max-content; min-width: 100%; font-size: 0.82rem; }
+    .sku-detail-table th, .sku-detail-table td { position: static; white-space: nowrap; padding: 0.42rem 0.55rem; }
+    .sku-detail-table .th-group { text-align: center; font-weight: 600; }
+    .sku-detail-empty { color: var(--muted); padding: 0.85rem; }
+    .sticky-col-1, .sticky-col-2, .sticky-col-3, .sticky-col-4, .sticky-col-5, .sticky-col-6, .sticky-col-7, .sticky-col-8 {
       position: sticky;
       background: var(--card);
       z-index: 1;
       box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08);
     }
-    th.sticky-col-1, th.sticky-col-2, th.sticky-col-3, th.sticky-col-4, th.sticky-col-5, th.sticky-col-6, th.sticky-col-7 {
+    th.sticky-col-1, th.sticky-col-2, th.sticky-col-3, th.sticky-col-4, th.sticky-col-5, th.sticky-col-6, th.sticky-col-7, th.sticky-col-8 {
       z-index: 3;
       background: #f9fafb !important;
     }
-    .sticky-col-1 { left: 0; min-width: 120px; }
-    .sticky-col-2 { left: 120px; min-width: 240px; }
-    .sticky-col-3 { left: 360px; min-width: 180px; }
-    .sticky-col-4 { left: 540px; min-width: 200px; }
-    .sticky-col-5 { left: 740px; min-width: 140px; }
-    .sticky-col-6 { left: 880px; min-width: 180px; }
-    .sticky-col-7 { left: 1060px; min-width: 200px; }
+
+    .inventory-check-table .sticky-base-group,
+    .inventory-spu-table .sticky-base-group {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.12);
+    }
+    .inventory-check-table .sku-base-group {
+      min-width: 1290px;
+      width: 1290px;
+      max-width: 1290px;
+    }
+    .inventory-spu-table .spu-base-group {
+      min-width: 520px;
+      width: 520px;
+      max-width: 520px;
+    }
+    .inventory-check-table thead tr:nth-child(2) th[class*="sticky-col-"],
+    .inventory-spu-table thead tr:nth-child(2) th[class*="sticky-col-"] {
+      top: 38px;
+      z-index: 5;
+    }
+    .sticky-col-1 { left: 0; min-width: 220px; }
+    .sticky-col-2 { left: 220px; min-width: 120px; }
+    .sticky-col-3 { left: 340px; min-width: 180px; }
+    .sticky-col-4 { left: 520px; min-width: 150px; }
+    .sticky-col-5 { left: 670px; min-width: 140px; }
+    .sticky-col-6 { left: 810px; min-width: 120px; }
+    .sticky-col-7 { left: 930px; min-width: 170px; }
+    .sticky-col-8 { left: 1100px; min-width: 190px; }
     .status-tag {
       display: inline-flex;
       align-items: center;
@@ -471,20 +645,83 @@
     .back { font-size: 0.85rem; margin-top: 1rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
+    .modal-mask { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(15, 23, 42, .38); z-index: 300; }
+    .modal-mask.open { display: flex; }
+    .modal { width: min(720px, 94vw); max-height: 82vh; background: #fff; border-radius: 8px; box-shadow: 0 20px 45px rgba(15, 23, 42, .2); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { height: 56px; padding: 0 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .modal-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .modal-close { width: 30px; height: 30px; border: none; border-radius: 4px; background: #f5f6f8; color: #73869b; cursor: pointer; font-size: 20px; line-height: 1; }
+    .modal-close:hover { background: #edf2f7; }
+    .modal-body { padding: 16px 20px 18px; overflow: auto; }
+    .modal-tip { color: var(--muted); font-size: 0.84rem; margin-bottom: 10px; }
+    .modal-table { min-width: 560px; }
+    .product-desc-list { margin: 0; padding-left: 20px; color: #52657a; font-size: 0.86rem; }
+    .product-desc-list li { margin: 0; line-height: 1.75; }
+
+    .pagination {
+      border-top: 1px solid var(--border);
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background: #fff;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .pagination-left,
+    .pagination-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .page-size {
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 0.5rem;
+    }
+    .page-input {
+      width: 54px;
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0 0.45rem;
+      text-align: center;
+      color: var(--text);
+    }
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.55rem;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .page-btn:hover { background: #f8fafc; }
+    .page-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     @media (max-width: 1200px) {
       .summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .sku-summary-grid { grid-template-columns: repeat(7, minmax(110px, 1fr)); overflow-x: auto; }
     }
     @media (max-width: 768px) {
       body { padding: 1rem; }
       .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .query-actions { margin-left: 0; }
+      .sku-summary-grid { grid-template-columns: repeat(7, minmax(110px, 1fr)); overflow-x: auto; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1 class="page-title">
-      TK库存检查看板
+      库存检查看板
       <span class="badge">原型页</span>
     </h1>
 
@@ -552,17 +789,22 @@
             </div>
           </div>
         </div>
-        <div class="query-item">
-          <span class="label">同步日期</span>
-          <input type="date" value="2026-04-12" />
-        </div>
         <div class="query-actions">
+          <div class="saved-view-wrap" id="savedViewWrap">
+            <button type="button" class="saved-view-btn" id="savedViewToggle" title="保存当前搜索条件，下次可快速点击查询">
+              <span class="saved-view-icon">⊙</span><span id="savedViewCount">0</span><span class="saved-view-arrow">⌃</span>
+            </button>
+            <div class="saved-view-panel" id="savedViewPanel">
+              <button type="button" class="saved-view-item" data-system-view="default">系统视图</button>
+              <button type="button" class="saved-view-item" data-view-name="saved">已保存视图</button>
+              <div class="saved-view-save">
+                <button type="button" class="saved-view-item" id="saveCurrentView">保存当前搜索条件</button>
+              </div>
+            </div>
+          </div>
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
           <button type="button" class="btn btn-secondary" id="btnReset">重置</button>
         </div>
-      </div>
-      <div class="tip-bar">
-        数据规则：以 <code>TIKTOK-在线商品</code> 为商品基础范围，按 <code>PID&amp;SKU</code> 维度关联站点产品库存、FBT库存、积加商品管理可用库存；<code>库存是否异常</code> 口径为：差异大于 0 代表少同步，小于 0 代表超卖风险，等于 0 代表同步正确。
       </div>
     </div>
 
@@ -570,224 +812,332 @@
     <div class="action-bar">
       <div class="action-head">
         <div class="btns">
+          <button type="button" class="btn btn-secondary" id="btnProductDescSku">产品说明</button>
           <button type="button" class="btn btn-secondary" id="btnMetricHelp">数据统计说明</button>
-          <button type="button" class="btn btn-secondary">导出明细</button>
+          <button type="button" class="btn btn-secondary">导出</button>
         </div>
         <div class="meta-info">
           <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
         </div>
       </div>
       <div class="legend">
-        说明：<code>-1</code> 表示“我们有的库存”口径，<code>-2</code> 表示“店铺后台实际被同步的库存”口径，<code>-3</code> 表示两者差异。<br />
-        PID&amp;SKU 维度仅展示 PID、SKU 及 SKU名称，不展示 SPU 相关信息；SPU 聚合视图单独在另一个 tab 中展示。
+        说明：列表按“模块 / 字段名”双层表头展示，当前覆盖产品基本信息、总库存、国内库存、海外在途库存、海外在库库存、店铺应该被同步的库存、店铺实际被同步库存的情况、库存差异、异常判断九个模块；可滑动指标表头的 <code>?</code> 可悬停查看来源、关联字段与计算逻辑。<br />
+        <code>-3</code> 字段表示“店铺应该被同步的库存”与“店铺侧实际被同步库存”的差异；差异大于 0 代表少同步，小于 0 代表超卖风险，等于 0 代表同步正确。
       </div>
     </div>
 
-    <div class="summary-grid">
-      <div class="summary-card">
+    <div class="summary-grid sku-summary-grid">
+      <div class="summary-card clickable" data-sku-filter="all" role="button" tabindex="0" aria-label="查看全部 SKU">
         <div class="summary-label">SKU总数</div>
-        <div class="summary-value">1,286</div>
-        <div class="summary-sub">结果口径：当前查询范围内的 PID&amp;SKU 数量。<br />计算逻辑：按当前筛选条件过滤后，对 PID&amp;SKU 明细结果逐行计数。</div>
-      </div>
-      <div class="summary-card summary-danger">
-        <div class="summary-label">异常SKU数</div>
-        <div class="summary-value">93</div>
-        <div class="summary-sub">结果口径：少同步或超卖风险项数量。<br />计算逻辑：按 SKU 判断库存是否异常字段不等于“同步正确”，满足条件的 SKU 计入异常 SKU 数。</div>
+        <div class="summary-value">3</div>
+        <div class="summary-sub">结果口径：当前查询范围内的 PID&amp;SKU 数量。<br />点击后刷新列表为全部 SKU 明细。</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">总库存</div>
-        <div class="summary-value">24,560</div>
-        <div class="summary-sub">结果口径：当前查询范围内总库存汇总。<br />计算逻辑：对所有 SKU 的总库存字段逐行求和。</div>
+        <div class="summary-label">海外在库总库存</div>
+        <div class="summary-value">1,718</div>
+        <div class="summary-sub">结果口径：当前查询范围内海外在库总库存汇总。<br />计算逻辑：对 PID&amp;SKU 明细的“海外在库总库存”逐行求和。</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">总可用库存</div>
-        <div class="summary-value">18,392</div>
-        <div class="summary-sub">结果口径：海外可用 + 国内库存汇总。<br />计算逻辑：对所有 SKU 的总可用库存字段逐行求和。</div>
+        <div class="summary-label">海外在途总库存</div>
+        <div class="summary-value">1,678</div>
+        <div class="summary-sub">结果口径：当前查询范围内海外在途总量汇总。<br />计算逻辑：对 PID&amp;SKU 明细的“海外在途总量”逐行求和。</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">总在途库存</div>
-        <div class="summary-value">6,168</div>
-        <div class="summary-sub">结果口径：海外在途 + FBT在途 + 交货在途汇总。<br />计算逻辑：对所有 SKU 的总在途库存字段逐行求和。</div>
+        <div class="summary-label">国内总库存</div>
+        <div class="summary-value">338</div>
+        <div class="summary-sub">结果口径：当前查询范围内总国内库存汇总。<br />计算逻辑：对 PID&amp;SKU 明细的“总国内库存”逐行求和。</div>
       </div>
-    </div>
-
-    <div class="mini-note">
-      当前已知待确认项：<strong>FBT-1（接口能不能抓到？）</strong>、<strong>FBA(空着)</strong>、<strong>FBT-2（积加4月会上暂时空着）</strong>。原型中以“待确认”样式展示，实际开发时建议增加数据来源说明和缺失提示。
+      <div class="summary-card summary-danger clickable" data-sku-filter="threshold" role="button" tabindex="0" aria-label="筛选阀值同步异常 SKU">
+        <div class="summary-label">阀值同步异常数</div>
+        <div class="summary-value">1</div>
+        <div class="summary-sub">结果口径：库存阀值或仓库映射待确认导致无法正确同步的 SKU 数。<br />点击后刷新列表，仅展示阀值同步异常明细。</div>
+      </div>
+      <div class="summary-card summary-danger clickable" data-sku-filter="less" role="button" tabindex="0" aria-label="筛选少同步异常 SKU">
+        <div class="summary-label">少同步异常数</div>
+        <div class="summary-value">1</div>
+        <div class="summary-sub">结果口径：库存总差异大于 0，店铺侧同步库存少于应同步库存的 SKU 数。<br />点击后刷新列表，仅展示少同步异常明细。</div>
+      </div>
+      <div class="summary-card summary-danger clickable" data-sku-filter="oversell" role="button" tabindex="0" aria-label="筛选超卖风险异常 SKU">
+        <div class="summary-label">超卖风险异常数</div>
+        <div class="summary-value">0</div>
+        <div class="summary-sub">结果口径：库存总差异小于 0，店铺侧同步库存高于应同步库存的 SKU 数。<br />点击后刷新列表，仅展示超卖风险异常明细。</div>
+      </div>
     </div>
 
     <div class="table-card">
       <div class="table-wrap">
-        <table>
+        <table class="inventory-check-table">
           <thead>
-            <tr>
-              <th class="sticky-col-1 th-group group-base" rowspan="2">时间</th>
-              <th class="sticky-col-2 th-group group-base" rowspan="2">店铺</th>
-              <th class="sticky-col-3 th-group group-base" rowspan="2">PID</th>
-              <th class="sticky-col-4 th-group group-base" rowspan="2">SKU</th>
-              <th class="sticky-col-5 th-group group-base" rowspan="2">SKU名称</th>
-              <th class="th-group group-purchase" colspan="1">采购</th>
-              <th class="th-group group-summary" colspan="4">汇总</th>
-              <th class="th-group group-domestic" colspan="5">国内</th>
-              <th class="th-group group-third" colspan="4">三方</th>
-              <th class="th-group group-fbt" colspan="2">FBT</th>
-              <th class="th-group group-oversea" colspan="5">海外</th>
-              <th class="th-group group-detail" colspan="3">退货仓</th>
-            </tr>
-            <tr>
-              <th>采购量</th>
-              <th>总在途库存</th>
-              <th>总可用库存</th>
-              <th>总库存</th>
-              <th>库存是否异常</th>
-              <th>国内库存</th>
-              <th>交货在途库存</th>
-              <th>国内仓-1</th>
-              <th>国内仓-2</th>
-              <th>国内仓-3</th>
-              <th>三方仓在途量</th>
-              <th>谷仓-1</th>
-              <th>谷仓-2</th>
-              <th>谷仓-3</th>
-              <th>FBT在途量</th>
-              <th>FBT可用量</th>
-              <th>万邑通USKY3-1</th>
-              <th>万邑通USKY3-2</th>
-              <th>万邑通USKY3-3</th>
-              <th>海外可用库存</th>
-              <th>海外在途库存</th>
-              <th>英国退货仓-1</th>
-              <th>英国退货仓-2</th>
-              <th>英国退货仓-3</th>
-            </tr>
-          </thead>
+              <tr>
+                <th class="th-group group-base sticky-base-group sku-base-group" colspan="8">产品基本信息</th>
+                <th class="th-group group-summary" colspan="3">总库存</th>
+                <th class="th-group group-domestic" colspan="5">国内库存</th>
+                <th class="th-group group-oversea" colspan="8">海外在途库存</th>
+                <th class="th-group group-third" colspan="9">海外在库库存</th>
+                <th class="th-group group-store-sync" colspan="1">店铺应该被同步的库存</th>
+                <th class="th-group group-store-actual" colspan="9">店铺实际被同步库存的情况</th>
+                <th class="th-group group-diff" colspan="9">库存差异</th>
+                <th class="th-group group-exception" colspan="5">异常判断</th>
+              </tr>
+              <tr>
+                <th class="sticky-col-1">店铺</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SPU名称</th>
+                <th class="sticky-col-4">PID</th>
+                <th class="sticky-col-5">MSKU</th>
+                <th class="sticky-col-6">SKU ID</th>
+                <th class="sticky-col-7">库存SKU</th>
+                <th class="sticky-col-8">库存SKU名称</th>
+                <th class="sortable-num">总库存</th>
+                <th class="sortable-num">总在途库存</th>
+                <th class="sortable-num">总可用库存</th>
+                <th class="sortable-num">总国内库存</th>
+                <th class="sortable-num">采购在途库存</th>
+                <th class="sortable-num">工厂采购未交量</th>
+                <th class="sortable-num">国内交货在途库存</th>
+                <th class="sortable-num">国内在库库存</th>
+                <th class="sortable-num">海外在途总量</th>
+                <th class="sortable-num">三方仓在途量</th>
+                <th class="sortable-num">万邑通USKY3在途</th>
+                <th class="sortable-num">万邑通USWC2在途</th>
+                <th class="sortable-num">万邑通USWC在途</th>
+                <th class="sortable-num">美国谷仓:美西仓库在途</th>
+                <th class="sortable-num">FBT在途量</th>
+                <th class="sortable-num">英国退货仓在途量</th>
+                <th class="sortable-num">海外在库总库存</th>
+                <th class="sortable-num">积加-万邑通USKY3</th>
+                <th class="sortable-num">积加-万邑通USWC2</th>
+                <th class="sortable-num">积加-万邑通USWC</th>
+                <th class="sortable-num">积加-谷仓美西仓库</th>
+                <th class="sortable-num">积加-FBA仓库</th>
+                <th class="sortable-num">积加-FBT可用</th>
+                <th class="sortable-num">三方仓可用量</th>
+                <th class="sortable-num">积加-英国退货仓</th>
+                <th class="sortable-num">店铺应该被同步的库存</th>
+                <th class="sortable-num">店铺侧被同步的总库存</th>
+                <th class="sortable-num">店铺侧-美国TK厦门直邮仓</th>
+                <th class="sortable-num">店铺侧-万邑通USKY3</th>
+                <th class="sortable-num">店铺侧-万邑通USWC2</th>
+                <th class="sortable-num">店铺侧-万邑通USWC</th>
+                <th class="sortable-num">店铺侧-谷仓美西仓库</th>
+                <th class="sortable-num">店铺侧-FBA仓库</th>
+                <th class="sortable-num">店铺侧-FBT可用</th>
+                <th class="sortable-num">店铺侧-英国退货仓</th>
+                <th class="sortable-num">库存总差异</th>
+                <th class="sortable-num">国内仓-3</th>
+                <th class="sortable-num">万邑通USKY3-3</th>
+                <th class="sortable-num">万邑通USWC2-3</th>
+                <th class="sortable-num">万邑通USWC-3</th>
+                <th class="sortable-num">谷仓-3</th>
+                <th class="sortable-num">FBA(空着)-3</th>
+                <th class="sortable-num">FBT-3</th>
+                <th class="sortable-num">英国退货仓-3</th>
+                <th class="sortable-num">异常仓库</th>
+                <th class="sortable-num">库存总差异</th>
+                <th class="sortable-num">库存阀值设置</th>
+                <th>库存是否异常</th>
+                <th>异常类型</th>
+              </tr>
+            </thead>
           <tbody>
-            <tr>
-              <td class="sticky-col-1">2026-04-12</td>
-              <td class="sticky-col-2">美国TK-艾斯特尼-美区跨境1店</td>
-              <td class="sticky-col-3">1729439482671567205</td>
-              <td class="sticky-col-4">AL-W0161-DARKGRAY-XL</td>
-              <td class="sticky-col-5">深灰 XL</td>
-              <td class="num">120</td>
-              <td class="num">240</td>
-              <td class="num">21</td>
-              <td class="num">18</td>
-              <td><span class="status-tag status-bad">少同步</span></td>
-              <td class="num">18</td>
-              <td class="num">42</td>
-              <td class="num">26</td>
-              <td class="num">9</td>
-              <td class="num">14</td>
-              <td class="num">68</td>
-              <td class="num">95</td>
-              <td class="num">103</td>
-              <td class="num">137</td>
-              <td class="num">240</td>
-              <td class="num">21</td>
-              <td class="num">18</td>
-              <td class="num">3</td>
-              <td class="num">12</td>
-              <td class="num">10</td>
-              <td class="num">2</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-            </tr>
-            <tr>
-              <td class="sticky-col-1">2026-04-12</td>
-              <td class="sticky-col-2">美国TK-艾斯特尼-美区跨境3店</td>
-              <td class="sticky-col-3">1729439482671567205</td>
-              <td class="sticky-col-4">AL-W0161-DARKGRAY-L</td>
-              <td class="sticky-col-5">深灰 L</td>
-              <td class="num">95</td>
-              <td class="num">170</td>
-              <td class="num">15</td>
-              <td class="num">15</td>
-              <td><span class="status-tag status-ok">正常</span></td>
-              <td class="num">10</td>
-              <td class="num">31</td>
-              <td class="num">18</td>
-              <td class="num">6</td>
-              <td class="num">12</td>
-              <td class="num">49</td>
-              <td class="num">74</td>
-              <td class="num">65</td>
-              <td class="num">105</td>
-              <td class="num">170</td>
-              <td class="num">15</td>
-              <td class="num">15</td>
-              <td class="num">0</td>
-              <td class="num">8</td>
-              <td class="num">8</td>
-              <td class="num">0</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-            </tr>
-            <tr>
-              <td class="sticky-col-1">2026-04-12</td>
-              <td class="sticky-col-2">美国TK-艾斯特尼-英国直邮店:GB</td>
-              <td class="sticky-col-3">1731657241623302501</td>
-              <td class="sticky-col-4">AL-M2301-BLACK-M</td>
-              <td class="sticky-col-5">黑色 M</td>
-              <td class="num">66</td>
-              <td class="num">72</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td><span class="status-tag status-warn">待确认</span></td>
-              <td class="num">7</td>
-              <td class="num">19</td>
-              <td class="num">0</td>
-              <td class="num center">待确认</td>
-              <td class="num center">待确认</td>
-              <td class="num">19</td>
-              <td class="num">27</td>
-              <td class="num">26</td>
-              <td class="num">46</td>
-              <td class="num">72</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num">8</td>
-              <td class="num">5</td>
-              <td class="num">3</td>
-            </tr>
-            <tr>
-              <td class="sticky-col-1">2026-04-12</td>
-              <td class="sticky-col-2">美国TK-艾斯特尼-美区跨境2店</td>
-              <td class="sticky-col-3">1731657241623302501</td>
-              <td class="sticky-col-4">AL-M2301-BLACK-L</td>
-              <td class="sticky-col-5">黑色 L</td>
-              <td class="num">80</td>
-              <td class="num">127</td>
-              <td class="num">11</td>
-              <td class="num">16</td>
-              <td><span class="status-tag status-bad">超卖风险</span></td>
-              <td class="num">15</td>
-              <td class="num">20</td>
-              <td class="num">12</td>
-              <td class="num">5</td>
-              <td class="num">6</td>
-              <td class="num">32</td>
-              <td class="num">58</td>
-              <td class="num">49</td>
-              <td class="num">78</td>
-              <td class="num">127</td>
-              <td class="num">11</td>
-              <td class="num">16</td>
-              <td class="num">-5</td>
-              <td class="num">7</td>
-              <td class="num">9</td>
-              <td class="num">-2</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-              <td class="num center">—</td>
-            </tr>
+              <tr>
+                <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境1店</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">Women Lounge Set</td>
+                <td class="sticky-col-4">1729439482671567205</td>
+                <td class="sticky-col-5">AL-W0161</td>
+                <td class="sticky-col-6">1729439482671567205-01</td>
+                <td class="sticky-col-7">AL-W0161-DARKGRAY-XL</td>
+                <td class="sticky-col-8">深灰 XL</td>
+                <td class="num">2,568</td>
+                <td class="num">1,375</td>
+                <td class="num">1,193</td>
+                <td class="num">168</td>
+                <td class="num">420</td>
+                <td class="num">120</td>
+                <td class="num">42</td>
+                <td class="num">6</td>
+                <td class="num">944</td>
+                <td class="num">68</td>
+                <td class="num">210</td>
+                <td class="num">124</td>
+                <td class="num">96</td>
+                <td class="num">155</td>
+                <td class="num">85</td>
+                <td class="num">82</td>
+                <td class="num">1,118</td>
+                <td class="num">210</td>
+                <td class="num">198</td>
+                <td class="num">132</td>
+                <td class="num">145</td>
+                <td class="num">88</td>
+                <td class="num">124</td>
+                <td class="num">260</td>
+                <td class="num">161</td>
+                <td class="num">1,148</td>
+                <td class="num">1,184</td>
+                <td class="num">0</td>
+                <td class="num">198</td>
+                <td class="num">140</td>
+                <td class="num">132</td>
+                <td class="num">0</td>
+                <td class="num">124</td>
+                <td class="num">0</td>
+                <td class="num">36</td>
+                <td class="num">36</td>
+                <td class="num">12</td>
+                <td class="num">8</td>
+                <td class="num">9</td>
+                <td class="num">0</td>
+                <td class="num">24</td>
+                <td class="num">8</td>
+                <td class="num">0</td>
+                <td class="num">4</td>
+                <td>万邑通USWC2 / 谷仓美西仓库</td>
+                <td class="num">36</td>
+                <td class="num">10</td>
+                <td><span class="status-tag status-bad">异常</span></td>
+                <td class="center">少同步</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境3店</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">Women Lounge Set</td>
+                <td class="sticky-col-4">1729439482671567205</td>
+                <td class="sticky-col-5">AL-W0161</td>
+                <td class="sticky-col-6">1729439482671567205-02</td>
+                <td class="sticky-col-7">AL-W0161-DARKGRAY-L</td>
+                <td class="sticky-col-8">深灰 L</td>
+                <td class="num">1,298</td>
+                <td class="num">812</td>
+                <td class="num">486</td>
+                <td class="num">96</td>
+                <td class="num">210</td>
+                <td class="num">95</td>
+                <td class="num">31</td>
+                <td class="num">10</td>
+                <td class="num">434</td>
+                <td class="num">49</td>
+                <td class="num">87</td>
+                <td class="num">72</td>
+                <td class="num">55</td>
+                <td class="num">63</td>
+                <td class="num">48</td>
+                <td class="num">60</td>
+                <td class="num">390</td>
+                <td class="num">87</td>
+                <td class="num">96</td>
+                <td class="num">52</td>
+                <td class="num">58</td>
+                <td class="num">36</td>
+                <td class="num">72</td>
+                <td class="num">68</td>
+                <td class="num">47</td>
+                <td class="num">486</td>
+                <td class="num">480</td>
+                <td class="num">0</td>
+                <td class="num">96</td>
+                <td class="num">52</td>
+                <td class="num">58</td>
+                <td class="num">0</td>
+                <td class="num">72</td>
+                <td class="num">0</td>
+                <td class="num">20</td>
+                <td class="num">0</td>
+                <td class="num">-6</td>
+                <td class="num">15</td>
+                <td class="num">0</td>
+                <td class="num">-9</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="center">—</td>
+                <td class="num">0</td>
+                <td class="num">10</td>
+                <td><span class="status-tag status-ok">正常</span></td>
+                <td class="center">同步正确</td>
+              </tr>
+              <tr>
+                <td class="sticky-col-1">美国TK-艾斯特尼-英国直邮店:GB</td>
+                <td class="sticky-col-2">AL-H9902</td>
+                <td class="sticky-col-3">Heavy Hoodie</td>
+                <td class="sticky-col-4">1731657241623302501</td>
+                <td class="sticky-col-5">AL-H9902</td>
+                <td class="sticky-col-6">1731657241623302501-01</td>
+                <td class="sticky-col-7">AL-H9902-BLACK-M</td>
+                <td class="sticky-col-8">黑色 M</td>
+                <td class="num">630</td>
+                <td class="num">398</td>
+                <td class="num">232</td>
+                <td class="num">74</td>
+                <td class="num">158</td>
+                <td class="num">42</td>
+                <td class="num">20</td>
+                <td class="num">12</td>
+                <td class="num">300</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">22</td>
+                <td class="num">210</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">210</td>
+                <td class="num">206</td>
+                <td class="num">180</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">206</td>
+                <td class="num">26</td>
+                <td class="num">74</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">4</td>
+                <td>英国退货仓</td>
+                <td class="num">26</td>
+                <td class="num">20</td>
+                <td><span class="status-tag status-warn">待确认</span></td>
+                <td class="center">仓库映射待确认</td>
+              </tr>
           </tbody>
         </table>
       </div>
+        <div class="pagination" aria-label="分页控件">
+          <div class="pagination-left">
+            <span>共 128 条</span>
+            <span>每页</span>
+            <select class="page-size">
+              <option value="20" selected>20条/页</option>
+              <option value="50">50条/页</option>
+              <option value="100">100条/页</option>
+              <option value="200">200条/页</option>
+            </select>
+          </div>
+          <div class="pagination-right">
+            <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><span>...</span><button type="button" class="page-btn">7</button><button type="button" class="page-btn">下一页</button>
+            <span>跳至</span>
+            <input class="page-input" type="text" value="1" />
+            <span>页</span>
+          </div>
+        </div>
     </div>
     </div>
 
@@ -796,8 +1146,7 @@
         <div class="action-head">
           <div class="btns">
             <button type="button" class="btn btn-secondary" id="btnMetricHelpSpu">数据统计说明</button>
-            <button type="button" class="btn btn-secondary">导出汇总</button>
-            <button type="button" class="btn btn-secondary">导出异常SPU</button>
+            <button type="button" class="btn btn-secondary">导出</button>
           </div>
         <div class="meta-info">
             <span class="update-time">数据更新时间：2026-04-13 16:00:20</span>
@@ -808,175 +1157,297 @@
         </div>
       </div>
 
-      <div class="summary-grid">
-        <div class="summary-card">
+      <div class="summary-grid sku-summary-grid">
+        <div class="summary-card clickable" data-spu-filter="all" role="button" tabindex="0" aria-label="查看全部 SPU">
           <div class="summary-label">SPU总数</div>
-          <div class="summary-value">216</div>
-          <div class="summary-sub">结果口径：当前查询范围内的 SPU 数量。<br />计算逻辑：基于 PID&amp;SKU 底表按 SPU 聚合后，对 SPU 去重计数。</div>
-        </div>
-        <div class="summary-card summary-danger">
-          <div class="summary-label">异常SPU数</div>
-          <div class="summary-value">28</div>
-          <div class="summary-sub">结果口径：少同步或超卖风险项数量。<br />计算逻辑：按 SPU 聚合后重新判断库存是否异常，不等于“同步正确”的 SPU 计入异常 SPU 数。</div>
+          <div class="summary-value">3</div>
+          <div class="summary-sub">结果口径：当前查询范围内的 SPU 数量。<br />点击后刷新列表为全部 SPU 汇总。</div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">总库存</div>
-          <div class="summary-value">24,560</div>
-          <div class="summary-sub">结果口径：当前查询范围内总库存汇总。<br />计算逻辑：对所有 SPU 的总库存聚合值逐行求和。</div>
+          <div class="summary-label">海外在库总库存</div>
+          <div class="summary-value">2,108</div>
+          <div class="summary-sub">结果口径：当前查询范围内海外在库总库存汇总。<br />计算逻辑：对 SPU 汇总结果的“海外在库总库存”逐行求和。</div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">总可用库存</div>
-          <div class="summary-value">18,392</div>
-          <div class="summary-sub">结果口径：海外可用 + 国内库存汇总。<br />计算逻辑：对所有 SPU 的总可用库存聚合值逐行求和。</div>
+          <div class="summary-label">海外在途总库存</div>
+          <div class="summary-value">2,112</div>
+          <div class="summary-sub">结果口径：当前查询范围内海外在途总量汇总。<br />计算逻辑：对 SPU 汇总结果的“海外在途总量”逐行求和。</div>
         </div>
         <div class="summary-card">
-          <div class="summary-label">总在途库存</div>
-          <div class="summary-value">6,168</div>
-          <div class="summary-sub">结果口径：海外在途 + FBT在途 + 交货在途汇总。<br />计算逻辑：对所有 SPU 的总在途库存聚合值逐行求和。</div>
+          <div class="summary-label">国内总库存</div>
+          <div class="summary-value">434</div>
+          <div class="summary-sub">结果口径：当前查询范围内总国内库存汇总。<br />计算逻辑：对 SPU 汇总结果的“总国内库存”逐行求和。</div>
         </div>
-      </div>
-
-      <div class="mini-note">
-        SPU 视图基于 PID&amp;SKU 明细底表汇总生成。当前仍保留 FBT-1、FBA(空着)、FBT-2 等待确认口径，原型中统一以“待确认”展示，正式开发时应补充数据来源说明与缺失提示。
+        <div class="summary-card summary-danger clickable" data-spu-filter="threshold" role="button" tabindex="0" aria-label="筛选阀值同步异常 SPU">
+          <div class="summary-label">阀值同步异常数</div>
+          <div class="summary-value">1</div>
+          <div class="summary-sub">结果口径：库存阀值或仓库映射待确认导致无法正确同步的 SPU 数。<br />点击后刷新列表，仅展示阀值同步异常明细。</div>
+        </div>
+        <div class="summary-card summary-danger clickable" data-spu-filter="less" role="button" tabindex="0" aria-label="筛选少同步异常 SPU">
+          <div class="summary-label">少同步异常数</div>
+          <div class="summary-value">1</div>
+          <div class="summary-sub">结果口径：库存总差异大于 0，店铺侧同步库存少于应同步库存的 SPU 数。<br />点击后刷新列表，仅展示少同步异常明细。</div>
+        </div>
+        <div class="summary-card summary-danger clickable" data-spu-filter="oversell" role="button" tabindex="0" aria-label="筛选超卖风险异常 SPU">
+          <div class="summary-label">超卖风险异常数</div>
+          <div class="summary-value">0</div>
+          <div class="summary-sub">结果口径：库存总差异小于 0，店铺侧同步库存高于应同步库存的 SPU 数。<br />点击后刷新列表，仅展示超卖风险异常明细。</div>
+        </div>
       </div>
 
       <div class="table-card">
         <div class="table-wrap">
-          <table>
+          <table class="inventory-spu-table">
             <thead>
               <tr>
-                <th class="sticky-col-1 th-group group-base" rowspan="2">时间</th>
-                <th class="sticky-col-2 th-group group-base" rowspan="2">店铺</th>
-                <th class="sticky-col-3 th-group group-base" rowspan="2">SPU</th>
-                <th class="sticky-col-4 th-group group-base" rowspan="2">SPU名称</th>
-                <th class="th-group group-purchase" colspan="1">采购</th>
-                <th class="th-group group-summary" colspan="4">汇总</th>
-                <th class="th-group group-domestic" colspan="5">国内</th>
-                <th class="th-group group-third" colspan="4">三方</th>
-                <th class="th-group group-fbt" colspan="2">FBT</th>
-                <th class="th-group group-oversea" colspan="5">海外</th>
-                <th class="th-group group-detail" colspan="3">退货仓</th>
+                <th class="th-group group-base sticky-base-group spu-base-group" colspan="3">产品基本信息</th>
+                <th class="th-group group-summary" colspan="3">总库存</th>
+                <th class="th-group group-domestic" colspan="5">国内库存</th>
+                <th class="th-group group-oversea" colspan="8">海外在途库存</th>
+                <th class="th-group group-third" colspan="9">海外在库库存</th>
+                <th class="th-group group-store-sync" colspan="1">店铺应该被同步的库存</th>
+                <th class="th-group group-store-actual" colspan="9">店铺实际被同步库存的情况</th>
+                <th class="th-group group-diff" colspan="9">库存差异</th>
+                <th class="th-group group-exception" colspan="5">异常判断</th>
               </tr>
               <tr>
-                <th>采购量</th>
-                <th>总在途库存</th>
-                <th>总可用库存</th>
-                <th>总库存</th>
+                <th class="sticky-col-1">店铺</th>
+                <th class="sticky-col-2">SPU</th>
+                <th class="sticky-col-3">SPU名称</th>
+                <th class="sortable-num">总库存</th>
+                <th class="sortable-num">总在途库存</th>
+                <th class="sortable-num">总可用库存</th>
+                <th class="sortable-num">总国内库存</th>
+                <th class="sortable-num">采购在途库存</th>
+                <th class="sortable-num">工厂采购未交量</th>
+                <th class="sortable-num">国内交货在途库存</th>
+                <th class="sortable-num">国内在库库存</th>
+                <th class="sortable-num">海外在途总量</th>
+                <th class="sortable-num">三方仓在途量</th>
+                <th class="sortable-num">万邑通USKY3在途</th>
+                <th class="sortable-num">万邑通USWC2在途</th>
+                <th class="sortable-num">万邑通USWC在途</th>
+                <th class="sortable-num">美国谷仓:美西仓库在途</th>
+                <th class="sortable-num">FBT在途量</th>
+                <th class="sortable-num">英国退货仓在途量</th>
+                <th class="sortable-num">海外在库总库存</th>
+                <th class="sortable-num">积加-万邑通USKY3</th>
+                <th class="sortable-num">积加-万邑通USWC2</th>
+                <th class="sortable-num">积加-万邑通USWC</th>
+                <th class="sortable-num">积加-谷仓美西仓库</th>
+                <th class="sortable-num">积加-FBA仓库</th>
+                <th class="sortable-num">积加-FBT可用</th>
+                <th class="sortable-num">三方仓可用量</th>
+                <th class="sortable-num">积加-英国退货仓</th>
+                <th class="sortable-num">店铺应该被同步的库存</th>
+                <th class="sortable-num">店铺侧被同步的总库存</th>
+                <th class="sortable-num">店铺侧-美国TK厦门直邮仓</th>
+                <th class="sortable-num">店铺侧-万邑通USKY3</th>
+                <th class="sortable-num">店铺侧-万邑通USWC2</th>
+                <th class="sortable-num">店铺侧-万邑通USWC</th>
+                <th class="sortable-num">店铺侧-谷仓美西仓库</th>
+                <th class="sortable-num">店铺侧-FBA仓库</th>
+                <th class="sortable-num">店铺侧-FBT可用</th>
+                <th class="sortable-num">店铺侧-英国退货仓</th>
+                <th class="sortable-num">库存总差异</th>
+                <th class="sortable-num">国内仓-3</th>
+                <th class="sortable-num">万邑通USKY3-3</th>
+                <th class="sortable-num">万邑通USWC2-3</th>
+                <th class="sortable-num">万邑通USWC-3</th>
+                <th class="sortable-num">谷仓-3</th>
+                <th class="sortable-num">FBA(空着)-3</th>
+                <th class="sortable-num">FBT-3</th>
+                <th class="sortable-num">英国退货仓-3</th>
+                <th>异常仓库</th>
+                <th class="sortable-num">库存总差异</th>
+                <th class="sortable-num">库存阀值设置</th>
                 <th>库存是否异常</th>
-                <th>国内库存</th>
-                <th>交货在途库存</th>
-                <th>国内仓-1</th>
-                <th>国内仓-2</th>
-                <th>国内仓-3</th>
-                <th>三方仓在途量</th>
-                <th>谷仓-1</th>
-                <th>谷仓-2</th>
-                <th>谷仓-3</th>
-                <th>FBT在途量</th>
-                <th>FBT可用量</th>
-                <th>万邑通USKY3-1</th>
-                <th>万邑通USKY3-2</th>
-                <th>万邑通USKY3-3</th>
-                <th>海外可用库存</th>
-                <th>海外在途库存</th>
-                <th>英国退货仓-1</th>
-                <th>英国退货仓-2</th>
-                <th>英国退货仓-3</th>
+                <th>异常类型</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国TK-艾斯特尼-美区跨境1店</td>
-                <td class="sticky-col-3">AL-W0161</td>
-                <td class="sticky-col-4">Women Lounge Set</td>
-                <td class="num">1,245</td>
-                <td class="num">1,375</td>
-                <td class="num">2,568</td>
-                <td class="num">56</td>
-                <td><span class="status-tag status-bad">少同步</span></td>
-                <td class="num">168</td>
-                <td class="num">420</td>
-                <td class="num">102</td>
-                <td class="num">66</td>
-                <td class="num">36</td>
-                <td class="num">260</td>
-                <td class="num">430</td>
-                <td class="num">452</td>
-                <td class="num">-22</td>
-                <td class="num">85</td>
+                <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境1店</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">Women Lounge Set</td>
+                <td class="num">3,866</td>
+                <td class="num">2,187</td>
+                <td class="num">1,679</td>
+                <td class="num">264</td>
+                <td class="num">630</td>
+                <td class="num">215</td>
+                <td class="num">73</td>
+                <td class="num">16</td>
+                <td class="num">1,378</td>
+                <td class="num">117</td>
+                <td class="num">297</td>
+                <td class="num">196</td>
+                <td class="num">151</td>
+                <td class="num">218</td>
+                <td class="num">133</td>
+                <td class="num">112</td>
+                <td class="num">1,508</td>
+                <td class="num">297</td>
+                <td class="num">294</td>
+                <td class="num">184</td>
+                <td class="num">203</td>
                 <td class="num">124</td>
-                <td class="num">210</td>
-                <td class="num">198</td>
-                <td class="num">12</td>
-                <td class="num">48</td>
+                <td class="num">196</td>
+                <td class="num">328</td>
+                <td class="num">208</td>
+                <td class="num">1,634</td>
+                <td class="num">1,664</td>
+                <td class="num">0</td>
+                <td class="num">294</td>
+                <td class="num">192</td>
+                <td class="num">190</td>
+                <td class="num">0</td>
+                <td class="num">196</td>
+                <td class="num">0</td>
+                <td class="num">56</td>
+                <td class="num">36</td>
+                <td class="num">6</td>
+                <td class="num">23</td>
+                <td class="num">9</td>
+                <td class="num">0</td>
+                <td class="num">24</td>
                 <td class="num">8</td>
-                <td class="num">680</td>
-                <td class="num center">—</td>
-                <td class="num center">—</td>
+                <td class="num">0</td>
+                <td class="num">4</td>
+                <td>多仓差异</td>
+                <td class="num">36</td>
+                <td class="num">10</td>
+                <td><span class="status-tag status-bad">异常</span></td>
+                <td class="center">少同步</td>
               </tr>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国TK-艾斯特尼-美区跨境2店</td>
-                <td class="sticky-col-3">AL-M2301</td>
-                <td class="sticky-col-4">Men Running Set</td>
-                <td class="num">860</td>
-                <td class="num">812</td>
+                <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境3店</td>
+                <td class="sticky-col-2">AL-W0161</td>
+                <td class="sticky-col-3">Women Lounge Set</td>
                 <td class="num">1,298</td>
-                <td class="num">18</td>
-                <td><span class="status-tag status-ok">正常</span></td>
+                <td class="num">812</td>
+                <td class="num">486</td>
                 <td class="num">96</td>
                 <td class="num">210</td>
-                <td class="num">64</td>
-                <td class="num">70</td>
-                <td class="num">-6</td>
-                <td class="num">132</td>
-                <td class="num">255</td>
-                <td class="num">240</td>
-                <td class="num">15</td>
-                <td class="num">48</td>
+                <td class="num">95</td>
+                <td class="num">31</td>
+                <td class="num">10</td>
+                <td class="num">434</td>
+                <td class="num">49</td>
+                <td class="num">87</td>
                 <td class="num">72</td>
+                <td class="num">55</td>
+                <td class="num">63</td>
+                <td class="num">48</td>
+                <td class="num">60</td>
+                <td class="num">390</td>
                 <td class="num">87</td>
                 <td class="num">96</td>
-                <td class="num">-9</td>
+                <td class="num">52</td>
+                <td class="num">58</td>
+                <td class="num">36</td>
+                <td class="num">72</td>
+                <td class="num">68</td>
+                <td class="num">47</td>
+                <td class="num">486</td>
+                <td class="num">480</td>
+                <td class="num">0</td>
+                <td class="num">96</td>
+                <td class="num">52</td>
+                <td class="num">58</td>
+                <td class="num">0</td>
+                <td class="num">72</td>
+                <td class="num">0</td>
                 <td class="num">20</td>
-                <td class="num">-2</td>
-                <td class="num">342</td>
-                <td class="num center">—</td>
-                <td class="num center">—</td>
+                <td class="num">0</td>
+                <td class="num">-6</td>
+                <td class="num">15</td>
+                <td class="num">0</td>
+                <td class="num">-9</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="center">—</td>
+                <td class="num">0</td>
+                <td class="num">10</td>
+                <td><span class="status-tag status-ok">正常</span></td>
+                <td class="center">同步正确</td>
               </tr>
               <tr>
-                <td class="sticky-col-1">2026-04-12</td>
-                <td class="sticky-col-2">美国TK-艾斯特尼-英国直邮店:GB</td>
-                <td class="sticky-col-3">AL-H9902</td>
-                <td class="sticky-col-4">Heavy Hoodie</td>
-                <td class="num">530</td>
-                <td class="num">398</td>
+                <td class="sticky-col-1">美国TK-艾斯特尼-英国直邮店:GB</td>
+                <td class="sticky-col-2">AL-H9902</td>
+                <td class="sticky-col-3">Heavy Hoodie</td>
                 <td class="num">630</td>
-                <td class="num">26</td>
-                <td><span class="status-tag status-warn">待确认</span></td>
+                <td class="num">398</td>
+                <td class="num">232</td>
                 <td class="num">74</td>
                 <td class="num">158</td>
+                <td class="num">42</td>
+                <td class="num">20</td>
+                <td class="num">12</td>
+                <td class="num">300</td>
                 <td class="num">0</td>
-                <td class="num center">待确认</td>
-                <td class="num center">待确认</td>
                 <td class="num">0</td>
                 <td class="num">0</td>
-                <td class="num center">待确认</td>
-                <td class="num center">待确认</td>
-                <td class="num center">待确认</td>
-                <td class="num center">待确认</td>
-                <td class="num center">—</td>
-                <td class="num center">—</td>
-                <td class="num center">—</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
                 <td class="num">22</td>
+                <td class="num">210</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">210</td>
+                <td class="num">206</td>
+                <td class="num">180</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">206</td>
+                <td class="num">26</td>
+                <td class="num">74</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
+                <td class="num">0</td>
                 <td class="num">4</td>
-                <td class="num">158</td>
-                <td class="num center">—</td>
-                <td class="num center">—</td>
+                <td>英国退货仓</td>
+                <td class="num">26</td>
+                <td class="num">20</td>
+                <td><span class="status-tag status-warn">待确认</span></td>
+                <td class="center">仓库映射待确认</td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="pagination" aria-label="分页控件">
+          <div class="pagination-left">
+            <span>共 86 条</span>
+            <span>每页</span>
+            <select class="page-size">
+              <option value="20" selected>20条/页</option>
+              <option value="50">50条/页</option>
+              <option value="100">100条/页</option>
+              <option value="200">200条/页</option>
+            </select>
+          </div>
+          <div class="pagination-right">
+            <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><button type="button" class="page-btn">下一页</button>
+            <span>跳至</span>
+            <input class="page-input" type="text" value="1" />
+            <span>页</span>
+          </div>
         </div>
       </div>
     </div>
@@ -985,17 +1456,184 @@
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">原型补充说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;">
         <li><strong>不需要需要导出图片</strong></li>
+        <li><strong>增加数据源</strong>：一个是 TK 后台商品管理的库存，另一个是积加后台的库存阀值设置。</li>
         <li><strong>需要定时播报</strong>：默认为当天的数据情况。</li>
-        <li><strong>待确认数据项</strong>：<code>FBT-1</code>、<code>FBA</code>、<code>FBT-2（积加4月会上暂时空着）</code> 三个数据项目前存在抓取不到的可能，需要进一步确认接口或数据源是否可获取。</li>
         <li><strong>涉及到搜索的，需要调整为多选模式</strong></li>
+        <li><strong>异常统计卡片</strong>：点击阀值同步异常数、少同步异常数、超卖风险异常数等卡片时，可以快速筛选列表数据。</li>
+        <li><strong>SPU 维度明细</strong>：SPU 维度下点击某一行数据，可以展开查看该 SPU 下对应的 SKU 数据明细。</li>
 
       </ul>
     </div>
 
     <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
   </div>
+  <div class="modal-mask" id="productDescModal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="productDescTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="productDescTitle">产品说明</div>
+        <button type="button" class="modal-close" data-product-desc-close aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-tip">库存检查看板当前第一个栏目为 SKU 维度库存检查，产品说明参考商品档案的说明展示方式，用于解释商品基础数据与库存检查口径。</div>
+        <ol class="product-desc-list">
+          <li>产品基础数据以 TikTok 在线商品为商品范围，按 PID&amp;SKU 维度关联库存数据。</li>
+          <li>商品基础信息包含站点、店铺、PID、SKU、SPU、商品名称等，用于和库存数据做统一展示。</li>
+          <li>库存检查聚合展示总库存、国内库存、海外在途库存、海外在库库存、店铺应同步库存与实际同步库存。</li>
+          <li>库存异常判断以库存差异为核心：差异大于 0 代表少同步，小于 0 代表超卖风险，等于 0 代表同步正确。</li>
+          <li>SPU 视图基于 PID&amp;SKU 底表按 SPU 聚合生成，库存类数值按 SPU 粒度求和。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+  <div class="field-tooltip" id="fieldTooltip" role="tooltip"></div>
   <script>
     (function() {
+      var productDescModal = document.getElementById('productDescModal');
+      var productDescBtn = document.getElementById('btnProductDescSku');
+      function closeProductDescModal() {
+        if (productDescModal) productDescModal.classList.remove('open');
+      }
+      if (productDescBtn && productDescModal) {
+        productDescBtn.addEventListener('click', function() { productDescModal.classList.add('open'); });
+        Array.prototype.slice.call(productDescModal.querySelectorAll('[data-product-desc-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeProductDescModal);
+        });
+        productDescModal.addEventListener('click', function(event) {
+          if (event.target === productDescModal) closeProductDescModal();
+        });
+      }
+      var inventoryFieldHelp = {
+        "站点": "来源：TIKTOK-在线商品；字段：站点\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "店铺": "来源：TIKTOK-在线商品；字段：店铺\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "SPU": "来源：TIKTOK-在线商品；字段：SPU\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "SPU名称": "来源：TIKTOK-在线商品；字段：父产品名称\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "PID": "来源：TIKTOK-在线商品；字段：PID\n关联：TIKTOK-在线商品的\"PID\"=TIKTOK-在线商品的\"PID\"",
+        "MSKU": "来源：TIKTOK-在线商品；字段：msku\n关联：TIKTOK-在线商品的\"PID\"=TIKTOK-在线商品的\"MSKU\"",
+        "SKU ID": "来源：TIKTOK-在线商品；字段：ItemID\n关联：TIKTOK-在线商品的\"PID\"=TIKTOK-在线商品的“ItemID”",
+        "库存SKU": "来源：TIKTOK-在线商品；字段：SKU\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "库存SKU名称": "来源：TIKTOK-在线商品；字段：产品名称\n关联：TK库存检查的\"PID\"&\"SKU\"=TIKTOK-在线商品的\"PID\"&\"SKU\"",
+        "总库存": "公式/条件：总库存=总国内库存+总海外在途库存+海外在库总库存",
+        "总在途库存": "公式/条件：总在途库存=（国内库存-国内在库库存）+海外在途总量",
+        "总可用库存": "公式/条件：总可用库存=国内在库库存+海外在库总库存",
+        "总国内库存": "公式/条件：总国内库存=采购在途库存+工厂采购未交国内交货在途库存+国内在库库存",
+        "采购在途库存": "公式/条件：筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓\n采购在途=采购量+在途量",
+        "工厂采购未交量": "说明：采购量（剩余未交量） = 采购量 - 实交量\n代表工厂还没交货的数量\n举例采购单1000件，采购已经创建交货单900件，这里的数量就会是1000-900=100件\n来源：站点产品库存-自定义导出；字段：采购量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"采购量\"\n公式/条件：筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓",
+        "国内交货在途库存": "说明：积加产品库存-站点库存，筛选国内仓库\n来源：站点产品库存-自定义导出；字段：在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"在途量\"\n公式/条件：筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓",
+        "国内在库库存": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"=TIKTOK-在线商品的\"SKU\"\n公式/条件：筛选仓库为美国TK-厦门直邮仓和美国TK-国内厦门仓\n可用量",
+        "海外在途总量": "公式/条件：海外在途总量=三方仓在途量+万邑通USKY3在途+万邑通USWC2在途+万邑通USWC在途+美国谷仓:美西仓库在途+FBT在途量+英国退货仓",
+        "三方仓在途量": "来源：站点产品库存-自定义导出；字段：调拨待出库+调拨待出运+在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"调拨待出库+调拨待出运+在途量\"\n公式/条件：筛选仓库为万邑通:USKY3_Warehouse\n万邑通:USWC2_Warehouse\n万邑通:USWC_Warehouse\n美国TK-艾斯特尼-美国谷仓:美西仓库",
+        "万邑通USKY3在途": "来源：由同模块字段计算；字段：调拨待出库+调拨待出运+在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"调拨待出库+调拨待出运+在途量\"\n公式/条件：筛选仓库为万邑通:USKY3_Warehouse",
+        "万邑通USWC2在途": "来源：由同模块字段计算；字段：调拨待出库+调拨待出运+在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"调拨待出库+调拨待出运+在途量\"\n公式/条件：筛选仓库为万邑通::USWC2_Warehouse",
+        "万邑通USWC在途": "来源：由同模块字段计算；字段：调拨待出库+调拨待出运+在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"调拨待出库+调拨待出运+在途量\"\n公式/条件：筛选仓库为万邑通:USWC_Warehouse",
+        "美国谷仓:美西仓库在途": "来源：由同模块字段计算；字段：调拨待出库+调拨待出运+在途量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"调拨待出库+调拨待出运+在途量\"\n公式/条件：筛选仓库为美国TK-艾斯特尼-美国谷仓:美西仓库",
+        "FBT在途量": "来源：积加-平台仓库存导出\n关联：积加-平台仓库存导出-TikTok.FBT库存-自定义导出-000103272-20260604130906，在途量",
+        "英国退货仓在途量": "来源：由同模块字段计算；字段：调拨待出库+调拨待出运+在途量",
+        "海外在库总库存": "公式/条件：美国站点：\n=谷仓-1加万邑通USKY3-1加万邑通USWC-1加万邑通USWC2-1加国内仓-1加FBT-1（接口能不能抓到？）加FBA(空着)-1\n英国站点：\n=国内仓-1加英国退货仓-1",
+        "积加-万邑通USKY3": "来源：站点产品库存-自定义导出；字段：可用量\n关联：TK库存检查的\"SKU\"=站点产品库存-自定义导出的 \"SKU\"\n公式/条件：筛选仓库为万邑通:USKY3_Warehouse",
+        "积加-万邑通USWC2": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"=TIKTOK-在线商品的\"SKU\"\n公式/条件：筛选仓库为万邑通:USWC2_Warehouse",
+        "积加-万邑通USWC": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"=TIKTOK-在线商品的\"SKU\"\n公式/条件：筛选仓库为万邑通:USWC_Warehouse",
+        "积加-谷仓美西仓库": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"品的\"SKU\"\n公式/条件：筛选仓库为美国TK-艾斯特尼-美国谷仓:美西仓库",
+        "积加-FBA仓库": "说明：按最新原型字段口径展示；具体来源以映射表和后续开发口径为准。",
+        "积加-FBT可用": "来源：积加-平台仓库存导出；字段：可用量\n关联：积加-平台仓库存导出-TikTok.FBT库存-自定义导出-000103272-20260604130906，可用量",
+        "三方仓可用量": "来源：积加平台仓库存导出 / 积加商品管理可用库存。\n公式/条件：按三方仓仓库范围汇总可用库存。",
+        "积加-英国退货仓": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"=TIKTOK-在线商品的\"SKU\"\n公式/条件：筛选仓库为万邑通:UKTW Warehouse和美国TK-艾斯特尼-英国退件仓:英国仓",
+        "店铺应该被同步的库存": "来源：国内在库、海外在库及仓库维度可同步库存。\n公式/条件：按最新原型口径汇总应同步到店铺后台的库存数量。",
+        "店铺侧被同步的总库存": "来源：TK 后台商品管理库存 / 店铺侧仓库库存。\n公式/条件：汇总店铺侧各仓库当前已同步的库存数量。",
+        "店铺侧-美国TK厦门直邮仓": "来源：积加-商品管理-可用库存",
+        "店铺侧-万邑通USKY3": "来源：积加-商品管理-可用库存",
+        "店铺侧-万邑通USWC2": "来源：积加-商品管理-可用库存",
+        "店铺侧-万邑通USWC": "来源：积加-商品管理-可用库存",
+        "店铺侧-谷仓美西仓库": "来源：积加-商品管理-库存数量下-可用库存",
+        "店铺侧-FBA仓库": "来源：积加-商品管理-可用库存",
+        "店铺侧-FBT可用": "说明：按最新原型字段口径展示；具体来源以映射表和后续开发口径为准。",
+        "店铺侧-英国退货仓": "来源：积加-商品管理-可用库存",
+        "异常仓库": "来源：各仓库同步差异字段。\n公式/条件：汇总差异不为 0 或超过阀值的仓库名称，用于快速定位异常仓。",
+        "库存阀值设置": "来源：积加后台的调库存规则 / 库存阀值设置。\n公式/条件：按店铺、SKU、仓库等维度匹配阀值；未匹配时需提示阀值缺失或待维护。",
+        "库存是否异常": "来源：库存总差异、库存阀值设置。\n公式/条件：库存总差异不等于 0 时标记异常；等于 0 标记正常。",
+        "异常类型": "来源：库存总差异、库存阀值设置。\n公式/条件：0 < 库存总差异 <= 阀值，为阀值同步异常；库存总差异 > 阀值，为少同步；库存总差异 < 0，为超卖风险。",
+        "国内仓-3": "公式/条件：E39店铺侧-美国TK厦门直邮仓-E19国内在库库存",
+        "万邑通USKY3-3": "公式/条件：E40店铺侧-万邑通USKY3-E29积加-万邑通USKY3",
+        "万邑通USWC2-3": "公式/条件：E41店铺侧-万邑通USWC2-E30积加-万邑通USWC2",
+        "万邑通USWC-3": "公式/条件：E42店铺侧-万邑通USWC-E31积加-万邑通USWC",
+        "谷仓-3": "公式/条件：E43店铺侧-谷仓美西仓库-E32积加-谷仓美西仓库",
+        "FBA(空着)-3": "公式/条件：E44店铺侧-FBA仓库-E33积加-FBA仓库",
+        "FBT-3": "公式/条件：E45店铺侧-FBT可用-E34积加-FBT可用",
+        "英国退货仓-3": "公式/条件：E46店铺侧-店铺侧-英国退货仓-E34积加-E35积加-英国退货仓",
+        "库存总差异": "来源：店铺侧被同步的总库存、店铺应该被同步的库存。\n公式/条件：库存总差异 = 店铺侧被同步的总库存 - 店铺应该被同步的库存；同名字段在“库存差异”和“异常判断”模块共用此口径。"
+};
+
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function addFieldHelpToTable(tableSelector, stickyCount) {
+        var table = document.querySelector(tableSelector);
+        if (!table || !table.tHead || !table.tHead.rows.length) return;
+        var headerRow = table.tHead.rows[table.tHead.rows.length - 1];
+        Array.prototype.forEach.call(headerRow.cells, function(th, index) {
+          if (index < stickyCount || th.querySelector('.field-help')) return;
+          var label = th.textContent.replace('⇅', '').replace('↑', '').replace('↓', '').trim();
+          var logic = inventoryFieldHelp[label];
+          if (!logic) return;
+          th.innerHTML = '<span class="field-head">' + escapeHtml(label) + '<span class="field-help" data-logic="' + escapeHtml(logic) + '">?</span></span>';
+        });
+      }
+
+      var fieldTooltipTimer = null;
+      var activeFieldHelp = null;
+
+      function hideFieldTooltip() {
+        clearTimeout(fieldTooltipTimer);
+        fieldTooltipTimer = null;
+        activeFieldHelp = null;
+        var tooltip = document.getElementById('fieldTooltip');
+        if (tooltip) tooltip.classList.remove('visible');
+      }
+
+      function positionFieldTooltip(trigger) {
+        var tooltip = document.getElementById('fieldTooltip');
+        if (!tooltip || !trigger) return;
+        var rect = trigger.getBoundingClientRect();
+        var margin = 12;
+        var tooltipWidth = tooltip.offsetWidth || 360;
+        var tooltipHeight = tooltip.offsetHeight || 90;
+        var left = rect.left + rect.width / 2 - tooltipWidth / 2;
+        left = Math.max(margin, Math.min(left, window.innerWidth - tooltipWidth - margin));
+        var top = rect.top - tooltipHeight - 10;
+        if (top < margin) top = rect.bottom + 10;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
+      }
+
+      function initFieldTooltips() {
+        var tooltip = document.getElementById('fieldTooltip');
+        if (!tooltip) return;
+        document.addEventListener('mouseover', function(e) {
+          var trigger = e.target.closest('.field-help');
+          if (!trigger) return;
+          activeFieldHelp = trigger;
+          clearTimeout(fieldTooltipTimer);
+          fieldTooltipTimer = setTimeout(function() {
+            if (activeFieldHelp !== trigger) return;
+            tooltip.textContent = trigger.getAttribute('data-logic') || '';
+            tooltip.classList.add('visible');
+            positionFieldTooltip(trigger);
+          }, 300);
+        });
+        document.addEventListener('mouseout', function(e) {
+          var trigger = e.target.closest('.field-help');
+          if (!trigger) return;
+          hideFieldTooltip();
+        });
+        window.addEventListener('scroll', hideFieldTooltip, true);
+        window.addEventListener('resize', hideFieldTooltip);
+      }
+
       var regionTree = [
         { name: '欧洲', children: [
           { label: '德国', code: 'DE' },
@@ -1257,6 +1895,80 @@
         closeExactSearchPanel(true);
       });
 
+      var savedViewToggle = document.getElementById('savedViewToggle');
+      var savedViewPanel = document.getElementById('savedViewPanel');
+      var savedViewWrap = document.getElementById('savedViewWrap');
+      var savedViewCount = document.getElementById('savedViewCount');
+      var savedViewStore = {
+        viewName: '系统视图',
+        store: '',
+        statusIndex: 0,
+        searchFieldIndex: 0,
+        searchMode: 'fuzzy',
+        searchValue: '',
+        exactValue: ''
+      };
+      var systemViewStore = {
+        store: '',
+        statusIndex: 0,
+        searchFieldIndex: 0,
+        searchMode: 'fuzzy',
+        searchValue: '',
+        exactValue: ''
+      };
+      function collectCurrentView() {
+        savedViewStore.store = document.getElementById('qStore').value || '';
+        savedViewStore.statusIndex = document.getElementById('qStatus').selectedIndex || 0;
+        savedViewStore.searchFieldIndex = document.getElementById('qSearchField').selectedIndex || 0;
+        savedViewStore.searchMode = document.getElementById('qSearchMode').value || 'fuzzy';
+        savedViewStore.searchValue = document.getElementById('qSearchVal').value || '';
+        savedViewStore.exactValue = exactSearchApplied || exactSearchDraft || '';
+      }
+      function applyViewStore(viewStore) {
+        document.getElementById('qStore').value = viewStore.store || '';
+        document.getElementById('qStatus').selectedIndex = viewStore.statusIndex || 0;
+        document.getElementById('qSearchField').selectedIndex = viewStore.searchFieldIndex || 0;
+        document.getElementById('qSearchMode').value = viewStore.searchMode || 'fuzzy';
+        document.getElementById('qSearchVal').value = viewStore.searchValue || '';
+        exactSearchDraft = viewStore.exactValue || '';
+        exactSearchApplied = viewStore.exactValue || '';
+        document.getElementById('qSearchExactVal').value = exactSearchDraft;
+        syncSearchModeUI();
+        updateExactSearchPreview();
+        applySkuCardFilter('all');
+        applySpuCardFilter('all');
+      }
+      function applySavedView() { applyViewStore(savedViewStore); }
+      function applySystemView() { applyViewStore(systemViewStore); }
+      if (savedViewToggle && savedViewPanel) {
+        savedViewToggle.addEventListener('click', function(event) {
+          event.stopPropagation();
+          savedViewPanel.classList.toggle('open');
+        });
+        document.getElementById('saveCurrentView').addEventListener('click', function() {
+          collectCurrentView();
+          if (savedViewCount) savedViewCount.textContent = '1';
+          savedViewPanel.classList.remove('open');
+          alert('已保存当前搜索条件，下次可点击已保存视图快速查询。');
+        });
+        Array.prototype.slice.call(savedViewPanel.querySelectorAll('[data-view-name]')).forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            applySavedView();
+            savedViewPanel.classList.remove('open');
+          });
+        });
+        Array.prototype.slice.call(savedViewPanel.querySelectorAll('[data-system-view]')).forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            applySystemView();
+            savedViewPanel.classList.remove('open');
+          });
+        });
+        document.addEventListener('click', function(event) {
+          if (!savedViewWrap || savedViewWrap.contains(event.target)) return;
+          savedViewPanel.classList.remove('open');
+        });
+      }
+
       document.getElementById('btnReset').addEventListener('click', function() {
         if (window._resetCascadeStore) window._resetCascadeStore();
         document.getElementById('qStore').value = '';
@@ -1268,15 +1980,175 @@
         exactSearchApplied = '';
         document.getElementById('qSearchExactVal').value = '';
         syncSearchModeUI();
+        applySkuCardFilter('all');
+        applySpuCardFilter('all');
       });
 
       document.getElementById('btnMetricHelp').addEventListener('click', function() {
-        alert('数据统计说明：\n1. 以 TIKTOK-在线商品 为商品基础范围，按 PID&SKU 维度关联库存数据。\n2. 库存是否异常口径为：差异大于 0 代表少同步，小于 0 代表超卖风险，等于 0 代表同步正确。\n3. 说明中的 -1 / -2 / -3 分别代表应同步库存、实际同步库存、两者差异。');
+        alert('数据统计说明：\n1. 以 TIKTOK-在线商品 为商品基础范围，按 PID&SKU 维度关联库存数据。\n2. 列表按模块 / 字段名双层表头展示，包含产品基本信息、总库存、国内库存、海外在途、海外在库、店铺应同步、店铺实际同步、库存差异和异常判断。\n3. 库存是否异常口径为：差异大于 0 代表少同步，小于 0 代表超卖风险，等于 0 代表同步正确。');
       });
 
       document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
         alert('数据统计说明：\n1. SPU 视图基于 PID&SKU 底表按 SPU 聚合生成。\n2. SPU 视图不展示 PID、SKU 与店铺字段。\n3. 所有库存类数值默认按 SPU 粒度求和，风险状态按聚合结果重新判断。');
       });
+
+      function getSkuFilterMatched(row, filterType) {
+        if (!row || filterType === 'all') return true;
+        var status = row.cells[55] ? row.cells[55].textContent.trim() : '';
+        var exceptionType = row.cells[56] ? row.cells[56].textContent.trim() : '';
+        var diff = parseNumericCell(row.cells[53] ? row.cells[53].textContent : '');
+        if (filterType === 'less') return exceptionType === '少同步' || (diff != null && diff > 0 && status !== '正常');
+        if (filterType === 'oversell') return exceptionType === '超卖风险' || (diff != null && diff < 0 && status !== '正常');
+        if (filterType === 'threshold') return exceptionType.indexOf('阀值') !== -1 || exceptionType.indexOf('待确认') !== -1 || status === '待确认';
+        return true;
+      }
+
+      function applySkuCardFilter(filterType) {
+        var table = document.querySelector('.inventory-check-table');
+        if (!table || !table.tBodies || !table.tBodies[0]) return;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-sku-filter]'), function(card) {
+          card.classList.toggle('active', card.getAttribute('data-sku-filter') === filterType);
+        });
+        Array.prototype.forEach.call(table.tBodies[0].rows, function(row) {
+          row.style.display = getSkuFilterMatched(row, filterType) ? '' : 'none';
+        });
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('[data-sku-filter]'), function(card) {
+        var handler = function() { applySkuCardFilter(card.getAttribute('data-sku-filter') || 'all'); };
+        card.addEventListener('click', handler);
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handler();
+          }
+        });
+      });
+
+      function getSpuFilterMatched(row, filterType) {
+        if (!row || row.classList.contains('row-total') || row.classList.contains('sku-detail-row')) return filterType === 'all';
+        var status = row.cells[50] ? row.cells[50].textContent.trim() : '';
+        var exceptionType = row.cells[51] ? row.cells[51].textContent.trim() : '';
+        var diff = parseNumericCell(row.cells[48] ? row.cells[48].textContent : '');
+        if (filterType === 'less') return exceptionType === '少同步' || (diff != null && diff > 0 && status !== '正常');
+        if (filterType === 'oversell') return exceptionType === '超卖风险' || (diff != null && diff < 0 && status !== '正常');
+        if (filterType === 'threshold') return exceptionType.indexOf('阀值') !== -1 || exceptionType.indexOf('待确认') !== -1 || status === '待确认';
+        return true;
+      }
+
+      function applySpuCardFilter(filterType) {
+        var table = document.querySelector('.inventory-spu-table');
+        if (!table || !table.tBodies || !table.tBodies[0]) return;
+        Array.prototype.forEach.call(document.querySelectorAll('[data-spu-filter]'), function(card) {
+          card.classList.toggle('active', card.getAttribute('data-spu-filter') === filterType);
+        });
+        Array.prototype.slice.call(table.tBodies[0].querySelectorAll('tr.sku-detail-row')).forEach(function(row) { row.remove(); });
+        Array.prototype.forEach.call(table.tBodies[0].rows, function(row) {
+          if (row.classList.contains('row-total')) {
+            row.style.display = filterType === 'all' ? '' : 'none';
+            return;
+          }
+          row.classList.remove('spu-expanded');
+          var toggle = row.querySelector('.spu-toggle');
+          if (toggle) toggle.textContent = '▸';
+          row.style.display = getSpuFilterMatched(row, filterType) ? '' : 'none';
+        });
+      }
+
+      Array.prototype.forEach.call(document.querySelectorAll('[data-spu-filter]'), function(card) {
+        var handler = function() { applySpuCardFilter(card.getAttribute('data-spu-filter') || 'all'); };
+        card.addEventListener('click', handler);
+        card.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handler();
+          }
+        });
+      });
+
+      function getSkuRowsBySpu(storeName, spu) {
+        var table = document.querySelector('.inventory-check-table');
+        if (!table || !table.tBodies || !table.tBodies[0]) return [];
+        return Array.prototype.slice.call(table.tBodies[0].rows).filter(function(row) {
+          return row.cells[0] && row.cells[1]
+            && row.cells[0].textContent.trim() === storeName
+            && row.cells[1].textContent.trim() === spu;
+        });
+      }
+
+      function buildSkuDetailRow(sourceRow) {
+        var storeName = sourceRow.cells[0] ? sourceRow.cells[0].textContent.trim() : '';
+        var spu = sourceRow.cells[1] ? sourceRow.cells[1].textContent.replace(/[▸▾]/g, '').trim() : '';
+        var spuName = sourceRow.cells[2] ? sourceRow.cells[2].textContent.trim() : '';
+        var skuRows = getSkuRowsBySpu(storeName, spu);
+        var detailRow = document.createElement('tr');
+        detailRow.className = 'sku-detail-row';
+        var detailCell = document.createElement('td');
+        detailCell.colSpan = sourceRow.cells.length;
+        var detailHeaders = Array.prototype.map.call(document.querySelectorAll('.inventory-check-table thead tr:last-child th'), function(th) {
+          return th.textContent.trim();
+        });
+        var groupHeaders = Array.prototype.map.call(document.querySelectorAll('.inventory-check-table thead tr:first-child th'), function(th) {
+          return { name: th.textContent.trim(), colspan: th.getAttribute('colspan') || '1', className: th.className };
+        });
+        var groupHtml = groupHeaders.map(function(group) {
+          return '<th class="' + group.className + '" colspan="' + group.colspan + '">' + group.name + '</th>';
+        }).join('');
+        var headerHtml = detailHeaders.map(function(name, index) {
+          var className = index >= 8 && index <= 53 ? ' class="num"' : '';
+          var label = name.replace('?', '').trim();
+          var logic = inventoryFieldHelp[label];
+          var content = index >= 9 && logic
+            ? '<span class="field-head">' + escapeHtml(label) + '<span class="field-help" data-logic="' + escapeHtml(logic) + '">?</span></span>'
+            : escapeHtml(label);
+          return '<th' + className + '>' + content + '</th>';
+        }).join('');
+        var rowsHtml = skuRows.map(function(row) {
+          return '<tr>' + Array.prototype.map.call(row.cells, function(cell, index) {
+            var value = cell.textContent.trim();
+            var className = index >= 8 && index <= 53 ? ' class="num"' : '';
+            if (index === 8) value = '<code>' + value + '</code>';
+            return '<td' + className + '>' + value + '</td>';
+          }).join('') + '</tr>';
+        }).join('');
+        detailCell.innerHTML = '<div class="sku-detail-panel">'
+          + '<div class="sku-detail-title">' + spu + ' / ' + spuName + ' 对应 SKU 明细</div>'
+          + (rowsHtml
+            ? '<div class="sku-detail-wrap"><table class="sku-detail-table"><thead><tr>' + groupHtml + '</tr><tr>' + headerHtml + '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>'
+            : '<div class="sku-detail-empty">当前示例数据中未匹配到该 SPU 的 SKU 明细。</div>')
+          + '</div>';
+        detailRow.appendChild(detailCell);
+        return detailRow;
+      }
+
+      function initSpuRowExpand() {
+        var table = document.querySelector('.inventory-spu-table');
+        if (!table || !table.tBodies || !table.tBodies[0]) return;
+        Array.prototype.forEach.call(table.tBodies[0].rows, function(row) {
+          if (row.classList.contains('row-total') || row.classList.contains('sku-detail-row')) return;
+          row.classList.add('spu-expandable');
+          row.title = '点击展开 SKU 明细';
+          if (row.cells[1] && !row.cells[1].querySelector('.spu-toggle')) {
+            row.cells[1].innerHTML = '<span class="spu-toggle">▸</span>' + row.cells[1].innerHTML;
+          }
+        });
+        table.tBodies[0].addEventListener('click', function(e) {
+          var row = e.target.closest('tr.spu-expandable');
+          if (!row || row.classList.contains('row-total')) return;
+          var next = row.nextElementSibling;
+          var toggle = row.querySelector('.spu-toggle');
+          if (next && next.classList.contains('sku-detail-row')) {
+            next.remove();
+            row.classList.remove('spu-expanded');
+            if (toggle) toggle.textContent = '▸';
+            return;
+          }
+          row.parentNode.insertBefore(buildSkuDetailRow(row), next);
+          row.classList.add('spu-expanded');
+          if (toggle) toggle.textContent = '▾';
+        });
+      }
+
 
       function parseNumericCell(text) {
         var raw = String(text || '').trim();
@@ -1400,8 +2272,13 @@
         tbody.appendChild(totalRow);
       }
 
-      document.querySelectorAll('.view-panel table').forEach(appendTableTotalRow);
+      addFieldHelpToTable('.inventory-check-table', 8);
+      addFieldHelpToTable('.inventory-spu-table', 3);
+      initFieldTooltips();
+      var spuTable = document.querySelector('.inventory-spu-table');
+      if (spuTable) appendTableTotalRow(spuTable);
       document.querySelectorAll('.view-panel table').forEach(initNumericTableSort);
+      initSpuRowExpand();
       syncSearchModeUI();
       updateExactSearchPreview();
     })();

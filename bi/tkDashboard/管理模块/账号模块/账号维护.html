@@ -45,10 +45,16 @@
     .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 160px; }
     .search-query-item { position: relative; gap: 0; }
     .search-query-item select { min-width: 0; }
-    .search-query-item .search-field-select { width: 112px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
     .search-query-item .search-mode-select { width: 102px; margin-left: -1px; border-radius: 0; }
-    .search-query-item .search-input { width: 210px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-input { width: 180px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
+    .tab.account-tab { height: 38px; padding: 0 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab.account-tab:last-child { border-right: none; }
+    .tab.account-tab.active { background: var(--accent); color: #fff; }
+    .tab.account-tab:hover:not(.active) { background: #f0fdfa; }
+    .tab.account-tab .count { margin-left: 0.25rem; opacity: 0.85; font-weight: 700; }
     .title { margin: 0; color: var(--text); font-size: 1.25rem; font-weight: 600; line-height: 1.25; }
     .subtitle { margin-top: 4px; color: #8aa0b8; font-size: 13px; font-weight: 600; }
     .header-right { display: flex; align-items: center; gap: 12px; padding-top: 2px; color: #64748b; font-size: 14px; font-weight: 600; }
@@ -62,6 +68,9 @@
     .btn-secondary:hover { background: #f9fafb; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { color: var(--muted); font-size: 0.85rem; }
     .summary { display: flex; align-items: center; gap: 28px; margin: 6px 0 14px; color: #64748b; font-size: 0.85rem; font-weight: 500; }
     .summary span { display: inline-flex; align-items: center; gap: 2px; }
     .summary strong { font-weight: 800; }
@@ -70,13 +79,20 @@
     .summary .pause-count strong { color: #d9a117; }
     .summary .stop-count strong { color: #909eb1; }
     .table-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: none; margin-bottom: 1rem; }
-    .table-wrap { width: 100%; overflow-x: hidden; }
-    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 1250px; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
     thead th { height: 50px; background: var(--header-bg); color: var(--muted); border: 1px solid var(--border); text-align: left; font-weight: 500; padding: 0.5rem 0.65rem; }
     thead th:last-child { border-right: none; }
     tbody td { height: 58px; border: 1px solid var(--border); padding: 0.5rem 0.65rem; color: var(--text); font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     tbody tr:last-child td { border-bottom: none; }
     tbody tr:hover td { background: var(--row-hover); }
+    .pagination { border-top: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: #fff; color: #64748b; font-size: 13px; }
+    .pagination-left, .pagination-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .page-size { height: 32px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); padding: 0 8px; }
+    .page-btn { min-width: 32px; height: 32px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: #52657a; cursor: pointer; }
+    .page-btn:hover:not(:disabled) { background: #f9fafb; color: var(--accent); border-color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .page-btn:disabled { cursor: not-allowed; color: #cbd5e1; background: #f8fafc; }
     .check-cell { width: 70px; text-align: center; padding: 0 !important; }
     .checkbox { width: 15px; height: 15px; border: 1px solid #d7e1ec; border-radius: 4px; background: #fff; display: inline-block; vertical-align: middle; }
     .handle { display: inline-flex; align-items: center; gap: 5px; color: #566b84; max-width: 100%; }
@@ -103,15 +119,23 @@
     .action { border: none; background: transparent; color: var(--accent); padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 500; }
     .action svg { width: 15px; height: 15px; }
     .action:hover { color: var(--primary-hover); }
-    .w-handle { width: 15%; }
-    .w-uid { width: 17%; }
-    .w-type { width: 10%; }
-    .w-site { width: 8%; }
-    .w-store { width: 15%; }
-    .w-owner { width: 10%; }
-    .w-status { width: 9%; }
-    .w-gender { width: 9%; }
-    .w-action { width: 7%; }
+    .w-handle { width: 150px; }
+    .w-uid { width: 170px; }
+    .w-type { width: 100px; }
+    .w-site { width: 90px; }
+    .w-store { width: 170px; }
+    .w-owner { width: 120px; }
+    .w-status { width: 110px; }
+    .w-gender { width: 100px; }
+    .w-tiktok-id { width: 150px; }
+    .w-nickname { width: 140px; }
+    .w-homepage { width: 180px; }
+    .w-region { width: 80px; }
+    .w-source { width: 110px; }
+    .w-level { width: 90px; }
+    .w-opened { width: 90px; }
+    .w-mode { width: 120px; }
+    .w-action { width: 92px; }
     .drawer-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, .36); display: none; justify-content: flex-end; z-index: 30; }
     .drawer-mask.show { display: flex; }
     .drawer { width: 520px; height: 100%; background: #fff; box-shadow: -18px 0 36px rgba(15, 23, 42, .18); display: flex; flex-direction: column; }
@@ -127,7 +151,32 @@
     .field input, .field select, .field textarea { width: 100%; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); font-family: inherit; font-size: 13px; outline: none; }
     .field input, .field select { height: 36px; padding: 0 10px; }
     .field textarea { min-height: 76px; padding: 9px 10px; resize: vertical; }
+    .required { color: var(--danger); margin-left: 3px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag-chip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 8px; border-radius: 4px; background: #f1f5f9; color: #64748b; font-size: 12px; font-weight: 600; }
+    .tag-chip.hot { background: #fee2e2; color: #dc2626; }
+    .tag-editor { display: flex; gap: 8px; margin-top: 8px; }
+    .tag-editor input { flex: 1; }
+    .tag-editor .btn { height: 36px; padding: 0 12px; white-space: nowrap; }
+    .secret-tip { grid-column: 1 / -1; border: 1px solid #fde68a; background: #fffbeb; color: #b45309; border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.6; }
+    .switch-line { display: flex; align-items: center; gap: 10px; min-height: 36px; color: #52657a; font-weight: 600; }
+    .switch { width: 36px; height: 20px; border-radius: 999px; background: #e5e7eb; position: relative; display: inline-block; }
+    .switch.on { background: #dc2626; }
+    .switch::after { content: ''; width: 16px; height: 16px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; box-shadow: 0 1px 3px rgba(15, 23, 42, .2); }
+    .switch.on::after { left: 18px; }
     .drawer-actions { border-top: 1px solid var(--border); height: 62px; padding: 12px 20px; display: flex; justify-content: flex-end; gap: 10px; }
+    .modal-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, .36); display: none; align-items: center; justify-content: center; z-index: 35; padding: 20px; }
+    .modal-mask.show { display: flex; }
+    .modal { width: 560px; max-width: 100%; max-height: calc(100vh - 48px); background: #fff; border-radius: 8px; box-shadow: 0 20px 45px rgba(15, 23, 42, .22); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { height: 56px; border-bottom: 1px solid var(--border); padding: 0 18px; display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .modal-close { border: none; background: #f5f6f8; color: #73869b; width: 30px; height: 30px; border-radius: 4px; cursor: pointer; font-size: 20px; line-height: 1; }
+    .modal-body { padding: 16px 18px; overflow: auto; }
+    .modal-tip { color: #6d8199; font-size: 13px; margin-bottom: 12px; line-height: 1.7; }
+    .column-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+    .column-option { min-height: 34px; border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; display: flex; align-items: center; gap: 8px; color: #52657a; background: #fff; font-size: 13px; }
+    .column-option input { width: 15px; height: 15px; accent-color: var(--accent); }
+    .modal-actions { border-top: 1px solid var(--border); height: 58px; padding: 11px 18px; display: flex; justify-content: flex-end; gap: 10px; }
     .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
     .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
     .content-note ol { margin: 0; padding-left: 20px; }
@@ -143,7 +192,6 @@
     <header class="header">
       <div>
         <h1 class="title">账号维护</h1>
-        <div class="subtitle">管理所有 TikTok 账号档案，包含渠道号、达人号和 TAP 机构号的基础信息与登录凭证</div>
       </div>
       <div class="header-right">
         <span>共 <strong id="totalTop">10</strong> 条记录</span>
@@ -156,13 +204,12 @@
     <div class="query-card">
       <div class="query-row">
         <div class="query-item">
-          <span class="label">账号类型</span>
-          <select id="typeFilter">
-            <option value="all">全部账号</option>
-            <option value="渠道号">自营账号</option>
-            <option value="达人号">达人账号</option>
-            <option value="TAP 机构号">TAP机构账号</option>
-          </select>
+          <div class="tabs" id="accountTabs">
+            <button type="button" class="tab account-tab active" data-tab="all">全部账号<span class="count" id="tabCountAll">0</span></button>
+            <button type="button" class="tab account-tab" data-tab="渠道号">渠道号<span class="count" id="tabCountChannel">0</span></button>
+            <button type="button" class="tab account-tab" data-tab="达人号">达人号<span class="count" id="tabCountCreator">0</span></button>
+            <button type="button" class="tab account-tab" data-tab="TAP 机构号">TAP机构号<span class="count" id="tabCountAgency">0</span></button>
+          </div>
         </div>
         <div class="query-item">
           <span class="label">国家/站点</span>
@@ -186,11 +233,32 @@
           <span class="label">运营人员</span>
           <input type="text" id="ownerFilter" placeholder="请输入" />
         </div>
+        <div class="query-item creator-filter">
+          <span class="label">达人来源</span>
+          <select id="sourceFilter">
+            <option value="">全部来源</option>
+            <option value="自主开发">自主开发</option>
+            <option value="离职继承">离职继承</option>
+            <option value="被动建联">被动建联</option>
+          </select>
+        </div>
+        <div class="query-item creator-filter">
+          <span class="label">达人等级</span>
+          <select id="levelFilter">
+            <option value="">全部等级</option>
+            <option value="L3以下">L3以下</option>
+            <option value="L3">L3</option>
+            <option value="L4">L4</option>
+            <option value="L5">L5</option>
+            <option value="L6">L6</option>
+          </select>
+        </div>
         <div class="query-item search-query-item">
           <select class="search-field-select" id="searchField">
-            <option value="all">账号/UID</option>
+            <option value="all">账号/UID/昵称</option>
             <option value="handle">Handle</option>
             <option value="uid">UID</option>
+            <option value="nickname">昵称</option>
           </select>
           <select class="search-mode-select" id="searchMode">
             <option value="fuzzy">模糊搜索</option>
@@ -206,6 +274,16 @@
       </div>
     </div>
 
+    <div class="action-bar">
+      <div class="btns">
+        <button type="button" class="btn btn-secondary" id="btnProductInfo">产品说明</button>
+        <button type="button" class="btn btn-secondary" id="btnImport">导入</button>
+        <button type="button" class="btn btn-secondary" id="btnColumnConfig">自定义列配置</button>
+        <button type="button" class="btn btn-secondary" id="btnExport">导出</button>
+      </div>
+      <div class="meta-info">数据更新时间：2026-05-28 09:12:59</div>
+    </div>
+
     <div class="summary">
       <span class="total">共 <strong id="totalCount">10</strong> 条</span>
       <span class="active-count">活跃 <strong id="activeCount">8</strong></span>
@@ -216,22 +294,25 @@
     <section class="table-card">
       <div class="table-wrap">
       <table>
-        <thead>
-          <tr>
-            <th class="check-cell"><span class="checkbox"></span></th>
-            <th class="w-handle"><span class="sortable">Handle Name <span class="sort-icon">↕</span></span></th>
-            <th class="w-uid"><span class="sortable">TikTok UID <span class="sort-icon">↕</span></span></th>
-            <th class="w-type"><span class="sortable">账号类型 <span class="sort-icon">↕</span></span></th>
-            <th class="w-site"><span class="sortable">国家/站点 <span class="sort-icon">↕</span></span></th>
-            <th class="w-store">内容挂车店铺</th>
-            <th class="w-owner"><span class="sortable">运营人员 <span class="sort-icon">↕</span></span></th>
-            <th class="w-status"><span class="sortable">账号状态 <span class="sort-icon">↕</span></span></th>
-            <th class="w-gender">账号定位性别</th>
-            <th class="w-action">操作</th>
-          </tr>
-        </thead>
+        <thead id="accountTableHead"></thead>
         <tbody id="accountRows"></tbody>
       </table>
+      </div>
+      <div class="pagination" aria-label="分页控件">
+        <div class="pagination-left">
+          <span>每页</span>
+          <select class="page-size" id="pageSize">
+            <option value="5">5条/页</option>
+            <option value="10" selected>10条/页</option>
+            <option value="20">20条/页</option>
+          </select>
+          <span id="pageSummary">共 0 条</span>
+        </div>
+        <div class="pagination-right">
+          <button type="button" class="page-btn" id="pagePrev">‹</button>
+          <span id="pageNumbers"></span>
+          <button type="button" class="page-btn" id="pageNext">›</button>
+        </div>
       </div>
     </section>
 
@@ -239,6 +320,9 @@
       <div class="content-note-title">内容说明</div>
       <ol>
         <li>该数据源为手动维护，没有第三方的 API 相关提供。</li>
+        <li>支持导入账号档案，用于批量新增或更新渠道号、达人号、TAP机构号。</li>
+        <li>支持按当前筛选条件导出账号列表，导出字段跟随当前栏目与自定义列配置。</li>
+        <li>支持自定义列配置，可按账号类型栏目勾选需要展示或导出的字段。</li>
       </ol>
     </section>
   </div>
@@ -251,22 +335,56 @@
       </div>
       <div class="drawer-body">
         <div class="form-section">
-          <div class="section-title">基础信息</div>
+          <div class="section-title">账号基础信息</div>
           <div class="form-grid">
-            <div class="field"><label>Handle Name</label><input id="formHandle" value="@new_account" /></div>
-            <div class="field"><label>TikTok UID</label><input id="formUid" value="7234567890123456799" /></div>
-            <div class="field"><label>账号类型</label><select id="formType"><option>渠道号</option><option>达人号</option><option>TAP 机构号</option></select></div>
+            <div class="field"><label>Handle Name <span class="required">*</span></label><input id="formHandle" value="@new_account" /></div>
+            <div class="field"><label>Nickname 昵称</label><input id="formNickname" value="FAIABLE 官方" /></div>
+            <div class="field full"><label>TikTok 主页 URL</label><input id="formHomeUrl" value="https://www.tiktok.com/@new_account" /></div>
+            <div class="field"><label>TikTok UID <span class="required">*</span></label><input id="formUid" value="7234567890123456799" /></div>
+            <div class="field"><label>平台</label><input id="formPlatform" value="TikTok" /></div>
             <div class="field"><label>国家/站点</label><select id="formSite"><option>US</option><option>UK</option><option>AU</option></select></div>
-            <div class="field"><label>账号状态</label><select id="formStatus"><option>活跃</option><option>暂停</option><option>停用</option></select></div>
-            <div class="field"><label>账号定位性别</label><select id="formGender"><option>未知</option><option>女</option><option>男</option></select></div>
+            <div class="field"><label>内容挂车店铺</label><input id="formStore" value="FAIABLE US Official" /></div>
+            <div class="field"><label>运营人员 / 最新商务归属</label><input id="formOwner" value="Bob Wang" /></div>
           </div>
         </div>
         <div class="form-section">
-          <div class="section-title">运营归属</div>
+          <div class="section-title">账号分类</div>
           <div class="form-grid">
-            <div class="field"><label>内容挂车店铺</label><input id="formStore" value="FAIABLE US Official" /></div>
-            <div class="field"><label>运营人员</label><input id="formOwner" value="Bob Wang" /></div>
-            <div class="field full"><label>登录凭证/备注</label><textarea>用于账号档案原型演示，正式系统需加密保存登录凭证并记录授权状态。</textarea></div>
+            <div class="field"><label>内容来源</label><input id="formContentSources" value="混剪，实拍" /></div>
+            <div class="field"><label>账号类型 <span class="required">*</span></label><select id="formType"><option>渠道号</option><option>达人号</option><option>TAP 机构号</option></select></div>
+            <div class="field"><label>账号定位性别</label><select id="formGender"><option>未知</option><option>女</option><option>男</option></select></div>
+            <div class="field"><label>达人来源</label><select id="formSource"><option>自主开发</option><option>离职继承</option><option>被动建联</option></select></div>
+            <div class="field"><label>达人等级</label><select id="formLevel"><option>L3以下</option><option>L3</option><option>L4</option><option>L5</option><option>L6</option></select></div>
+            <div class="field"><label>是否开单</label><select id="formOpened"><option>是</option><option>否</option></select></div>
+            <div class="field full"><label>合作模式</label><input id="formCooperationMode" value="寄样+佣金" /></div>
+            <div class="field full"><label>自定义标签</label><div class="tag-list" id="formTagList"><span class="tag-chip">头部达人</span><span class="tag-chip">腰部达人</span><span class="tag-chip hot">品牌自营</span><span class="tag-chip hot">高转化</span></div><div class="tag-editor"><input id="formNewTag" placeholder="输入新标签，如：高互动、潜力达人" /><button class="btn" type="button" id="btnAddTag">添加标签</button></div></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-title">店铺信息</div>
+          <div class="form-grid">
+            <div class="field"><label>账号归属店铺</label><input id="formAffiliatedStore" value="FAIABLE US Official" /></div>
+            <div class="field"><label>是否后台绑定</label><div class="switch-line"><span class="switch on" id="formBackendSwitch"></span><span id="formBackendText">已绑定</span></div></div>
+            <div class="field"><label>后台绑定店铺名</label><input id="formBackendStore" value="FAIABLE US Official" /></div>
+            <div class="field"><label>Shop Code</label><input id="formShopCode" value="FAI-US-01" /></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-title">登录凭证（加密存储）</div>
+          <div class="form-grid">
+            <div class="secret-tip">⚠️ 凭证字段加密存储，查看时需要二次确认，请勿在非安全环境下操作。</div>
+            <div class="field"><label>TK 密码</label><input id="formTkPassword" type="password" value="mockpassword" /></div>
+            <div class="field"><label>邮箱密码</label><input id="formEmailPassword" type="password" value="emailpassword" /></div>
+            <div class="field"><label>邮箱</label><input id="formEmail" value="faiable.official@gmail.com" /></div>
+            <div class="field"><label>邮箱登录地址</label><input id="formEmailLoginUrl" value="https://mail.google.com" /></div>
+            <div class="field full"><label>网络线路</label><input id="formNetworkRoute" value="美国节点-01" /></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="section-title">账号状态</div>
+          <div class="form-grid">
+            <div class="field"><label>状态</label><select id="formStatus"><option>活跃</option><option>暂停</option><option>停用</option></select></div>
+            <div class="field full"><label>备注</label><textarea id="formRemark">主品牌官方账号，重点运营，日更内容</textarea></div>
           </div>
         </div>
       </div>
@@ -277,161 +395,351 @@
     </aside>
   </div>
 
+  <div class="modal-mask" id="productInfoMask">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="productInfoTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="productInfoTitle">产品说明</div>
+        <button class="modal-close" id="productInfoClose" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-tip">账号维护用于统一管理 TikTok 相关账号档案，支持渠道号、达人号、TAP机构号分栏目维护。</div>
+        <ol style="margin:0;padding-left:20px;color:#52657a;line-height:1.8;font-size:13px;">
+          <li>全部账号栏目展示各账号类型共有字段，用于快速查看账号基础档案。</li>
+          <li>渠道号栏目用于维护自营渠道账号的店铺归属、运营人员、账号状态和登录凭证。</li>
+          <li>达人号和 TAP机构号栏目展示达人来源、达人等级、是否开单、合作模式、最新商务归属等达人业务字段。</li>
+          <li>支持导入、导出、自定义列、分页和按达人来源/等级筛选；凭证字段正式开发时需加密存储和二次确认。</li>
+        </ol>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-query" id="productInfoOk">知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-mask" id="columnConfigMask">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="columnConfigTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="columnConfigTitle">自定义列配置</div>
+        <button class="modal-close" id="columnConfigClose" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-tip">按当前账号栏目配置列表展示字段；保存后影响页面展示与导出字段，实际开发时需按用户维度持久化配置。</div>
+        <div class="column-grid">
+          <label class="column-option"><input type="checkbox" checked />账号/主页</label>
+          <label class="column-option"><input type="checkbox" checked />账号昵称</label>
+          <label class="column-option"><input type="checkbox" checked />TikTok UID</label>
+          <label class="column-option"><input type="checkbox" checked />账号类型</label>
+          <label class="column-option"><input type="checkbox" checked />区域</label>
+          <label class="column-option"><input type="checkbox" checked />国家/站点</label>
+          <label class="column-option"><input type="checkbox" checked />归属人员</label>
+          <label class="column-option"><input type="checkbox" checked />账号状态</label>
+          <label class="column-option"><input type="checkbox" checked />达人来源</label>
+          <label class="column-option"><input type="checkbox" checked />合作模式</label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-light" id="columnConfigCancel">取消</button>
+        <button class="btn btn-query" id="columnConfigSave">保存配置</button>
+      </div>
+    </div>
+  </div>
+
   <button class="ai-float" title="AI 助手" aria-label="AI 助手"></button>
   <div class="toast" id="toast">已保存账号档案</div>
 
   <script>
+    var activeTab = 'all';
+    var currentPage = 1;
+    var pageSize = 10;
     var accounts = [
-      { handle: '@faiable_official', uid: '7234567890123456789', type: '渠道号', site: 'US', store: 'FAIABLE US Official', owner: 'Bob Wang', status: '活跃', gender: '未知' },
-      { handle: '@sweetlife_us', uid: '7234567890123456790', type: '达人号', site: 'US', store: 'FAIABLE US Official', owner: 'Carol Liu', status: '活跃', gender: '女' },
-      { handle: '@trendhub_uk', uid: '7234567890123456791', type: '渠道号', site: 'UK', store: 'FAIABLE UK Store', owner: 'Emma Li', status: '活跃', gender: '未知' },
-      { handle: '@tap_agency_fai', uid: '7234567890123456792', type: 'TAP 机构号', site: 'US', store: '—', owner: 'Alice Chen', status: '活跃', gender: '未知' },
-      { handle: '@homestyle_creator', uid: '7234567890123456793', type: '达人号', site: 'US', store: 'CrossShop Global', owner: 'David Zhang', status: '活跃', gender: '女' },
-      { handle: '@fitness_frank', uid: '7234567890123456794', type: '达人号', site: 'US', store: 'TrendHub US', owner: 'Frank Wu', status: '暂停', gender: '男' },
-      { handle: '@au_lifestyle_hub', uid: '7234567890123456795', type: '渠道号', site: 'AU', store: 'FAIABLE AU Store', owner: 'Grace Zhao', status: '活跃', gender: '未知' },
-      { handle: '@petlover_grace', uid: '7234567890123456796', type: '达人号', site: 'US', store: 'CrossShop Global', owner: 'Grace Zhao', status: '活跃', gender: '女' },
-      { handle: '@tap_crossshop', uid: '7234567890123456797', type: 'TAP 机构号', site: 'US', store: '—', owner: 'Henry Sun', status: '活跃', gender: '未知' },
-      { handle: '@old_channel_us', uid: '7234567890123456798', type: '渠道号', site: 'US', store: '—', owner: 'Bob Wang', status: '停用', gender: '未知' }
+      { handle: '@faiable_official', uid: '7234567890123456789', type: '渠道号', site: 'US', region: '美区', store: 'FAIABLE US Official', owner: 'Bob Wang', status: '活跃', gender: '未知', nickname: 'FAIABLE 官方', platform: 'TikTok', contentSources: '混剪，实拍', tags: ['品牌自营','高转化'], affiliatedStore: 'FAIABLE US Official', backendBound: true, backendStore: 'FAIABLE US Official', shopCode: 'FAI-US-01', email: 'faiable.official@gmail.com', emailLoginUrl: 'https://mail.google.com', networkRoute: '美国节点-01', remark: '主品牌官方账号，重点运营，日更内容' },
+      { handle: '@sweetlife_us', uid: '7234567890123456790', type: '达人号', site: 'UK', region: '英区', store: 'FAIABLE UK Store', owner: 'Carol Liu', status: '活跃', gender: '女', nickname: 'Sweet Life', source: '自主开发', level: 'L3', opened: '是', cooperationMode: '寄样+佣金', platform: 'TikTok', contentSources: '实拍，图文', tags: ['头部达人','高转化'], affiliatedStore: 'FAIABLE UK Store', backendBound: false, backendStore: '', shopCode: 'FAI-UK-02', email: 'sweetlife.creator@gmail.com', emailLoginUrl: 'https://mail.google.com', networkRoute: '英国节点-01', remark: '英区达人，已开单，可持续寄样' },
+      { handle: '@trendhub_uk', uid: '7234567890123456791', type: '渠道号', site: 'UK', region: '英区', store: 'FAIABLE UK Store', owner: 'Emma Li', status: '活跃', gender: '未知', nickname: 'TrendHub UK' },
+      { handle: '@tap_agency_fai', uid: '7234567890123456792', type: 'TAP 机构号', site: 'US', region: '美区', store: '—', owner: 'Alice Chen', status: '活跃', gender: '未知', nickname: 'FAI TAP Agency' },
+      { handle: '@homestyle_creator', uid: '7234567890123456793', type: '达人号', site: 'UK', region: '英区', store: 'CrossShop Global', owner: 'David Zhang', status: '活跃', gender: '女', nickname: 'HomeStyle Creator', source: '离职继承', level: 'L4', opened: '是', cooperationMode: '纯佣合作' },
+      { handle: '@fitness_frank', uid: '7234567890123456794', type: '达人号', site: 'UK', region: '英区', store: 'TrendHub UK', owner: 'Frank Wu', status: '暂停', gender: '男', nickname: 'Fitness Frank', source: '被动建联', level: 'L5', opened: '否', cooperationMode: '样品测评' },
+      { handle: '@au_lifestyle_hub', uid: '7234567890123456795', type: '渠道号', site: 'AU', region: '澳区', store: 'FAIABLE AU Store', owner: 'Grace Zhao', status: '活跃', gender: '未知', nickname: 'AU Lifestyle Hub' },
+      { handle: '@petlover_grace', uid: '7234567890123456796', type: '达人号', site: 'UK', region: '英区', store: 'CrossShop Global', owner: 'Grace Zhao', status: '活跃', gender: '女', nickname: 'Petlover Grace', source: '自主开发', level: 'L4', opened: '是', cooperationMode: '寄样+佣金' },
+      { handle: '@tap_crossshop', uid: '7234567890123456797', type: 'TAP 机构号', site: 'US', region: '美区', store: '—', owner: 'Henry Sun', status: '活跃', gender: '未知', nickname: 'CrossShop TAP' },
+      { handle: '@old_channel_us', uid: '7234567890123456798', type: '渠道号', site: 'US', region: '美区', store: '—', owner: 'Bob Wang', status: '停用', gender: '未知', nickname: 'Old Channel US' }
     ];
-    function iconExternal() {
-      return '<svg class="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M9 7h8v8"/><path d="M19 19H5V5h7"/></svg>';
+    var allHead = '<tr>' +
+      '<th class="check-cell"><span class="checkbox"></span></th>' +
+      '<th class="w-handle"><span class="sortable">账号/主页 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-nickname"><span class="sortable">账号昵称 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-uid"><span class="sortable">TikTok UID <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-type"><span class="sortable">账号类型 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-region"><span class="sortable">区域 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-site"><span class="sortable">国家/站点 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-owner"><span class="sortable">归属人员 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-status"><span class="sortable">账号状态 <span class="sort-icon">↕</span></span></th>' +
+      '</tr>';
+    var generalHead = '<tr>' +
+      '<th class="check-cell"><span class="checkbox"></span></th>' +
+      '<th class="w-handle"><span class="sortable">Handle Name <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-uid"><span class="sortable">TikTok UID <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-type"><span class="sortable">账号类型 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-site"><span class="sortable">国家/站点 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-store">内容挂车店铺</th>' +
+      '<th class="w-owner"><span class="sortable">运营人员 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-status"><span class="sortable">账号状态 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-gender">账号定位性别</th>' +
+      '<th class="w-action">操作</th>' +
+      '</tr>';
+    var creatorHead = '<tr>' +
+      '<th class="check-cell"><span class="checkbox"></span></th>' +
+      '<th class="w-tiktok-id"><span class="sortable">TIKTOK ID <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-nickname"><span class="sortable">达人昵称 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-homepage">TikTok 主页</th>' +
+      '<th class="w-region"><span class="sortable">区域 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-source">达人来源</th>' +
+      '<th class="w-level">达人等级</th>' +
+      '<th class="w-opened">是否开单</th>' +
+      '<th class="w-mode">合作模式</th>' +
+      '<th class="w-owner"><span class="sortable">最新商务归属 <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-status"><span class="sortable">账号状态(英区) <span class="sort-icon">↕</span></span></th>' +
+      '<th class="w-action">操作</th>' +
+      '</tr>';
+    function iconExternal() { return '<svg class="external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7"/><path d="M9 7h8v8"/><path d="M19 19H5V5h7"/></svg>'; }
+    function iconChevron() { return '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>'; }
+    function typeTag(type) { var cls = type === '渠道号' ? 'tag-channel' : (type === '达人号' ? 'tag-creator' : 'tag-agency'); return '<span class="tag ' + cls + '">' + type + '</span>'; }
+    function handleUrl(handle) { return 'https://www.tiktok.com/' + String(handle || '').replace(/^@/, '@'); }
+    function normalizeUrl(value) { value = String(value || '').trim(); if (!value) return ''; return /^https?:\/\//i.test(value) ? value : 'https://' + value; }
+    function renderHandle(item, index, allowEditUrl) { var url = item.url || handleUrl(item.handle); return '<span class="handle"><a class="handle-link" href="' + url + '" target="_blank" rel="noopener">' + item.handle + '</a>' + iconExternal() + (allowEditUrl === false ? '' : '<span class="handle-edit" data-url-index="' + index + '">编辑URL</span>') + '</span>'; }
+    function genderTag(gender) { var cls = gender === '女' ? 'gender-f' : (gender === '男' ? 'gender-m' : 'gender-u'); return '<span class="gender ' + cls + '">' + gender + '</span>'; }
+    function updateTabCounts(baseRows) {
+      document.getElementById('tabCountAll').textContent = baseRows.length;
+      document.getElementById('tabCountChannel').textContent = baseRows.filter(function(i) { return i.type === '渠道号'; }).length;
+      document.getElementById('tabCountCreator').textContent = baseRows.filter(function(i) { return i.type === '达人号'; }).length;
+      document.getElementById('tabCountAgency').textContent = baseRows.filter(function(i) { return i.type === 'TAP 机构号'; }).length;
     }
-    function iconChevron() {
-      return '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>';
+    function syncCreatorFilters() {
+      var visible = activeTab === '达人号' || activeTab === 'TAP 机构号';
+      Array.prototype.forEach.call(document.querySelectorAll('.creator-filter'), function(item) { item.style.display = visible ? '' : 'none'; });
+      if (!visible) {
+        document.getElementById('sourceFilter').value = '';
+        document.getElementById('levelFilter').value = '';
+      }
     }
-    function typeTag(type) {
-      var cls = type === '渠道号' ? 'tag-channel' : (type === '达人号' ? 'tag-creator' : 'tag-agency');
-      return '<span class="tag ' + cls + '">' + type + '</span>';
-    }
-    function handleUrl(handle) {
-      return 'https://www.tiktok.com/' + String(handle || '').replace(/^@/, '@');
-    }
-    function normalizeUrl(value) {
-      value = String(value || '').trim();
-      if (!value) return '';
-      return /^https?:\/\//i.test(value) ? value : 'https://' + value;
-    }
-    function renderHandle(item, index) {
-      var url = item.url || handleUrl(item.handle);
-      return '<span class="handle"><a class="handle-link" href="' + url + '" target="_blank" rel="noopener">' + item.handle + '</a>' + iconExternal() + '<span class="handle-edit" data-url-index="' + index + '">编辑URL</span></span>';
-    }
-    function genderTag(gender) {
-      var cls = gender === '女' ? 'gender-f' : (gender === '男' ? 'gender-m' : 'gender-u');
-      return '<span class="gender ' + cls + '">' + gender + '</span>';
-    }
-    function filteredAccounts() {
+    function filteredAccounts(ignoreTab) {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
-      var type = document.getElementById('typeFilter').value;
       var site = document.getElementById('siteFilter').value;
       var status = document.getElementById('statusFilter').value;
       var owner = document.getElementById('ownerFilter').value.trim().toLowerCase();
       var searchField = document.getElementById('searchField').value;
       var searchMode = document.getElementById('searchMode').value;
+      var source = document.getElementById('sourceFilter').value;
+      var level = document.getElementById('levelFilter').value;
       return accounts.filter(function(item) {
-        if (type !== 'all' && item.type !== type) return false;
+        if (!ignoreTab && activeTab !== 'all' && item.type !== activeTab) return false;
         if (site && item.site !== site) return false;
         if (status && item.status !== status) return false;
         if (owner && item.owner.toLowerCase().indexOf(owner) === -1) return false;
+        if ((activeTab === '达人号' || activeTab === 'TAP 机构号') && source && (item.source || '') !== source) return false;
+        if ((activeTab === '达人号' || activeTab === 'TAP 机构号') && level && (item.level || '') !== level) return false;
         if (!keyword) return true;
-        var targets = searchField === 'handle' ? [item.handle] : (searchField === 'uid' ? [item.uid] : [item.handle, item.uid]);
-        return targets.some(function(target) {
-          target = String(target).toLowerCase();
-          return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) > -1;
-        });
+        var targets = searchField === 'handle' ? [item.handle] : (searchField === 'uid' ? [item.uid] : (searchField === 'nickname' ? [item.nickname] : [item.handle, item.uid, item.nickname]));
+        return targets.some(function(target) { target = String(target || '').toLowerCase(); return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) > -1; });
       });
     }
+    function renderAllRow(item, index) {
+      return '<tr>' +
+        '<td class="check-cell"><span class="checkbox"></span></td>' +
+        '<td>' + renderHandle(item, index, false) + '</td>' +
+        '<td>' + (item.nickname || item.handle) + '</td>' +
+        '<td>' + item.uid + '</td>' +
+        '<td>' + typeTag(item.type) + '</td>' +
+        '<td>' + (item.region || item.site || '—') + '</td>' +
+        '<td>' + item.site + '</td>' +
+        '<td>' + item.owner + '</td>' +
+        '<td><span class="status">' + item.status + iconChevron() + '</span></td>' +
+      '</tr>';
+    }
+    function renderGeneralRow(item, index) {
+      return '<tr>' +
+        '<td class="check-cell"><span class="checkbox"></span></td>' +
+        '<td>' + renderHandle(item, index) + '</td>' +
+        '<td>' + item.uid + '</td>' +
+        '<td>' + typeTag(item.type) + '</td>' +
+        '<td>' + item.site + '</td>' +
+        '<td class="' + (item.store === '—' ? 'muted' : '') + '">' + (item.store || '—') + '</td>' +
+        '<td>' + item.owner + '</td>' +
+        '<td><span class="status">' + item.status + iconChevron() + '</span></td>' +
+        '<td>' + genderTag(item.gender) + '</td>' +
+        '<td><span class="actions"><button class="action" data-index="' + index + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>编辑</button><button class="action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/></svg></button></span></td>' +
+      '</tr>';
+    }
+    function renderCreatorRow(item, index) {
+      return '<tr>' +
+        '<td class="check-cell"><span class="checkbox"></span></td>' +
+        '<td>' + item.uid + '</td>' +
+        '<td>' + (item.nickname || item.handle) + '</td>' +
+        '<td>' + renderHandle(item, index) + '</td>' +
+        '<td>' + (item.region || item.site) + '</td>' +
+        '<td>' + (item.source || '—') + '</td>' +
+        '<td>' + (item.level || '—') + '</td>' +
+        '<td>' + (item.opened || '否') + '</td>' +
+        '<td>' + (item.cooperationMode || '—') + '</td>' +
+        '<td>' + item.owner + '</td>' +
+        '<td><span class="status">' + item.status + iconChevron() + '</span></td>' +
+        '<td><span class="actions"><button class="action" data-index="' + index + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>编辑</button><button class="action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/></svg></button></span></td>' +
+      '</tr>';
+    }
+    function renderPagination(total) {
+      var totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var start = total ? (currentPage - 1) * pageSize + 1 : 0;
+      var end = Math.min(total, currentPage * pageSize);
+      document.getElementById('pageSummary').textContent = '共 ' + total + ' 条，当前 ' + start + '-' + end + ' 条';
+      document.getElementById('pagePrev').disabled = currentPage <= 1;
+      document.getElementById('pageNext').disabled = currentPage >= totalPages;
+      var nums = [];
+      for (var i = 1; i <= totalPages; i++) {
+        nums.push('<button type="button" class="page-btn ' + (i === currentPage ? 'active' : '') + '" data-page="' + i + '">' + i + '</button>');
+      }
+      document.getElementById('pageNumbers').innerHTML = nums.join('');
+    }
     function render() {
-      var rows = filteredAccounts();
-      var html = rows.map(function(item, index) {
-        return '<tr>' +
-          '<td class="check-cell"><span class="checkbox"></span></td>' +
-          '<td>' + renderHandle(item, index) + '</td>' +
-          '<td>' + item.uid + '</td>' +
-          '<td>' + typeTag(item.type) + '</td>' +
-          '<td>' + item.site + '</td>' +
-          '<td class="' + (item.store === '—' ? 'muted' : '') + '">' + item.store + '</td>' +
-          '<td>' + item.owner + '</td>' +
-          '<td><span class="status">' + item.status + iconChevron() + '</span></td>' +
-          '<td>' + genderTag(item.gender) + '</td>' +
-          '<td><span class="actions"><button class="action" data-index="' + index + '"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>编辑</button><button class="action"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/></svg></button></span></td>' +
-        '</tr>';
+      syncCreatorFilters();
+      var baseRows = filteredAccounts(true);
+      var rows = filteredAccounts(false);
+      document.getElementById('accountTableHead').innerHTML = activeTab === 'all' ? allHead : ((activeTab === '达人号' || activeTab === 'TAP 机构号') ? creatorHead : generalHead);
+      var totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var pageRows = rows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+      document.getElementById('accountRows').innerHTML = pageRows.map(function(item, index) {
+        var globalIndex = (currentPage - 1) * pageSize + index;
+        if (activeTab === 'all') return renderAllRow(item, globalIndex);
+        return (activeTab === '达人号' || activeTab === 'TAP 机构号') ? renderCreatorRow(item, globalIndex) : renderGeneralRow(item, globalIndex);
       }).join('');
-      document.getElementById('accountRows').innerHTML = html;
+      renderPagination(rows.length);
+      updateTabCounts(baseRows);
       document.getElementById('totalTop').textContent = rows.length;
       document.getElementById('totalCount').textContent = rows.length;
       document.getElementById('activeCount').textContent = rows.filter(function(i) { return i.status === '活跃'; }).length;
       document.getElementById('pauseCount').textContent = rows.filter(function(i) { return i.status === '暂停'; }).length;
       document.getElementById('stopCount').textContent = rows.filter(function(i) { return i.status === '停用'; }).length;
-      Array.prototype.forEach.call(document.querySelectorAll('.action[data-index]'), function(btn) {
-        btn.addEventListener('click', function() { openDrawer('编辑账号', rows[Number(btn.getAttribute('data-index'))]); });
-      });
+      Array.prototype.forEach.call(document.querySelectorAll('.action[data-index]'), function(btn) { btn.addEventListener('click', function() { openDrawer('编辑账号档案', rows[Number(btn.getAttribute('data-index'))]); }); });
     }
     function openDrawer(title, item) {
       document.getElementById('drawerTitle').textContent = title;
       if (item) {
-        document.getElementById('formHandle').value = item.handle;
-        document.getElementById('formUid').value = item.uid;
-        document.getElementById('formType').value = item.type;
-        document.getElementById('formSite').value = item.site;
-        document.getElementById('formStatus').value = item.status;
-        document.getElementById('formGender').value = item.gender;
-        document.getElementById('formStore').value = item.store === '—' ? '' : item.store;
-        document.getElementById('formOwner').value = item.owner;
+        document.getElementById('formHandle').value = item.handle || '';
+        document.getElementById('formNickname').value = item.nickname || '';
+        document.getElementById('formHomeUrl').value = item.url || handleUrl(item.handle);
+        document.getElementById('formUid').value = item.uid || '';
+        document.getElementById('formPlatform').value = item.platform || 'TikTok';
+        document.getElementById('formType').value = item.type || '渠道号';
+        document.getElementById('formSite').value = item.site || 'US';
+        document.getElementById('formStatus').value = item.status || '活跃';
+        document.getElementById('formGender').value = item.gender || '未知';
+        document.getElementById('formStore').value = item.store === '—' ? '' : (item.store || '');
+        document.getElementById('formOwner').value = item.owner || '';
+        document.getElementById('formContentSources').value = item.contentSources || '';
+        document.getElementById('formSource').value = item.source || '';
+        document.getElementById('formLevel').value = item.level || 'L4';
+        document.getElementById('formOpened').value = item.opened || '否';
+        document.getElementById('formCooperationMode').value = item.cooperationMode || '';
+        document.getElementById('formTagList').innerHTML = (item.tags || ['自定义标签']).map(function(tag, index) { return '<span class="tag-chip ' + (index >= 2 ? 'hot' : '') + '">' + tag + '</span>'; }).join('');
+        document.getElementById('formAffiliatedStore').value = item.affiliatedStore || item.store || '';
+        var backendBound = item.backendBound !== false;
+        document.getElementById('formBackendSwitch').classList.toggle('on', backendBound);
+        document.getElementById('formBackendText').textContent = backendBound ? '已绑定' : '未绑定';
+        document.getElementById('formBackendStore').value = item.backendStore || item.store || '';
+        document.getElementById('formShopCode').value = item.shopCode || '';
+        document.getElementById('formTkPassword').value = item.tkPassword || 'mockpassword';
+        document.getElementById('formEmailPassword').value = item.emailPassword || 'emailpassword';
+        document.getElementById('formEmail').value = item.email || '';
+        document.getElementById('formEmailLoginUrl').value = item.emailLoginUrl || 'https://mail.google.com';
+        document.getElementById('formNetworkRoute').value = item.networkRoute || '';
+        document.getElementById('formRemark').value = item.remark || '';
       }
       document.getElementById('drawerMask').classList.add('show');
     }
     function closeDrawer() { document.getElementById('drawerMask').classList.remove('show'); }
-    function showToast(text) {
-      var toast = document.getElementById('toast');
-      toast.textContent = text;
-      toast.classList.add('show');
-      setTimeout(function() { toast.classList.remove('show'); }, 1600);
+    function showToast(text) { var toast = document.getElementById('toast'); toast.textContent = text; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1600); }
+    function openColumnConfig() { document.getElementById('columnConfigMask').classList.add('show'); }
+    function closeColumnConfig() { document.getElementById('columnConfigMask').classList.remove('show'); }
+    function openProductInfo() { document.getElementById('productInfoMask').classList.add('show'); }
+    function closeProductInfo() { document.getElementById('productInfoMask').classList.remove('show'); }
+    function addCustomTag() {
+      var input = document.getElementById('formNewTag');
+      var tag = input.value.trim();
+      if (!tag) return;
+      var list = document.getElementById('formTagList');
+      var exists = Array.prototype.some.call(list.querySelectorAll('.tag-chip'), function(item) { return item.textContent === tag; });
+      if (exists) { showToast('该标签已存在'); return; }
+      var chip = document.createElement('span');
+      chip.className = 'tag-chip hot';
+      chip.textContent = tag;
+      list.appendChild(chip);
+      input.value = '';
     }
-
-    document.getElementById('searchInput').addEventListener('input', render);
-    document.getElementById('typeFilter').addEventListener('change', render);
-    document.getElementById('siteFilter').addEventListener('change', render);
-    document.getElementById('statusFilter').addEventListener('change', render);
-    document.getElementById('ownerFilter').addEventListener('input', render);
-    document.getElementById('searchField').addEventListener('change', render);
-    document.getElementById('searchMode').addEventListener('change', render);
-    document.getElementById('btnQuery').addEventListener('click', render);
+    function resetPageAndRender() { currentPage = 1; render(); }
+    Array.prototype.forEach.call(document.querySelectorAll('.account-tab'), function(tab) {
+      tab.addEventListener('click', function() {
+        activeTab = tab.getAttribute('data-tab');
+        Array.prototype.forEach.call(document.querySelectorAll('.account-tab'), function(item) { item.classList.toggle('active', item === tab); });
+        currentPage = 1;
+        render();
+      });
+    });
+    document.getElementById('searchInput').addEventListener('input', resetPageAndRender);
+    document.getElementById('siteFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('statusFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('ownerFilter').addEventListener('input', resetPageAndRender);
+    document.getElementById('sourceFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('levelFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('searchField').addEventListener('change', resetPageAndRender);
+    document.getElementById('searchMode').addEventListener('change', resetPageAndRender);
+    document.getElementById('btnQuery').addEventListener('click', resetPageAndRender);
     document.getElementById('btnReset').addEventListener('click', function() {
-      document.getElementById('typeFilter').value = 'all';
+      activeTab = 'all';
+      Array.prototype.forEach.call(document.querySelectorAll('.account-tab'), function(item) { item.classList.toggle('active', item.getAttribute('data-tab') === 'all'); });
       document.getElementById('siteFilter').value = '';
       document.getElementById('statusFilter').value = '';
       document.getElementById('ownerFilter').value = '';
+      document.getElementById('sourceFilter').value = '';
+      document.getElementById('levelFilter').value = '';
       document.getElementById('searchField').value = 'all';
       document.getElementById('searchMode').value = 'fuzzy';
       document.getElementById('searchInput').value = '';
+      currentPage = 1;
       render();
     });
+    document.getElementById('pageSize').addEventListener('change', function() { pageSize = parseInt(this.value, 10) || 10; currentPage = 1; render(); });
+    document.getElementById('pagePrev').addEventListener('click', function() { if (currentPage > 1) { currentPage -= 1; render(); } });
+    document.getElementById('pageNext').addEventListener('click', function() { currentPage += 1; render(); });
+    document.getElementById('pageNumbers').addEventListener('click', function(event) { var btn = event.target.closest('[data-page]'); if (!btn) return; currentPage = parseInt(btn.getAttribute('data-page'), 10) || 1; render(); });
     document.getElementById('accountRows').addEventListener('click', function(event) {
       var edit = event.target.closest('[data-url-index]');
       if (!edit) return;
       var index = Number(edit.getAttribute('data-url-index'));
-      var item = filteredAccounts()[index];
+      var item = filteredAccounts(false)[index];
       var parent = edit.closest('.handle');
       var oldValue = item.url || handleUrl(item.handle);
       parent.innerHTML = '<input class="inline-edit" value="' + oldValue + '" />';
       var input = parent.querySelector('input');
       input.focus();
       input.select();
-      function save() {
-        item.url = normalizeUrl(input.value) || handleUrl(item.handle);
-        render();
-        showToast('已保存 Handle URL');
-      }
+      function save() { item.url = normalizeUrl(input.value) || handleUrl(item.handle); render(); showToast('已保存 TikTok 主页 URL'); }
       input.addEventListener('blur', save, { once: true });
-      input.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') input.blur();
-        if (e.key === 'Escape') {
-          input.removeEventListener('blur', save);
-          render();
-        }
-      });
+      input.addEventListener('keydown', function(e) { if (e.key === 'Enter') input.blur(); if (e.key === 'Escape') { input.removeEventListener('blur', save); render(); } });
     });
-    document.getElementById('addBtn').addEventListener('click', function() { openDrawer('新增账号'); });
+    document.getElementById('btnProductInfo').addEventListener('click', openProductInfo);
+    document.getElementById('productInfoClose').addEventListener('click', closeProductInfo);
+    document.getElementById('productInfoOk').addEventListener('click', closeProductInfo);
+    document.getElementById('productInfoMask').addEventListener('click', function(event) { if (event.target === event.currentTarget) closeProductInfo(); });
+    document.getElementById('btnImport').addEventListener('click', function() { showToast('导入功能：上传账号档案模板，支持批量新增或更新'); });
+    document.getElementById('btnExport').addEventListener('click', function() { showToast('导出功能：按当前筛选条件导出账号列表'); });
+    document.getElementById('btnColumnConfig').addEventListener('click', openColumnConfig);
+    document.getElementById('columnConfigClose').addEventListener('click', closeColumnConfig);
+    document.getElementById('columnConfigCancel').addEventListener('click', closeColumnConfig);
+    document.getElementById('columnConfigSave').addEventListener('click', function() { closeColumnConfig(); showToast('已保存自定义列配置'); });
+    document.getElementById('columnConfigMask').addEventListener('click', function(event) { if (event.target === event.currentTarget) closeColumnConfig(); });
+    document.getElementById('addBtn').addEventListener('click', function() { openDrawer('新增账号档案'); });
+    document.getElementById('btnAddTag').addEventListener('click', addCustomTag);
+    document.getElementById('formNewTag').addEventListener('keydown', function(event) { if (event.key === 'Enter') { event.preventDefault(); addCustomTag(); } });
     document.getElementById('drawerClose').addEventListener('click', closeDrawer);
     document.getElementById('cancelBtn').addEventListener('click', closeDrawer);
     document.getElementById('saveBtn').addEventListener('click', function() { closeDrawer(); showToast('已保存账号档案'); });

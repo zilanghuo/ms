@@ -38,10 +38,18 @@
     .tab .count { margin-left: 0.25rem; opacity: 0.85; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2320px; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2740px; table-layout: fixed; }
+    table.spu-board, table.pid-board { min-width: 1780px; }
     th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
     tbody tr:hover td { background: #f9fafb; }
+    .pagination { border-top: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; background: #fff; color: #64748b; font-size: 13px; }
+    .pagination-left, .pagination-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .page-size { height: 32px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: var(--text); padding: 0 8px; }
+    .page-btn { min-width: 32px; height: 32px; border: 1px solid var(--input-border); border-radius: 4px; background: #fff; color: #52657a; cursor: pointer; }
+    .page-btn:hover:not(:disabled) { background: #f9fafb; color: var(--accent); border-color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .page-btn:disabled { cursor: not-allowed; color: #cbd5e1; background: #f8fafc; }
     .w-check { width: 44px; text-align: center; }
     .w-pid { width: 190px; }
     .w-shop { width: 190px; }
@@ -51,7 +59,12 @@
     .w-spu { width: 120px; }
     .w-sku { width: 150px; }
     .w-main-sku { width: 150px; }
-    .spu-board .sku-only { display: none; }
+    .sku-detail-row > td { background: #f8fafc !important; padding: 0.75rem 1rem; overflow: visible; white-space: normal; }
+    .sku-detail-panel { border: 1px solid #dbeafe; border-radius: 8px; background: #fff; overflow-x: auto; overflow-y: hidden; width: 100%; min-width: 0; }
+    .sku-detail-title { padding: 0.65rem 0.8rem; background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+    .sku-detail-table { width: 2740px; min-width: 2740px; font-size: 0.76rem; table-layout: fixed; }
+    .sku-detail-table th, .sku-detail-table td { white-space: nowrap; padding: 0.42rem 0.55rem; overflow: hidden; text-overflow: ellipsis; }
+    .toggle-mark { display: inline-flex; width: 16px; color: var(--accent); font-weight: 700; }
     .w-name { width: 230px; }
     .w-cat { width: 190px; }
     .w-small { width: 104px; }
@@ -92,6 +105,17 @@
     .checks { display: flex; gap: 12px; flex-wrap: wrap; min-height: 34px; align-items: center; }
     .checks label { display: inline-flex; align-items: center; gap: 4px; margin: 0; font-weight: 500; color: var(--text); }
     .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 0 22px; }
+    .modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; align-items: center; justify-content: center; z-index: 70; padding: 20px; }
+    .modal-mask.open { display: flex; }
+    .modal { width: 560px; max-width: 100%; background: #fff; border-radius: 8px; box-shadow: 0 18px 50px rgba(15,23,42,.2); overflow: hidden; }
+    .modal-head { height: 56px; padding: 0 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .modal-title { font-weight: 600; font-size: 1rem; }
+    .modal-body { padding: 16px 18px; }
+    .modal-tip { color: var(--muted); font-size: 13px; margin-bottom: 12px; line-height: 1.7; }
+    .column-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 12px; }
+    .column-option { min-height: 34px; border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px; display: flex; align-items: center; gap: 8px; color: #52657a; background: #fff; font-size: 13px; }
+    .column-option input { width: 15px; height: 15px; accent-color: var(--accent); }
+    .modal-actions { border-top: 1px solid var(--border); height: 58px; padding: 11px 18px; display: flex; justify-content: flex-end; gap: 10px; }
     .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); background: #111827; color: #fff; padding: 10px 16px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 90; }
     .toast.show { opacity: .94; }
     .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
@@ -112,13 +136,21 @@
       <div class="query-row">
         <div class="query-item">
           <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="sku">SKU看板</button>
-            <button class="tab" data-tab="spu">PID看板</button>
+            <button class="tab active" data-tab="spu">SPU看板</button>
+            <button class="tab" data-tab="pid">PID看板</button>
+            <button class="tab" data-tab="sku">SKU看板</button>
           </div>
         </div>
         <div class="query-item">
           <span class="label">平台</span>
           <select id="platformFilter"><option value="">全部平台</option><option value="tiktok">TikTok</option><option value="site">独立站</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">所属店铺</span>
+          <select id="shopFilter">
+            <option value="">全部店铺</option>
+            <option value="美国TK-艾斯特尼-美区跨境1店">美国TK-艾斯特尼-美区跨境1店</option>
+          </select>
         </div>
         <div class="query-item">
           <span class="label">状态</span>
@@ -151,6 +183,7 @@
     <div class="action-bar">
       <div class="btns">
         <button class="btn btn-secondary">产品说明</button>
+        <button class="btn btn-secondary" id="btnColumnConfig">自定义列配置</button>
         <button class="btn btn-secondary" id="btnExport">导出</button>
       </div>
       <div class="meta-info">数据更新时间：2026-05-28 09:12:59</div>
@@ -159,33 +192,25 @@
     <div class="table-card">
           <div class="table-wrap">
             <table id="productTable" class="sku-board">
-              <thead>
-                <tr>
-                  <th class="w-check"><input type="checkbox" /></th>
-                  <th class="w-pid">PID</th>
-                  <th class="w-shop">所属店铺</th>
-                  <th class="w-site">站点</th>
-                  <th class="w-img">主图</th>
-                  <th class="w-status">商品状态</th>
-                  <th class="w-status">TK审核状态</th>
-                  <th class="w-spu">产品主 SPU</th>
-                  <th class="w-main-sku">产品主 SKU</th>
-                  <th class="w-sku sku-only">SKU</th>
-                  <th class="w-name">产品中文名</th>
-                  <th class="w-small">产品品牌</th>
-                  <th class="w-cat">产品品类</th>
-                  <th class="w-small">PID 作用</th>
-                  <th class="w-small">更新日期</th>
-                  <th class="w-small">负责运营</th>
-                  <th class="w-small">吊牌价</th>
-                  <th class="w-small">日常折线价</th>
-                  <th class="w-small">独立站价格</th>
-                  <th class="w-small">亚马逊定价</th>
-                  <th class="w-op">操作</th>
-                </tr>
-              </thead>
+              <thead id="productHead"></thead>
               <tbody id="productBody"></tbody>
             </table>
+          </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>每页</span>
+              <select class="page-size" id="pageSize">
+                <option value="5">5条/页</option>
+                <option value="10" selected>10条/页</option>
+                <option value="20">20条/页</option>
+              </select>
+              <span id="pageSummary">共 0 条</span>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" id="pagePrev">‹</button>
+              <span id="pageNumbers"></span>
+              <button type="button" class="page-btn" id="pageNext">›</button>
+            </div>
           </div>
         </div>
 
@@ -194,6 +219,11 @@
       <ol>
         <li>关于主图：取 SKU 主属性图的第一张图。</li>
         <li>价格归属产品主 SKU，列表与编辑功能均支持维护产品主 SKU。</li>
+        <li>栏目顺序调整为 SPU看板、PID看板、SKU看板；SPU看板和 PID看板支持展开查看 SKU 明细。</li>
+        <li>支持自定义列配置，配置结果用于控制列表展示字段和后续导出字段。</li>
+        <li>支持按所属店铺筛选商品档案，列表底部提供分页控件。</li>
+        <li>编辑商品时可维护 TK 商品链接、独立站商品链接、主图资源链接和素材文件夹链接。</li>
+        <li>PID看板和SKU看板补充展示颜色、尺码、SKU中文名、可售库存字段。</li>
         <li>产品的基础数据，来源于 TK 的 API。</li>
         <li>产品的主 SPU，来源于 PID 需求看板的主 PID 维护（已经有）。</li>
         <li>产品的中文名称，来源于积加的 SPU 中文名。</li>
@@ -239,14 +269,23 @@
       </div>
 
       <div class="form-section">
-        <div class="section-title">归属人员</div>
+        <div class="section-title">运营人员</div>
         <div class="form-grid">
           <div class="field"><label>负责运营</label><input class="form-input" id="editOwner" value="-" /></div>
           <div class="field"><label>负责商务</label><input class="form-input" value="-" /></div>
-          <div class="field"><label>负责指导</label><input class="form-input" value="-" /></div>
+          <div class="field"><label>负责编导</label><input class="form-input" value="-" /></div>
           <div class="field"><label>负责剪辑</label><input class="form-input" value="-" /></div>
           <div class="field"><label>直播运营</label><input class="form-input" value="-" /></div>
           <div class="field"><label>投放负责人</label><input class="form-input" value="-" /></div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title">运营配置</div>
+        <div class="form-grid">
+          <div class="field"><label>商品运营级别</label><select class="form-select"><option>请选择</option><option>S级</option><option>A级</option><option>B级</option><option>C级</option></select></div>
+          <div class="field"><label>商品运营状态</label><select class="form-select"><option>请选择</option><option>重点运营</option><option>常规运营</option><option>观察中</option><option>暂停运营</option></select></div>
+          <div class="field full"><label>商品标签</label><input class="form-input" placeholder="如：爆款、潜力款、清仓款，多个标签用逗号分隔" /></div>
         </div>
       </div>
 
@@ -259,12 +298,44 @@
       </div>
 
       <div class="form-section">
+        <div class="section-title">链接与资源</div>
+        <div class="form-grid">
+          <div class="field full"><label>TK 商品链接</label><input class="form-input" id="editTkUrl" placeholder="https://..." /></div>
+          <div class="field full"><label>独立站商品链接</label><input class="form-input" id="editSiteUrl" placeholder="https://..." /></div>
+          <div class="field full"><label>主图资源链接</label><input class="form-input" id="editImageUrl" placeholder="图片或素材地址" /></div>
+          <div class="field full"><label>素材文件夹链接</label><input class="form-input" id="editAssetFolder" placeholder="网盘 / 素材库 / 飞书文件夹链接" /></div>
+        </div>
+      </div>
+
+      <div class="form-section">
         <div class="section-title">内容运营</div>
         <div class="field full"><label>产品卖点</label><textarea>-</textarea></div>
+        <div class="field full"><label>提按商品分析</label><textarea>-</textarea></div>
       </div>
     </div>
     <div class="drawer-actions"><button class="btn" id="btnCancel">取消</button><button class="btn btn-query" id="btnSave">保存</button></div>
   </aside>
+  <div class="modal-mask" id="columnConfigMask">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="columnConfigTitle">
+      <div class="modal-head"><span class="modal-title" id="columnConfigTitle">自定义列配置</span><button class="close" id="btnColumnClose">×</button></div>
+      <div class="modal-body">
+        <div class="modal-tip">按当前看板配置列表展示字段；保存后影响页面展示与导出字段，实际开发时按用户维度持久化。</div>
+        <div class="column-grid">
+          <label class="column-option"><input type="checkbox" checked />SPU / PID / SKU</label>
+          <label class="column-option"><input type="checkbox" checked />所属店铺</label>
+          <label class="column-option"><input type="checkbox" checked />站点</label>
+          <label class="column-option"><input type="checkbox" checked />主图</label>
+          <label class="column-option"><input type="checkbox" checked />商品状态</label>
+          <label class="column-option"><input type="checkbox" checked />产品主 SKU</label>
+          <label class="column-option"><input type="checkbox" checked />产品中文名</label>
+          <label class="column-option"><input type="checkbox" checked />价格字段</label>
+          <label class="column-option"><input type="checkbox" checked />负责运营</label>
+          <label class="column-option"><input type="checkbox" checked />操作列</label>
+        </div>
+      </div>
+      <div class="modal-actions"><button class="btn" id="btnColumnCancel">取消</button><button class="btn btn-query" id="btnColumnSave">保存配置</button></div>
+    </div>
+  </div>
   <div class="toast" id="toast">已保存当前商品档案</div>
 
   <script>
@@ -278,46 +349,81 @@
       { pid: '1729439482671567205', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'dark', status: '在售', audit: '已通过', spu: 'AL-W0169', sku: 'AL-W0169-DGN-L', mainSku: 'AL-W0169-DGN-L', name: '复古加绒连帽卫衣-墨绿色', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' },
       { pid: '1731651043684028773', platform: 'tiktok', shop: '美国TK-艾斯特尼-美区跨境1店', site: 'US', img: 'red', status: '在售', audit: '已通过', spu: 'AL-W0161', sku: 'AL-W0161-RED-L', mainSku: 'AL-W0161-GRN-XL', name: '双拉链连帽卫衣-红色81-L', brand: '-', category: 'MW105-男式卫衣（洗水）', pidUse: '-', date: '2026/5/25', owner: '-', tagPrice: '$99.99' }
     ];
-    var activeTab = 'sku';
+    var activeTab = 'spu';
     var editingProduct = null;
+    var currentPage = 1;
+    var pageSize = 10;
     function short(text, n) { return String(text || '').length > n ? String(text).slice(0, n) + '...' : text; }
-    function renderRows() {
+    function imageHtml(item) { return item.img ? '<span class="product-img swatch swatch-' + item.img + '"></span>' : '<span class="product-img">无图</span>'; }
+    function skuColor(item) {
+      var colorMap = { BLK: '黑色', WHT: '白色', PPL: '粉紫色', YEL: '黄色', GRN: '水绿', BLU: '深天蓝', DGN: '墨绿色', RED: '红色' };
+      var parts = String(item.sku || '').split('-');
+      var code = parts.length >= 2 ? parts[parts.length - 2] : '';
+      return item.color || colorMap[code] || code || '-';
+    }
+    function skuSize(item) {
+      var parts = String(item.sku || '').split('-');
+      return item.size || (parts.length ? parts[parts.length - 1] : '-') || '-';
+    }
+    function skuCnName(item) { return item.skuName || item.name || '-'; }
+    function sellableStock(item) {
+      if (item.sellableStock != null) return item.sellableStock;
+      var seed = String(item.sku || '').split('').reduce(function(sum, ch) { return sum + ch.charCodeAt(0); }, 0);
+      return 20 + (seed % 180);
+    }
+    function uniqueRows(rows, keyFn) {
+      var map = {};
+      rows.forEach(function(item) {
+        var key = keyFn(item);
+        if (!map[key]) map[key] = { item: item, skuCount: 0, pids: {}, shops: {}, prices: [] };
+        map[key].skuCount += 1;
+        map[key].pids[item.pid] = true;
+        map[key].shops[item.shop] = true;
+        map[key].prices.push(item.tagPrice);
+      });
+      return Object.keys(map).map(function(key) { return map[key]; });
+    }
+    function renderHead() {
+      var head = document.getElementById('productHead');
+      if (activeTab === 'spu') {
+        head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-spu">SPU</th><th class="w-name">SPU名称</th><th class="w-small">PID数</th><th class="w-small">SKU数</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th></tr>';
+      } else if (activeTab === 'pid') {
+        head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-spu">产品主 SPU</th><th class="w-name">产品中文名</th><th class="w-main-sku">产品主 SKU</th><th class="w-small">SKU数</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-small">PID 作用</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-op">操作</th></tr>';
+      } else {
+        head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-spu">产品主 SPU</th><th class="w-main-sku">产品主 SKU</th><th class="w-sku">SKU</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-name">产品中文名</th><th class="w-small">产品品牌</th><th class="w-cat">产品品类</th><th class="w-small">PID 作用</th><th class="w-small">更新日期</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-small">日常折线价</th><th class="w-small">独立站价格</th><th class="w-small">亚马逊定价</th><th class="w-op">操作</th></tr>';
+      }
+    }
+    function filterProducts() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       var searchField = document.getElementById('searchField').value;
       var searchMode = document.getElementById('searchMode').value;
       var platform = document.getElementById('platformFilter').value;
-      var isSkuBoard = activeTab === 'sku';
-      document.getElementById('productTable').className = isSkuBoard ? 'sku-board' : 'spu-board';
-      var skuOption = document.querySelector('#searchField option[value="sku"]');
-      if (skuOption) skuOption.hidden = !isSkuBoard;
-      if (!isSkuBoard && searchField === 'sku') {
-        document.getElementById('searchField').value = 'spu';
-        searchField = 'spu';
-      }
-      var rows = products.filter(function(item) {
+      var shop = document.getElementById('shopFilter').value;
+      return products.filter(function(item) {
         if (platform && item.platform !== platform) return false;
+        if (shop && item.shop !== shop) return false;
         if (!keyword) return true;
         var target = String(searchField === 'pid' ? item.pid : (searchField === 'sku' ? item.sku : item.spu)).toLowerCase();
         return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) >= 0;
       });
-      var body = document.getElementById('productBody');
-      if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="' + (isSkuBoard ? 21 : 20) + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
-        return;
-      }
-      body.innerHTML = rows.map(function(item, index) {
-        var image = item.img ? '<span class="product-img swatch swatch-' + item.img + '"></span>' : '<span class="product-img">无图</span>';
+    }
+    function skuDetailPanel(rows, title) {
+      return '<div class="sku-detail-panel"><div class="sku-detail-title">' + title + ' 对应 SKU 明细</div><table class="sku-detail-table"><thead><tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-spu">产品主 SPU</th><th class="w-main-sku">产品主 SKU</th><th class="w-sku">SKU</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-name">产品中文名</th><th class="w-small">产品品牌</th><th class="w-cat">产品品类</th><th class="w-small">PID 作用</th><th class="w-small">更新日期</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-small">日常折线价</th><th class="w-small">独立站价格</th><th class="w-small">亚马逊定价</th><th class="w-op">操作</th></tr></thead><tbody>' + rows.map(function(item) {
         return '<tr>' +
           '<td class="w-check"><input type="checkbox" /></td>' +
           '<td title="' + item.pid + '">' + item.pid + '</td>' +
           '<td title="' + item.shop + '">' + short(item.shop, 14) + '</td>' +
           '<td>' + item.site + '</td>' +
-          '<td>' + image + '</td>' +
+          '<td>' + imageHtml(item) + '</td>' +
           '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
           '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
           '<td>' + item.spu + '</td>' +
           '<td>' + (item.mainSku || '-') + '</td>' +
-          '<td class="sku-only">' + item.sku + '</td>' +
+          '<td>' + item.sku + '</td>' +
+          '<td>' + skuColor(item) + '</td>' +
+          '<td>' + skuSize(item) + '</td>' +
+          '<td title="' + skuCnName(item) + '">' + short(skuCnName(item), 16) + '</td>' +
+          '<td>' + sellableStock(item) + '</td>' +
           '<td title="' + item.name + '">' + short(item.name, 16) + '</td>' +
           '<td>' + item.brand + '</td>' +
           '<td title="' + item.category + '">' + short(item.category, 16) + '</td>' +
@@ -326,9 +432,85 @@
           '<td>' + item.owner + '</td>' +
           '<td>' + item.tagPrice + '</td>' +
           '<td>-</td><td>-</td><td>-</td>' +
-          '<td><button class="icon-btn" title="编辑" data-edit="' + index + '">✎</button></td>' +
+          '<td><button class="icon-btn" title="编辑" data-edit="' + products.indexOf(item) + '">✎</button></td>' +
+        '</tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+    function renderSkuRows(rows) {
+      return rows.map(function(item, index) {
+        return '<tr>' +
+          '<td class="w-check"><input type="checkbox" /></td>' +
+          '<td title="' + item.pid + '">' + item.pid + '</td>' +
+          '<td title="' + item.shop + '">' + short(item.shop, 14) + '</td>' +
+          '<td>' + item.site + '</td>' +
+          '<td>' + imageHtml(item) + '</td>' +
+          '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
+          '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
+          '<td>' + item.spu + '</td>' +
+          '<td>' + (item.mainSku || '-') + '</td>' +
+          '<td>' + item.sku + '</td>' +
+          '<td>' + skuColor(item) + '</td>' +
+          '<td>' + skuSize(item) + '</td>' +
+          '<td title="' + skuCnName(item) + '">' + short(skuCnName(item), 16) + '</td>' +
+          '<td>' + sellableStock(item) + '</td>' +
+          '<td title="' + item.name + '">' + short(item.name, 16) + '</td>' +
+          '<td>' + item.brand + '</td>' +
+          '<td title="' + item.category + '">' + short(item.category, 16) + '</td>' +
+          '<td>' + item.pidUse + '</td>' +
+          '<td>' + item.date + '</td>' +
+          '<td>' + item.owner + '</td>' +
+          '<td>' + item.tagPrice + '</td>' +
+          '<td>-</td><td>-</td><td>-</td>' +
+          '<td><button class="icon-btn" title="编辑" data-edit="' + products.indexOf(item) + '">✎</button></td>' +
         '</tr>';
       }).join('');
+    }
+    function renderAggregateRows(rows, type) {
+      var groups = uniqueRows(rows, function(item) { return type === 'spu' ? item.spu : item.pid; });
+      return groups.map(function(group) {
+        var item = group.item;
+        var detailRows = rows.filter(function(row) { return type === 'spu' ? row.spu === item.spu : row.pid === item.pid; });
+        var key = type === 'spu' ? item.spu : item.pid;
+        var detail = '<tr class="sku-detail-row" data-detail-for="' + key + '" style="display:none;"><td colspan="' + (type === 'spu' ? 7 : 19) + '">' + skuDetailPanel(detailRows, key) + '</td></tr>';
+        var row = type === 'spu'
+          ? '<tr class="expandable-row" data-expand-key="' + key + '"><td class="w-check"><input type="checkbox" /></td><td><span class="toggle-mark">▸</span>' + item.spu + '</td><td title="' + item.name + '">' + short(item.name, 16) + '</td><td>' + Object.keys(group.pids).length + '</td><td>' + group.skuCount + '</td><td title="' + item.shop + '">' + short(item.shop, 14) + '</td><td>' + item.site + '</td></tr>'
+          : '<tr class="expandable-row" data-expand-key="' + key + '"><td class="w-check"><input type="checkbox" /></td><td><span class="toggle-mark">▸</span>' + item.pid + '</td><td>' + item.spu + '</td><td title="' + item.name + '">' + short(item.name, 16) + '</td><td>' + (item.mainSku || '-') + '</td><td>' + group.skuCount + '</td><td>' + skuColor(item) + '</td><td>' + skuSize(item) + '</td><td title="' + skuCnName(item) + '">' + short(skuCnName(item), 16) + '</td><td>' + sellableStock(item) + '</td><td title="' + item.shop + '">' + short(item.shop, 14) + '</td><td>' + item.site + '</td><td>' + imageHtml(item) + '</td><td><span class="badge badge-on dot">' + item.status + '</span></td><td><span class="badge badge-pass">' + item.audit + '</span></td><td>' + item.pidUse + '</td><td>' + item.owner + '</td><td>' + item.tagPrice + '</td><td><button class="icon-btn" title="编辑" data-edit="' + products.indexOf(item) + '">✎</button></td></tr>';
+        return row + detail;
+      }).join('');
+    }
+    function renderPagination(total) {
+      var totalPages = Math.max(1, Math.ceil(total / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var start = total ? (currentPage - 1) * pageSize + 1 : 0;
+      var end = Math.min(total, currentPage * pageSize);
+      document.getElementById('pageSummary').textContent = '共 ' + total + ' 条，当前 ' + start + '-' + end + ' 条';
+      document.getElementById('pagePrev').disabled = currentPage <= 1;
+      document.getElementById('pageNext').disabled = currentPage >= totalPages;
+      var nums = [];
+      for (var i = 1; i <= totalPages; i++) {
+        nums.push('<button type="button" class="page-btn ' + (i === currentPage ? 'active' : '') + '" data-page="' + i + '">' + i + '</button>');
+      }
+      document.getElementById('pageNumbers').innerHTML = nums.join('');
+    }
+    function renderRows() {
+      renderHead();
+      var rows = filterProducts();
+      var totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      if (currentPage > totalPages) currentPage = totalPages;
+      var pageRows = rows.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+      var table = document.getElementById('productTable');
+      table.className = activeTab === 'sku' ? 'sku-board' : (activeTab === 'pid' ? 'pid-board' : 'spu-board');
+      var body = document.getElementById('productBody');
+      var skuOption = document.querySelector('#searchField option[value="sku"]');
+      if (skuOption) skuOption.hidden = false;
+      if (!rows.length) {
+        renderPagination(0);
+        var colspan = activeTab === 'sku' ? 25 : (activeTab === 'pid' ? 19 : 7);
+        body.innerHTML = '<tr><td colspan="' + colspan + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
+        return;
+      }
+      renderPagination(rows.length);
+      body.innerHTML = activeTab === 'sku' ? renderSkuRows(pageRows) : renderAggregateRows(pageRows, activeTab);
     }
     function openDrawer(item) {
       editingProduct = item;
@@ -341,6 +523,10 @@
       document.getElementById('editDailyPrice').value = '-';
       document.getElementById('editTagPrice').value = item.tagPrice;
       document.getElementById('editOwner').value = item.owner;
+      document.getElementById('editTkUrl').value = item.tkUrl || ('https://partner.tiktokshop.com/product/' + item.pid);
+      document.getElementById('editSiteUrl').value = item.siteUrl || '';
+      document.getElementById('editImageUrl').value = item.imageUrl || '';
+      document.getElementById('editAssetFolder').value = item.assetFolder || '';
       document.getElementById('drawerMask').classList.add('open');
       document.getElementById('editDrawer').classList.add('open');
     }
@@ -348,15 +534,29 @@
       document.getElementById('drawerMask').classList.remove('open');
       document.getElementById('editDrawer').classList.remove('open');
     }
-    function showToast() {
+    function showToast(text) {
       var toast = document.getElementById('toast');
+      if (text) toast.textContent = text;
       toast.classList.add('show');
       setTimeout(function() { toast.classList.remove('show'); }, 1400);
     }
+    function closeColumnConfig() { document.getElementById('columnConfigMask').classList.remove('open'); }
     document.getElementById('productBody').addEventListener('click', function(e) {
       var btn = e.target.closest('[data-edit]');
-      if (!btn) return;
-      openDrawer(products[parseInt(btn.getAttribute('data-edit'), 10)]);
+      if (btn) {
+        e.stopPropagation();
+        openDrawer(products[parseInt(btn.getAttribute('data-edit'), 10)]);
+        return;
+      }
+      var row = e.target.closest('.expandable-row');
+      if (!row) return;
+      var key = row.getAttribute('data-expand-key');
+      var detail = document.querySelector('[data-detail-for="' + key + '"]');
+      var mark = row.querySelector('.toggle-mark');
+      if (!detail) return;
+      var open = detail.style.display === 'none';
+      detail.style.display = open ? '' : 'none';
+      if (mark) mark.textContent = open ? '▾' : '▸';
     });
     document.getElementById('tabs').addEventListener('click', function(e) {
       var btn = e.target.closest('.tab');
@@ -364,16 +564,29 @@
       activeTab = btn.getAttribute('data-tab');
       document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); });
       btn.classList.add('active');
+      currentPage = 1;
       renderRows();
     });
-    document.getElementById('searchInput').addEventListener('input', renderRows);
-    document.getElementById('searchField').addEventListener('change', renderRows);
-    document.getElementById('searchMode').addEventListener('change', renderRows);
-    document.getElementById('platformFilter').addEventListener('change', renderRows);
-    document.getElementById('btnReset').addEventListener('click', function() { document.getElementById('searchInput').value = ''; document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('platformFilter').value = ''; renderRows(); });
+    function resetPageAndRender() { currentPage = 1; renderRows(); }
+    document.getElementById('searchInput').addEventListener('input', resetPageAndRender);
+    document.getElementById('searchField').addEventListener('change', resetPageAndRender);
+    document.getElementById('searchMode').addEventListener('change', resetPageAndRender);
+    document.getElementById('platformFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('shopFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('btnReset').addEventListener('click', function() { document.getElementById('searchInput').value = ''; document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('platformFilter').value = ''; document.getElementById('shopFilter').value = ''; currentPage = 1; renderRows(); });
+    document.getElementById('pageSize').addEventListener('change', function() { pageSize = parseInt(this.value, 10) || 10; currentPage = 1; renderRows(); });
+    document.getElementById('pagePrev').addEventListener('click', function() { if (currentPage > 1) { currentPage -= 1; renderRows(); } });
+    document.getElementById('pageNext').addEventListener('click', function() { currentPage += 1; renderRows(); });
+    document.getElementById('pageNumbers').addEventListener('click', function(e) { var btn = e.target.closest('[data-page]'); if (!btn) return; currentPage = parseInt(btn.getAttribute('data-page'), 10) || 1; renderRows(); });
     document.getElementById('btnClose').addEventListener('click', closeDrawer);
     document.getElementById('btnCancel').addEventListener('click', closeDrawer);
     document.getElementById('drawerMask').addEventListener('click', closeDrawer);
+    document.getElementById('btnColumnConfig').addEventListener('click', function() { document.getElementById('columnConfigMask').classList.add('open'); });
+    document.getElementById('btnColumnClose').addEventListener('click', closeColumnConfig);
+    document.getElementById('btnColumnCancel').addEventListener('click', closeColumnConfig);
+    document.getElementById('btnColumnSave').addEventListener('click', function() { closeColumnConfig(); showToast('已保存自定义列配置'); });
+    document.getElementById('columnConfigMask').addEventListener('click', function(e) { if (e.target === e.currentTarget) closeColumnConfig(); });
+    document.getElementById('btnExport').addEventListener('click', function() { showToast('导出字段将按当前看板和自定义列配置生成'); });
     document.getElementById('btnSave').addEventListener('click', function() {
       if (editingProduct) {
         editingProduct.name = document.getElementById('editName').value.trim() || editingProduct.name;
@@ -384,6 +597,10 @@
         editingProduct.category = document.getElementById('editCategory').value.trim() || editingProduct.category;
         editingProduct.tagPrice = document.getElementById('editTagPrice').value.trim() || editingProduct.tagPrice;
         editingProduct.owner = document.getElementById('editOwner').value.trim() || '-';
+        editingProduct.tkUrl = document.getElementById('editTkUrl').value.trim();
+        editingProduct.siteUrl = document.getElementById('editSiteUrl').value.trim();
+        editingProduct.imageUrl = document.getElementById('editImageUrl').value.trim();
+        editingProduct.assetFolder = document.getElementById('editAssetFolder').value.trim();
         renderRows();
       }
       closeDrawer();
