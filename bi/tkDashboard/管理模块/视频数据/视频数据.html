@@ -9,51 +9,58 @@
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
     .container { max-width: 100%; margin: 0 auto; }
-    .page-title { font-size: 1.25rem; font-weight: 600; margin: 0 0 0.25rem; color: var(--text); }
-    .page-subtitle { color: #7b8da6; font-size: 0.86rem; margin-bottom: 1rem; }
-    .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1rem; }
-    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
+    .page-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.25rem; color: #1f2937; }
+    .page-subtitle { color: #7b8da6; font-size: 0.86rem; }
+    .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
+    .query-card, .action-bar, .table-card, .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+    .query-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
     .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
-    .query-item select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; min-width: 150px; cursor: pointer; height: 38px; }
-    .query-item input[type="text"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 160px; }
+    .query-item select, .query-item input[type="text"], .query-item input[type="date"] { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.9rem; color: var(--text); background: #fff; height: 38px; min-width: 140px; outline: none; }
     .search-query-item { position: relative; gap: 0; }
     .search-query-item select { min-width: 0; }
-    .search-query-item .search-field-select { width: 128px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-field-select { width: 132px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
     .search-query-item .search-mode-select { width: 102px; margin-left: -1px; border-radius: 0; }
     .search-query-item .search-input { width: 220px; min-width: 0; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
     .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
-    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: #fff; color: var(--text); display: inline-flex; align-items: center; gap: 0.35rem; height: 38px; }
+    .btn { border-radius: 4px; padding: 0.45rem 1rem; font-size: 0.9rem; cursor: pointer; border: 1px solid transparent; background: #fff; color: var(--text); display: inline-flex; align-items: center; gap: 0.35rem; height: 38px; font-family: inherit; font-weight: 600; white-space: nowrap; }
     .btn svg { width: 15px; height: 15px; }
     .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
     .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
     .btn-secondary:hover { background: #f9fafb; }
     .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; }
-    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); }
+    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); font-family: inherit; }
     .tab:last-child { border-right: none; }
     .tab.active { background: var(--accent); color: #fff; }
     .tab:hover:not(.active) { background: #f0fdfa; }
     .tab .count { margin-left: 0.25rem; opacity: 0.85; }
-    .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .action-bar { padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
     .meta-info { color: var(--muted); font-size: 0.85rem; }
-    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
+    .table-card { overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 1760px; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2350px; table-layout: fixed; }
     th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
     tbody tr:hover td { background: #f9fafb; }
     .w-check { width: 44px; text-align: center; }
-    .w-video { width: 180px; }
+    .w-id { width: 180px; }
     .w-account { width: 150px; }
     .w-date { width: 150px; }
-    .w-type { width: 96px; }
-    .w-small { width: 96px; }
+    .w-month { width: 105px; }
+    .w-title { width: 210px; }
+    .w-sku { width: 150px; }
+    .w-product { width: 160px; }
+    .w-shop { width: 150px; }
+    .w-metric { width: 105px; text-align: right; }
+    .w-status { width: 95px; }
+    .w-person { width: 120px; }
+    .w-content { width: 120px; }
     .w-link { width: 112px; }
-    .w-product { width: 190px; }
-    .w-content { width: 118px; }
     .w-op { width: 96px; text-align: center; }
+    .sort { color: #94a3b8; font-size: 12px; margin-left: 2px; }
     .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; padding: 0.12rem 0.45rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
     .badge-blue { color: #0284c7; background: #e0f2fe; }
     .badge-green { color: #15803d; background: #dcfce7; }
@@ -61,110 +68,84 @@
     .badge-ai { color: #0f766e; background: #ccfbf1; }
     .badge-pink { color: #be123c; background: #ffe4e6; }
     .badge-purple { color: #7e22ce; background: #f3e8ff; }
-    .badge-on { color: var(--success); font-weight: 600; }
+    .badge-on { color: var(--success); font-weight: 700; }
     .badge-off { color: #64748b; }
     .money { color: #059669; font-weight: 700; }
+    .number { text-align: right; font-variant-numeric: tabular-nums; }
     .video-link { color: #475569; text-decoration: none; display: inline-flex; align-items: center; gap: 0.2rem; }
     .video-link:hover { color: var(--accent); text-decoration: underline; }
     .icon-btn { border: none; background: #e0f2fe; color: #0284c7; border-radius: 4px; padding: 0.18rem 0.45rem; font-size: 0.72rem; cursor: pointer; }
     .icon-btn:hover { background: #bae6fd; }
-    .pager { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.86rem; margin-bottom: 1rem; }
-    .pager select { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.25rem 0.45rem; background: #fff; }
-    .drawer-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.38); opacity: 0; pointer-events: none; transition: opacity 0.18s ease; z-index: 20; }
-    .drawer-mask.open { opacity: 1; pointer-events: auto; }
-    .drawer { position: fixed; top: 0; right: 0; width: 420px; max-width: 92vw; height: 100vh; background: #fff; transform: translateX(100%); transition: transform 0.2s ease; z-index: 21; display: flex; flex-direction: column; box-shadow: -6px 0 20px rgba(15, 23, 42, 0.12); }
+    .pager { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; }
+    .content-note { padding: 1rem 1.25rem; color: #475569; margin-bottom: 1rem; }
+    .content-note-title { font-weight: 700; color: #334155; margin-bottom: 0.35rem; }
+    .content-note ol { margin: 0.35rem 0 0 1.25rem; padding: 0; }
+    .content-note li { margin: 0.2rem 0; }
+    .drawer-mask { position: fixed; inset: 0; background: rgba(15,23,42,.28); display: none; z-index: 60; }
+    .drawer-mask.open { display: block; }
+    .drawer { position: fixed; top: 0; right: 0; width: min(560px, 96vw); height: 100vh; background: #fff; box-shadow: -12px 0 30px rgba(15,23,42,.16); transform: translateX(105%); transition: .22s ease; z-index: 70; display: flex; flex-direction: column; }
     .drawer.open { transform: translateX(0); }
-    .drawer-head { padding: 1rem 1.25rem 0.65rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-    .drawer-title { font-weight: 700; color: #1f2937; font-size: 1rem; }
-    .drawer-subtitle { margin-top: 0.25rem; color: #7b8da6; font-size: 0.82rem; }
-    .close { border: none; background: transparent; color: #64748b; cursor: pointer; font-size: 1.5rem; line-height: 1; }
-    .drawer-body { padding: 1rem 1.25rem; overflow-y: auto; flex: 1; }
-    .form-section { margin-bottom: 1rem; }
-    .section-title { color: #7290af; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.65rem; }
-    .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem 1rem; margin-bottom: 0.75rem; }
-    .info-label { color: #7b8da6; font-size: 0.78rem; }
-    .info-value { color: #334155; font-size: 0.9rem; font-weight: 600; margin-top: 0.1rem; word-break: break-all; }
-    .match-empty { background: #f8fafc; border-radius: 8px; padding: 0.8rem; color: #7b8da6; font-weight: 600; font-size: 0.86rem; }
-    .field { margin-bottom: 0.75rem; }
-    .field label { display: block; color: #7290af; font-size: 0.82rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .form-input, .form-select, textarea { width: 100%; border: 1px solid var(--input-border); border-radius: 5px; padding: 0.48rem 0.6rem; font-size: 0.9rem; background: #fff; color: #334155; }
-    .form-select { height: 38px; }
-    textarea { min-height: 82px; resize: vertical; }
-    .drawer-actions { border-top: 1px solid var(--border); padding: 0.8rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem; background: #fff; }
-    .toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(12px); background: #111827; color: #fff; padding: 0.55rem 1rem; border-radius: 999px; opacity: 0; pointer-events: none; transition: all 0.18s ease; z-index: 30; font-size: 0.86rem; }
+    .drawer-head { min-height: 64px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; }
+    .drawer-title { font-size: 1rem; font-weight: 700; color: #1f2937; }
+    .drawer-subtitle { color: #64748b; font-size: 0.82rem; margin-top: 2px; }
+    .close { width: 32px; height: 32px; border: none; border-radius: 50%; background: #f1f5f9; color: #64748b; cursor: pointer; font-size: 20px; line-height: 1; }
+    .drawer-body { flex: 1; overflow-y: auto; padding: 18px 18px 82px; }
+    .form-section { border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 14px; background: #fff; }
+    .section-title { margin: 0 0 12px; font-size: .96rem; color: #334155; font-weight: 700; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .info-label, .field label { color: #64748b; font-size: .82rem; font-weight: 600; }
+    .info-value { color: #111827; font-weight: 600; margin-top: 2px; word-break: break-all; }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.75rem; }
+    .field input, .field select, .field textarea { width: 100%; min-width: 0; border: 1px solid var(--input-border); border-radius: 6px; background: #fff; color: #111827; font-family: inherit; font-size: .9rem; outline: none; }
+    .field input, .field select { height: 38px; padding: 0 12px; }
+    .field textarea { min-height: 70px; padding: 10px 12px; resize: vertical; }
+    .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; padding: 0 18px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .toast { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(18px); opacity: 0; transition: .2s ease; background: #172b46; color: #fff; border-radius: 8px; padding: 9px 16px; box-shadow: 0 12px 32px rgba(15,23,42,.16); z-index: 90; font-weight: 700; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .content-note { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
-    .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
-    .content-note ol { margin: 0; padding-left: 20px; }
-    .content-note li { margin: 0; line-height: 1.7; }
-    .manage-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1100; display: none; align-items: center; justify-content: center; padding: 1rem; }
-    .manage-modal-overlay.visible { display: flex; }
-    .manage-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 14px 48px rgba(0,0,0,0.24); width: min(1500px, 98vw); height: min(860px, 94vh); display: flex; flex-direction: column; overflow: hidden; }
-    .manage-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%); }
-    .manage-title { font-size: 1rem; font-weight: 600; color: var(--text); }
-    .manage-toolbar { padding: 1rem 1.25rem 0.75rem; border-bottom: 1px solid var(--border); background: #fff; }
-    .manage-query-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1rem; }
-    .manage-query-item { display: flex; align-items: center; gap: 0.35rem; }
-    .manage-query-item .label { color: var(--text); font-size: 0.88rem; white-space: nowrap; }
-    .manage-query-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.4rem 0.6rem; font-size: 0.88rem; color: var(--text); background: #fff; min-width: 180px; height: 38px; }
-    .manage-query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
-    .manage-body { flex: 1; min-height: 0; padding: 1rem 1.25rem 1.25rem; background: #f8fafc; overflow: auto; }
-    .manage-summary { margin-bottom: 0.75rem; font-size: 0.82rem; color: var(--muted); }
-    .manage-table-card { background: #fff; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .manage-table-wrap { overflow: auto; }
-    .manage-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 1180px; }
-    .manage-table th, .manage-table td { padding: 0.6rem 0.75rem; border: 1px solid var(--border); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .manage-table th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
-    .manage-table tr:hover td { background: #f9fafb; }
-    .manage-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
-    .manage-action-btn { padding: 0.28rem 0.72rem; font-size: 0.78rem; border: 1px solid var(--accent); border-radius: 4px; background: #fff; color: var(--accent); cursor: pointer; }
-    .manage-action-btn:hover { background: #f0fdfa; }
-    .edit-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1110; display: none; align-items: center; justify-content: center; padding: 1rem; }
-    .edit-modal-overlay.visible { display: flex; }
-    .edit-modal-box { background: #fff; border-radius: 10px; box-shadow: 0 12px 40px rgba(0,0,0,0.2); width: min(460px, 94vw); overflow: hidden; }
-    .edit-modal-header { padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%); display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-    .edit-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
-    .edit-modal-body { padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem; }
-    .edit-form-item { display: flex; flex-direction: column; gap: 0.35rem; }
-    .edit-form-item label { font-size: 0.84rem; color: var(--muted); }
-    .edit-form-item input { border: 1px solid var(--input-border); border-radius: 4px; padding: 0.5rem 0.65rem; font-size: 0.88rem; color: var(--text); background: #fff; }
-    .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
-    .edit-form-tip { font-size: 0.8rem; color: var(--muted); line-height: 1.6; }
-    .edit-modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; padding: 0 1rem 1rem; }
-    @media (max-width: 960px) { body { padding: 1rem; } .query-actions { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 960px) { body { padding: 1rem; } .topbar { flex-direction: column; } .query-actions { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="page-title">视频数据</h1>
-    <div class="page-subtitle">管理联盟视频、自制视频、图文视频和 AI 视频的数据记录</div>
+    <header class="topbar">
+      <div>
+        <h1 class="page-title">视频数据</h1>
+        <div class="page-subtitle">按最新 TikTok_IT映射表_视频数据.xlsx 管理联盟视频、自制视频、图文视频和 AI 视频数据</div>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-secondary" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
+      </div>
+    </header>
 
     <section class="query-card">
       <div class="query-row">
         <div class="query-item">
           <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="all">全部视频 <span class="count">15</span></button>
-            <button class="tab" data-tab="affiliate">联盟视频 <span class="count">8</span></button>
-            <button class="tab" data-tab="self">自制视频 <span class="count">4</span></button>
-            <button class="tab" data-tab="image">图文视频 <span class="count">2</span></button>
-            <button class="tab" data-tab="ai">AI视频 <span class="count">1</span></button>
+            <button class="tab active" data-tab="all">全部视频 <span class="count" id="countAll">0</span></button>
+            <button class="tab" data-tab="affiliate">联盟视频 <span class="count" id="countAffiliate">0</span></button>
+            <button class="tab" data-tab="self">自制视频 <span class="count" id="countSelf">0</span></button>
+            <button class="tab" data-tab="image">图文视频 <span class="count" id="countImage">0</span></button>
+            <button class="tab" data-tab="ai">AI视频 <span class="count" id="countAi">0</span></button>
           </div>
         </div>
-        <div class="query-item">
-          <span class="label">开单状态</span>
-          <select id="orderFilter"><option value="">全部状态</option><option value="是">已开单</option><option value="否">未开单</option></select>
-        </div>
-        <div class="query-item">
-          <span class="label">内容类型</span>
-          <select id="contentFilter"><option value="">全部内容</option><option value="混剪">混剪</option><option value="实拍">实拍</option><option value="达人原生">达人原生</option><option value="达人AI">达人AI</option><option value="图文">图文</option><option value="达人图文">达人图文</option><option value="AI">AI</option></select>
-        </div>
+        <div class="query-item"><span class="label">是否开单</span><select id="orderFilter"><option value="">全部</option><option>是</option><option>否</option></select></div>
+        <div class="query-item"><span class="label">是否投放</span><select id="adFilter"><option value="">全部投放</option><option>是</option><option>否</option></select></div>
+        <div class="query-item"><span class="label">内容类型</span><select id="contentFilter"><option value="">全部内容</option><option>混剪</option><option>实拍</option><option>AI</option><option>图文</option><option>达人原生</option><option>达人AI</option><option>达人图文</option></select></div>
+        <div class="query-item"><span class="label">年月</span><select id="monthFilter"><option value="">全部年月</option><option>2025/10</option><option>2025/11</option><option>2025/12</option><option>2026/01</option><option>2026/02</option><option>2026/03</option><option>2026/04</option></select></div>
+        <div class="query-item"><span class="label">店铺</span><select id="shopFilter"><option value="">全部店铺</option><option>Faiable Fashion</option><option>Faiable Days</option><option>Faiable Comfywear</option><option>Faiable Chic</option></select></div>
+        <div class="query-item"><span class="label">人员</span><select id="ownerFilter"><option value="">全部人员</option><option>Alice Chen</option><option>Bob Wang</option><option>Carol Liu</option><option>David Zhang</option><option>未分配</option></select></div>
+        <div class="query-item"><span class="label">日期</span><input type="date" id="startDate" /><input type="date" id="endDate" /></div>
         <div class="query-item search-query-item">
           <select class="search-field-select" id="searchField">
             <option value="all">视频/达人/商品</option>
-            <option value="videoId">视频ID</option>
+            <option value="videoId">视频ID / Post ID</option>
             <option value="account">达人账号</option>
-            <option value="style">视频款号</option>
+            <option value="userId">达人UID</option>
+            <option value="productTitle">商品标题</option>
+            <option value="videoSku">视频款号</option>
             <option value="productId">Product ID</option>
+            <option value="titleDesc">标题文案</option>
+            <option value="spuName">SPU名称</option>
           </select>
           <select class="search-mode-select" id="searchMode"><option value="fuzzy">模糊搜索</option><option value="exact">精确搜索</option></select>
           <input type="text" class="search-input" id="searchInput" placeholder="请输入" />
@@ -177,47 +158,29 @@
     </section>
 
     <div class="action-bar">
-      <div class="meta-info">共 <strong id="totalCount">15</strong> 条记录</div>
-      <div class="btns">
-        <button class="btn btn-secondary" id="btnManageVideoSource">视频源数据维护</button>
-        <button class="btn btn-secondary" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
-      </div>
+      <div class="meta-info">共 <strong id="totalCount">0</strong> 条记录；当前表格随视频类型自动切换联盟 / 自制图文AI字段口径</div>
+      <div class="meta-info">数字指标支持排序，默认隐藏字段在编辑抽屉维护并随导出输出</div>
     </div>
 
     <section class="table-card">
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th class="w-check"><input type="checkbox" /></th>
-              <th class="w-video">视频ID</th>
-              <th class="w-account">达人账号</th>
-              <th class="w-date">发布时间</th>
-              <th class="w-type">视频类型</th>
-              <th class="w-small">播放量</th>
-              <th class="w-small">GMV($)</th>
-              <th class="w-small">是否开单</th>
-              <th class="w-small">总单量</th>
-              <th class="w-link">视频链接</th>
-              <th class="w-product">Product ID</th>
-              <th class="w-content">内容类型</th>
-              <th class="w-op">操作</th>
-            </tr>
-          </thead>
+          <thead id="videoHead"></thead>
           <tbody id="videoRows"></tbody>
         </table>
       </div>
     </section>
 
-    <div class="pager"><span>共 <strong id="pagerCount">15</strong> 条记录</span></div>
+    <div class="pager"><span>共 <strong id="pagerCount">0</strong> 条记录</span></div>
 
     <section class="content-note" aria-label="内容说明">
       <div class="content-note-title">内容说明</div>
       <ol>
-        <li>视频数据用于管理联盟视频、自制视频、图文视频和 AI 视频的数据记录。</li>
-        <li>手动输入筛选采用 searchField + searchKeyword / exactSearchKeyword 模式，支持模糊与精确搜索。</li>
-        <li>关联寄样记录：基于达人 UID / 达人账号与视频款号进行匹配，若同时命中寄样订单中的达人信息和寄样款号，则自动关联到对应寄样记录。</li>
-        <li>数据来源是已绑定账号和联盟账号。</li>
+        <li>字段以 <strong>TikTok_IT映射表_视频数据.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为视频数据。</li>
+        <li>联盟视频包含基础信息、商品信息、数据指标、手动维护 4 组字段；自制/图文/AI视频包含基础信息、商品信息、数据指标、手动维护 4 组字段。</li>
+        <li>联盟视频的视频年月根据发布时间生成；自制/图文/AI视频的内容所属月份、所属周根据发布日期生成。</li>
+        <li>互动数=点赞+评论+收藏+转发；互动率=互动数÷播放量；全渠道总单量=自然单量+广告单量；全渠道GMV=自然GMV+广告GMV。</li>
+        <li>默认隐藏字段不在列表默认展示，但应支持编辑维护与导出完整字段。</li>
       </ol>
     </section>
   </div>
@@ -228,326 +191,200 @@
       <div><div class="drawer-title">编辑视频记录</div><div class="drawer-subtitle" id="drawerVideoId">-</div></div>
       <button class="close" id="btnClose" aria-label="关闭">×</button>
     </div>
-    <div class="drawer-body">
-      <div class="form-section">
-        <div class="section-title">基础信息</div>
-        <div class="info-grid">
-          <div><div class="info-label">达人账号</div><div class="info-value" id="infoAccount">-</div></div>
-          <div><div class="info-label">发布时间</div><div class="info-value" id="infoPublishTime">-</div></div>
-          <div><div class="info-label">视频链接</div><div class="info-value" id="infoLink">-</div></div>
-          <div><div class="info-label">播放量</div><div class="info-value" id="infoViews">-</div></div>
-          <div><div class="info-label">视频款号</div><div class="info-value" id="infoStyle">-</div></div>
-          <div><div class="info-label">GMV($)</div><div class="info-value money" id="infoGmv">-</div></div>
-        </div>
-      </div>
-      <div class="form-section">
-        <div class="section-title">关联寄样记录</div>
-        <div class="match-empty">未匹配到寄样记录（基于达人UID + 视频款号匹配）</div>
-      </div>
-      <div class="form-section">
-        <div class="section-title">手动维护字段</div>
-        <div class="field"><label>归属商务</label><select class="form-select" id="editOwner"><option>Alice Chen</option><option>Bob Wang</option><option>未分配</option></select></div>
-        <div class="field"><label>授权码</label><input class="form-input" id="editAuthCode" /></div>
-        <div class="field"><label>视频颜色</label><input class="form-input" id="editColor" /></div>
-        <div class="field"><label>寄样商务</label><input class="form-input" id="editSampleOwner" /></div>
-        <div class="field"><label>备注</label><textarea id="editRemark" placeholder="输入备注"></textarea></div>
-      </div>
-    </div>
+    <div class="drawer-body" id="drawerBody"></div>
     <div class="drawer-actions"><button class="btn btn-secondary" id="btnCancel">取消</button><button class="btn btn-query" id="btnSave">保存</button></div>
   </aside>
-  <div class="manage-modal-overlay" id="manageVideoSourceModal" role="dialog" aria-modal="true" aria-labelledby="manageVideoSourceTitle">
-    <div class="manage-modal-box" onclick="event.stopPropagation()">
-      <div class="manage-header">
-        <span class="manage-title" id="manageVideoSourceTitle">视频源数据维护</span>
-        <button type="button" class="close" id="btnCloseManageVideoSource" title="关闭">×</button>
-      </div>
-      <div class="manage-toolbar">
-        <div class="manage-query-row">
-          <div class="manage-query-item"><span class="label">日期</span><input type="date" id="videoSourceDate" /></div>
-          <div class="manage-query-item"><span class="label">达人ID</span><input type="text" id="videoSourceCreatorId" placeholder="请输入达人ID" /></div>
-          <div class="manage-query-item"><span class="label">视频ID</span><input type="text" id="videoSourceVideoId" placeholder="请输入视频ID" /></div>
-          <div class="manage-query-actions">
-            <button type="button" class="btn btn-query" id="btnQueryVideoSource">查询</button>
-            <button type="button" class="btn btn-secondary" id="btnResetVideoSource">重置</button>
-          </div>
-        </div>
-      </div>
-      <div class="manage-body">
-        <div class="manage-summary" id="videoSourceSummary">共 0 条记录</div>
-        <div class="manage-table-card">
-          <div class="manage-table-wrap">
-            <table class="manage-table">
-              <thead><tr><th>店铺名</th><th>视频ID</th><th>视频名称</th><th>达人ID</th><th>商品名称</th><th>发布时间</th><th>数据来源</th><th>操作</th></tr></thead>
-              <tbody id="videoSourceBody"><tr><td colspan="8" class="manage-empty">暂无数据</td></tr></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="edit-modal-overlay" id="editVideoSourceModal" role="dialog" aria-modal="true" aria-labelledby="editVideoSourceTitle">
-    <div class="edit-modal-box" onclick="event.stopPropagation()">
-      <div class="edit-modal-header">
-        <span class="edit-modal-title" id="editVideoSourceTitle">编辑视频源数据</span>
-        <button type="button" class="close" id="btnCloseEditVideoSource" title="关闭">×</button>
-      </div>
-      <div class="edit-modal-body">
-        <div class="edit-form-item"><label for="editSourceStore">店铺名</label><input type="text" id="editSourceStore" readonly /></div>
-        <div class="edit-form-item"><label for="editSourceVideoId">视频ID</label><input type="text" id="editSourceVideoId" readonly /></div>
-        <div class="edit-form-item"><label for="editSourceVideoName">视频名称</label><input type="text" id="editSourceVideoName" readonly /></div>
-        <div class="edit-form-item"><label for="editSourceCreatorId">达人ID</label><input type="text" id="editSourceCreatorId" readonly /></div>
-        <div class="edit-form-item"><label for="editSourceProductName">商品名称</label><input type="text" id="editSourceProductName" placeholder="请输入商品名称" /></div>
-        <div class="edit-form-item"><label for="editSourcePublishTime">发布时间</label><input type="text" id="editSourcePublishTime" readonly /></div>
-        <div class="edit-form-item"><label for="editSourceDataSource">数据来源</label><input type="text" id="editSourceDataSource" readonly /></div>
-        <div class="edit-form-tip">当前原型仅支持调整商品名称，其余字段来自已绑定账号或联盟账号，不允许在弹框中编辑。</div>
-      </div>
-      <div class="edit-modal-actions">
-        <button type="button" class="btn btn-secondary" id="btnCancelEditVideoSource">取消</button>
-        <button type="button" class="btn btn-query" id="btnSaveEditVideoSource">保存</button>
-      </div>
-    </div>
-  </div>
   <div class="toast" id="toast">已保存当前视频记录</div>
 
   <script>
     var videos = [
-      { videoId: '7569654647774842142', account: 'chelly_15', publishTime: '2025/11/06 14:30', type: 'affiliate', typeName: '联盟', views: '9.2w', gmv: '$2651.03', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@chelly_15/video/7569654647774842142', productId: '1729773126172578149', contentType: '', style: 'AL-W0161-LL-M', owner: 'Alice Chen', authCode: 'AUTH-001', color: 'Pale Pink', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7586608447945395470', account: 'faiable.collectio', publishTime: '2025/12/25 17:28', type: 'affiliate', typeName: '联盟', views: '3,083', gmv: '$108.29', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@faiable.collectio/video/7586608447945395470', productId: '1730674849392267621', contentType: '', style: 'AL-W0518-WHT-S', owner: 'Alice Chen', authCode: 'AUTH-002', color: 'Ivory', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7618146777081892127', account: 'kai.didit', publishTime: '2026/03/17 13:27', type: 'affiliate', typeName: '联盟', views: '8.7w', gmv: '$105.42', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@kai.didit/video/7618146777081892127', productId: '1731902422767866213', contentType: '', style: 'AL-W5558-PPL-M', owner: 'Bob Wang', authCode: 'AUTH-003', color: 'Purple', sampleOwner: 'Bob Wang', remark: '' },
-      { videoId: '7538498588440087863', account: 'sosa2wavy', publishTime: '2026/01/15 10:00', type: 'affiliate', typeName: '联盟', views: '1,400', gmv: '$0.00', ordered: '否', orders: 0, link: 'https://www.tiktok.com/@sosa2wavy/video/7538498588440087863', productId: '1731657241623302501', contentType: '', style: 'AL-W6675-BLK-XS', owner: '未分配', authCode: '', color: '', sampleOwner: '', remark: '' },
-      { videoId: '7605078235029802253', account: 'carolsharing', publishTime: '2026/02/14 19:16', type: 'affiliate', typeName: '联盟', views: '67', gmv: '$0.00', ordered: '否', orders: 0, link: 'https://www.tiktok.com/@carolsharing/video/7605078235029802253', productId: '1731902422767866213', contentType: '', style: 'AL-W0169-DGN-L', owner: '未分配', authCode: '', color: '', sampleOwner: '', remark: '' },
-      { videoId: '7603317898312011022', account: '0900.act', publishTime: '2026/02/05 01:57', type: 'affiliate', typeName: '联盟', views: '1.3w', gmv: '$150.82', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@0900.act/video/7603317898312011022', productId: '1731902422767866213', contentType: '', style: 'AL-W0161-RED-L', owner: 'Alice Chen', authCode: 'AUTH-006', color: 'Red', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7468735562581609774', account: 'ellarellaaa', publishTime: '2025/10/01 09:00', type: 'affiliate', typeName: '联盟', views: '2.2w', gmv: '$320.50', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@ellarellaaa/video/7468735562581609774', productId: '1729773126172578149', contentType: '', style: 'AL-W0575-BLU-L', owner: 'Bob Wang', authCode: 'AUTH-007', color: 'Blue', sampleOwner: 'Bob Wang', remark: '' },
-      { videoId: '7619510978794769695', account: 'sillygeese5', publishTime: '2026/03/20 08:00', type: 'affiliate', typeName: '联盟', views: '4.5w', gmv: '$580.00', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@sillygeese5/video/7619510978794769695', productId: '1730674849392267621', contentType: '', style: 'ALYMX-DROPSW-YEL-M', owner: 'Alice Chen', authCode: 'AUTH-008', color: 'Yellow', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7618525560897162510', account: '0900.act', publishTime: '2026-03-20 21:58:00', type: 'self', typeName: '自制', views: '992', gmv: '$105.98', ordered: '是', orders: 2, link: 'https://www.tiktok.com/@0900.act/video/7618525560897162510', productId: '1729773126172578149', contentType: '混剪', style: 'AL-W6675-BLK-XS', owner: 'Alice Chen', authCode: 'AUTH-009', color: 'Black', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7619208092533787934', account: '0900.act', publishTime: '2026-03-21 17:56:00', type: 'self', typeName: '自制', views: '990', gmv: '$54.42', ordered: '是', orders: 1, link: 'https://www.tiktok.com/@0900.act/video/7619208092533787934', productId: '1731657241623302501', contentType: '实拍', style: 'AL-W0518-WHT-S', owner: 'Bob Wang', authCode: 'AUTH-010', color: 'White', sampleOwner: 'Bob Wang', remark: '' },
-      { videoId: '7615000000000000001', account: 'faiable.collectio', publishTime: '2026-03-10 12:00:00', type: 'self', typeName: '自制', views: '4.5w', gmv: '$2658.40', ordered: '是', orders: 50, link: 'https://www.tiktok.com/@faiable.collectio/video/7615000000000000001', productId: '1731902422767866213', contentType: '达人原生', style: 'AL-W5558-PPL-M', owner: 'Alice Chen', authCode: 'AUTH-011', color: 'Lavender', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7610000000000000001', account: 'faiable_retrofit', publishTime: '2026-02-15 14:00:00', type: 'self', typeName: '自制', views: '8,200', gmv: '$424.96', ordered: '是', orders: 8, link: 'https://www.tiktok.com/@faiable_retrofit/video/7610000000000000001', productId: '1730674849392267621', contentType: '达人AI', style: 'AL-W0169-DGN-L', owner: 'Bob Wang', authCode: 'AUTH-012', color: 'Dark Green', sampleOwner: 'Bob Wang', remark: '' },
-      { videoId: '7620000000000000001', account: 'faiable.collectio', publishTime: '2026-03-25 10:00:00', type: 'image', typeName: '图文', views: '3,200', gmv: '$265.90', ordered: '是', orders: 5, link: 'https://www.tiktok.com/@faiable.collectio/video/7620000000000000001', productId: '1729773126172578149', contentType: '图文', style: 'AL-W6675-BLK-XS', owner: 'Alice Chen', authCode: 'AUTH-013', color: 'Black', sampleOwner: 'Alice Chen', remark: '' },
-      { videoId: '7622000000000000002', account: 'faiable_retrofit', publishTime: '2026-04-05 11:00:00', type: 'image', typeName: '图文', views: '1,800', gmv: '$106.40', ordered: '是', orders: 2, link: 'https://www.tiktok.com/@faiable_retrofit/video/7622000000000000002', productId: '1731657241623302501', contentType: '达人图文', style: 'AL-W0518-WHT-S', owner: 'Bob Wang', authCode: 'AUTH-014', color: 'White', sampleOwner: 'Bob Wang', remark: '' },
-      { videoId: '7621000000000000001', account: 'faiable_retrofit', publishTime: '2026-04-01 09:00:00', type: 'ai', typeName: 'AI', views: '8,900', gmv: '$584.54', ordered: '是', orders: 11, link: 'https://www.tiktok.com/@faiable_retrofit/video/7621000000000000001', productId: '1730674849392267621', contentType: 'AI', style: 'AL-W0161-RED-L', owner: 'Alice Chen', authCode: 'AUTH-015', color: 'Red', sampleOwner: 'Alice Chen', remark: '' }
+      { type: 'affiliate', videoId: '7569654647774842142', account: 'chelly_15', userId: 'UID10001', publishTime: '2025/11/06 14:30', videoYearMonth: '2025/11', videoUrl: 'https://www.tiktok.com/@chelly_15/video/7569654647774842142', productTitle: 'Ergonomic Seat Cushion', videoSku: 'AL-W0161-LL-M', productId: '1729773126172578149', shopName: 'Faiable Fashion', vv: 92000, gmv: 2651.03, hasOrder: '是', isRunningAd: '是', bizOwner: 'Alice Chen', firstOrderDate: '2025-11-07', authCode: 'AUTH-001', videoColor: 'Pale Pink', sampleBizOwner: 'Alice Chen', remark: '' },
+      { type: 'affiliate', videoId: '7586608447945395470', account: 'faiable.collectio', userId: 'UID10002', publishTime: '2025/12/25 17:28', videoYearMonth: '2025/12', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7586608447945395470', productTitle: 'Ivory Lounge Set', videoSku: 'AL-W0518-WHT-S', productId: '1730674849392267621', shopName: 'Faiable Days', vv: 3083, gmv: 108.29, hasOrder: '是', isRunningAd: '否', bizOwner: 'Alice Chen', firstOrderDate: '2025-12-26', authCode: 'AUTH-002', videoColor: 'Ivory', sampleBizOwner: 'Alice Chen', remark: '' },
+      { type: 'affiliate', videoId: '7618146777081892127', account: 'kai.didit', userId: 'UID10003', publishTime: '2026/03/17 13:27', videoYearMonth: '2026/03', videoUrl: 'https://www.tiktok.com/@kai.didit/video/7618146777081892127', productTitle: 'Purple Knit Cardigan', videoSku: 'AL-W5558-PPL-M', productId: '1731902422767866213', shopName: 'Faiable Chic', vv: 87000, gmv: 105.42, hasOrder: '是', isRunningAd: '是', bizOwner: 'Bob Wang', firstOrderDate: '2026-03-18', authCode: 'AUTH-003', videoColor: 'Purple', sampleBizOwner: 'Bob Wang', remark: '' },
+      { type: 'affiliate', videoId: '7538498588440087863', account: 'sosa2wavy', userId: 'UID10004', publishTime: '2026/01/15 10:00', videoYearMonth: '2026/01', videoUrl: 'https://www.tiktok.com/@sosa2wavy/video/7538498588440087863', productTitle: 'Black Crop Top', videoSku: 'AL-W6675-BLK-XS', productId: '1731657241623302501', shopName: 'Faiable Comfywear', vv: 1400, gmv: 0, hasOrder: '否', isRunningAd: '否', bizOwner: '未分配', firstOrderDate: '', authCode: '', videoColor: '', sampleBizOwner: '', remark: '' },
+      { type: 'affiliate', videoId: '7603317898312011022', account: '0900.act', userId: 'UID10005', publishTime: '2026/02/05 01:57', videoYearMonth: '2026/02', videoUrl: 'https://www.tiktok.com/@0900.act/video/7603317898312011022', productTitle: 'Red Everyday Dress', videoSku: 'AL-W0161-RED-L', productId: '1731902422767866213', shopName: 'Faiable Fashion', vv: 13000, gmv: 150.82, hasOrder: '是', isRunningAd: '是', bizOwner: 'Alice Chen', firstOrderDate: '2026-02-06', authCode: 'AUTH-006', videoColor: 'Red', sampleBizOwner: 'Alice Chen', remark: '' },
+      { type: 'content', contentGroup: 'self', postId: '7618525560897162510', account: '0900.act', publishDate: '2026-03-20 21:58:00', contentMonth: '2026/03', contentWeek: '2026/03/16-2026/03/22', contentType: '混剪', titleDesc: '办公室通勤穿搭混剪', videoUrl: 'https://www.tiktok.com/@0900.act/video/7618525560897162510', productId: '1729773126172578149', spuCode: 'AL-W6675', spuName: 'Black Crop Top', productCategory: '女装上衣', playCount: 992, likes: 88, comments: 9, favorites: 16, shares: 6, naturalOrders: 2, adOrders: 0, naturalGmv: 105.98, adGmv: 0, naturalImpressions: 5200, naturalClicks: 180, firstOrderDate: '2026-03-21', editorName: 'Carol Liu', editorAssistant: 'Mia', director: 'David Zhang', model: 'Nina', modelGender: '女', displayColor: 'Black', scriptType: '穿搭', crossRegion: '否', remark: '' },
+      { type: 'content', contentGroup: 'self', postId: '7619208092533787934', account: '0900.act', publishDate: '2026-03-21 17:56:00', contentMonth: '2026/03', contentWeek: '2026/03/16-2026/03/22', contentType: '实拍', titleDesc: '春季新品实拍测评', videoUrl: 'https://www.tiktok.com/@0900.act/video/7619208092533787934', productId: '1731657241623302501', spuCode: 'AL-W0518', spuName: 'Ivory Lounge Set', productCategory: '家居服', playCount: 990, likes: 76, comments: 12, favorites: 20, shares: 4, naturalOrders: 1, adOrders: 0, naturalGmv: 54.42, adGmv: 0, naturalImpressions: 4100, naturalClicks: 130, firstOrderDate: '2026-03-22', editorName: 'Carol Liu', editorAssistant: '', director: 'David Zhang', model: 'Emma', modelGender: '女', displayColor: 'White', scriptType: '测评', crossRegion: '是', remark: '' },
+      { type: 'content', contentGroup: 'self', postId: '7615000000000000001', account: 'faiable.collectio', publishDate: '2026-03-10 12:00:00', contentMonth: '2026/03', contentWeek: '2026/03/09-2026/03/15', contentType: '达人原生', titleDesc: '达人原生生活场景视频', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7615000000000000001', productId: '1731902422767866213', spuCode: 'AL-W5558', spuName: 'Purple Knit Cardigan', productCategory: '针织衫', playCount: 45000, likes: 3200, comments: 180, favorites: 720, shares: 95, naturalOrders: 35, adOrders: 15, naturalGmv: 1850.4, adGmv: 808, naturalImpressions: 88000, naturalClicks: 4100, firstOrderDate: '2026-03-11', editorName: 'Alice Chen', editorAssistant: 'Leo', director: 'David Zhang', model: '达人本人', modelGender: '女', displayColor: 'Lavender', scriptType: '生活场景', crossRegion: '否', remark: '' },
+      { type: 'content', contentGroup: 'image', postId: '7620000000000000001', account: 'faiable.collectio', publishDate: '2026-03-25 10:00:00', contentMonth: '2026/03', contentWeek: '2026/03/23-2026/03/29', contentType: '图文', titleDesc: '图文穿搭合集', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7620000000000000001', productId: '1729773126172578149', spuCode: 'AL-W6675', spuName: 'Black Crop Top', productCategory: '女装上衣', playCount: 3200, likes: 260, comments: 22, favorites: 80, shares: 15, naturalOrders: 5, adOrders: 0, naturalGmv: 265.9, adGmv: 0, naturalImpressions: 12000, naturalClicks: 420, firstOrderDate: '2026-03-26', editorName: 'Carol Liu', editorAssistant: '', director: 'David Zhang', model: 'Nina', modelGender: '女', displayColor: 'Black', scriptType: '穿搭', crossRegion: '是', remark: '' },
+      { type: 'content', contentGroup: 'ai', postId: '7621000000000000001', account: 'faiable_retrofit', publishDate: '2026-04-01 09:00:00', contentMonth: '2026/04', contentWeek: '2026/03/30-2026/04/05', contentType: 'AI', titleDesc: 'AI模特产品展示', videoUrl: 'https://www.tiktok.com/@faiable_retrofit/video/7621000000000000001', productId: '1730674849392267621', spuCode: 'AL-W0161', spuName: 'Red Everyday Dress', productCategory: '连衣裙', playCount: 8900, likes: 730, comments: 38, favorites: 210, shares: 32, naturalOrders: 8, adOrders: 3, naturalGmv: 424.54, adGmv: 160, naturalImpressions: 26000, naturalClicks: 890, firstOrderDate: '2026-04-02', editorName: 'Alice Chen', editorAssistant: 'Mia', director: 'David Zhang', model: 'AI模特', modelGender: '未知', displayColor: 'Red', scriptType: '教程', crossRegion: '否', remark: '' }
     ];
     var activeTab = 'all';
     var editingVideo = null;
-    var videoSourceManageData = [
-      { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012165', videoName: '达人开箱短视频-美区爆款', creatorId: 'CR100238', productName: 'AL-W0161 护腰坐垫', publishTime: '2026-05-20 09:30:18', dataSource: '已绑定账号' },
-      { store: '美国 TK・艾斯特尼 - 美区特 1 店 US', videoId: '7348901267890012166', videoName: '办公室场景种草视频', creatorId: 'CR100238', productName: 'AL-W0161 Ergonomic Seat Cushion', publishTime: '2026-05-20 14:12:45', dataSource: '已绑定账号' },
-      { store: '美国 TK・艾斯特尼 - 美区特 2 店 US', videoId: '7349023312887654401', videoName: '家居收纳对比剪辑', creatorId: 'CR200516', productName: 'AL-W0180 收纳套装', publishTime: '2026-05-21 11:08:36', dataSource: '已绑定账号' },
-      { store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', videoId: '7349188890012367782', videoName: '德国达人测评视频', creatorId: 'CR300861', productName: 'ALYMX-DROPSW Dropshipping', publishTime: '2026-05-22 16:45:09', dataSource: '联盟账号' },
-      { store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', videoId: '7349321100987634210', videoName: '法区生活方式剪辑', creatorId: 'CR300862', productName: 'AL-W0169 家居好物', publishTime: '2026-05-23 10:18:27', dataSource: '联盟账号' },
-      { store: '美国TK独立站-shopify:Global', videoId: '7349456678123049988', videoName: '独立站素材二剪', creatorId: 'CR900128', productName: 'AL-W5558 Shopify Bundle', publishTime: '2026-05-24 19:26:51', dataSource: '联盟账号' }
+    var affiliateColumns = [
+      { key: 'videoId', label: '视频ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishTime', label: '发布时间', cls: 'w-date', sort: true }, { key: 'videoYearMonth', label: '视频年月', cls: 'w-month', sort: true }, { key: 'videoUrl', label: '视频链接', cls: 'w-link', render: linkRender }, { key: 'productTitle', label: '商品标题', cls: 'w-title' }, { key: 'videoSku', label: '视频款号', cls: 'w-sku' }, { key: 'productId', label: 'Product ID', cls: 'w-product' }, { key: 'shopName', label: '挂车店铺', cls: 'w-shop' }, { key: 'vv', label: '播放量（VV）', cls: 'w-metric', sort: true, render: numberRender }, { key: 'gmv', label: 'GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单', cls: 'w-status', render: yesNoRender }, { key: 'isRunningAd', label: '是否投放', cls: 'w-status', render: yesNoRender }, { key: 'bizOwner', label: '归属商务', cls: 'w-person' }, { key: 'firstOrderDate', label: '开单日期', cls: 'w-date', sort: true }
     ];
-    var editingVideoSourceRecord = null;
-    function typeBadge(video) {
-      var cls = video.type === 'affiliate' ? 'badge-blue' : (video.type === 'self' ? 'badge-green' : (video.type === 'image' ? 'badge-yellow' : 'badge-ai'));
-      return '<span class="badge ' + cls + '">' + video.typeName + '</span>';
+    var contentColumns = [
+      { key: 'postId', label: 'Post ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishDate', label: '发布日期', cls: 'w-date', sort: true }, { key: 'contentMonth', label: '内容所属月份', cls: 'w-month', sort: true }, { key: 'contentType', label: '内容类型', cls: 'w-content', render: contentBadge }, { key: 'titleDesc', label: '标题文案', cls: 'w-title' }, { key: 'videoUrl', label: '内容链接', cls: 'w-link', render: linkRender }, { key: 'spuCode', label: '款号SPU', cls: 'w-sku' }, { key: 'spuName', label: 'SPU名称', cls: 'w-title' }, { key: 'playCount', label: '播放量', cls: 'w-metric', sort: true, render: numberRender }, { key: 'likes', label: '点赞', cls: 'w-metric', sort: true, render: numberRender }, { key: 'comments', label: '评论', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionCount', label: '互动数', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionRate', label: '互动率', cls: 'w-metric', sort: true, render: percentRender }, { key: 'naturalOrders', label: '自然单量', cls: 'w-metric', sort: true }, { key: 'adOrders', label: '广告单量', cls: 'w-metric', sort: true }, { key: 'totalOrders', label: '全渠道总单量', cls: 'w-metric', sort: true }, { key: 'totalGmv', label: '全渠道GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单视频', cls: 'w-status', render: yesNoRender }, { key: 'editorName', label: '剪辑专员', cls: 'w-person' }, { key: 'director', label: '负责编导', cls: 'w-person' }
+    ];
+    function displayType(video) { return video.type === 'affiliate' ? '联盟视频' : (video.contentGroup === 'image' ? '图文视频' : (video.contentGroup === 'ai' ? 'AI视频' : '自制视频')); }
+    function monthOf(video) { return video.type === 'affiliate' ? video.videoYearMonth : video.contentMonth; }
+    function dateOf(video) { return video.type === 'affiliate' ? video.publishTime : video.publishDate; }
+    function isContent(video) { return video.type === 'content'; }
+    function contentBadge(value) { if (!value) return ''; var cls = value.indexOf('达人') >= 0 ? 'badge-pink' : (value === 'AI' ? 'badge-ai' : (value === '混剪' ? 'badge-purple' : 'badge-blue')); return '<span class="badge ' + cls + '">' + value + '</span>'; }
+    function yesNoRender(value) { return '<span class="' + (value === '是' ? 'badge-on' : 'badge-off') + '">' + (value || '否') + '</span>'; }
+    function linkRender(value) { return '<a class="video-link" href="' + value + '" target="_blank" rel="noopener">↗ 查看</a>'; }
+    function numberRender(value) { return Number(value || 0).toLocaleString('en-US'); }
+    function moneyRender(value) { return '<span class="money">$' + Number(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '</span>'; }
+    function percentRender(value) { return Number(value || 0).toFixed(2) + '%'; }
+    function enrich(video) {
+      if (isContent(video)) {
+        video.interactionCount = Number(video.likes || 0) + Number(video.comments || 0) + Number(video.favorites || 0) + Number(video.shares || 0);
+        video.interactionRate = video.playCount ? video.interactionCount / video.playCount * 100 : 0;
+        video.totalOrders = Number(video.naturalOrders || 0) + Number(video.adOrders || 0);
+        video.totalGmv = Number(video.naturalGmv || 0) + Number(video.adGmv || 0);
+        video.naturalCtr = video.naturalImpressions ? Number(video.naturalClicks || 0) / video.naturalImpressions * 100 : 0;
+        video.clickCvr = video.naturalClicks ? video.totalOrders / video.naturalClicks * 100 : 0;
+        video.hasOrder = video.totalOrders > 0 ? '是' : '否';
+      }
+      return video;
     }
-    function contentBadge(contentType) {
-      if (!contentType) return '';
-      var cls = contentType.indexOf('达人') >= 0 ? 'badge-pink' : (contentType === 'AI' ? 'badge-ai' : (contentType === '混剪' ? 'badge-purple' : 'badge-blue'));
-      return '<span class="badge ' + cls + '">' + contentType + '</span>';
+    videos.forEach(enrich);
+    function getVisibleColumns(rows) {
+      var hasAffiliate = rows.some(function(video) { return video.type === 'affiliate'; });
+      var hasContent = rows.some(isContent);
+      if (hasAffiliate && !hasContent) return affiliateColumns;
+      if (!hasAffiliate && hasContent) return contentColumns;
+      return [
+        { key: '_type', label: '视频类型', cls: 'w-content', render: function(_, video) { return '<span class="badge badge-blue">' + displayType(video) + '</span>'; } },
+        { key: '_id', label: '视频ID / Post ID', cls: 'w-id', render: function(_, video) { return video.videoId || video.postId; } },
+        { key: 'account', label: '达人账号', cls: 'w-account' },
+        { key: '_date', label: '发布时间 / 发布日期', cls: 'w-date', sort: true, render: function(_, video) { return dateOf(video); } },
+        { key: '_month', label: '视频年月 / 内容所属月份', cls: 'w-month', sort: true, render: function(_, video) { return monthOf(video); } },
+        { key: '_product', label: '商品标题 / SPU名称', cls: 'w-title', render: function(_, video) { return video.productTitle || video.spuName; } },
+        { key: '_sku', label: '视频款号 / 款号SPU', cls: 'w-sku', render: function(_, video) { return video.videoSku || video.spuCode; } },
+        { key: 'productId', label: 'Product ID', cls: 'w-product' },
+        { key: '_views', label: '播放量', cls: 'w-metric', sort: true, render: function(_, video) { return numberRender(video.vv || video.playCount); } },
+        { key: '_gmv', label: 'GMV($)', cls: 'w-metric', sort: true, render: function(_, video) { return moneyRender(video.gmv || video.totalGmv); } },
+        { key: 'hasOrder', label: '是否开单', cls: 'w-status', render: yesNoRender },
+        { key: '_owner', label: '归属商务 / 剪辑专员', cls: 'w-person', render: function(_, video) { return video.bizOwner || video.editorName; } }
+      ];
     }
     function getSearchTarget(video, field) {
-      if (field === 'videoId') return video.videoId;
-      if (field === 'account') return video.account;
-      if (field === 'style') return video.style;
-      if (field === 'productId') return video.productId;
-      return [video.videoId, video.account, video.style, video.productId].join(' ');
+      var map = {
+        videoId: video.videoId || video.postId,
+        account: video.account,
+        userId: video.userId,
+        productTitle: video.productTitle,
+        videoSku: video.videoSku || video.spuCode,
+        productId: video.productId,
+        titleDesc: video.titleDesc,
+        spuName: video.spuName
+      };
+      if (field !== 'all') return map[field] || '';
+      return [video.videoId, video.postId, video.account, video.userId, video.productTitle, video.videoSku, video.productId, video.titleDesc, video.spuCode, video.spuName].join(' ');
     }
-    function renderRows() {
+    function parseDate(value) { if (!value) return null; return new Date(String(value).replace(/\//g, '-').split(' ')[0] + 'T00:00:00'); }
+    function matchesTab(video) { if (activeTab === 'all') return true; if (activeTab === 'affiliate') return video.type === 'affiliate'; return video.contentGroup === activeTab; }
+    function getFilteredRows() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       var searchField = document.getElementById('searchField').value;
       var searchMode = document.getElementById('searchMode').value;
       var orderStatus = document.getElementById('orderFilter').value;
+      var adStatus = document.getElementById('adFilter').value;
       var contentType = document.getElementById('contentFilter').value;
-      var rows = videos.filter(function(video) {
-        if (activeTab !== 'all' && video.type !== activeTab) return false;
-        if (orderStatus && video.ordered !== orderStatus) return false;
+      var month = document.getElementById('monthFilter').value;
+      var shop = document.getElementById('shopFilter').value;
+      var owner = document.getElementById('ownerFilter').value;
+      var startDate = parseDate(document.getElementById('startDate').value);
+      var endDate = parseDate(document.getElementById('endDate').value);
+      return videos.filter(function(video) {
+        var itemDate = parseDate(dateOf(video));
+        if (!matchesTab(video)) return false;
+        if (orderStatus && video.hasOrder !== orderStatus) return false;
+        if (adStatus && video.isRunningAd !== adStatus) return false;
         if (contentType && video.contentType !== contentType) return false;
+        if (month && monthOf(video) !== month) return false;
+        if (shop && video.shopName !== shop) return false;
+        if (owner && (video.bizOwner || video.editorName) !== owner) return false;
+        if (startDate && itemDate && itemDate < startDate) return false;
+        if (endDate && itemDate && itemDate > endDate) return false;
         if (!keyword) return true;
         var target = String(getSearchTarget(video, searchField)).toLowerCase();
         return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) >= 0;
       });
+    }
+    function renderCounts() {
+      document.getElementById('countAll').textContent = videos.length;
+      document.getElementById('countAffiliate').textContent = videos.filter(function(v) { return v.type === 'affiliate'; }).length;
+      document.getElementById('countSelf').textContent = videos.filter(function(v) { return v.contentGroup === 'self'; }).length;
+      document.getElementById('countImage').textContent = videos.filter(function(v) { return v.contentGroup === 'image'; }).length;
+      document.getElementById('countAi').textContent = videos.filter(function(v) { return v.contentGroup === 'ai'; }).length;
+    }
+    function renderRows() {
+      var rows = getFilteredRows();
+      var columns = getVisibleColumns(rows.length ? rows : videos.filter(matchesTab));
+      var head = '<tr><th class="w-check"><input type="checkbox" /></th>' + columns.map(function(col) { return '<th class="' + col.cls + '">' + col.label + (col.sort ? '<span class="sort">↕</span>' : '') + '</th>'; }).join('') + '<th class="w-op">操作</th></tr>';
+      document.getElementById('videoHead').innerHTML = head;
       document.getElementById('totalCount').textContent = rows.length;
       document.getElementById('pagerCount').textContent = rows.length;
       var body = document.getElementById('videoRows');
-      if (!rows.length) {
-        body.innerHTML = '<tr><td colspan="13" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的视频数据</td></tr>';
-        return;
-      }
-      body.innerHTML = rows.map(function(video, index) {
-        return '<tr>' +
-          '<td class="w-check"><input type="checkbox" /></td>' +
-          '<td title="' + video.videoId + '">' + video.videoId + '</td>' +
-          '<td title="' + video.account + '">' + video.account + '</td>' +
-          '<td>' + video.publishTime + '</td>' +
-          '<td>' + typeBadge(video) + '</td>' +
-          '<td>' + video.views + '</td>' +
-          '<td class="' + (video.gmv !== '$0.00' ? 'money' : '') + '">' + video.gmv + '</td>' +
-          '<td><span class="' + (video.ordered === '是' ? 'badge-on' : 'badge-off') + '">' + video.ordered + '</span></td>' +
-          '<td>' + video.orders + '</td>' +
-          '<td><a class="video-link" href="' + video.link + '" target="_blank" rel="noopener">↗ 查看</a></td>' +
-          '<td title="' + video.productId + '">' + video.productId + '</td>' +
-          '<td>' + contentBadge(video.contentType) + '</td>' +
-          '<td><button class="icon-btn" data-edit="' + videos.indexOf(video) + '">编辑</button></td>' +
-        '</tr>';
+      if (!rows.length) { body.innerHTML = '<tr><td colspan="' + (columns.length + 2) + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的视频数据</td></tr>'; return; }
+      body.innerHTML = rows.map(function(video) {
+        return '<tr><td class="w-check"><input type="checkbox" /></td>' + columns.map(function(col) {
+          var value = col.render ? col.render(video[col.key], video) : (video[col.key] == null ? '' : video[col.key]);
+          return '<td class="' + col.cls + '" title="' + String(value).replace(/<[^>]*>/g, '') + '">' + value + '</td>';
+        }).join('') + '<td><button class="icon-btn" data-edit="' + videos.indexOf(video) + '">编辑</button></td></tr>';
       }).join('');
     }
+    function infoItem(label, value) { return '<div><div class="info-label">' + label + '</div><div class="info-value">' + (value || '-') + '</div></div>'; }
+    function fieldInput(label, id, value, type) { return '<div class="field"><label>' + label + '</label><input id="' + id + '" value="' + (value || '') + '" type="' + (type || 'text') + '" /></div>'; }
+    function fieldSelect(label, id, value, options) { return '<div class="field"><label>' + label + '</label><select id="' + id + '">' + options.map(function(option) { return '<option' + (option === value ? ' selected' : '') + '>' + option + '</option>'; }).join('') + '</select></div>'; }
+    function fieldTextarea(label, id, value) { return '<div class="field"><label>' + label + '</label><textarea id="' + id + '">' + (value || '') + '</textarea></div>'; }
     function openDrawer(video) {
       editingVideo = video;
-      document.getElementById('drawerVideoId').textContent = video.videoId;
-      document.getElementById('infoAccount').textContent = video.account;
-      document.getElementById('infoPublishTime').textContent = video.publishTime;
-      document.getElementById('infoLink').innerHTML = '<a class="video-link" href="' + video.link + '" target="_blank" rel="noopener">在 TikTok 中查看</a>';
-      document.getElementById('infoViews').textContent = video.views;
-      document.getElementById('infoStyle').textContent = video.style;
-      document.getElementById('infoGmv').textContent = video.gmv;
-      document.getElementById('editOwner').value = video.owner || '未分配';
-      document.getElementById('editAuthCode').value = video.authCode || '';
-      document.getElementById('editColor').value = video.color || '';
-      document.getElementById('editSampleOwner').value = video.sampleOwner || '';
-      document.getElementById('editRemark').value = video.remark || '';
+      document.getElementById('drawerVideoId').textContent = (video.videoId || video.postId) + '｜' + displayType(video);
+      var html = '';
+      if (video.type === 'affiliate') {
+        html += '<section class="form-section"><div class="section-title">联盟视频 - 基础信息</div><div class="info-grid">' + infoItem('视频ID', video.videoId) + infoItem('达人账号', video.account) + infoItem('达人UID', video.userId) + infoItem('发布时间', video.publishTime) + infoItem('视频年月', video.videoYearMonth) + infoItem('视频链接', linkRender(video.videoUrl)) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">联盟视频 - 商品信息</div><div class="info-grid">' + infoItem('商品标题', video.productTitle) + infoItem('视频款号', video.videoSku) + infoItem('Product ID', video.productId) + infoItem('挂车店铺', video.shopName) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">联盟视频 - 数据指标</div><div class="info-grid">' + infoItem('播放量（VV）', numberRender(video.vv)) + infoItem('GMV($)', '$' + Number(video.gmv).toFixed(2)) + infoItem('是否开单', video.hasOrder) + infoItem('是否投放', video.isRunningAd) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">联盟视频 - 手动维护</div>' + fieldSelect('归属商务', 'editBizOwner', video.bizOwner, ['Alice Chen','Bob Wang','Carol Liu','David Zhang','未分配']) + fieldInput('开单日期', 'editFirstOrderDate', video.firstOrderDate, 'date') + fieldInput('授权码', 'editAuthCode', video.authCode) + fieldInput('视频颜色', 'editVideoColor', video.videoColor) + fieldInput('寄样商务', 'editSampleBizOwner', video.sampleBizOwner) + fieldTextarea('备注', 'editRemark', video.remark) + '</section>';
+      } else {
+        html += '<section class="form-section"><div class="section-title">自制/图文/AI视频 - 基础信息</div><div class="info-grid">' + infoItem('Post ID', video.postId) + infoItem('达人账号', video.account) + infoItem('发布日期', video.publishDate) + infoItem('内容所属月份', video.contentMonth) + infoItem('所属周', video.contentWeek) + infoItem('内容类型', video.contentType) + infoItem('标题文案', video.titleDesc) + infoItem('内容链接', linkRender(video.videoUrl)) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">自制/图文/AI视频 - 商品信息</div><div class="info-grid">' + infoItem('Product ID', video.productId) + infoItem('款号SPU', video.spuCode) + infoItem('SPU名称', video.spuName) + infoItem('产品层级分类', video.productCategory) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">自制/图文/AI视频 - 数据指标</div><div class="info-grid">' + infoItem('播放量', numberRender(video.playCount)) + infoItem('点赞', numberRender(video.likes)) + infoItem('评论', numberRender(video.comments)) + infoItem('收藏', numberRender(video.favorites)) + infoItem('转发', numberRender(video.shares)) + infoItem('互动数', numberRender(video.interactionCount)) + infoItem('互动率', percentRender(video.interactionRate)) + infoItem('自然单量', video.naturalOrders) + infoItem('广告单量', video.adOrders) + infoItem('全渠道总单量', video.totalOrders) + infoItem('自然GMV($)', '$' + Number(video.naturalGmv).toFixed(2)) + infoItem('广告GMV($)', '$' + Number(video.adGmv).toFixed(2)) + infoItem('全渠道GMV($)', '$' + Number(video.totalGmv).toFixed(2)) + infoItem('自然曝光量', numberRender(video.naturalImpressions)) + infoItem('自然点击量', numberRender(video.naturalClicks)) + infoItem('自然点击率（CTR）', percentRender(video.naturalCtr)) + infoItem('点击转化率（CVR）', percentRender(video.clickCvr)) + infoItem('是否开单视频', video.hasOrder) + infoItem('首次开单日期', video.firstOrderDate) + '</div></section>';
+        html += '<section class="form-section"><div class="section-title">自制/图文/AI视频 - 手动维护</div>' + fieldSelect('剪辑专员', 'editEditorName', video.editorName, ['Alice Chen','Bob Wang','Carol Liu','David Zhang','未分配']) + fieldInput('剪辑助理', 'editEditorAssistant', video.editorAssistant) + fieldSelect('负责编导', 'editDirector', video.director, ['David Zhang','Carol Liu','Alice Chen','未分配']) + fieldInput('上镜模特', 'editModel', video.model) + fieldSelect('出镜模特性别', 'editModelGender', video.modelGender, ['男','女','混合','未知']) + fieldInput('展示颜色', 'editDisplayColor', video.displayColor) + fieldSelect('脚本分类', 'editScriptType', video.scriptType, ['开箱','穿搭','测评','生活场景','对比','故事','教程','其他']) + fieldSelect('英区是否互通', 'editCrossRegion', video.crossRegion, ['是','否']) + fieldTextarea('备注', 'editRemark', video.remark) + '</section>';
+      }
+      document.getElementById('drawerBody').innerHTML = html;
       document.getElementById('drawerMask').classList.add('open');
       document.getElementById('editDrawer').classList.add('open');
     }
-    function closeDrawer() {
-      document.getElementById('drawerMask').classList.remove('open');
-      document.getElementById('editDrawer').classList.remove('open');
-    }
-    function getVideoSourceFilteredData() {
-      var date = (document.getElementById('videoSourceDate').value || '').trim();
-      var creatorId = (document.getElementById('videoSourceCreatorId').value || '').trim().toLowerCase();
-      var videoId = (document.getElementById('videoSourceVideoId').value || '').trim().toLowerCase();
-      return videoSourceManageData.filter(function(item) {
-        if (date && item.publishTime.slice(0, 10) !== date) return false;
-        if (creatorId && item.creatorId.toLowerCase().indexOf(creatorId) === -1) return false;
-        if (videoId && item.videoId.toLowerCase().indexOf(videoId) === -1) return false;
-        return true;
-      });
-    }
-    function renderVideoSourceTable() {
-      var rows = getVideoSourceFilteredData();
-      var tbody = document.getElementById('videoSourceBody');
-      document.getElementById('videoSourceSummary').textContent = '共 ' + rows.length + ' 条记录';
-      if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="manage-empty">未匹配到符合条件的视频源数据记录</td></tr>';
-        return;
+    function closeDrawer() { document.getElementById('drawerMask').classList.remove('open'); document.getElementById('editDrawer').classList.remove('open'); }
+    function showToast() { var toast = document.getElementById('toast'); toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1400); }
+    function saveDrawer() {
+      if (!editingVideo) return;
+      if (editingVideo.type === 'affiliate') {
+        editingVideo.bizOwner = document.getElementById('editBizOwner').value;
+        editingVideo.firstOrderDate = document.getElementById('editFirstOrderDate').value;
+        editingVideo.authCode = document.getElementById('editAuthCode').value.trim();
+        editingVideo.videoColor = document.getElementById('editVideoColor').value.trim();
+        editingVideo.sampleBizOwner = document.getElementById('editSampleBizOwner').value.trim();
+        editingVideo.remark = document.getElementById('editRemark').value.trim();
+      } else {
+        editingVideo.editorName = document.getElementById('editEditorName').value;
+        editingVideo.editorAssistant = document.getElementById('editEditorAssistant').value.trim();
+        editingVideo.director = document.getElementById('editDirector').value;
+        editingVideo.model = document.getElementById('editModel').value.trim();
+        editingVideo.modelGender = document.getElementById('editModelGender').value;
+        editingVideo.displayColor = document.getElementById('editDisplayColor').value.trim();
+        editingVideo.scriptType = document.getElementById('editScriptType').value;
+        editingVideo.crossRegion = document.getElementById('editCrossRegion').value;
+        editingVideo.remark = document.getElementById('editRemark').value.trim();
       }
-      tbody.innerHTML = rows.map(function(item) {
-        return '<tr>' +
-          '<td title="' + item.store + '">' + item.store + '</td>' +
-          '<td title="' + item.videoId + '">' + item.videoId + '</td>' +
-          '<td title="' + item.videoName + '">' + item.videoName + '</td>' +
-          '<td>' + item.creatorId + '</td>' +
-          '<td title="' + item.productName + '">' + item.productName + '</td>' +
-          '<td>' + item.publishTime + '</td>' +
-          '<td>' + item.dataSource + '</td>' +
-          '<td><button type="button" class="manage-action-btn" data-source-video-id="' + item.videoId + '">编辑</button></td>' +
-        '</tr>';
-      }).join('');
+      renderRows(); closeDrawer(); showToast();
     }
-    function openManageVideoSourceModal() {
-      renderVideoSourceTable();
-      document.getElementById('manageVideoSourceModal').classList.add('visible');
-    }
-    function closeManageVideoSourceModal() {
-      document.getElementById('manageVideoSourceModal').classList.remove('visible');
-    }
-    function openEditVideoSourceModal(record) {
-      if (!record) return;
-      editingVideoSourceRecord = record;
-      document.getElementById('editSourceStore').value = record.store;
-      document.getElementById('editSourceVideoId').value = record.videoId;
-      document.getElementById('editSourceVideoName').value = record.videoName;
-      document.getElementById('editSourceCreatorId').value = record.creatorId;
-      document.getElementById('editSourceProductName').value = record.productName;
-      document.getElementById('editSourcePublishTime').value = record.publishTime;
-      document.getElementById('editSourceDataSource').value = record.dataSource;
-      document.getElementById('editVideoSourceModal').classList.add('visible');
-    }
-    function closeEditVideoSourceModal() {
-      editingVideoSourceRecord = null;
-      document.getElementById('editVideoSourceModal').classList.remove('visible');
-    }
-    function showToast() {
-      var toast = document.getElementById('toast');
-      toast.classList.add('show');
-      setTimeout(function() { toast.classList.remove('show'); }, 1400);
-    }
-    document.getElementById('tabs').addEventListener('click', function(e) {
-      var btn = e.target.closest('.tab');
-      if (!btn) return;
-      activeTab = btn.getAttribute('data-tab');
-      document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); });
-      btn.classList.add('active');
-      renderRows();
-    });
-    document.getElementById('videoRows').addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-edit]');
-      if (!btn) return;
-      openDrawer(videos[parseInt(btn.getAttribute('data-edit'), 10)]);
-    });
-    document.getElementById('searchInput').addEventListener('input', renderRows);
-    document.getElementById('searchField').addEventListener('change', renderRows);
-    document.getElementById('searchMode').addEventListener('change', renderRows);
-    document.getElementById('orderFilter').addEventListener('change', renderRows);
-    document.getElementById('contentFilter').addEventListener('change', renderRows);
-    document.getElementById('btnReset').addEventListener('click', function() {
-      document.getElementById('searchInput').value = '';
-      document.getElementById('searchMode').value = 'fuzzy';
-      document.getElementById('searchField').value = 'all';
-      document.getElementById('orderFilter').value = '';
-      document.getElementById('contentFilter').value = '';
-      renderRows();
-    });
+    document.getElementById('tabs').addEventListener('click', function(e) { var btn = e.target.closest('.tab'); if (!btn) return; activeTab = btn.getAttribute('data-tab'); document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); }); btn.classList.add('active'); renderRows(); });
+    document.getElementById('videoRows').addEventListener('click', function(e) { var btn = e.target.closest('[data-edit]'); if (btn) openDrawer(videos[Number(btn.getAttribute('data-edit'))]); });
+    ['searchInput', 'searchField', 'searchMode', 'orderFilter', 'adFilter', 'contentFilter', 'monthFilter', 'shopFilter', 'ownerFilter', 'startDate', 'endDate'].forEach(function(id) { document.getElementById(id).addEventListener(id === 'searchInput' ? 'input' : 'change', renderRows); });
+    document.getElementById('btnQuery').addEventListener('click', renderRows);
+    document.getElementById('btnReset').addEventListener('click', function() { ['searchInput','orderFilter','adFilter','contentFilter','monthFilter','shopFilter','ownerFilter','startDate','endDate'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('searchField').value = 'all'; renderRows(); });
+    document.getElementById('btnExport').addEventListener('click', function() { showToast(); });
     document.getElementById('btnClose').addEventListener('click', closeDrawer);
     document.getElementById('btnCancel').addEventListener('click', closeDrawer);
     document.getElementById('drawerMask').addEventListener('click', closeDrawer);
-    document.getElementById('btnManageVideoSource').addEventListener('click', openManageVideoSourceModal);
-    document.getElementById('btnCloseManageVideoSource').addEventListener('click', closeManageVideoSourceModal);
-    document.getElementById('manageVideoSourceModal').addEventListener('click', function(e) { if (e.target === this) closeManageVideoSourceModal(); });
-    document.getElementById('btnQueryVideoSource').addEventListener('click', renderVideoSourceTable);
-    document.getElementById('btnResetVideoSource').addEventListener('click', function() {
-      document.getElementById('videoSourceDate').value = '';
-      document.getElementById('videoSourceCreatorId').value = '';
-      document.getElementById('videoSourceVideoId').value = '';
-      renderVideoSourceTable();
-    });
-    document.getElementById('videoSourceBody').addEventListener('click', function(e) {
-      var btn = e.target.closest('[data-source-video-id]');
-      if (!btn) return;
-      var videoId = btn.getAttribute('data-source-video-id');
-      var record = videoSourceManageData.find(function(item) { return item.videoId === videoId; });
-      openEditVideoSourceModal(record);
-    });
-    document.getElementById('btnCloseEditVideoSource').addEventListener('click', closeEditVideoSourceModal);
-    document.getElementById('btnCancelEditVideoSource').addEventListener('click', closeEditVideoSourceModal);
-    document.getElementById('editVideoSourceModal').addEventListener('click', function(e) { if (e.target === this) closeEditVideoSourceModal(); });
-    document.getElementById('btnSaveEditVideoSource').addEventListener('click', function() {
-      if (!editingVideoSourceRecord) return;
-      var productName = document.getElementById('editSourceProductName').value.trim();
-      if (!productName) {
-        alert('请输入商品名称');
-        return;
-      }
-      editingVideoSourceRecord.productName = productName;
-      renderVideoSourceTable();
-      closeEditVideoSourceModal();
-      showToast();
-    });
-    document.getElementById('btnSave').addEventListener('click', function() {
-      if (editingVideo) {
-        editingVideo.owner = document.getElementById('editOwner').value;
-        editingVideo.authCode = document.getElementById('editAuthCode').value.trim();
-        editingVideo.color = document.getElementById('editColor').value.trim();
-        editingVideo.sampleOwner = document.getElementById('editSampleOwner').value.trim();
-        editingVideo.remark = document.getElementById('editRemark').value.trim();
-        renderRows();
-      }
-      closeDrawer();
-      showToast();
-    });
-    renderRows();
+    document.getElementById('btnSave').addEventListener('click', saveDrawer);
+    renderCounts(); renderRows();
   </script>
 </body>
 </html>

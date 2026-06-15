@@ -6,7 +6,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
-  <title>缺补货 — 需求文档</title>
+  <title>发补货 — 需求文档</title>
   <style>
     :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --note-bg: #eff6ff; --note-text: #1d4ed8; }
     * { box-sizing: border-box; }
@@ -42,8 +42,8 @@
 </head>
 <body>
   <div class="doc">
-    <h1>缺补货 — 需求文档</h1>
-    <blockquote>本文档已根据 <code>6月4日-TK备货&amp;补货TikTok_IT需求说明_v2.0.docx</code> 与当前原型 <code>htmls/缺补货看板-1.0.html</code> 重写；历史 SPU 冗余、发货/补货旧口径内容已移除。</blockquote>
+    <h1>发补货 — 需求文档</h1>
+    <blockquote>本文档已根据 <code>6月4日-TK备货&amp;补货TikTok_IT需求说明_v2.0.docx</code> 与当前原型 <code>htmls/发补货看板-1.0.html</code> 重写；历史 SPU 冗余、发货/补货旧口径内容已移除。</blockquote>
 
     <h2>一、需求背景与目标</h2>
     <p>本文档面向 IT 开发团队，用于落地「TikTok 美国站库存看板 + 备货决策模型」系统。文档包含：</p><p>模块一：TK 库存检查看板（PID/SKU 维度）——库存字段定义、数据来源、计算逻辑</p><p>模块二：备货决策模型——销售预测、生命周期判断、SKU 分层、目标库存计算、是否备货决策</p><p>系统共依赖以下 5 张源数据表，均从积加 ERP 导出或通过 API/RPA 获取：</p>
@@ -56,8 +56,8 @@
 
     <h2>二、原型入口与页面范围</h2>
     <ul>
-      <li>原型页：<a href="htmls/缺补货看板-1.0.html">缺补货看板-1.0.html</a>。</li>
-      <li>页面仅保留 <strong>备货决策模型</strong> 一个列表视图；历史 <code>SPU冗余检视</code>、<code>发货</code>、<code>发货+补货总和</code> 页签已从原型移除。</li>
+      <li>原型页：<a href="htmls/发补货看板-1.0.html">发补货看板-1.0.html</a>。</li>
+      <li>页面仅保留 <strong>备货决策模型</strong> 一个列表视图；历史 <code>SPU冗余检视</code>、<code>发货</code>、<code>发补货总和</code> 页签已从原型移除。</li>
       <li>筛选区保留站点、SKU/SPU 搜索、查询、重置；不再展示数据日期筛选，列表也不展示时间列。</li>
       <li>列表基础列为：<code>站点</code>、<code>SPU</code>、<code>SKU</code>、<code>SKU中文名称</code>。</li>
       <li>列表业务字段严格按 Word 文档第三模块开始的有序号字段展示，共 <strong>48</strong> 个。</li>
@@ -101,7 +101,7 @@
     <h3>8.2 待 IT 确认事项</h3>
     <div class="table-wrap"><table><thead><tr><th>#</th><th>待确认问题</th><th>当前假设</th><th>IT反馈</th></tr></thead><tbody><tr><td>1</td><td>FBT库存（积加-FBT可用、FBT在途量）能否通过积加API抓取，还是需要RPA？</td><td>可以通过积加平台仓库存导出</td><td></td></tr><tr><td>2</td><td>VOC数据接入方式：RPA定时抓取还是TikTok Open API？刷新频率？</td><td>优先RPA，每日一次</td><td></td></tr><tr><td>3</td><td>多平台销售表现数据是否可以通过积加API定时拉取？还是每日人工导出？</td><td>希望API自动拉取</td><td>商品统计已经实现了</td></tr><tr><td>4</td><td>FBT子仓明细（FC03_ATL1等15+个仓）是否可通过TikTok API获取各仓可用量？</td><td>当前从TK店铺后台手工导出</td><td></td></tr><tr><td>5</td><td>积加-商品管理-可用库存（店铺侧同步库存）数据是否需要接入？（当前已从需求范围删除，如有需要可恢复）</td><td>已从本期范围删除</td><td></td></tr><tr><td>6</td><td>生命周期判断中&quot;连续2个补货观察周期&quot;的观察周期长度如何定义（建议以7天为一个周期）？</td><td>以7天为一个周期</td><td></td></tr><tr><td>7</td><td>人工override字段（生命周期、是否内容爆发）是否需要记录修改人和修改时间？</td><td>建议记录，便于追溯</td><td></td></tr><tr><td>8</td><td>发货模型：直邮日均销量能否从积加按渠道单独拉取（区分直邮订单和TK店铺订单）？用于计算直邮预留量</td><td>希望可单独拉取</td><td></td></tr><tr><td>9</td><td>发货模型：系统是否支持联动提示（补货+发货同时触发时输出综合行动指令）？还是分开展示？</td><td>建议联动提示，在看板上统一展示</td><td></td></tr><tr><td>10</td><td>发货模型：最小批量21KG的件数换算是否需要在系统内按SKU品类维护（卫衣/T恤不同）？</td><td>建议支持按SKU品类配置</td><td></td></tr></tbody></table></div>
 
-    <p class="back"><a href="../index.html">返回库存目录</a> ｜ <a href="htmls/缺补货看板-1.0.html">查看原型页</a></p>
+    <p class="back"><a href="../index.html">返回库存目录</a> ｜ <a href="htmls/发补货看板-1.0.html">查看原型页</a></p>
   </div>
 </body>
 </html>

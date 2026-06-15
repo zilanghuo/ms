@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>寄样管理需求文档</title>
   <style>
-    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --danger: #dc2626; --warning: #f59e0b; --success: #16a34a; }
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --danger: #dc2626; --warning: #f59e0b; --success: #16a34a; --info: #2563eb; }
     * { box-sizing: border-box; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
-    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    .doc { max-width: 1360px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
     h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
     h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
     h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
@@ -17,15 +17,20 @@
     li { margin: 0.25rem 0; }
     hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
     .note { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid var(--accent); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .warning { background: #fff7ed; border-color: #fed7aa; border-left-color: var(--warning); }
     .table-wrap { overflow-x: auto; margin: 1rem 0; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 880px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.84rem; min-width: 960px; }
+    .wide-table { min-width: 1320px; }
     th, td { padding: 0.45rem 0.65rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
     th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
     tr:hover td { background: #f9fafb; }
     code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
-    .badge { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; }
+    .badge { display: inline-block; padding: 0.1rem 0.45rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
     .badge-high { background: #fee2e2; color: var(--danger); }
-    .badge-medium { background: #fef3c7; color: #b45309; }
+    .badge-required { background: #fee2e2; color: var(--danger); }
+    .badge-calc { background: #dbeafe; color: var(--info); }
+    .badge-hidden { background: #f1f5f9; color: #475569; }
+    .badge-filter { background: #dcfce7; color: #15803d; }
     .back { margin-top: 2rem; font-size: 0.9rem; }
     .back a { color: var(--accent); text-decoration: none; }
     .back a:hover { text-decoration: underline; }
@@ -34,26 +39,28 @@
 <body>
   <div class="doc">
     <h1>寄样管理需求文档</h1>
-    <p>本文档对应 <code>bi/tkDashboard/管理模块/寄样管理/寄样管理.html</code>，用于明确寄样记录的列表展示、筛选、编辑保存、数据来源与字段口径。</p>
-    <div class="note"><strong>核心口径：</strong>寄样订单信息可通过 TikTok 订单拉取；达人信息通过账号维护数据进行填充；页面编辑保存后，人工维护字段以寄样管理保存结果为准。</div>
+    <p>本文档对应 <code>bi/tkDashboard/管理模块/寄样管理/寄样管理.html</code>，依据最新 <code>TikTok_IT映射表_寄样管理.xlsx</code> 的 <code>映射表</code> sheet 更新，用于明确寄样管理页面的列表展示、筛选、编辑、导出、数据来源与字段口径。</p>
+    <div class="note"><strong>核心口径：</strong>一级模块为「寄样管理」；二级模块对应页面表单分区，包括达人信息、商品信息、订单信息、业务信息。字段名称、字段解释、数据来源、计算逻辑、使用功能均以最新 Excel 映射表为准。</div>
 
     <h2>一、需求概述</h2>
     <table>
       <tr><th>需求名称</th><td>寄样管理</td></tr>
       <tr><th>所属模块</th><td>tkDashboard / 管理模块</td></tr>
       <tr><th>原型页面</th><td><code>管理模块/寄样管理/寄样管理.html</code></td></tr>
+      <tr><th>需求来源</th><td><code>管理模块/寄样管理/TikTok_IT映射表_寄样管理.xlsx</code> / <code>映射表</code></td></tr>
       <tr><th>优先级</th><td><span class="badge badge-high">高</span></td></tr>
       <tr><th>目标用户</th><td>商务、运营、寄样跟进人员、管理人员。</td></tr>
-      <tr><th>核心价值</th><td>统一管理达人寄样过程，将 TK 样品订单、达人账号档案、寄样商务维护信息合并到一个可查询、可编辑、可导出的寄样台账。</td></tr>
+      <tr><th>核心价值</th><td>统一管理达人寄样过程，将达人账号档案、商品档案、寄样订单与业务维护信息沉淀为可查询、可编辑、可导出的寄样台账。</td></tr>
     </table>
 
     <h3>1.1 建设目标</h3>
     <ol>
-      <li>支持查看寄样列表，按寄样状态、合作阶段、达人等级、寄样商务、达人 / 商品 / 订单关键字筛选。</li>
-      <li>支持新增寄样、编辑寄样、删除寄样、导出寄样记录、逾期提醒。</li>
-      <li>寄样订单信息从 TikTok 订单中拉取，样品订单可通过订单详情中的 <code>is_sample_order</code> 标识识别。</li>
-      <li>达人信息优先从账号维护数据填充，减少人工重复录入达人 ID、达人名称、达人性别、账号归属等信息。</li>
-      <li>编辑保存后写入寄样维护数据，后续列表与导出优先展示最新维护值。</li>
+      <li>支持按达人信息、商品信息、订单信息、业务信息管理寄样记录。</li>
+      <li>支持列表查看、组合筛选、关键字模糊 / 精确搜索、逾期提醒、导出、新增、编辑、删除。</li>
+      <li>支持达人 ID 与账号维护模块联动，自动带出达人名字、达人等级、达人性别、是否开单达人。</li>
+      <li>支持寄样主SKU与商品档案联动，自动带出商品名称，并可关联查看商品详情。</li>
+      <li>以「达人ID（TIKTOK ID）+ 寄样SKU」作为查重主键，第二条相同组合自动标注补寄。</li>
+      <li>寄样时间按 UTC 存储，前端支持 PT / CST 双时区展示；寄样月份由寄样时间自动计算。</li>
     </ol>
 
     <hr />
@@ -66,133 +73,177 @@
           <tr><th>筛选项</th><th>页面控件</th><th>取值 / 规则</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td>寄样状态</td><td>下拉</td><td>已履约、运输中、签收待履约、待发货、已发货、已签收、签收异常。</td><td>用于识别寄样进度和异常记录。</td></tr>
-          <tr><td>合作阶段</td><td>下拉</td><td>首次合作、二次合作、多次合作。</td><td>用于区分达人的合作生命周期。</td></tr>
-          <tr><td>达人等级</td><td>下拉</td><td>L3以下、L3、L4、L5、L6、L6+。</td><td>用于按达人等级筛选寄样记录。</td></tr>
-          <tr><td>寄样商务</td><td>下拉</td><td>Alice Chen、Bob Wang 等人员。</td><td>来源于寄样维护数据或账号维护归属人员。</td></tr>
-          <tr><td>达人 / 商品 / 订单</td><td>组合搜索</td><td><code>searchField</code> + 模糊 / 精确 + 关键字。</td><td>支持达人 ID、达人名字、寄样 SKU、寄样主 SPU、TK 订单号搜索。</td></tr>
-          <tr><td>逾期提醒</td><td>按钮筛选</td><td>默认筛选需跟进的运输中或逾期记录。</td><td>用于快速定位寄样物流或履约异常。</td></tr>
+          <tr><td>寄样状态</td><td>下拉</td><td>待发货、已发货、运输中、已签收、签收异常、签收待履约、已履约。</td><td>必填业务字段，支持按状态筛选寄样流程节点。</td></tr>
+          <tr><td>合作阶段</td><td>下拉</td><td>首次合作、二次合作、多次合作。</td><td>用于区分与达人的合作次数阶段。</td></tr>
+          <tr><td>达人等级</td><td>下拉</td><td>L3以下、L3、L4、L5、L6、L6+。</td><td>从账号维护带出，支持等级筛选。</td></tr>
+          <tr><td>达人性别</td><td>下拉</td><td>男、女、未知。</td><td>从账号维护带出，支持性别筛选。</td></tr>
+          <tr><td>是否开单达人</td><td>下拉</td><td>是、否。</td><td>从账号维护带出，支持筛选历史有出单记录的达人。</td></tr>
+          <tr><td>寄样商务</td><td>下拉</td><td>商务人员姓名。</td><td>寄样业务必填字段，支持按人员筛选。</td></tr>
+          <tr><td>寄样主SKU</td><td>下拉 / 输入</td><td>主款号，不含颜色尺码后缀。</td><td>支持按主SKU筛选，并与商品档案关联。</td></tr>
+          <tr><td>合作店铺</td><td>下拉</td><td>Faiable Fashion、Faiable Days、Faiable Comfywear、Faiable Chic。</td><td>默认隐藏列字段，但支持按店铺筛选。</td></tr>
+          <tr><td>合作站点</td><td>下拉</td><td>US、UK、EU、CA、JP、AU、DE、FR、MX、BR。</td><td>默认隐藏列字段，但支持按站点筛选。</td></tr>
+          <tr><td>寄样月份</td><td>下拉</td><td>由寄样时间自动生成，格式如 2025年8月。</td><td>支持按月份筛选和排序。</td></tr>
+          <tr><td>寄样时间范围</td><td>日期范围</td><td>按寄样时间筛选，底层存储为 UTC。</td><td>前端可按 PT / CST 展示，查询时统一换算。</td></tr>
+          <tr><td>关键字搜索</td><td>字段 + 搜索方式 + 输入框</td><td>支持达人ID、达人名字、寄样SKU、寄样主SKU、商品名称、定向Product ID、积加订单编号。</td><td>支持模糊搜索和精确搜索。</td></tr>
+          <tr><td>逾期提醒</td><td>快捷按钮</td><td>快速定位运输中、签收待履约或超过配置时限仍未处理的记录。</td><td>异常或超时记录在列表中高亮。</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3>2.2 列表字段</h3>
+    <p>原型列表展示核心字段；映射表中标注默认隐藏的字段不作为列表默认列，但可在编辑弹窗维护，导出时应包含完整字段。</p>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>字段</th><th>来源</th><th>说明</th></tr>
+          <tr><th>展示顺序</th><th>列表字段</th><th>说明</th><th>交互</th></tr>
         </thead>
         <tbody>
-          <tr><td>寄样时间</td><td>TK 订单 / 人工维护</td><td>寄样订单生成或寄样记录创建时间；用于生成寄样月份。</td></tr>
-          <tr><td>寄样月份</td><td>系统计算</td><td>由寄样时间归属到月份，如 2025年8月。</td></tr>
-          <tr><td>达人ID</td><td>账号维护 / TK 订单</td><td>达人唯一标识，优先匹配账号维护数据。</td></tr>
-          <tr><td>达人名字</td><td>账号维护</td><td>达人 Handle 或展示名称，由账号维护填充。</td></tr>
-          <tr><td>寄样商务</td><td>账号维护 / 人工维护</td><td>默认可由账号维护的运营或归属人员带出，允许寄样记录中编辑覆盖。</td></tr>
-          <tr><td>寄样SKU</td><td>TK 订单 / 人工维护</td><td>样品订单中的商品 SKU；编辑时可修正。</td></tr>
-          <tr><td>寄样主SPU</td><td>商品档案 / 人工维护</td><td>寄样商品归属主 SPU。</td></tr>
-          <tr><td>TK订单编号</td><td>TK 订单</td><td>样品订单编号，用于回查订单明细。</td></tr>
-          <tr><td>寄样状态</td><td>TK 订单 / 物流 / 人工维护</td><td>展示寄样进度：待发货、已发货、运输中、已签收、签收待履约、已履约、签收异常等。</td></tr>
-          <tr><td>合作阶段</td><td>人工维护</td><td>首次合作、二次合作、多次合作。</td></tr>
-          <tr><td>达人等级</td><td>账号维护 / 人工维护</td><td>达人等级，可由账号维护或达人档案带出。</td></tr>
-          <tr><td>达人性别</td><td>账号维护</td><td>达人账号定位性别。</td></tr>
-          <tr><td>是否开单达人</td><td>订单统计 / 人工维护</td><td>根据达人是否产生订单或业务维护结果展示是 / 否。</td></tr>
-          <tr><td>操作</td><td>页面操作</td><td>支持编辑、删除。</td></tr>
+          <tr><td>1</td><td>寄样时间</td><td>寄样操作时间，UTC 存储，前端按 PT / CST 展示。</td><td>支持排序、时间范围筛选。</td></tr>
+          <tr><td>2</td><td>寄样月份</td><td>由寄样时间自动生成，格式如 2025年8月。</td><td>支持筛选、排序。</td></tr>
+          <tr><td>3</td><td>达人ID（TIKTOK ID）</td><td>达人在 TikTok 平台的账号 ID。</td><td>支持精确 / 模糊搜索；与账号维护联动。</td></tr>
+          <tr><td>4</td><td>达人名字</td><td>达人 TikTok 昵称。</td><td>从账号维护自动带出，支持模糊搜索。</td></tr>
+          <tr><td>5</td><td>达人等级</td><td>达人当前等级分层。</td><td>支持筛选、排序。</td></tr>
+          <tr><td>6</td><td>达人性别</td><td>达人性别。</td><td>支持筛选。</td></tr>
+          <tr><td>7</td><td>是否开单达人</td><td>该达人是否为历史有出单记录的达人。</td><td>支持筛选。</td></tr>
+          <tr><td>8</td><td>寄样SKU</td><td>本次寄样的具体 SKU 编码，含颜色尺码。</td><td>必填；与达人ID组合作为查重主键。</td></tr>
+          <tr><td>9</td><td>寄样主SKU</td><td>寄样商品主款号，不含颜色尺码后缀。</td><td>必填；支持筛选；可关联商品档案。</td></tr>
+          <tr><td>10</td><td>商品名称</td><td>寄样商品中文名称。</td><td>由商品档案带出，支持模糊搜索。</td></tr>
+          <tr><td>11</td><td>定向Product ID</td><td>定向合作时指定的 TikTok 商品 PID。</td><td>选填；支持精确搜索。</td></tr>
+          <tr><td>12</td><td>积加订单编号</td><td>积加 ERP 系统中的寄样订单编号。</td><td>选填；支持精确搜索。</td></tr>
+          <tr><td>13</td><td>寄样商务</td><td>负责本次寄样的商务人员姓名。</td><td>必填；支持筛选、排序。</td></tr>
+          <tr><td>14</td><td>寄样状态</td><td>当前寄样流程所处状态节点。</td><td>必填；支持筛选、排序；异常状态高亮。</td></tr>
+          <tr><td>15</td><td>合作阶段</td><td>本次寄样与该达人的合作次数阶段。</td><td>支持筛选、排序。</td></tr>
+          <tr><td>16</td><td>操作</td><td>编辑、删除。</td><td>编辑打开弹窗；删除按逻辑删除处理。</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>2.3 汇总展示</h3>
-    <ul>
-      <li><strong>总记录数</strong>：展示当前筛选条件下的寄样记录数。</li>
-      <li><strong>已履约</strong>：状态为已履约的记录数。</li>
-      <li><strong>待跟进</strong>：非已履约且非异常状态的记录数。</li>
-      <li><strong>异常</strong>：状态包含异常的记录数，如签收异常。</li>
-    </ul>
-
     <hr />
 
-    <h2>三、新增 / 编辑寄样</h2>
-    <p>点击“新增寄样”或列表“编辑”进入右侧抽屉。抽屉分为达人信息、商品信息、订单信息、业务信息四部分。</p>
+    <h2>三、编辑弹窗</h2>
+    <p>编辑弹窗按 Excel 的二级模块分组，覆盖全部 25 个目标字段。保存后，人工维护字段以寄样管理保存结果为准。</p>
     <div class="table-wrap">
       <table>
         <thead>
-          <tr><th>区域</th><th>字段</th><th>来源 / 默认值</th><th>保存规则</th></tr>
+          <tr><th>分区</th><th>字段</th><th>来源 / 规则</th><th>要求</th></tr>
         </thead>
         <tbody>
-          <tr><td>达人信息</td><td>达人ID、达人名字、达人性别、达人等级、是否开单达人</td><td>账号维护数据优先填充；TK 订单中有达人标识时用于关联。</td><td>允许编辑保存，达人 ID 为必填。</td></tr>
-          <tr><td>商品信息</td><td>定向 Product ID、寄样主SPU、寄样SKU、商品名称、寄样颜色、尺码、寄样数量</td><td>TK 样品订单与商品档案。</td><td>寄样主SPU、寄样SKU、寄样数量为必填；保存后覆盖寄样台账展示值。</td></tr>
-          <tr><td>订单信息</td><td>TK订单编号、合作店铺、合作站点、寄样渠道、物流状态、补寄情况</td><td>TK 订单、物流状态、人工维护。</td><td>TK订单编号用于回查订单；物流状态和补寄情况可人工维护。</td></tr>
-          <tr><td>业务信息</td><td>寄样商务、寄样时间、寄样状态、合作阶段、达人佣金、备注</td><td>账号维护归属人员、TK 订单时间、人工维护。</td><td>寄样商务、寄样时间、寄样状态、达人佣金为必填；保存后刷新列表和更新时间。</td></tr>
+          <tr><td>达人信息</td><td>达人ID（TIKTOK ID）、达人名字、达人等级、达人性别、是否开单达人</td><td>达人ID可手工录入；其余字段输入达人ID后从账号维护匹配带出。</td><td>达人ID必填；达人ID + 寄样SKU 作为查重主键。</td></tr>
+          <tr><td>商品信息</td><td>寄样SKU、寄样主SKU、商品名称、定向Product ID、寄样颜色、寄样尺码、寄样数量</td><td>寄样SKU、寄样主SKU、定向Product ID、颜色、尺码、数量手工维护；商品名称按寄样主SKU从商品档案带出。</td><td>寄样SKU、寄样主SKU、寄样数量必填；寄样数量默认 1。</td></tr>
+          <tr><td>订单信息</td><td>积加订单编号、合作店铺、合作站点、寄样渠道、物流状态、补寄情况</td><td>订单字段手工维护；补寄情况可系统自动标注或手工录入。</td><td>合作店铺、合作站点、寄样渠道使用枚举；物流状态为自由文本。</td></tr>
+          <tr><td>业务信息</td><td>寄样时间、寄样月份、寄样商务、寄样状态、合作阶段、达人佣金、备注</td><td>寄样时间、商务、状态、阶段、佣金、备注手工维护；寄样月份由寄样时间自动计算。</td><td>寄样时间、寄样商务、寄样状态、达人佣金必填。</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3>3.1 保存规则</h3>
     <ol>
-      <li>点击保存时校验必填项：达人ID、寄样主SPU、寄样SKU、寄样数量、寄样商务、寄样时间、寄样状态、达人佣金。</li>
-      <li>来自 TK 订单的字段可作为默认值；业务人员在页面编辑后，寄样维护表中的值作为最终展示值。</li>
-      <li>来自账号维护的达人字段可自动填充；若页面编辑保存了不同值，应记录为寄样记录的人工维护值，不直接反写账号维护。</li>
-      <li>保存后关闭抽屉，刷新列表、汇总数据和数据更新时间。</li>
-      <li>删除操作为逻辑删除，记录进入回收站或删除状态，不直接物理删除原始订单数据。</li>
+      <li>保存时校验必填项：达人ID（TIKTOK ID）、寄样SKU、寄样主SKU、寄样数量、寄样时间、寄样商务、寄样状态、达人佣金。</li>
+      <li>输入达人ID后，系统从账号维护匹配并带出达人名字、达人等级、达人性别、是否开单达人。</li>
+      <li>输入寄样主SKU后，系统从商品档案匹配并带出商品名称，可用于关联查看商品详情。</li>
+      <li>同一达人ID + 同一寄样SKU第二次出现时，系统自动在补寄情况中填入「补寄」。</li>
+      <li>寄样时间统一存储为 UTC ISO 字符串；寄样月份根据寄样时间自动生成。</li>
+      <li>删除操作按逻辑删除处理，不直接物理删除原始订单或维护数据。</li>
     </ol>
 
     <hr />
 
-    <h2>四、数据来源与处理流程</h2>
-    <h3>4.1 数据来源</h3>
+    <h2>四、字段映射明细</h2>
+    <div class="table-wrap">
+      <table class="wide-table">
+        <thead>
+          <tr><th>模块</th><th>序号</th><th>目标字段名</th><th>字段解释</th><th>数据来源</th><th>数据源字段名</th><th>计算逻辑 / 筛选条件</th><th>功能要求</th><th>备注</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>达人信息</td><td>1</td><td>达人ID（TIKTOK ID） <span class="badge badge-required">必填</span></td><td>达人在TikTok平台的账号ID，作为唯一标识与账号维护模块关联。</td><td>手工录入 / 账号维护关联</td><td><code>tiktokId</code></td><td>-</td><td>支持精确 / 模糊搜索；与账号维护模块联动带出达人昵称、等级、性别。</td><td>查重主键之一，与寄样SKU组合。</td></tr>
+          <tr><td>达人信息</td><td>2</td><td>达人名字 <span class="badge badge-calc">带出</span></td><td>达人TikTok昵称，从账号维护模块自动带出。</td><td>账号维护关联带出</td><td><code>nickname</code></td><td>输入达人ID后自动从账号维护表中匹配带出。</td><td>展示字段；支持模糊搜索。</td><td>-</td></tr>
+          <tr><td>达人信息</td><td>3</td><td>达人等级 <span class="badge badge-calc">带出</span></td><td>达人当前等级分层，从账号维护模块自动带出。</td><td>账号维护关联带出</td><td><code>influencerLevel</code></td><td>输入达人ID后自动从账号维护表中匹配带出。</td><td>支持按等级筛选；枚举：L3以下 / L3 / L4 / L5 / L6 / L6+。</td><td>-</td></tr>
+          <tr><td>达人信息</td><td>4</td><td>达人性别 <span class="badge badge-calc">带出</span></td><td>达人性别，从账号维护模块自动带出。</td><td>账号维护关联带出</td><td><code>influencerGender</code></td><td>输入达人ID后自动从账号维护表中匹配带出。</td><td>支持按性别筛选；枚举：男 / 女 / 未知。</td><td>-</td></tr>
+          <tr><td>达人信息</td><td>5</td><td>是否开单达人 <span class="badge badge-calc">带出</span></td><td>该达人是否为历史有出单记录的达人。</td><td>账号维护关联带出</td><td><code>isOrderInfluencer</code></td><td>输入达人ID后自动从账号维护表中匹配带出。</td><td>支持筛选；枚举：是 / 否。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>6</td><td>寄样SKU <span class="badge badge-required">必填</span></td><td>本次寄样的具体SKU编码，含颜色尺码。</td><td>手工录入</td><td><code>sampleSku</code></td><td>-</td><td>与达人ID组合作为查重主键；支持模糊搜索。</td><td>同一达人ID + 同一SKU第二条记录自动标注「补寄」。</td></tr>
+          <tr><td>商品信息</td><td>7</td><td>寄样主SKU <span class="badge badge-required">必填</span></td><td>寄样商品的主款号，不含颜色尺码后缀。</td><td>手工录入</td><td><code>mainSku</code></td><td>-</td><td>支持按主SKU筛选；可与商品档案关联查看商品详情。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>8</td><td>商品名称 <span class="badge badge-calc">带出</span></td><td>寄样商品的中文名称，从商品档案自动带出。</td><td>商品档案关联带出</td><td><code>productName</code></td><td>根据寄样主SKU从商品档案中匹配带出商品中文名。</td><td>展示字段；支持模糊搜索。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>9</td><td>定向Product ID</td><td>定向合作时指定的TikTok商品PID，非定向合作可为空。</td><td>手工录入</td><td><code>targetProductId</code></td><td>-</td><td>选填字段；支持精确搜索。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>10</td><td>寄样颜色 <span class="badge badge-hidden">默认隐藏</span></td><td>本次寄样商品的颜色。</td><td>手工录入</td><td><code>sampleColor</code></td><td>-</td><td>选填字段；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>11</td><td>寄样尺码 <span class="badge badge-hidden">默认隐藏</span></td><td>本次寄样商品的尺码。</td><td>手工录入</td><td><code>sampleSize</code></td><td>-</td><td>选填字段；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>商品信息</td><td>12</td><td>寄样数量 <span class="badge badge-required">必填</span> <span class="badge badge-hidden">默认隐藏</span></td><td>本次寄样的商品件数。</td><td>手工录入</td><td><code>sampleQty</code></td><td>-</td><td>必填字段，默认为1；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>订单信息</td><td>13</td><td>积加订单编号</td><td>在积加ERP系统中的寄样订单编号。</td><td>手工录入</td><td><code>jijiaOrderNo</code></td><td>-</td><td>选填字段；支持精确搜索。</td><td>-</td></tr>
+          <tr><td>订单信息</td><td>14</td><td>合作店铺 <span class="badge badge-filter">筛选</span> <span class="badge badge-hidden">默认隐藏</span></td><td>本次寄样挂靠的TikTok店铺。</td><td>手工录入</td><td><code>coopShop</code></td><td>-</td><td>枚举：Faiable Fashion / Faiable Days / Faiable Comfywear / Faiable Chic。</td><td>支持按店铺筛选。</td></tr>
+          <tr><td>订单信息</td><td>15</td><td>合作站点 <span class="badge badge-filter">筛选</span> <span class="badge badge-hidden">默认隐藏</span></td><td>本次寄样对应的销售站点。</td><td>手工录入</td><td><code>coopSite</code></td><td>-</td><td>枚举：US / UK / EU / CA / JP / AU / DE / FR / MX / BR。</td><td>支持按站点筛选。</td></tr>
+          <tr><td>订单信息</td><td>16</td><td>寄样渠道 <span class="badge badge-hidden">默认隐藏</span></td><td>寄样的发货渠道方式。</td><td>手工录入</td><td><code>sampleChannel</code></td><td>-</td><td>枚举：线上 / 线下；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>订单信息</td><td>17</td><td>物流状态 <span class="badge badge-hidden">默认隐藏</span></td><td>当前快递物流状态，手工维护。</td><td>手工录入</td><td><code>logisticsStatus</code></td><td>-</td><td>自由文本；默认隐藏列。</td><td>如：FedEx 已揽收 / DHL 运输中 / 已签收。</td></tr>
+          <tr><td>订单信息</td><td>18</td><td>补寄情况 <span class="badge badge-calc">计算</span> <span class="badge badge-hidden">默认隐藏</span></td><td>是否为补寄，以及补寄原因说明。</td><td>系统自动标注 / 手工录入</td><td><code>reshipNote</code></td><td>同一达人ID + 同一寄样SKU出现第二条记录时，系统自动填入「补寄」。</td><td>展示字段；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>业务信息</td><td>19</td><td>寄样时间 <span class="badge badge-required">必填</span></td><td>寄样操作时间，存储为UTC时间，前端按PT/CST双时区展示。</td><td>手工录入</td><td><code>sampleTimeUtc</code></td><td>-</td><td>支持按时间范围筛选；支持排序；前端可切换PT/CST时区显示。</td><td>存储为UTC ISO字符串。</td></tr>
+          <tr><td>业务信息</td><td>20</td><td>寄样月份 <span class="badge badge-calc">计算</span></td><td>寄样时间所属的年月，用于按月汇总统计。</td><td>系统自动计算</td><td><code>sampleMonth</code></td><td>根据寄样时间（UTC）自动生成，格式：2025年8月。</td><td>支持按月份筛选；支持排序。</td><td>-</td></tr>
+          <tr><td>业务信息</td><td>21</td><td>寄样商务 <span class="badge badge-required">必填</span></td><td>负责本次寄样的商务人员姓名。</td><td>手工录入</td><td><code>bizPerson</code></td><td>-</td><td>支持按商务人员筛选。</td><td>-</td></tr>
+          <tr><td>业务信息</td><td>22</td><td>寄样状态 <span class="badge badge-required">必填</span></td><td>当前寄样流程所处的状态节点。</td><td>手工录入</td><td><code>sampleStatus</code></td><td>-</td><td>枚举：待发货 / 已发货 / 运输中 / 已签收 / 签收异常 / 签收待履约 / 已履约。</td><td>支持按状态筛选。</td></tr>
+          <tr><td>业务信息</td><td>23</td><td>合作阶段</td><td>本次寄样与该达人的合作次数阶段。</td><td>手工录入</td><td><code>coopStage</code></td><td>-</td><td>枚举：首次合作 / 二次合作 / 多次合作。</td><td>支持筛选。</td></tr>
+          <tr><td>业务信息</td><td>24</td><td>达人佣金 <span class="badge badge-required">必填</span> <span class="badge badge-hidden">默认隐藏</span></td><td>本次合作约定的达人佣金比例。</td><td>手工录入</td><td><code>commission</code></td><td>-</td><td>如：10% / 12% / 15%；默认隐藏列。</td><td>-</td></tr>
+          <tr><td>业务信息</td><td>25</td><td>备注 <span class="badge badge-hidden">默认隐藏</span></td><td>补充说明信息。</td><td>手工录入</td><td><code>remark</code></td><td>-</td><td>自由文本；默认隐藏列。</td><td>-</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr />
+
+    <h2>五、数据来源与处理流程</h2>
+    <h3>5.1 数据来源</h3>
     <div class="table-wrap">
       <table>
         <thead>
           <tr><th>来源</th><th>用途</th><th>关键字段</th><th>说明</th></tr>
         </thead>
         <tbody>
-          <tr><td>TikTok 订单</td><td>拉取寄样订单基础信息。</td><td>TK订单编号、下单 / 寄样时间、店铺、站点、商品 ID、SKU、数量、物流状态、<code>is_sample_order</code>。</td><td>通过订单详情中的样品订单标识识别寄样订单。</td></tr>
-          <tr><td>账号维护</td><td>填充达人信息和归属信息。</td><td>TikTok UID、Handle Name、账号定位性别、运营人员、内容挂车店铺、账号状态。</td><td>达人 ID 或账号 Handle 与订单达人信息匹配后带出。</td></tr>
-          <tr><td>商品档案</td><td>补充寄样主SPU、商品名称、商品品类等。</td><td>PID、SPU、SKU、产品主 SKU、商品中文名、主图、品牌、品类。</td><td>用于将订单 SKU 与业务商品主数据打通。</td></tr>
-          <tr><td>寄样维护数据</td><td>保存页面编辑字段。</td><td>达人等级、合作阶段、寄样商务、达人佣金、补寄情况、备注、人工修正字段。</td><td>人工维护字段优先展示。</td></tr>
+          <tr><td>手工录入 / 寄样维护数据</td><td>维护寄样业务字段和人工补充字段。</td><td>达人ID、寄样SKU、寄样主SKU、定向Product ID、积加订单编号、合作店铺、合作站点、寄样渠道、物流状态、寄样时间、寄样商务、寄样状态、合作阶段、达人佣金、备注。</td><td>页面编辑保存后的人工维护值优先展示。</td></tr>
+          <tr><td>账号维护</td><td>根据达人ID自动带出达人信息。</td><td><code>tiktokId</code>、<code>nickname</code>、<code>influencerLevel</code>、<code>influencerGender</code>、<code>isOrderInfluencer</code>。</td><td>用于减少重复录入，并支持达人维度筛选。</td></tr>
+          <tr><td>商品档案</td><td>根据寄样主SKU自动带出商品信息。</td><td><code>mainSku</code>、<code>productName</code>。</td><td>用于将寄样SKU与商品主数据打通，可关联查看商品详情。</td></tr>
+          <tr><td>系统计算</td><td>生成计算字段和辅助标记。</td><td><code>sampleMonth</code>、<code>reshipNote</code>。</td><td>寄样月份由寄样时间计算；补寄情况由查重规则自动标注。</td></tr>
         </tbody>
       </table>
     </div>
 
-    <h3>4.2 处理流程</h3>
+    <h3>5.2 处理流程</h3>
     <ol>
-      <li>同步 TikTok 订单数据，筛选 <code>is_sample_order = true</code> 的样品订单。</li>
-      <li>按订单中的达人标识、账号 Handle 或 TikTok UID 关联账号维护数据，补充达人名字、达人性别、归属人员等信息。</li>
-      <li>按订单商品 ID / SKU 关联商品档案，补充寄样主SPU、商品名称、商品主数据。</li>
-      <li>合并寄样维护数据，覆盖或补齐人工编辑字段。</li>
-      <li>生成寄样管理列表，并按状态、阶段、等级、商务、关键字等条件查询。</li>
-      <li>点击编辑保存后，更新寄样维护数据；下次查询时以维护数据和最新订单状态合并展示。</li>
+      <li>业务人员新增或编辑寄样记录，录入达人ID、寄样SKU、寄样主SKU、寄样时间、寄样商务、寄样状态等必填字段。</li>
+      <li>系统根据达人ID关联账号维护，带出达人名字、达人等级、达人性别、是否开单达人。</li>
+      <li>系统根据寄样主SKU关联商品档案，带出商品名称，并保留定向Product ID、颜色、尺码、数量等寄样明细。</li>
+      <li>保存时按达人ID + 寄样SKU查重；同一组合第二条及之后记录，补寄情况自动标注「补寄」。</li>
+      <li>系统根据寄样时间生成寄样月份，并支持按时间范围、月份、状态、阶段、等级、性别、商务、店铺、站点等条件查询。</li>
+      <li>导出时包含列表字段和默认隐藏字段，保证映射表 25 个目标字段完整输出。</li>
     </ol>
 
-    <h3>4.3 数据覆盖优先级</h3>
+    <h3>5.3 数据覆盖优先级</h3>
     <ol>
-      <li>原始订单标识、TK订单编号等追溯字段以 TikTok 订单为准。</li>
-      <li>达人名称、性别、账号归属默认以账号维护为准。</li>
-      <li>商品 SPU、商品名称默认以商品档案为准。</li>
-      <li>寄样状态、商务、佣金、补寄情况、备注等业务维护字段以寄样管理编辑保存结果为准。</li>
+      <li>人工维护字段以寄样管理页面保存结果为准。</li>
+      <li>达人名字、达人等级、达人性别、是否开单达人默认以账号维护关联带出值为准。</li>
+      <li>商品名称默认以商品档案关联带出值为准。</li>
+      <li>寄样月份、补寄情况等计算字段由系统计算生成；如支持人工修正，应保留修正记录和操作人。</li>
     </ol>
 
     <hr />
 
-    <h2>五、导出与异常提醒</h2>
+    <h2>六、导出与异常提醒</h2>
     <ul>
-      <li><strong>导出</strong>：默认导出当前筛选条件下的寄样记录；字段应包含列表字段和编辑抽屉中的完整维护字段。</li>
+      <li><strong>导出</strong>：默认导出当前筛选条件下的寄样记录；字段应覆盖 Excel 映射表中的 25 个目标字段。</li>
+      <li><strong>默认隐藏字段</strong>：寄样颜色、寄样尺码、寄样数量、合作店铺、合作站点、寄样渠道、物流状态、补寄情况、达人佣金、备注不在列表默认展示，但需要在编辑弹窗维护并在导出中输出。</li>
       <li><strong>逾期提醒</strong>：用于快速筛选运输中、签收待履约或超过配置时限仍未履约的记录。</li>
       <li><strong>异常标记</strong>：签收异常、物流超时、补寄记录等需要在列表中高亮，并进入异常统计。</li>
-      <li><strong>数据更新时间</strong>：正式页面需要展示订单同步时间或寄样台账更新时间。</li>
+      <li><strong>数据更新时间</strong>：正式页面应展示寄样台账更新时间，便于判断数据新鲜度。</li>
     </ul>
 
     <hr />
 
-    <h2>六、验收标准</h2>
+    <h2>七、验收标准</h2>
     <ol>
-      <li>页面可从首页「管理模块 / 寄样管理」进入。</li>
-      <li>列表字段覆盖寄样时间、寄样月份、达人、商务、SKU、主SPU、TK订单编号、寄样状态、合作阶段、达人等级、达人性别、是否开单达人。</li>
-      <li>筛选区支持状态、阶段、等级、商务和达人 / 商品 / 订单组合搜索。</li>
-      <li>TK 样品订单可通过 <code>is_sample_order</code> 标识拉取并进入寄样列表。</li>
-      <li>达人信息可通过账号维护数据填充，并支持在寄样记录中编辑保存。</li>
-      <li>点击编辑可维护达人信息、商品信息、订单信息、业务信息，保存后刷新列表。</li>
-      <li>逾期提醒、异常记录和导出功能符合页面展示口径。</li>
+      <li>页面可从首页「管理模块 / 寄样管理」进入，并可跳转到寄样管理原型。</li>
+      <li>需求文档、原型页面与 <code>TikTok_IT映射表_寄样管理.xlsx</code> 字段一致，覆盖 25 个目标字段。</li>
+      <li>筛选区支持寄样状态、合作阶段、达人等级、达人性别、是否开单达人、寄样商务、寄样主SKU、合作店铺、合作站点、寄样月份、寄样时间范围和关键字搜索。</li>
+      <li>列表默认展示核心字段：寄样时间、寄样月份、达人ID、达人名字、达人等级、达人性别、是否开单达人、寄样SKU、寄样主SKU、商品名称、定向Product ID、积加订单编号、寄样商务、寄样状态、合作阶段。</li>
+      <li>编辑弹窗按达人信息、商品信息、订单信息、业务信息分区，并能维护所有非纯展示字段。</li>
+      <li>达人ID能联动账号维护带出达人信息；寄样主SKU能联动商品档案带出商品名称。</li>
+      <li>同一达人ID + 寄样SKU再次出现时，系统能自动标注补寄。</li>
+      <li>寄样时间按 UTC 存储，寄样月份自动计算，前端支持 PT / CST 展示口径。</li>
+      <li>导出字段覆盖完整映射表字段，逾期提醒和异常高亮符合原型展示口径。</li>
     </ol>
 
     <p class="back"><a href="寄样管理.html">查看寄样管理原型</a> &nbsp; <a href="../账号模块/账号维护.html">查看账号维护</a> &nbsp; <a href="../商品模块/商品档案.html">查看商品档案</a></p>
