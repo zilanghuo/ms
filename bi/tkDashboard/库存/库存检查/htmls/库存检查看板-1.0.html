@@ -873,10 +873,10 @@
           <thead>
               <tr>
                 <th class="th-group group-base sticky-base-group sku-base-group" colspan="9">产品基本信息</th>
-                <th class="th-group group-summary" colspan="3">总库存</th>
+                <th class="th-group group-summary" colspan="7">总库存</th>
                 <th class="th-group group-domestic" colspan="5">国内库存</th>
                 <th class="th-group group-oversea" colspan="8">海外在途总量</th>
-                <th class="th-group group-third" colspan="11">海外在库库存</th>
+                <th class="th-group group-third" colspan="9">海外在库库存</th>
                 <th class="th-group group-store-sync" colspan="1">店铺应该被同步的库存</th>
                 <th class="th-group group-store-actual" colspan="9">店铺实际被同步库存的情况</th>
                 <th class="th-group group-diff" colspan="9">库存差异</th>
@@ -895,6 +895,10 @@
                 <th class="sortable-num">总库存</th>
                 <th class="sortable-num">总在途库存</th>
                 <th class="sortable-num">总可用库存</th>
+                <th class="sortable-num">积加FBT可用库存占比</th>
+                <th class="sortable-num">积加FBT总库存占比</th>
+                <th class="sortable-num">店铺FBT可用库存占比</th>
+                <th class="sortable-num">店铺FBT总库存占比</th>
                 <th class="sortable-num">总国内库存</th>
                 <th class="sortable-num">采购在途库存</th>
                 <th class="sortable-num">工厂采购未交量</th>
@@ -915,8 +919,6 @@
                 <th class="sortable-num">积加-谷仓美西仓库</th>
                 <th class="sortable-num">积加-FBA仓库</th>
                 <th class="sortable-num">积加-FBT可用</th>
-                <th class="sortable-num">FBT可用库存占比</th>
-                <th class="sortable-num">FBT总库存占比</th>
                 <th class="sortable-num">三方仓可用量</th>
                 <th class="sortable-num">积加-英国退货仓</th>
                 <th class="sortable-num">店铺应该被同步的库存</th>
@@ -947,122 +949,237 @@
             </thead>
           <tbody>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境1店</td>
+
                 <td class="sticky-col-2">AL-W0161</td>
+
                 <td class="sticky-col-3">Women Lounge Set</td>
+
                 <td class="sticky-col-4">1729439482671567205</td>
+
                 <td class="sticky-col-5">AL-W0161</td>
+
                 <td class="sticky-col-6">1729439482671567205-01</td>
+
                 <td class="sticky-col-7">AL-W0161-DARKGRAY-XL</td>
+
                 <td class="sticky-col-8">深灰 XL</td>
+
                 <td class="sticky-col-9">是</td>
+
                 <td class="num">2,568</td>
+
                 <td class="num">1,375</td>
+
                 <td class="num">1,193</td>
-                <td class="num">168</td>
-                <td class="num">420</td>
-                <td class="num">120</td>
-                <td class="num">42</td>
-                <td class="num">6</td>
-                <td class="num">944</td>
-                <td class="num">68</td>
-                <td class="num">210</td>
-                <td class="num">124</td>
-                <td class="num">96</td>
-                <td class="num">155</td>
-                <td class="num">85</td>
-                <td class="num">82</td>
-                <td class="num">1,118</td>
-                <td class="num">210</td>
-                <td class="num">198</td>
-                <td class="num">132</td>
-                <td class="num">145</td>
-                <td class="num">88</td>
-                <td class="num">124</td>
                 <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
-                <td class="num">260</td>
-                <td class="num">161</td>
-                <td class="num">1,148</td>
-                <td class="num">1,184</td>
-                <td class="num">0</td>
-                <td class="num">198</td>
-                <td class="num">140</td>
-                <td class="num">132</td>
-                <td class="num">0</td>
+                <td class="num">8.14%</td>
+                <td class="num">0.00%</td>
+                <td class="num">3.31%</td>
+
+                <td class="num">168</td>
+
+                <td class="num">420</td>
+
+                <td class="num">120</td>
+
+                <td class="num">42</td>
+
+                <td class="num">6</td>
+
+                <td class="num">944</td>
+
+                <td class="num">68</td>
+
+                <td class="num">210</td>
+
                 <td class="num">124</td>
+
+                <td class="num">96</td>
+
+                <td class="num">155</td>
+
+                <td class="num">85</td>
+
+                <td class="num">82</td>
+
+                <td class="num">1,118</td>
+
+                <td class="num">210</td>
+
+                <td class="num">198</td>
+
+                <td class="num">132</td>
+
+                <td class="num">145</td>
+
+                <td class="num">88</td>
+
+                <td class="num">124</td>
+
+                <td class="num">260</td>
+
+                <td class="num">161</td>
+
+                <td class="num">1,148</td>
+
+                <td class="num">1,184</td>
+
                 <td class="num">0</td>
+
+                <td class="num">198</td>
+
+                <td class="num">140</td>
+
+                <td class="num">132</td>
+
+                <td class="num">0</td>
+
+                <td class="num">124</td>
+
+                <td class="num">0</td>
+
                 <td class="num">36</td>
+
                 <td class="num">36</td>
+
                 <td class="num">12</td>
+
                 <td class="num">8</td>
+
                 <td class="num">9</td>
+
                 <td class="num">0</td>
+
                 <td class="num">24</td>
+
                 <td class="num">8</td>
+
                 <td class="num">0</td>
+
                 <td class="num">4</td>
+
                 <td>万邑通USWC2 / 谷仓美西仓库</td>
+
                 <td class="num">36</td>
+
                 <td class="num">10</td>
+
                 <td><span class="status-tag status-bad">异常</span></td>
+
                 <td class="center">少同步</td>
               </tr>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境3店</td>
+
                 <td class="sticky-col-2">AL-W0161</td>
+
                 <td class="sticky-col-3">Women Lounge Set</td>
+
                 <td class="sticky-col-4">1729439482671567205</td>
+
                 <td class="sticky-col-5">AL-W0161</td>
+
                 <td class="sticky-col-6">1729439482671567205-02</td>
+
                 <td class="sticky-col-7">AL-W0161-DARKGRAY-L</td>
+
                 <td class="sticky-col-8">深灰 L</td>
+
                 <td class="sticky-col-9">是</td>
+
                 <td class="num">1,298</td>
+
                 <td class="num">812</td>
+
                 <td class="num">486</td>
+                <td class="num">14.81%</td>
+                <td class="num">9.24%</td>
+                <td class="num">0.00%</td>
+                <td class="num">3.70%</td>
+
                 <td class="num">96</td>
+
                 <td class="num">210</td>
+
                 <td class="num">95</td>
+
                 <td class="num">31</td>
+
                 <td class="num">10</td>
+
                 <td class="num">434</td>
+
                 <td class="num">49</td>
+
                 <td class="num">87</td>
+
                 <td class="num">72</td>
+
                 <td class="num">55</td>
+
                 <td class="num">63</td>
+
                 <td class="num">48</td>
+
                 <td class="num">60</td>
+
                 <td class="num">390</td>
+
                 <td class="num">87</td>
+
                 <td class="num">96</td>
+
                 <td class="num">52</td>
+
                 <td class="num">58</td>
+
                 <td class="num">36</td>
+
                 <td class="num">72</td>
-                <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
+
                 <td class="num">68</td>
+
                 <td class="num">47</td>
+
                 <td class="num">486</td>
+
                 <td class="num">480</td>
+
                 <td class="num">0</td>
+
                 <td class="num">96</td>
+
                 <td class="num">52</td>
+
                 <td class="num">58</td>
+
                 <td class="num">0</td>
+
                 <td class="num">72</td>
+
                 <td class="num">0</td>
+
                 <td class="num">20</td>
+
                 <td class="num">0</td>
+
                 <td class="num">-6</td>
+
                 <td class="num">15</td>
+
                 <td class="num">0</td>
+
                 <td class="num">-9</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
                 <td class="center">—</td>
                 <td class="num">0</td>
@@ -1071,60 +1188,115 @@
                 <td class="center">同步正确</td>
               </tr>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-英国直邮店:GB</td>
+
                 <td class="sticky-col-2">AL-H9902</td>
+
                 <td class="sticky-col-3">Heavy Hoodie</td>
+
                 <td class="sticky-col-4">1731657241623302501</td>
+
                 <td class="sticky-col-5">AL-H9902</td>
+
                 <td class="sticky-col-6">1731657241623302501-01</td>
+
                 <td class="sticky-col-7">AL-H9902-BLACK-M</td>
+
                 <td class="sticky-col-8">黑色 M</td>
+
                 <td class="sticky-col-9">否</td>
+
                 <td class="num">630</td>
+
                 <td class="num">398</td>
+
                 <td class="num">232</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+
                 <td class="num">74</td>
+
                 <td class="num">158</td>
+
                 <td class="num">42</td>
+
                 <td class="num">20</td>
+
                 <td class="num">12</td>
+
                 <td class="num">300</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">22</td>
+
                 <td class="num">210</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
-                <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
+
                 <td class="num">0</td>
+
                 <td class="num">210</td>
+
                 <td class="num">206</td>
+
                 <td class="num">180</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">206</td>
+
                 <td class="num">26</td>
+
                 <td class="num">74</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">4</td>
                 <td>英国退货仓</td>
                 <td class="num">26</td>
@@ -1168,7 +1340,7 @@
           </div>
         </div>
         <div class="legend">
-          数据规则：SPU维度基于 <code>PID&amp;SKU</code> 底表按 <code>SPU</code> 聚合生成；除主维度外，其余库存业务字段与明细视图保持一致。<code>库存是否异常</code> 按 SPU 聚合后的库存差异重新判断：差异大于 0 为少同步，小于 0 为超卖风险，等于 0 为同步正确。
+          数据规则：SPU维度基于 <code>PID&amp;SKU</code> 底表按 <code>SPU</code> 聚合生成；除主维度外，其余库存业务字段与明细视图保持一致。异常判断仅保留 <code>库存总差异</code> 与 <code>库存是否异常</code>；同一 SPU 下只要存在一个 PID 异常，则该 SPU 判定为异常。
           <br /><strong>备注：</strong><code>热卖色码是否断货</code> 该列的交付时间跟随 <code>发补货</code> 时间一起。
         </div>
       </div>
@@ -1217,14 +1389,14 @@
             <thead>
               <tr>
                 <th class="th-group group-base sticky-base-group spu-base-group" colspan="4">产品基本信息</th>
-                <th class="th-group group-summary" colspan="3">总库存</th>
+                <th class="th-group group-summary" colspan="7">总库存</th>
                 <th class="th-group group-domestic" colspan="5">国内库存</th>
                 <th class="th-group group-oversea" colspan="8">海外在途总量</th>
-                <th class="th-group group-third" colspan="11">海外在库库存</th>
+                <th class="th-group group-third" colspan="9">海外在库库存</th>
                 <th class="th-group group-store-sync" colspan="1">店铺应该被同步的库存</th>
                 <th class="th-group group-store-actual" colspan="9">店铺实际被同步库存的情况</th>
                 <th class="th-group group-diff" colspan="9">库存差异</th>
-                <th class="th-group group-exception" colspan="5">异常判断</th>
+                <th class="th-group group-exception" colspan="2">异常判断</th>
               </tr>
               <tr>
                 <th class="sticky-col-1">店铺</th>
@@ -1234,6 +1406,10 @@
                 <th class="sortable-num">总库存</th>
                 <th class="sortable-num">总在途库存</th>
                 <th class="sortable-num">总可用库存</th>
+                <th class="sortable-num">积加FBT可用库存占比</th>
+                <th class="sortable-num">积加FBT总库存占比</th>
+                <th class="sortable-num">店铺FBT可用库存占比</th>
+                <th class="sortable-num">店铺FBT总库存占比</th>
                 <th class="sortable-num">总国内库存</th>
                 <th class="sortable-num">采购在途库存</th>
                 <th class="sortable-num">工厂采购未交量</th>
@@ -1254,8 +1430,6 @@
                 <th class="sortable-num">积加-谷仓美西仓库</th>
                 <th class="sortable-num">积加-FBA仓库</th>
                 <th class="sortable-num">积加-FBT可用</th>
-                <th class="sortable-num">FBT可用库存占比</th>
-                <th class="sortable-num">FBT总库存占比</th>
                 <th class="sortable-num">三方仓可用量</th>
                 <th class="sortable-num">积加-英国退货仓</th>
                 <th class="sortable-num">店铺应该被同步的库存</th>
@@ -1277,184 +1451,328 @@
                 <th class="sortable-num">FBA仓同步差异</th>
                 <th class="sortable-num">FBT同步差异</th>
                 <th class="sortable-num">英国退货仓差异</th>
-                <th>异常仓库</th>
                 <th class="sortable-num">库存总差异</th>
-                <th class="sortable-num">库存阀值设置</th>
                 <th>库存是否异常</th>
-                <th>异常类型</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境1店</td>
+
                 <td class="sticky-col-2">AL-W0161</td>
+
                 <td class="sticky-col-3">Women Lounge Set</td>
+
                 <td class="sticky-col-4"><button type="button" class="hot-stockout-link" data-hot-stockout>是</button></td>
+
                 <td class="num">3,866</td>
+
                 <td class="num">2,187</td>
+
                 <td class="num">1,679</td>
+                <td class="num">11.67%</td>
+                <td class="num">8.51%</td>
+                <td class="num">0.00%</td>
+                <td class="num">3.44%</td>
+
                 <td class="num">264</td>
+
                 <td class="num">630</td>
+
                 <td class="num">215</td>
+
                 <td class="num">73</td>
+
                 <td class="num">16</td>
+
                 <td class="num">1,378</td>
+
                 <td class="num">117</td>
+
                 <td class="num">297</td>
+
                 <td class="num">196</td>
+
                 <td class="num">151</td>
+
                 <td class="num">218</td>
+
                 <td class="num">133</td>
+
                 <td class="num">112</td>
+
                 <td class="num">1,508</td>
+
                 <td class="num">297</td>
+
                 <td class="num">294</td>
+
                 <td class="num">184</td>
+
                 <td class="num">203</td>
+
                 <td class="num">124</td>
+
                 <td class="num">196</td>
-                <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
+
                 <td class="num">328</td>
+
                 <td class="num">208</td>
+
                 <td class="num">1,634</td>
+
                 <td class="num">1,664</td>
+
                 <td class="num">0</td>
+
                 <td class="num">294</td>
+
                 <td class="num">192</td>
+
                 <td class="num">190</td>
+
                 <td class="num">0</td>
+
                 <td class="num">196</td>
+
                 <td class="num">0</td>
+
                 <td class="num">56</td>
+
                 <td class="num">36</td>
+
                 <td class="num">6</td>
+
                 <td class="num">23</td>
+
                 <td class="num">9</td>
+
                 <td class="num">0</td>
+
                 <td class="num">24</td>
+
                 <td class="num">8</td>
+
                 <td class="num">0</td>
+
                 <td class="num">4</td>
-                <td>多仓差异</td>
+
                 <td class="num">36</td>
-                <td class="num">10</td>
+
                 <td><span class="status-tag status-bad">异常</span></td>
-                <td class="center">少同步</td>
               </tr>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-美区跨境3店</td>
+
                 <td class="sticky-col-2">AL-W0161</td>
+
                 <td class="sticky-col-3">Women Lounge Set</td>
+
                 <td class="sticky-col-4">否</td>
+
                 <td class="num">1,298</td>
+
                 <td class="num">812</td>
+
                 <td class="num">486</td>
+                <td class="num">14.81%</td>
+                <td class="num">9.24%</td>
+                <td class="num">0.00%</td>
+                <td class="num">3.70%</td>
+
                 <td class="num">96</td>
+
                 <td class="num">210</td>
+
                 <td class="num">95</td>
+
                 <td class="num">31</td>
+
                 <td class="num">10</td>
+
                 <td class="num">434</td>
+
                 <td class="num">49</td>
+
                 <td class="num">87</td>
+
                 <td class="num">72</td>
+
                 <td class="num">55</td>
+
                 <td class="num">63</td>
+
                 <td class="num">48</td>
+
                 <td class="num">60</td>
+
                 <td class="num">390</td>
+
                 <td class="num">87</td>
+
                 <td class="num">96</td>
+
                 <td class="num">52</td>
+
                 <td class="num">58</td>
+
                 <td class="num">36</td>
+
                 <td class="num">72</td>
-                <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
+
                 <td class="num">68</td>
+
                 <td class="num">47</td>
+
                 <td class="num">486</td>
+
                 <td class="num">480</td>
+
                 <td class="num">0</td>
+
                 <td class="num">96</td>
+
                 <td class="num">52</td>
+
                 <td class="num">58</td>
+
                 <td class="num">0</td>
+
                 <td class="num">72</td>
+
                 <td class="num">0</td>
+
                 <td class="num">20</td>
+
                 <td class="num">0</td>
+
                 <td class="num">-6</td>
+
                 <td class="num">15</td>
+
                 <td class="num">0</td>
+
                 <td class="num">-9</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
-                <td class="center">—</td>
+
                 <td class="num">0</td>
-                <td class="num">10</td>
+
                 <td><span class="status-tag status-ok">正常</span></td>
-                <td class="center">同步正确</td>
               </tr>
               <tr>
+
                 <td class="sticky-col-1">美国TK-艾斯特尼-英国直邮店:GB</td>
+
                 <td class="sticky-col-2">AL-H9902</td>
+
                 <td class="sticky-col-3">Heavy Hoodie</td>
+
                 <td class="sticky-col-4"><button type="button" class="hot-stockout-link" data-hot-stockout>是</button></td>
+
                 <td class="num">630</td>
+
                 <td class="num">398</td>
+
                 <td class="num">232</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+                <td class="num">0.00%</td>
+
                 <td class="num">74</td>
+
                 <td class="num">158</td>
+
                 <td class="num">42</td>
+
                 <td class="num">20</td>
+
                 <td class="num">12</td>
+
                 <td class="num">300</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">22</td>
+
                 <td class="num">210</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
-                <td class="num">10.39%</td>
-                <td class="num">8.05%</td>
+
                 <td class="num">0</td>
+
                 <td class="num">210</td>
+
                 <td class="num">206</td>
+
                 <td class="num">180</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">206</td>
+
                 <td class="num">26</td>
+
                 <td class="num">74</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">0</td>
+
                 <td class="num">4</td>
-                <td>英国退货仓</td>
+
                 <td class="num">26</td>
-                <td class="num">20</td>
+
                 <td><span class="status-tag status-warn">待确认</span></td>
-                <td class="center">仓库映射待确认</td>
               </tr>
             </tbody>
           </table>
@@ -1490,6 +1808,9 @@
         <li><strong>异常统计卡片</strong>：点击阀值同步异常数、少同步异常数、超卖风险异常数等卡片时，可以快速筛选列表数据。</li>
         <li><strong>SPU 维度明细</strong>：SPU 维度下点击某一行数据，可以展开查看该 SPU 下对应的 SKU 数据明细。</li>
         <li><strong>热卖色码是否断货</strong>：该列的交付时间跟随 <code>发补货</code> 时间一起。</li>
+        <li><strong>SPU 维度店铺侧库存口径</strong>：店铺侧库存中，不同 PID、相同 SKU、相同仓库可能出现不一致的值；在 SPU 维度汇总展示时，按同一 SPU 下对应库存值取最小值。</li>
+        <li><strong>库存差异与阈值口径</strong>：库存差异按各个仓库的差异累计值，对比各个仓库的对应阈值累计值；原因是同一 SKU 下不同仓库的库存同步规则可能配置不同阈值，需要按仓库匹配对应阈值后再累计判断。</li>
+        <li><strong>SPU / PID 看板三项库存指标口径</strong>：<code>海外在库总库存</code>、<code>海外在途总库存</code>、<code>国内总库存</code> 在 SPU 看板与 PID 看板保持一致，均按 SKU 维度取数，不与 PID 做额外关联，避免因同一 SKU 关联多个 PID 导致库存放大；非店铺侧库存数据以积加侧库存为主。</li>
 
       </ul>
     </div>
@@ -1624,8 +1945,10 @@
         "积加-谷仓美西仓库": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"品的\"SKU\"\n公式/条件：筛选仓库为美国TK-艾斯特尼-美国谷仓:美西仓库",
         "积加-FBA仓库": "说明：按最新原型字段口径展示；具体来源以映射表和后续开发口径为准。",
         "积加-FBT可用": "来源：积加-平台仓库存导出；字段：可用量\n关联：积加-平台仓库存导出-TikTok.FBT库存-自定义导出-000103272-20260604130906，可用量",
-        "FBT可用库存占比": "来源：积加-FBT可用、总可用库存。\n公式/条件：FBT可用库存占比 = 积加-FBT可用 / 总可用库存。",
-        "FBT总库存占比": "来源：积加-FBT可用、FBT在途量、总库存。\n公式/条件：FBT总库存占比 = (积加-FBT可用 + FBT在途量) / 总库存。",
+        "积加FBT可用库存占比": "来源：积加-FBT可用、总可用库存。\n公式/条件：积加FBT可用库存占比 = 积加-FBT可用 / 总可用库存。",
+        "积加FBT总库存占比": "来源：积加-FBT可用、FBT在途量、总库存。\n公式/条件：积加FBT总库存占比 = (积加-FBT可用 + FBT在途量) / 总库存。",
+        "店铺FBT可用库存占比": "来源：店铺侧-FBT可用、总可用库存。\n公式/条件：店铺FBT可用库存占比 = 店铺侧-FBT可用 / 总可用库存。",
+        "店铺FBT总库存占比": "来源：店铺侧-FBT可用、FBT在途量、总库存。\n公式/条件：店铺FBT总库存占比 = (店铺侧-FBT可用 + FBT在途量) / 总库存。",
         "三方仓可用量": "来源：积加平台仓库存导出 / 积加商品管理可用库存。\n公式/条件：按三方仓仓库范围汇总可用库存。",
         "积加-英国退货仓": "来源：站点产品库存-自定义导出；字段：可用量\n关联：站点产品库存-自定义导出的 \"SKU\"=TIKTOK-在线商品的\"SKU\"\n公式/条件：筛选仓库为万邑通:UKTW Warehouse和美国TK-艾斯特尼-英国退件仓:英国仓",
         "店铺应该被同步的库存": "来源：国内在库、海外在库及仓库维度可同步库存。\n公式/条件：按最新原型口径汇总应同步到店铺后台的库存数量。",
@@ -2081,7 +2404,7 @@
       });
 
       document.getElementById('btnMetricHelpSpu').addEventListener('click', function() {
-        alert('数据统计说明：\n1. SPU 视图基于 PID&SKU 底表按 SPU 聚合生成。\n2. SPU 视图不展示 PID、SKU 与店铺字段。\n3. 所有库存类数值默认按 SPU 粒度求和，风险状态按聚合结果重新判断。');
+        alert('数据统计说明：\n1. SPU 视图基于 PID&SKU 底表按 SPU 聚合生成。\n2. SPU 视图不展示 PID、SKU 与店铺字段。\n3. 异常判断仅保留库存总差异与库存是否异常；同一 SPU 下只要存在一个 PID 异常，则该 SPU 判定为异常。');
       });
 
       function getSkuFilterMatched(row, filterType) {
