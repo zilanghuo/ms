@@ -438,15 +438,17 @@
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><code>siteCode</code></td><td>string</td><td>否</td><td>站点代码；来自原型“站点”选择，如 <code>US</code>、<code>GB</code></td></tr>
+          <tr><td><code>module</code></td><td>string</td><td>分页/导出按栏目传</td><td>当前栏目；<code>inventory</code> 库存看板、<code>restock</code> 备货模型、<code>ship</code> 发货模型。公共筛选区位于三栏目上方，切换栏目时复用同一筛选条件。</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>否</td><td>站点代码；来自原型“站点”选择，如 <code>US</code>、<code>UK</code></td></tr>
           <tr><td><code>storeName</code></td><td>string</td><td>否</td><td>店铺名称；单选</td></tr>
           <tr><td><code>lifeCycle</code></td><td>string</td><td>否</td><td>生命周期；<code>rising</code> 上升期、<code>stable</code> 平稳期、<code>decline</code> 下降期</td></tr>
           <tr><td><code>skuTier</code></td><td>string</td><td>否</td><td>SKU 分层；<code>A</code>、<code>B</code>、<code>C</code>、<code>D</code></td></tr>
           <tr><td><code>isShip</code></td><td>boolean</td><td>否</td><td>是否发货；用于发货模型和全局告警快速筛选</td></tr>
           <tr><td><code>isPurchase</code></td><td>boolean</td><td>否</td><td>是否采购；用于备货模型和全局告警快速筛选</td></tr>
-          <tr><td><code>alertType</code></td><td>string</td><td>否</td><td>告警快速筛选类型；如 <code>overseasLowDays</code> 海外可售天数不足、<code>domesticShortage</code> 国内库存不足</td></tr>
+          <tr><td><code>alertType</code></td><td>string</td><td>否</td><td>告警快速筛选类型；与原型 <code>data-alert-filter</code> 保持一致，如 <code>overseas-low-days</code> 海外可售天数不足、<code>domestic-shortage</code> 国内库存不足</td></tr>
           <tr><td><code>searchField</code></td><td>string</td><td>否</td><td>搜索字段；支持 <code>spu</code>、<code>inventorySku</code>、<code>pid</code>、<code>msku</code></td></tr>
-          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键字</td></tr>
+          <tr><td><code>searchMode</code></td><td>string</td><td>否</td><td>搜索模式；<code>fuzzy</code> 模糊搜索、<code>exact</code> 精确搜索。原型中“精确搜索”使用下拉面板批量输入。</td></tr>
+          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键字；当 <code>searchMode=fuzzy</code> 时使用</td></tr>
           <tr><td><code>exactSearchKeywords</code></td><td>string</td><td>否</td><td>精确搜索关键词字符串；多个值按逗号或换行分隔，最多 500 项</td></tr>
           <tr><td><code>page</code></td><td>number</td><td>分页列表必填</td><td>页码，默认 1</td></tr>
           <tr><td><code>pageSize</code></td><td>number</td><td>分页列表必填</td><td>每页条数，默认 20</td></tr>
@@ -492,6 +494,7 @@
   "isShip": true,
   "isPurchase": null,
   "searchField": "spu",
+  "searchMode": "fuzzy",
   "searchKeyword": "AL-W0161",
   "exactSearchKeywords": "AL-W0161"
 }</code></pre>
@@ -508,13 +511,13 @@
     "nextCutoffDate": "2026-06-13",
     "alerts": [
       {
-        "alertType": "overseasLowDays",
+        "alertType": "overseas-low-days",
         "alertDesc": "海外可售天数低于安全库存，需紧急处理",
         "skuCount": 3,
         "targetModule": "ship"
       },
       {
-        "alertType": "domesticShortage",
+        "alertType": "domestic-shortage",
         "alertDesc": "国内库存不足无法发货，需加急采购 + 空派",
         "skuCount": 2,
         "targetModule": "restock"
@@ -533,6 +536,7 @@
   "lifeCycle": "rising",
   "skuTier": "A",
   "searchField": "inventorySku",
+  "searchMode": "fuzzy",
   "searchKeyword": "W0161",
   "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
@@ -648,7 +652,9 @@
   "skuTier": "A",
   "isPurchase": true,
   "searchField": "spu",
+  "searchMode": "fuzzy",
   "searchKeyword": "AL-W0161",
+  "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
   "pageSize": 20,
   "sortField": "weightedDailySalesQty",
@@ -723,28 +729,28 @@
     "dynamicWeightLevel": { "fieldDesc": "动态加权日均-动态权重档位", "canSort": false },
     "weightedDailySalesQty": { "fieldDesc": "动态加权日均-加权日均", "canSort": true },
     "lifeCycle": { "fieldDesc": "生命周期判断-生命周期", "canSort": false },
-    "isContentBurst": { "fieldDesc": "生命周期判断-是否内容爆发", "canSort": false },
-    "businessOrderRatio": { "fieldDesc": "生命周期判断-商务出单占比", "canSort": true },
-    "editorOrderRatio": { "fieldDesc": "生命周期判断-剪辑出单占比", "canSort": true },
+    "isContentBurst": { "fieldDesc": "生命周期判断-是否内容爆发；编辑弹窗可人工修正", "canSort": false },
+    "businessOrderRatio": { "fieldDesc": "生命周期判断-商务出单占比；编辑弹窗可人工修正", "canSort": true },
+    "editorOrderRatio": { "fieldDesc": "生命周期判断-剪辑出单占比；编辑弹窗可人工修正", "canSort": true },
     "overseasSafetyStockAdjustDays": { "fieldDesc": "生命周期判断-安全库存调整天数（海外仓）", "canSort": true },
     "directMailSafetyStockAdjustDays": { "fieldDesc": "生命周期判断-安全库存调整天数（直邮仓）", "canSort": true },
-    "skuTier": { "fieldDesc": "SKU四层分层-SKU分层", "canSort": false },
-    "isHotColorSize": { "fieldDesc": "SKU四层分层-是否热卖色码", "canSort": false },
-    "vocScore": { "fieldDesc": "SKU四层分层-VOC值", "canSort": true },
+    "skuTier": { "fieldDesc": "SKU四层分层-SKU分层；由模型计算输出，页面不提供编辑", "canSort": false },
+    "isHotColorSize": { "fieldDesc": "SKU四层分层-是否热卖色码；由模型计算输出，页面不提供编辑", "canSort": false },
+    "vocScore": { "fieldDesc": "SKU四层分层-VOC值；编辑弹窗可人工修正", "canSort": true },
     "returnRate14d": { "fieldDesc": "SKU四层分层-退货率（近14天）", "canSort": true },
     "suggestRestockTransportMode": { "fieldDesc": "目标库存计算-建议运输方式（补货）", "canSort": false },
     "targetOverseasStockQty": { "fieldDesc": "目标库存计算-目标库存（海外仓）", "canSort": true },
     "targetDirectMailStockQty": { "fieldDesc": "目标库存计算-目标库存（直邮仓）", "canSort": true },
-    "finalSafetyStockDays": { "fieldDesc": "目标库存计算-安全库存天数（最终）", "canSort": true },
-    "isPurchase": { "fieldDesc": "补货决策输出-是否采购", "canSort": false },
-    "suggestPurchaseQty": { "fieldDesc": "补货决策输出-建议采购数量", "canSort": true },
-    "suggestPurchaseTransportMode": { "fieldDesc": "补货决策输出-建议运输方式（采购）", "canSort": false },
-    "purchaseEtaDate": { "fieldDesc": "补货决策输出-预计到仓日（采购）", "canSort": true }
+    "finalSafetyStockDays": { "fieldDesc": "目标库存计算-安全库存天数（最终）；由模型计算输出，页面不提供编辑", "canSort": true },
+    "isPurchase": { "fieldDesc": "补货决策输出-是否采购；由模型计算输出，页面不提供编辑", "canSort": false },
+    "suggestPurchaseQty": { "fieldDesc": "补货决策输出-建议采购数量；由模型计算输出，采购计划导出字段计划量取该值", "canSort": true },
+    "suggestPurchaseTransportMode": { "fieldDesc": "补货决策输出-建议运输方式（采购）；采购计划导出字段物流方式取该值", "canSort": false },
+    "purchaseEtaDate": { "fieldDesc": "补货决策输出-预计到仓日（采购）；采购计划导出字段计划交期取该值", "canSort": true }
   }
 }</code></pre>
 
     <h3 id="replenishment-restock-update">2.9 备货模型：编辑保存接口</h3>
-    <p>对应原型中的“编辑备货模型字段”弹窗，保存后按库存 SKU 维度刷新当前行。当前页面只有备货模型提供编辑动作。</p>
+    <p>对应原型中的“编辑备货模型字段”弹窗，保存后按库存 SKU 维度刷新当前行。当前页面只有备货模型提供编辑动作，且仅支持编辑 <code>lifeCycle</code>、<code>isContentBurst</code>、<code>businessOrderRatio</code>、<code>editorOrderRatio</code>、<code>vocScore</code>。</p>
     <pre><code>POST /tk/inventory/replenishment/restock/update</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
@@ -753,15 +759,10 @@
   "inventorySku": "AL-W0161-BLK-S",
   "skuId": "7359123456789012345",
   "lifeCycle": "上升期",
-  "skuTier": "A",
   "isContentBurst": true,
-  "isHotColorSize": true,
-  "suggestRestockTransportMode": "海运",
-  "finalSafetyStockDays": 28,
-  "isPurchase": true,
-  "suggestPurchaseQty": 360,
-  "suggestPurchaseTransportMode": "空派",
-  "purchaseEtaDate": "2026-06-28"
+  "businessOrderRatio": 0.42,
+  "editorOrderRatio": 0.31,
+  "vocScore": 4.7
 }</code></pre>
     <p><strong>响应 data 示例</strong></p>
     <pre><code>{
@@ -787,9 +788,11 @@
   "lifeCycle": "rising",
   "skuTier": "A",
   "isShip": true,
-  "alertType": "overseasLowDays",
+  "alertType": "overseas-low-days",
   "searchField": "inventorySku",
+  "searchMode": "fuzzy",
   "searchKeyword": "W0161",
+  "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
   "pageSize": 20,
   "sortField": "overseasSellableDays",
@@ -876,13 +879,13 @@
     "suggestShipTransportMode": { "fieldDesc": "运输方式判断-建议运输方式（发货）", "canSort": false },
     "isShip": { "fieldDesc": "发货决策输出-是否发货", "canSort": false },
     "shipPriority": { "fieldDesc": "发货决策输出-发货优先级", "canSort": false },
-    "linkedAlertType": { "fieldDesc": "联动输出字段-联动告警类型", "canSort": false }
+    "linkedAlertType": { "fieldDesc": "联动输出字段-联动告警类型；对应顶部告警条文案", "canSort": false }
   }
 }</code></pre>
 
     <h3 id="replenishment-ship-export">2.13 发货模型：导出接口</h3>
     <pre><code>POST /tk/inventory/replenishment/ship/export</code></pre>
-    <p>导出发货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/ship/page</code> 一致。页面中的“发货计划导出预览”可复用当前筛选结果生成 <code>*SKU</code>、<code>MSKU</code>、<code>*平台站点</code>、<code>*数量</code>、<code>FNSKU</code>、<code>明细备注</code>。</p>
+    <p>导出发货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/ship/page</code> 一致。页面中的“导出发货调拨单”可复用当前筛选结果生成 <code>*SKU</code>、<code>MSKU</code>、<code>*平台站点</code>、<code>*数量</code>、<code>FNSKU</code>、<code>明细备注</code>。</p>
 
     <h3 id="replenishment-common-actions">2.14 通用页面功能接口</h3>
     <p>对应三个栏目都有的页面动作：导出全部数据、自定义列配置、产品说明。其中栏目内普通“导出”分别使用各栏目的导出接口；“导出采购计划”和“导出发货调拨单”复用备货模型、发货模型当前筛选结果生成指定模板。</p>
@@ -920,7 +923,10 @@
   "data": {
     "title": "发补货看板产品说明",
     "items": [
+      "商品基础信息字段在所有栏目中固定展示，包含站点、店铺、SPU、PID、MSKU、SKU ID、库存 SKU、SKU 名称等。",
+      "产品基础数据优先来源于 TikTok 在线商品与积加商品主数据，后续补充人工维护字段。",
       "库存看板用于展示商品基础信息、汇总库存、国内库存、海外在途库存、海外在库库存等库存现状。",
+      "对应的是否热卖色码、对应的 SKU、是否热卖色码断货指标，需要补充到库存检查看板中。",
       "备货模型、发货模型复用同一套商品基础信息，并在各自栏目下展开模型测算字段。",
       "自定义列配置结果用于控制列表展示字段，并影响后续导出字段范围。"
     ]
