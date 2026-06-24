@@ -71,10 +71,14 @@
           <li><a href="#replenishment-restock-fields">2.8 备货模型字段说明</a></li>
           <li><a href="#replenishment-restock-update">2.9 备货模型编辑保存</a></li>
           <li><a href="#replenishment-restock-export">2.10 备货模型导出</a></li>
-          <li><a href="#replenishment-ship-page">2.11 发货模型分页列表</a></li>
-          <li><a href="#replenishment-ship-fields">2.12 发货模型字段说明</a></li>
-          <li><a href="#replenishment-ship-export">2.13 发货模型导出</a></li>
-          <li><a href="#replenishment-common-actions">2.14 通用页面功能</a></li>
+          <li><a href="#replenishment-purchase-plan-page">2.11 采购计划明细列表</a></li>
+          <li><a href="#replenishment-purchase-plan-export">2.12 采购计划导出</a></li>
+          <li><a href="#replenishment-ship-page">2.13 发货模型分页列表</a></li>
+          <li><a href="#replenishment-ship-fields">2.14 发货模型字段说明</a></li>
+          <li><a href="#replenishment-ship-export">2.15 发货模型导出</a></li>
+          <li><a href="#replenishment-transfer-order-page">2.16 发货调拨单明细列表</a></li>
+          <li><a href="#replenishment-transfer-order-export">2.17 发货调拨单导出</a></li>
+          <li><a href="#replenishment-common-actions">2.18 通用页面功能</a></li>
         </ul>
         <ul>
           <li><a href="#third-party-jijia">三、第三方积加接口梳理</a></li>
@@ -427,7 +431,7 @@
     <p>请求体使用 <code>InventoryCheckExportRequest</code>。接口返回 Excel 文件流，不返回 JSON。导出数据来源为当前筛选条件下的 SPU 维度聚合列表。</p>
 
     <h2 id="replenishment-board">二、发补货看板</h2>
-    <p>对应页面：<code>库存/发补货/htmls/发补货看板-1.0.html</code>。页面命名调整为 <strong>发补货看板</strong>，当前页面包含三个独立栏目：<strong>库存看板</strong>、<strong>备货模型</strong>、<strong>发货模型</strong>。接口仅保留当前页面可触发的功能：数据最新时间、全局统计卡片、三个栏目分页列表、字段说明、栏目导出、导出全部数据、自定义列配置、产品说明、备货模型编辑保存。</p>
+    <p>对应页面：<code>库存/发补货/htmls/发补货看板-1.0.html</code>。页面命名调整为 <strong>发补货看板</strong>，当前页面包含三个独立栏目：<strong>库存看板</strong>、<strong>备货模型</strong>、<strong>发货模型</strong>。接口仅保留当前页面可触发的功能：数据最新时间、全局统计卡片、三个栏目分页列表、字段说明、栏目导出、采购计划明细/导出、发货调拨单明细/导出、导出全部数据、产品说明、备货模型编辑保存。</p>
     <div class="note">
       <strong>最新约定：</strong>本章节仅保留当前页面可触发的功能接口。分页列表接口只返回基础数据类型；每个字段的问号说明与是否支持排序由字段说明接口单独返回，字段说明对象只包含 <code>fieldDesc</code>、<code>canSort</code>。所有 JSON 示例统一包裹 <code>code</code>、<code>msg</code>、<code>data</code> 外层结构。
     </div>
@@ -439,7 +443,6 @@
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td><code>module</code></td><td>string</td><td>分页/导出按栏目传</td><td>当前栏目；<code>inventory</code> 库存看板、<code>restock</code> 备货模型、<code>ship</code> 发货模型。公共筛选区位于三栏目上方，切换栏目时复用同一筛选条件。</td></tr>
-          <tr><td><code>siteCode</code></td><td>string</td><td>否</td><td>站点代码；来自原型“站点”选择，如 <code>US</code>、<code>UK</code></td></tr>
           <tr><td><code>storeName</code></td><td>string</td><td>否</td><td>店铺名称；单选</td></tr>
           <tr><td><code>lifeCycle</code></td><td>string</td><td>否</td><td>生命周期；<code>rising</code> 上升期、<code>stable</code> 平稳期、<code>decline</code> 下降期</td></tr>
           <tr><td><code>skuTier</code></td><td>string</td><td>否</td><td>SKU 分层；<code>A</code>、<code>B</code>、<code>C</code>、<code>D</code></td></tr>
@@ -447,8 +450,7 @@
           <tr><td><code>isPurchase</code></td><td>boolean</td><td>否</td><td>是否采购；用于备货模型和全局告警快速筛选</td></tr>
           <tr><td><code>alertType</code></td><td>string</td><td>否</td><td>告警快速筛选类型；与原型 <code>data-alert-filter</code> 保持一致，如 <code>overseas-low-days</code> 海外可售天数不足、<code>domestic-shortage</code> 国内库存不足</td></tr>
           <tr><td><code>searchField</code></td><td>string</td><td>否</td><td>搜索字段；支持 <code>spu</code>、<code>inventorySku</code>、<code>pid</code>、<code>msku</code></td></tr>
-          <tr><td><code>searchMode</code></td><td>string</td><td>否</td><td>搜索模式；<code>fuzzy</code> 模糊搜索、<code>exact</code> 精确搜索。原型中“精确搜索”使用下拉面板批量输入。</td></tr>
-          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键字；当 <code>searchMode=fuzzy</code> 时使用</td></tr>
+          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键字</td></tr>
           <tr><td><code>exactSearchKeywords</code></td><td>string</td><td>否</td><td>精确搜索关键词字符串；多个值按逗号或换行分隔，最多 500 项</td></tr>
           <tr><td><code>page</code></td><td>number</td><td>分页列表必填</td><td>页码，默认 1</td></tr>
           <tr><td><code>pageSize</code></td><td>number</td><td>分页列表必填</td><td>每页条数，默认 20</td></tr>
@@ -481,23 +483,26 @@
     "lastUpdateTime": "2026-06-08 16:00:20"
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data</code></td><td>object</td><td>数据更新时间对象</td></tr>
+          <tr><td><code>data.module</code></td><td>string</td><td>当前查询栏目；<code>inventory</code> 库存看板、<code>restock</code> 备货模型、<code>ship</code> 发货模型</td></tr>
+          <tr><td><code>data.maxSdt</code></td><td>string</td><td>当前栏目可查询的最大业务日期分区，格式为 <code>yyyyMMdd</code></td></tr>
+          <tr><td><code>data.defaultQueryDate</code></td><td>string</td><td>页面默认展示日期，格式为 <code>yyyy-MM-dd</code></td></tr>
+          <tr><td><code>data.lastUpdateTime</code></td><td>string</td><td>当前栏目数据最后更新时间，格式为 <code>yyyy-MM-dd HH:mm:ss</code></td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-overview-summary">2.3 全局统计卡片接口</h3>
-    <p>对应页面顶部 6 个全局卡片和告警条，按当前筛选范围统计。告警按钮点击时，将 <code>alertType</code> 传给对应栏目分页列表接口快速刷新数据。</p>
+    <p>对应页面顶部 6 个全局卡片和告警条，统计发补货看板全局数据，不接收筛选参数。告警按钮点击时，将 <code>alertType</code> 传给对应栏目分页列表接口快速刷新数据。</p>
     <pre><code>POST /tk/inventory/replenishment/summary</code></pre>
-    <p><strong>请求体</strong></p>
-    <pre><code>{
-  "siteCode": "US",
-  "storeName": "美国TK-艾斯特尼-美区跨境1店",
-  "lifeCycle": "rising",
-  "skuTier": "A",
-  "isShip": true,
-  "isPurchase": null,
-  "searchField": "spu",
-  "searchMode": "fuzzy",
-  "searchKeyword": "AL-W0161",
-  "exactSearchKeywords": "AL-W0161"
-}</code></pre>
+    <p><strong>请求参数</strong>：无</p>
     <p><strong>响应 data 示例</strong></p>
     <pre><code>{
   "code": 200,
@@ -525,18 +530,38 @@
     ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data</code></td><td>object</td><td>全局统计卡片和告警条数据对象</td></tr>
+          <tr><td><code>data.onSaleSkuCount</code></td><td>number</td><td>在售 SKU 总数，对应页面顶部“在售 SKU”统计卡片</td></tr>
+          <tr><td><code>data.needShipSkuCount</code></td><td>number</td><td>需发货 SKU 数，对应页面顶部“需发货”统计卡片</td></tr>
+          <tr><td><code>data.needPurchaseSkuCount</code></td><td>number</td><td>需采购 SKU 数，对应页面顶部“需采购”统计卡片</td></tr>
+          <tr><td><code>data.overseasStockQty</code></td><td>number</td><td>海外在库总量，对应页面顶部“海外库存”统计卡片</td></tr>
+          <tr><td><code>data.domesticStockQty</code></td><td>number</td><td>国内在库总量，对应页面顶部“国内库存”统计卡片</td></tr>
+          <tr><td><code>data.nextCutoffDate</code></td><td>string</td><td>下次截单日期，格式为 <code>yyyy-MM-dd</code>，对应页面顶部“下次截单日”统计卡片</td></tr>
+          <tr><td><code>data.alerts</code></td><td>array</td><td>全局告警条列表；为空数组时页面不展示告警条</td></tr>
+          <tr><td><code>data.alerts[].alertType</code></td><td>string</td><td>告警类型编码，点击告警条时作为 <code>alertType</code> 传给对应栏目分页列表接口</td></tr>
+          <tr><td><code>data.alerts[].alertDesc</code></td><td>string</td><td>告警中文说明文案，用于页面告警条展示</td></tr>
+          <tr><td><code>data.alerts[].skuCount</code></td><td>number</td><td>命中该告警条件的 SKU 数量</td></tr>
+          <tr><td><code>data.alerts[].targetModule</code></td><td>string</td><td>告警点击后跳转或刷新目标栏目；<code>inventory</code> 库存看板、<code>restock</code> 备货模型、<code>ship</code> 发货模型</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-inventory-page">2.4 库存看板：分页列表接口</h3>
     <p>对应“库存看板”栏目列表，字段按原型分为商品基础信息、汇总库存、国内库存、海外在途库存、海外在库库存。列表字段返回基础数据类型。</p>
     <pre><code>POST /tk/inventory/replenishment/inventory/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
-  "siteCode": "US",
   "storeName": "美国TK-艾斯特尼-美区跨境1店",
   "lifeCycle": "rising",
   "skuTier": "A",
   "searchField": "inventorySku",
-  "searchMode": "fuzzy",
   "searchKeyword": "W0161",
   "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
@@ -592,6 +617,54 @@
     ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.page</code></td><td>number</td><td>当前页码</td></tr>
+          <tr><td><code>data.pageSize</code></td><td>number</td><td>每页条数</td></tr>
+          <tr><td><code>data.total</code></td><td>number</td><td>命中当前筛选条件的总记录数</td></tr>
+          <tr><td><code>data.list</code></td><td>array</td><td>库存看板分页列表数据</td></tr>
+          <tr><td><code>data.list[].siteCode</code></td><td>string</td><td>站点代码，用于列表展示</td></tr>
+          <tr><td><code>data.list[].storeName</code></td><td>string</td><td>店铺名称</td></tr>
+          <tr><td><code>data.list[].spu</code></td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td><code>data.list[].spuName</code></td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td><code>data.list[].pid</code></td><td>string</td><td>店铺 PID</td></tr>
+          <tr><td><code>data.list[].msku</code></td><td>string</td><td>MSKU</td></tr>
+          <tr><td><code>data.list[].skuId</code></td><td>string</td><td>平台 SKU ID</td></tr>
+          <tr><td><code>data.list[].inventorySku</code></td><td>string</td><td>库存 SKU</td></tr>
+          <tr><td><code>data.list[].inventorySkuName</code></td><td>string</td><td>库存 SKU 名称</td></tr>
+          <tr><td><code>data.list[].totalInventoryQty</code></td><td>number</td><td>总库存，等于总在途库存 + 总可用库存</td></tr>
+          <tr><td><code>data.list[].totalInTransitQty</code></td><td>number</td><td>总在途库存，等于国内在途 + 海外在途</td></tr>
+          <tr><td><code>data.list[].totalAvailableQty</code></td><td>number</td><td>总可用库存，等于国内在库 + 海外在库可用</td></tr>
+          <tr><td><code>data.list[].domesticTotalQty</code></td><td>number</td><td>国内库存总量</td></tr>
+          <tr><td><code>data.list[].purchaseInTransitQty</code></td><td>number</td><td>采购在途库存</td></tr>
+          <tr><td><code>data.list[].factoryUnfulfilledQty</code></td><td>number</td><td>工厂采购未交量</td></tr>
+          <tr><td><code>data.list[].domesticDeliveryInTransitQty</code></td><td>number</td><td>国内交货在途库存</td></tr>
+          <tr><td><code>data.list[].domesticOnHandQty</code></td><td>number</td><td>国内在库库存</td></tr>
+          <tr><td><code>data.list[].overseasInTransitTotalQty</code></td><td>number</td><td>海外在途总量</td></tr>
+          <tr><td><code>data.list[].thirdWarehouseInTransitQty</code></td><td>number</td><td>三方仓在途量</td></tr>
+          <tr><td><code>data.list[].winitUsky3InTransitQty</code></td><td>number</td><td>万邑通 USKY3 在途量</td></tr>
+          <tr><td><code>data.list[].winitUswc2InTransitQty</code></td><td>number</td><td>万邑通 USWC2 在途量</td></tr>
+          <tr><td><code>data.list[].winitUswcInTransitQty</code></td><td>number</td><td>万邑通 USWC 在途量</td></tr>
+          <tr><td><code>data.list[].goodcangUsWestInTransitQty</code></td><td>number</td><td>谷仓美西仓库在途量</td></tr>
+          <tr><td><code>data.list[].fbtInTransitQty</code></td><td>number</td><td>FBT 在途量</td></tr>
+          <tr><td><code>data.list[].ukReturnInTransitQty</code></td><td>number</td><td>英国退货仓在途量</td></tr>
+          <tr><td><code>data.list[].overseasOnHandTotalQty</code></td><td>number</td><td>海外在库总库存</td></tr>
+          <tr><td><code>data.list[].jijiaWinitUsky3AvailableQty</code></td><td>number</td><td>积加-万邑通 USKY3 可用库存</td></tr>
+          <tr><td><code>data.list[].jijiaWinitUswc2AvailableQty</code></td><td>number</td><td>积加-万邑通 USWC2 可用库存</td></tr>
+          <tr><td><code>data.list[].jijiaWinitUswcAvailableQty</code></td><td>number</td><td>积加-万邑通 USWC 可用库存</td></tr>
+          <tr><td><code>data.list[].jijiaGoodcangUsWestAvailableQty</code></td><td>number</td><td>积加-谷仓美西仓库可用库存</td></tr>
+          <tr><td><code>data.list[].fbtAvailableQty</code></td><td>number</td><td>FBT 可用库存</td></tr>
+          <tr><td><code>data.list[].jijiaFbaAvailableQty</code></td><td>number</td><td>积加-FBA 仓库可用库存</td></tr>
+          <tr><td><code>data.list[].jijiaUkReturnAvailableQty</code></td><td>number</td><td>积加-英国退货仓可用库存</td></tr>
+          <tr><td><code>data.list[].thirdWarehouseAvailableQty</code></td><td>number</td><td>三方仓可用库存</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-inventory-fields">2.5 库存看板：列表字段说明接口</h3>
     <pre><code>GET /tk/inventory/replenishment/inventory/fields</code></pre>
@@ -636,23 +709,35 @@
     "thirdWarehouseAvailableQty": { "fieldDesc": "C.海外在库库存-三方仓可用量", "canSort": true }
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data</code></td><td>object</td><td>库存看板字段说明对象；key 为列表字段名</td></tr>
+          <tr><td><code>data.&lt;field&gt;.fieldDesc</code></td><td>string</td><td>字段中文说明，包含页面分组、展示名称和必要口径</td></tr>
+          <tr><td><code>data.&lt;field&gt;.canSort</code></td><td>boolean</td><td>字段是否支持排序；为 <code>true</code> 时可作为 <code>sortField</code> 传入分页列表接口</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-inventory-export">2.6 库存看板：导出接口</h3>
     <pre><code>POST /tk/inventory/replenishment/inventory/export</code></pre>
     <p>导出库存看板当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/inventory/page</code> 一致。导出文件建议命名为 <code>发补货看板_库存看板_{yyyyMMddHHmmss}.xlsx</code>。</p>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；文件列与库存看板分页列表字段保持一致。</p>
 
     <h3 id="replenishment-restock-page">2.7 备货模型：分页列表接口</h3>
     <p>对应“备货模型”栏目列表，字段按原型分为商品基础信息、动态加权日均、生命周期判断、SKU四层分层、目标库存计算、补货决策输出。</p>
     <pre><code>POST /tk/inventory/replenishment/restock/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
-  "siteCode": "US",
   "storeName": "美国TK-艾斯特尼-美区跨境1店",
   "lifeCycle": "rising",
   "skuTier": "A",
   "isPurchase": true,
   "searchField": "spu",
-  "searchMode": "fuzzy",
   "searchKeyword": "AL-W0161",
   "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
@@ -706,6 +791,52 @@
     ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.page</code></td><td>number</td><td>当前页码</td></tr>
+          <tr><td><code>data.pageSize</code></td><td>number</td><td>每页条数</td></tr>
+          <tr><td><code>data.total</code></td><td>number</td><td>命中当前筛选条件的总记录数</td></tr>
+          <tr><td><code>data.list</code></td><td>array</td><td>备货模型分页列表数据</td></tr>
+          <tr><td><code>data.list[].siteCode</code></td><td>string</td><td>站点代码，用于列表展示</td></tr>
+          <tr><td><code>data.list[].storeName</code></td><td>string</td><td>店铺名称</td></tr>
+          <tr><td><code>data.list[].spu</code></td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td><code>data.list[].spuName</code></td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td><code>data.list[].pid</code></td><td>string</td><td>店铺 PID</td></tr>
+          <tr><td><code>data.list[].msku</code></td><td>string</td><td>MSKU</td></tr>
+          <tr><td><code>data.list[].skuId</code></td><td>string</td><td>平台 SKU ID</td></tr>
+          <tr><td><code>data.list[].inventorySku</code></td><td>string</td><td>库存 SKU</td></tr>
+          <tr><td><code>data.list[].inventorySkuName</code></td><td>string</td><td>库存 SKU 名称</td></tr>
+          <tr><td><code>data.list[].dailySalesQty7d</code></td><td>number</td><td>近 7 天日均销量（S7）</td></tr>
+          <tr><td><code>data.list[].dailySalesQty30d</code></td><td>number</td><td>近 30 天日均销量（S30）</td></tr>
+          <tr><td><code>data.list[].s7S30Ratio</code></td><td>number</td><td>S7/S30 比值，用于判断近期销量变化</td></tr>
+          <tr><td><code>data.list[].dynamicWeightLevel</code></td><td>string</td><td>动态权重档位说明</td></tr>
+          <tr><td><code>data.list[].weightedDailySalesQty</code></td><td>number</td><td>加权日均销量</td></tr>
+          <tr><td><code>data.list[].lifeCycle</code></td><td>string</td><td>生命周期判断结果，可由编辑弹窗人工修正</td></tr>
+          <tr><td><code>data.list[].isContentBurst</code></td><td>boolean</td><td>是否内容爆发，可由编辑弹窗人工修正</td></tr>
+          <tr><td><code>data.list[].businessOrderRatio</code></td><td>number</td><td>商务出单占比，可由编辑弹窗人工修正</td></tr>
+          <tr><td><code>data.list[].editorOrderRatio</code></td><td>number</td><td>剪辑出单占比，可由编辑弹窗人工修正</td></tr>
+          <tr><td><code>data.list[].overseasSafetyStockAdjustDays</code></td><td>number</td><td>海外仓安全库存调整天数</td></tr>
+          <tr><td><code>data.list[].directMailSafetyStockAdjustDays</code></td><td>number</td><td>直邮仓安全库存调整天数</td></tr>
+          <tr><td><code>data.list[].skuTier</code></td><td>string</td><td>SKU 分层结果</td></tr>
+          <tr><td><code>data.list[].isHotColorSize</code></td><td>boolean</td><td>是否热卖色码</td></tr>
+          <tr><td><code>data.list[].vocScore</code></td><td>number</td><td>VOC 值，可由编辑弹窗人工修正</td></tr>
+          <tr><td><code>data.list[].returnRate14d</code></td><td>number</td><td>近 14 天退货率</td></tr>
+          <tr><td><code>data.list[].suggestRestockTransportMode</code></td><td>string</td><td>补货建议运输方式</td></tr>
+          <tr><td><code>data.list[].targetOverseasStockQty</code></td><td>number</td><td>海外仓目标库存</td></tr>
+          <tr><td><code>data.list[].targetDirectMailStockQty</code></td><td>number</td><td>直邮仓目标库存</td></tr>
+          <tr><td><code>data.list[].finalSafetyStockDays</code></td><td>number</td><td>最终安全库存天数</td></tr>
+          <tr><td><code>data.list[].isPurchase</code></td><td>boolean</td><td>是否建议采购</td></tr>
+          <tr><td><code>data.list[].suggestPurchaseQty</code></td><td>number</td><td>建议采购数量，采购计划导出字段计划量取该值</td></tr>
+          <tr><td><code>data.list[].suggestPurchaseTransportMode</code></td><td>string</td><td>建议采购运输方式，采购计划导出字段物流方式取该值</td></tr>
+          <tr><td><code>data.list[].purchaseEtaDate</code></td><td>string</td><td>预计到仓日，格式为 <code>yyyy-MM-dd</code></td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-restock-fields">2.8 备货模型：列表字段说明接口</h3>
     <pre><code>GET /tk/inventory/replenishment/restock/fields</code></pre>
@@ -748,13 +879,25 @@
     "purchaseEtaDate": { "fieldDesc": "补货决策输出-预计到仓日（采购）；采购计划导出字段计划交期取该值", "canSort": true }
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data</code></td><td>object</td><td>备货模型字段说明对象；key 为列表字段名</td></tr>
+          <tr><td><code>data.&lt;field&gt;.fieldDesc</code></td><td>string</td><td>字段中文说明，包含页面分组、展示名称和必要口径</td></tr>
+          <tr><td><code>data.&lt;field&gt;.canSort</code></td><td>boolean</td><td>字段是否支持排序；为 <code>true</code> 时可作为 <code>sortField</code> 传入分页列表接口</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-restock-update">2.9 备货模型：编辑保存接口</h3>
     <p>对应原型中的“编辑备货模型字段”弹窗，保存后按库存 SKU 维度刷新当前行。当前页面只有备货模型提供编辑动作，且仅支持编辑 <code>lifeCycle</code>、<code>isContentBurst</code>、<code>businessOrderRatio</code>、<code>editorOrderRatio</code>、<code>vocScore</code>。</p>
     <pre><code>POST /tk/inventory/replenishment/restock/update</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
-  "siteCode": "US",
   "storeName": "美国TK-艾斯特尼-美区跨境1店",
   "inventorySku": "AL-W0161-BLK-S",
   "skuId": "7359123456789012345",
@@ -773,24 +916,98 @@
     "inventorySku": "AL-W0161-BLK-S"
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.success</code></td><td>boolean</td><td>保存是否成功</td></tr>
+          <tr><td><code>data.inventorySku</code></td><td>string</td><td>本次保存影响的库存 SKU，用于前端定位并刷新当前行</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h3 id="replenishment-restock-export">2.10 备货模型：导出接口</h3>
     <pre><code>POST /tk/inventory/replenishment/restock/export</code></pre>
-    <p>导出备货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/restock/page</code> 一致。页面中的“采购计划导出预览”可复用当前筛选结果生成 <code>*MSKU(SKU)</code>、<code>平台站点</code>、<code>*计划量</code>、<code>计划交期</code>、<code>备注</code>、<code>物流方式</code>。</p>
+    <p>导出备货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/restock/page</code> 一致。</p>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；普通导出文件列与备货模型分页列表字段保持一致。</p>
 
-    <h3 id="replenishment-ship-page">2.11 发货模型：分页列表接口</h3>
+    <h3 id="replenishment-purchase-plan-page">2.11 采购计划：明细列表接口</h3>
+    <p>对应原型“备货模型”栏目中的 <strong>导出采购计划</strong> 弹窗预览。接口按当前备货模型筛选条件生成采购计划明细，仅返回 <code>suggestPurchaseQty &gt; 0</code> 的 SKU；页面可先调用该接口预览，再调用导出接口下载 Excel。</p>
+    <pre><code>POST /tk/inventory/replenishment/purchase-plan/page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "storeName": "美国TK-艾斯特尼-美区跨境1店",
+  "lifeCycle": "rising",
+  "skuTier": "A",
+  "isPurchase": true,
+  "searchField": "spu",
+  "searchKeyword": "AL-W0161",
+  "exactSearchKeywords": "AL-W0161-BLK-S",
+  "page": 1,
+  "pageSize": 20,
+  "sortField": "suggestPurchaseQty",
+  "sortOrder": "desc"
+}</code></pre>
+    <p><strong>响应 data 示例</strong></p>
+    <pre><code>{
+  "code": 200,
+  "msg": "操作成功",
+  "data": {
+    "page": 1,
+    "pageSize": 20,
+    "total": 3,
+    "list": [
+      {
+        "mskuSku": "INV-SKU-004",
+        "platformSite": "US",
+        "planQty": 240,
+        "planEtaDate": "2026-06-20",
+        "remark": "核心款补采",
+        "transportMode": "空运"
+      }
+    ]
+  }
+}</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.page</code></td><td>number</td><td>当前页码</td></tr>
+          <tr><td><code>data.pageSize</code></td><td>number</td><td>每页条数</td></tr>
+          <tr><td><code>data.total</code></td><td>number</td><td>可导出采购计划的明细总数</td></tr>
+          <tr><td><code>data.list</code></td><td>array</td><td>采购计划导出模板明细数据</td></tr>
+          <tr><td><code>data.list[].mskuSku</code></td><td>string</td><td>导出列 <code>*MSKU(SKU)</code>，来源于备货模型库存 SKU</td></tr>
+          <tr><td><code>data.list[].platformSite</code></td><td>string</td><td>导出列 <code>平台站点</code>，来源于站点代码</td></tr>
+          <tr><td><code>data.list[].planQty</code></td><td>number</td><td>导出列 <code>*计划量</code>，来源于备货模型字段“建议采购数量”</td></tr>
+          <tr><td><code>data.list[].planEtaDate</code></td><td>string</td><td>导出列 <code>计划交期</code>，来源于备货模型字段“预计到仓日（采购）”，格式为 <code>yyyy-MM-dd</code></td></tr>
+          <tr><td><code>data.list[].remark</code></td><td>string</td><td>导出列 <code>备注</code>，可由规则生成或人工补充</td></tr>
+          <tr><td><code>data.list[].transportMode</code></td><td>string</td><td>导出列 <code>物流方式</code>，来源于备货模型字段“建议运输方式（采购）”</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="replenishment-purchase-plan-export">2.12 采购计划：导出接口</h3>
+    <pre><code>POST /tk/inventory/replenishment/purchase-plan/export</code></pre>
+    <p>导出采购计划模板 Excel，数据与 <code>/tk/inventory/replenishment/purchase-plan/page</code> 当前筛选结果一致。导出列为 <code>*MSKU(SKU)</code>、<code>平台站点</code>、<code>*计划量</code>、<code>计划交期</code>、<code>备注</code>、<code>物流方式</code>，格式对应积加“采购计划导入产品模板（单仓）”。</p>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；文件建议命名为 <code>发补货看板_采购计划_{yyyyMMddHHmmss}.xlsx</code>。</p>
+
+    <h3 id="replenishment-ship-page">2.13 发货模型：分页列表接口</h3>
     <p>对应“发货模型”栏目列表，字段按原型分为商品基础信息、发货触发条件、发货数量计算、最小批量校验、目的仓选择、运输方式判断、发货决策输出、联动输出字段。</p>
     <pre><code>POST /tk/inventory/replenishment/ship/page</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
-  "siteCode": "US",
   "storeName": "美国TK-艾斯特尼-美区跨境1店",
   "lifeCycle": "rising",
   "skuTier": "A",
   "isShip": true,
   "alertType": "overseas-low-days",
   "searchField": "inventorySku",
-  "searchMode": "fuzzy",
   "searchKeyword": "W0161",
   "exactSearchKeywords": "AL-W0161-BLK-S",
   "page": 1,
@@ -842,8 +1059,52 @@
     ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.page</code></td><td>number</td><td>当前页码</td></tr>
+          <tr><td><code>data.pageSize</code></td><td>number</td><td>每页条数</td></tr>
+          <tr><td><code>data.total</code></td><td>number</td><td>命中当前筛选条件的总记录数</td></tr>
+          <tr><td><code>data.list</code></td><td>array</td><td>发货模型分页列表数据</td></tr>
+          <tr><td><code>data.list[].siteCode</code></td><td>string</td><td>站点代码，用于列表展示</td></tr>
+          <tr><td><code>data.list[].storeName</code></td><td>string</td><td>店铺名称</td></tr>
+          <tr><td><code>data.list[].spu</code></td><td>string</td><td>SPU 编码</td></tr>
+          <tr><td><code>data.list[].spuName</code></td><td>string</td><td>SPU 名称</td></tr>
+          <tr><td><code>data.list[].pid</code></td><td>string</td><td>店铺 PID</td></tr>
+          <tr><td><code>data.list[].msku</code></td><td>string</td><td>MSKU</td></tr>
+          <tr><td><code>data.list[].skuId</code></td><td>string</td><td>平台 SKU ID</td></tr>
+          <tr><td><code>data.list[].inventorySku</code></td><td>string</td><td>库存 SKU</td></tr>
+          <tr><td><code>data.list[].inventorySkuName</code></td><td>string</td><td>库存 SKU 名称</td></tr>
+          <tr><td><code>data.list[].overseasEffectiveStockQty</code></td><td>number</td><td>海外有效库存</td></tr>
+          <tr><td><code>data.list[].overseasSellableDays</code></td><td>number</td><td>海外可售天数</td></tr>
+          <tr><td><code>data.list[].shipTriggerThresholdDays</code></td><td>number</td><td>发货触发阈值天数</td></tr>
+          <tr><td><code>data.list[].urgentFlag</code></td><td>boolean</td><td>是否紧急</td></tr>
+          <tr><td><code>data.list[].directMailReservedQty</code></td><td>number</td><td>直邮预留量</td></tr>
+          <tr><td><code>data.list[].domesticShippableQty</code></td><td>number</td><td>国内可发库存</td></tr>
+          <tr><td><code>data.list[].suggestShipQty</code></td><td>number</td><td>建议发货数量，发货调拨单数量取该值</td></tr>
+          <tr><td><code>data.list[].stockGapQty</code></td><td>number</td><td>库存缺口</td></tr>
+          <tr><td><code>data.list[].minShipBatchQty</code></td><td>number</td><td>最小发货批量</td></tr>
+          <tr><td><code>data.list[].isMeetMinBatch</code></td><td>boolean</td><td>是否满足最小发货批量</td></tr>
+          <tr><td><code>data.list[].shipDestinationWarehouse</code></td><td>string</td><td>建议发货目的仓</td></tr>
+          <tr><td><code>data.list[].nearestCutoffDate</code></td><td>string</td><td>最近截单日，格式为 <code>yyyy-MM-dd</code></td></tr>
+          <tr><td><code>data.list[].shipEtaSellableDate</code></td><td>string</td><td>预计到仓可售日，格式为 <code>yyyy-MM-dd</code></td></tr>
+          <tr><td><code>data.list[].cutoffEtaDisplay</code></td><td>string</td><td>截单日 / 到仓日合并展示值</td></tr>
+          <tr><td><code>data.list[].estimatedOutOfStockDate</code></td><td>string</td><td>预计断货日，格式为 <code>yyyy-MM-dd</code></td></tr>
+          <tr><td><code>data.list[].stockoutToEtaGapDays</code></td><td>number</td><td>断货日至预计到仓可售日之间的空窗天数</td></tr>
+          <tr><td><code>data.list[].isDirectMailConnectable</code></td><td>boolean</td><td>直邮库存是否可衔接</td></tr>
+          <tr><td><code>data.list[].suggestShipTransportMode</code></td><td>string</td><td>建议发货运输方式</td></tr>
+          <tr><td><code>data.list[].isShip</code></td><td>boolean</td><td>是否建议发货</td></tr>
+          <tr><td><code>data.list[].shipPriority</code></td><td>string</td><td>发货优先级</td></tr>
+          <tr><td><code>data.list[].linkedAlertType</code></td><td>string</td><td>联动告警类型，对应顶部告警条文案</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h3 id="replenishment-ship-fields">2.12 发货模型：列表字段说明接口</h3>
+    <h3 id="replenishment-ship-fields">2.14 发货模型：列表字段说明接口</h3>
     <pre><code>GET /tk/inventory/replenishment/ship/fields</code></pre>
     <p><strong>响应 data 示例</strong></p>
     <pre><code>{
@@ -882,39 +1143,184 @@
     "linkedAlertType": { "fieldDesc": "联动输出字段-联动告警类型；对应顶部告警条文案", "canSort": false }
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data</code></td><td>object</td><td>发货模型字段说明对象；key 为列表字段名</td></tr>
+          <tr><td><code>data.&lt;field&gt;.fieldDesc</code></td><td>string</td><td>字段中文说明，包含页面分组、展示名称和必要口径</td></tr>
+          <tr><td><code>data.&lt;field&gt;.canSort</code></td><td>boolean</td><td>字段是否支持排序；为 <code>true</code> 时可作为 <code>sortField</code> 传入分页列表接口</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h3 id="replenishment-ship-export">2.13 发货模型：导出接口</h3>
+    <h3 id="replenishment-ship-export">2.15 发货模型：导出接口</h3>
     <pre><code>POST /tk/inventory/replenishment/ship/export</code></pre>
-    <p>导出发货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/ship/page</code> 一致。页面中的“导出发货调拨单”可复用当前筛选结果生成 <code>*SKU</code>、<code>MSKU</code>、<code>*平台站点</code>、<code>*数量</code>、<code>FNSKU</code>、<code>明细备注</code>。</p>
+    <p>导出发货模型当前筛选条件下的列表，字段与 <code>/tk/inventory/replenishment/ship/page</code> 一致。</p>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；普通导出文件列与发货模型分页列表字段保持一致。</p>
 
-    <h3 id="replenishment-common-actions">2.14 通用页面功能接口</h3>
-    <p>对应三个栏目都有的页面动作：导出全部数据、自定义列配置、产品说明。其中栏目内普通“导出”分别使用各栏目的导出接口；“导出采购计划”和“导出发货调拨单”复用备货模型、发货模型当前筛选结果生成指定模板。</p>
-
-    <h4>2.14.1 导出全部数据</h4>
-    <pre><code>POST /tk/inventory/replenishment/export-all</code></pre>
-    <p>导出当前筛选范围内库存看板、备货模型、发货模型三个栏目的所有字段数据。导出文件建议命名为 <code>发补货看板_全部数据_{yyyyMMddHHmmss}.xlsx</code>。</p>
-
-    <h4>2.14.2 自定义列配置查询</h4>
-    <pre><code>GET /tk/inventory/replenishment/column-config?module=inventory</code></pre>
+    <h3 id="replenishment-transfer-order-page">2.16 发货调拨单：明细列表接口</h3>
+    <p>对应原型“发货模型”栏目中的 <strong>导出发货调拨单</strong> 弹窗预览。接口按当前发货模型筛选条件生成调拨单明细，仅返回 <code>suggestShipQty &gt; 0</code> 的 SKU；页面可先调用该接口预览，再调用导出接口下载 Excel。</p>
+    <pre><code>POST /tk/inventory/replenishment/transfer-order/page</code></pre>
+    <p><strong>请求体</strong></p>
+    <pre><code>{
+  "storeName": "美国TK-艾斯特尼-美区跨境1店",
+  "lifeCycle": "rising",
+  "skuTier": "A",
+  "isShip": true,
+  "alertType": "overseas-low-days",
+  "searchField": "inventorySku",
+  "searchKeyword": "W0161",
+  "exactSearchKeywords": "AL-W0161-BLK-S",
+  "page": 1,
+  "pageSize": 20,
+  "sortField": "suggestShipQty",
+  "sortOrder": "desc"
+}</code></pre>
     <p><strong>响应 data 示例</strong></p>
     <pre><code>{
   "code": 200,
   "msg": "操作成功",
   "data": {
-    "module": "inventory",
-    "visibleFields": ["siteCode", "storeName", "spu", "pid", "inventorySku", "totalInventoryQty"]
+    "page": 1,
+    "pageSize": 20,
+    "total": 3,
+    "list": [
+      {
+        "sku": "INV-SKU-001",
+        "msku": "MSKU-001",
+        "platformSite": "US",
+        "qty": 180,
+        "fnsku": "-",
+        "detailRemark": "空运｜紧急补货"
+      }
+    ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.page</code></td><td>number</td><td>当前页码</td></tr>
+          <tr><td><code>data.pageSize</code></td><td>number</td><td>每页条数</td></tr>
+          <tr><td><code>data.total</code></td><td>number</td><td>可导出发货调拨单的明细总数</td></tr>
+          <tr><td><code>data.list</code></td><td>array</td><td>发货调拨单导出模板明细数据</td></tr>
+          <tr><td><code>data.list[].sku</code></td><td>string</td><td>导出列 <code>*SKU</code>，来源于发货模型库存 SKU</td></tr>
+          <tr><td><code>data.list[].msku</code></td><td>string</td><td>导出列 <code>MSKU</code></td></tr>
+          <tr><td><code>data.list[].platformSite</code></td><td>string</td><td>导出列 <code>*平台站点</code>，来源于站点代码</td></tr>
+          <tr><td><code>data.list[].qty</code></td><td>number</td><td>导出列 <code>*数量</code>，来源于发货模型字段“建议发货数量”</td></tr>
+          <tr><td><code>data.list[].fnsku</code></td><td>string</td><td>导出列 <code>FNSKU</code>，无可用值时返回 <code>-</code></td></tr>
+          <tr><td><code>data.list[].detailRemark</code></td><td>string</td><td>导出列 <code>明细备注</code>，可组合运输方式、发货优先级或告警原因</td></tr>
+        </tbody>
+      </table>
+    </div>
 
-    <h4>2.14.3 自定义列配置保存</h4>
-    <pre><code>POST /tk/inventory/replenishment/column-config/save</code></pre>
-    <p><strong>请求体</strong></p>
-    <pre><code>{
-  "module": "inventory",
-  "visibleFields": ["siteCode", "storeName", "spu", "pid", "inventorySku", "totalInventoryQty"]
-}</code></pre>
+    <h3 id="replenishment-transfer-order-export">2.17 发货调拨单：导出接口</h3>
+    <pre><code>POST /tk/inventory/replenishment/transfer-order/export</code></pre>
+    <p>导出发货调拨单模板 Excel，数据与 <code>/tk/inventory/replenishment/transfer-order/page</code> 当前筛选结果一致。导出列为 <code>*SKU</code>、<code>MSKU</code>、<code>*平台站点</code>、<code>*数量</code>、<code>FNSKU</code>、<code>明细备注</code>，格式对应积加“调拨单添加商品模板（非FBA仓）”。</p>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；文件建议命名为 <code>发补货看板_发货调拨单_{yyyyMMddHHmmss}.xlsx</code>。</p>
 
-    <h4>2.14.4 产品说明接口</h4>
+    <h3 id="replenishment-common-actions">2.18 通用页面功能接口</h3>
+    <p>对应三个栏目都有的页面动作：导出全部数据、产品说明。其中栏目内普通“导出”分别使用各栏目的导出接口；“导出采购计划”和“导出发货调拨单”复用备货模型、发货模型当前筛选结果生成指定模板。</p>
+
+    <h4>2.18.1 导出全部数据</h4>
+    <pre><code>POST /tk/inventory/replenishment/export-all</code></pre>
+    <p>导出当前筛选范围内库存看板、备货模型、发货模型三个栏目列表字段的并集数据，三个栏目重复字段只保留一列。导出文件建议命名为 <code>发补货看板_全部数据_{yyyyMMddHHmmss}.xlsx</code>。</p>
+    <p><strong>导出字段清单</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>分组</th><th>字段名</th><th>导出列名</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>商品基础信息</td><td><code>siteCode</code></td><td>站点</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>storeName</code></td><td>店铺</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>spu</code></td><td>SPU编码</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>spuName</code></td><td>SPU名称</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>pid</code></td><td>PID</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>msku</code></td><td>MSKU</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>skuId</code></td><td>SKU ID</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>inventorySku</code></td><td>库存SKU</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>商品基础信息</td><td><code>inventorySkuName</code></td><td>SKU名称</td><td>三个栏目重复字段，合并保留一列</td></tr>
+          <tr><td>库存看板-汇总库存</td><td><code>totalInventoryQty</code></td><td>总库存</td><td>总在途库存 + 总可用库存</td></tr>
+          <tr><td>库存看板-汇总库存</td><td><code>totalInTransitQty</code></td><td>总在途库存</td><td>国内在途 + 海外在途</td></tr>
+          <tr><td>库存看板-汇总库存</td><td><code>totalAvailableQty</code></td><td>总可用库存</td><td>国内在库 + 海外在库可用</td></tr>
+          <tr><td>库存看板-国内库存</td><td><code>domesticTotalQty</code></td><td>总国内库存</td><td>国内库存总量</td></tr>
+          <tr><td>库存看板-国内库存</td><td><code>purchaseInTransitQty</code></td><td>采购在途库存</td><td>采购在途量</td></tr>
+          <tr><td>库存看板-国内库存</td><td><code>factoryUnfulfilledQty</code></td><td>工厂采购未交量</td><td>工厂未交付数量</td></tr>
+          <tr><td>库存看板-国内库存</td><td><code>domesticDeliveryInTransitQty</code></td><td>国内交货在途库存</td><td>国内交货在途量</td></tr>
+          <tr><td>库存看板-国内库存</td><td><code>domesticOnHandQty</code></td><td>国内在库</td><td>国内可用在库量</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>overseasInTransitTotalQty</code></td><td>海外在途总量</td><td>海外在途库存汇总</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>thirdWarehouseInTransitQty</code></td><td>三方仓在途量</td><td>三方仓在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>winitUsky3InTransitQty</code></td><td>万邑通USKY3在途</td><td>万邑通 USKY3 在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>winitUswc2InTransitQty</code></td><td>万邑通USWC2在途</td><td>万邑通 USWC2 在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>winitUswcInTransitQty</code></td><td>万邑通USWC在途</td><td>万邑通 USWC 在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>goodcangUsWestInTransitQty</code></td><td>美国谷仓美西仓库在途</td><td>谷仓美西仓库在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>fbtInTransitQty</code></td><td>FBT在途量</td><td>FBT 在途库存</td></tr>
+          <tr><td>库存看板-海外在途库存</td><td><code>ukReturnInTransitQty</code></td><td>英国退货仓在途量</td><td>英国退货仓在途库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>overseasOnHandTotalQty</code></td><td>海外在库总库存</td><td>海外在库库存汇总</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaWinitUsky3AvailableQty</code></td><td>积加-万邑通USKY3</td><td>积加侧万邑通 USKY3 可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaWinitUswc2AvailableQty</code></td><td>积加-万邑通USWC2</td><td>积加侧万邑通 USWC2 可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaWinitUswcAvailableQty</code></td><td>积加-万邑通USWC</td><td>积加侧万邑通 USWC 可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaGoodcangUsWestAvailableQty</code></td><td>积加-谷仓美西仓库</td><td>积加侧谷仓美西仓库可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>fbtAvailableQty</code></td><td>FBT可用</td><td>FBT 可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaFbaAvailableQty</code></td><td>积加-FBA仓库</td><td>积加侧 FBA 仓库可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>jijiaUkReturnAvailableQty</code></td><td>积加-英国退货仓</td><td>积加侧英国退货仓可用库存</td></tr>
+          <tr><td>库存看板-海外在库库存</td><td><code>thirdWarehouseAvailableQty</code></td><td>三方仓可用量</td><td>三方仓可用库存</td></tr>
+          <tr><td>备货模型-动态加权日均</td><td><code>dailySalesQty7d</code></td><td>7天日均（S7）</td><td>近 7 天日均销量</td></tr>
+          <tr><td>备货模型-动态加权日均</td><td><code>dailySalesQty30d</code></td><td>30天日均（S30）</td><td>近 30 天日均销量</td></tr>
+          <tr><td>备货模型-动态加权日均</td><td><code>s7S30Ratio</code></td><td>S7/S30比值</td><td>近期销量变化比值</td></tr>
+          <tr><td>备货模型-动态加权日均</td><td><code>dynamicWeightLevel</code></td><td>动态权重档位</td><td>动态加权规则档位</td></tr>
+          <tr><td>备货模型-动态加权日均</td><td><code>weightedDailySalesQty</code></td><td>加权日均</td><td>最终加权日均销量</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>lifeCycle</code></td><td>生命周期</td><td>生命周期判断结果</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>isContentBurst</code></td><td>是否内容爆发</td><td>是否命中内容爆发</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>businessOrderRatio</code></td><td>商务出单占比</td><td>商务来源订单占比</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>editorOrderRatio</code></td><td>剪辑出单占比</td><td>剪辑来源订单占比</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>overseasSafetyStockAdjustDays</code></td><td>安全库存调整天数（海外仓）</td><td>海外仓安全库存调整天数</td></tr>
+          <tr><td>备货模型-生命周期判断</td><td><code>directMailSafetyStockAdjustDays</code></td><td>安全库存调整天数（直邮仓）</td><td>直邮仓安全库存调整天数</td></tr>
+          <tr><td>备货模型-SKU四层分层</td><td><code>skuTier</code></td><td>SKU分层</td><td>SKU 四层分层结果</td></tr>
+          <tr><td>备货模型-SKU四层分层</td><td><code>isHotColorSize</code></td><td>是否热卖色码</td><td>是否热卖色码</td></tr>
+          <tr><td>备货模型-SKU四层分层</td><td><code>vocScore</code></td><td>VOC值</td><td>VOC 评分</td></tr>
+          <tr><td>备货模型-SKU四层分层</td><td><code>returnRate14d</code></td><td>退货率（近14天）</td><td>近 14 天退货率</td></tr>
+          <tr><td>备货模型-目标库存计算</td><td><code>suggestRestockTransportMode</code></td><td>建议运输方式（补货）</td><td>补货建议运输方式</td></tr>
+          <tr><td>备货模型-目标库存计算</td><td><code>targetOverseasStockQty</code></td><td>目标库存（海外仓）</td><td>海外仓目标库存</td></tr>
+          <tr><td>备货模型-目标库存计算</td><td><code>targetDirectMailStockQty</code></td><td>目标库存（直邮仓）</td><td>直邮仓目标库存</td></tr>
+          <tr><td>备货模型-目标库存计算</td><td><code>finalSafetyStockDays</code></td><td>安全库存天数（最终）</td><td>最终安全库存天数</td></tr>
+          <tr><td>备货模型-补货决策输出</td><td><code>isPurchase</code></td><td>是否采购</td><td>是否建议采购</td></tr>
+          <tr><td>备货模型-补货决策输出</td><td><code>suggestPurchaseQty</code></td><td>建议采购数量</td><td>建议采购数量</td></tr>
+          <tr><td>备货模型-补货决策输出</td><td><code>suggestPurchaseTransportMode</code></td><td>建议运输方式（采购）</td><td>建议采购运输方式</td></tr>
+          <tr><td>备货模型-补货决策输出</td><td><code>purchaseEtaDate</code></td><td>预计到仓日（采购）</td><td>采购预计到仓日</td></tr>
+          <tr><td>发货模型-发货触发条件</td><td><code>overseasEffectiveStockQty</code></td><td>海外有效库存</td><td>海外有效库存</td></tr>
+          <tr><td>发货模型-发货触发条件</td><td><code>overseasSellableDays</code></td><td>海外可售天数</td><td>海外库存可售天数</td></tr>
+          <tr><td>发货模型-发货触发条件</td><td><code>shipTriggerThresholdDays</code></td><td>发货触发阈值</td><td>发货触发阈值天数</td></tr>
+          <tr><td>发货模型-发货触发条件</td><td><code>urgentFlag</code></td><td>紧急标记</td><td>是否紧急发货</td></tr>
+          <tr><td>发货模型-发货数量计算</td><td><code>directMailReservedQty</code></td><td>直邮预留量</td><td>直邮库存预留量</td></tr>
+          <tr><td>发货模型-发货数量计算</td><td><code>domesticShippableQty</code></td><td>国内可发库存</td><td>国内可发库存</td></tr>
+          <tr><td>发货模型-发货数量计算</td><td><code>suggestShipQty</code></td><td>建议发货数量</td><td>建议发货数量</td></tr>
+          <tr><td>发货模型-发货数量计算</td><td><code>stockGapQty</code></td><td>库存缺口</td><td>库存缺口数量</td></tr>
+          <tr><td>发货模型-最小批量校验</td><td><code>minShipBatchQty</code></td><td>最小发货批量</td><td>最小发货批量</td></tr>
+          <tr><td>发货模型-最小批量校验</td><td><code>isMeetMinBatch</code></td><td>是否满足最小批量</td><td>是否满足最小发货批量</td></tr>
+          <tr><td>发货模型-目的仓选择</td><td><code>shipDestinationWarehouse</code></td><td>发货目的仓</td><td>建议发货目的仓</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>nearestCutoffDate</code></td><td>最近截单日</td><td>最近截单日期</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>shipEtaSellableDate</code></td><td>预计到仓可售日（发货）</td><td>发货预计到仓可售日</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>cutoffEtaDisplay</code></td><td>截单/到仓</td><td>截单日和到仓日合并展示值</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>estimatedOutOfStockDate</code></td><td>预计断货日</td><td>预计断货日期</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>stockoutToEtaGapDays</code></td><td>断货到到仓空窗期</td><td>断货日至预计到仓可售日之间的空窗天数</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>isDirectMailConnectable</code></td><td>直邮可衔接</td><td>直邮库存是否可衔接</td></tr>
+          <tr><td>发货模型-运输方式判断</td><td><code>suggestShipTransportMode</code></td><td>建议运输方式（发货）</td><td>建议发货运输方式</td></tr>
+          <tr><td>发货模型-发货决策输出</td><td><code>isShip</code></td><td>是否发货</td><td>是否建议发货</td></tr>
+          <tr><td>发货模型-发货决策输出</td><td><code>shipPriority</code></td><td>发货优先级</td><td>发货优先级</td></tr>
+          <tr><td>发货模型-联动输出字段</td><td><code>linkedAlertType</code></td><td>联动告警类型</td><td>对应顶部告警条文案</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>返回字段说明</strong>：接口返回 Excel 文件流，不返回 JSON 响应字段；文件包含上表列出的合并去重字段。</p>
+
+    <h4>2.18.2 产品说明接口</h4>
     <pre><code>GET /tk/inventory/replenishment/product-desc</code></pre>
     <p><strong>响应 data 示例</strong></p>
     <pre><code>{
@@ -927,11 +1333,22 @@
       "产品基础数据优先来源于 TikTok 在线商品与积加商品主数据，后续补充人工维护字段。",
       "库存看板用于展示商品基础信息、汇总库存、国内库存、海外在途库存、海外在库库存等库存现状。",
       "对应的是否热卖色码、对应的 SKU、是否热卖色码断货指标，需要补充到库存检查看板中。",
-      "备货模型、发货模型复用同一套商品基础信息，并在各自栏目下展开模型测算字段。",
-      "自定义列配置结果用于控制列表展示字段，并影响后续导出字段范围。"
+      "备货模型、发货模型复用同一套商品基础信息，并在各自栏目下展开模型测算字段。"
     ]
   }
 }</code></pre>
+    <p><strong>返回字段说明</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>number</td><td>接口状态码，<code>200</code> 表示请求成功</td></tr>
+          <tr><td><code>msg</code></td><td>string</td><td>接口处理结果提示文案</td></tr>
+          <tr><td><code>data.title</code></td><td>string</td><td>产品说明标题</td></tr>
+          <tr><td><code>data.items</code></td><td>array&lt;string&gt;</td><td>产品说明条目列表，按页面展示顺序返回</td></tr>
+        </tbody>
+      </table>
+    </div>
 
     <h2 id="third-party-jijia">三、第三方积加接口梳理</h2>
     <p>本章节用于补充 <strong>bi 服务请求第三方积加</strong> 的接口结构，方便后续 Java 代码落地时拆分第三方请求 DTO、响应 DTO、列表对象 DTO 以及字段转换器。当前已对部分核心接口补齐真实请求/响应结构，剩余未补齐部分可继续按同一模板扩展。</p>
@@ -2181,22 +2598,24 @@ Content-Type：application/json</code></pre>
           <tr><td>17</td><td>发补货-备货模型</td><td>列表字段说明</td><td>GET</td><td><code>/tk/inventory/replenishment/restock/fields</code></td></tr>
           <tr><td>18</td><td>发补货-备货模型</td><td>编辑保存</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/update</code></td></tr>
           <tr><td>19</td><td>发补货-备货模型</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/restock/export</code></td></tr>
-          <tr><td>20</td><td>发补货-发货模型</td><td>分页列表</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/page</code></td></tr>
-          <tr><td>21</td><td>发补货-发货模型</td><td>列表字段说明</td><td>GET</td><td><code>/tk/inventory/replenishment/ship/fields</code></td></tr>
-          <tr><td>22</td><td>发补货-发货模型</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/export</code></td></tr>
-          <tr><td>23</td><td>发补货</td><td>导出全部数据</td><td>POST</td><td><code>/tk/inventory/replenishment/export-all</code></td></tr>
-          <tr><td>24</td><td>发补货</td><td>自定义列配置查询</td><td>GET</td><td><code>/tk/inventory/replenishment/column-config</code></td></tr>
-          <tr><td>25</td><td>发补货</td><td>自定义列配置保存</td><td>POST</td><td><code>/tk/inventory/replenishment/column-config/save</code></td></tr>
-          <tr><td>26</td><td>发补货</td><td>产品说明</td><td>GET</td><td><code>/tk/inventory/replenishment/product-desc</code></td></tr>
-          <tr><td>27</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
-          <tr><td>28</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
-          <tr><td>29</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
-          <tr><td>30</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
-          <tr><td>31</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
-          <tr><td>32</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
-          <tr><td>33</td><td>第三方积加-产品库存阈值设置</td><td>库存同步规则列表</td><td>POST</td><td><code>sales/inventory-sync-rule/page</code></td></tr>
-          <tr><td>34</td><td>第三方积加-产品库存阈值设置</td><td>库存同步规则详情</td><td>GET</td><td><code>sales/inventory-sync-rule/detail/{ruleId}</code></td></tr>
-          <tr><td>35</td><td>第三方积加-产品库存阈值设置</td><td>Listing 明细列表</td><td>POST</td><td><code>sales/listing/listingPage</code></td></tr>
+          <tr><td>20</td><td>发补货-采购计划</td><td>明细列表</td><td>POST</td><td><code>/tk/inventory/replenishment/purchase-plan/page</code></td></tr>
+          <tr><td>21</td><td>发补货-采购计划</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/purchase-plan/export</code></td></tr>
+          <tr><td>22</td><td>发补货-发货模型</td><td>分页列表</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/page</code></td></tr>
+          <tr><td>23</td><td>发补货-发货模型</td><td>列表字段说明</td><td>GET</td><td><code>/tk/inventory/replenishment/ship/fields</code></td></tr>
+          <tr><td>24</td><td>发补货-发货模型</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/ship/export</code></td></tr>
+          <tr><td>25</td><td>发补货-发货调拨单</td><td>明细列表</td><td>POST</td><td><code>/tk/inventory/replenishment/transfer-order/page</code></td></tr>
+          <tr><td>26</td><td>发补货-发货调拨单</td><td>导出</td><td>POST</td><td><code>/tk/inventory/replenishment/transfer-order/export</code></td></tr>
+          <tr><td>27</td><td>发补货</td><td>导出全部数据</td><td>POST</td><td><code>/tk/inventory/replenishment/export-all</code></td></tr>
+          <tr><td>28</td><td>发补货</td><td>产品说明</td><td>GET</td><td><code>/tk/inventory/replenishment/product-desc</code></td></tr>
+          <tr><td>29</td><td>第三方积加</td><td>TIKTOK-在售商品列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/list/page</code></td></tr>
+          <tr><td>30</td><td>第三方积加</td><td>站点产品库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inventory/manage/productInventory/pageQuery</code></td></tr>
+          <tr><td>31</td><td>第三方积加</td><td>TikTok.FBT库存-正常 列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/gipx/inv/tiktokFbtInventory/pageQuery</code></td></tr>
+          <tr><td>32</td><td>第三方积加</td><td>TIKTOK-在售商品-库存列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/listing/tiktok/listing/inventory</code></td></tr>
+          <tr><td>33</td><td>人工维护</td><td>TIKTOK-可用仓库列表</td><td>N/A</td><td><code>人工维护仓库映射数据，暂不走积加接口</code></td></tr>
+          <tr><td>34</td><td>第三方积加</td><td>多平台销售表现-tiktok-列表</td><td>POST</td><td><code>https://gateway.apist.gerpgo.com/v3/statistics/analysisMultiChannel/mskuSalesView</code></td></tr>
+          <tr><td>35</td><td>第三方积加-产品库存阈值设置</td><td>库存同步规则列表</td><td>POST</td><td><code>sales/inventory-sync-rule/page</code></td></tr>
+          <tr><td>36</td><td>第三方积加-产品库存阈值设置</td><td>库存同步规则详情</td><td>GET</td><td><code>sales/inventory-sync-rule/detail/{ruleId}</code></td></tr>
+          <tr><td>37</td><td>第三方积加-产品库存阈值设置</td><td>Listing 明细列表</td><td>POST</td><td><code>sales/listing/listingPage</code></td></tr>
         </tbody>
       </table>
     </div>

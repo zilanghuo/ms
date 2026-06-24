@@ -8,9 +8,7 @@
   /Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl/sales/ads/ads_sales_trend_market_1m.sql
 这几个文件，是ads 层的最终查询sql，可以往前追溯
 
-
-
-
+  
 java代码的目录
 - 整体架构：/Users/a1/Documents/Office/code/ms-bi
 - 具体代码目录：/Users/a1/Documents/Office/code/ms-bi/ms-bi/src/main/java/com/ms/bi/bigscreen
@@ -18,6 +16,9 @@ java代码的目录
 
 前端的代码目录为：
 - /Users/a1/Documents/Office/code/msbi
+
+截图的位置为：
+- /Users/a1/Documents/Office/code/ms-proj/software/麻生销售数据大屏智能化系统/image
 
 数据仓库是Doris， mysql
 调度系统是 海豚调度

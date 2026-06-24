@@ -51,9 +51,9 @@
     <blockquote>本版需求文档按最新资料重写：字段来源以 <code>6月4日-思唯修改的映射表.xlsx</code> 为准，页面功能与展示以 <code>htmls/库存检查看板-1.0.html</code> 为准；正文仅保留当前页面需要的字段、交互和验收口径。</blockquote>
 
     <div class="toc">
-      <div><strong>目录</strong><br /><a href="#overview">一、需求概述</a><br /><a href="#data-source">二、数据源与取数路径</a><br /><a href="#page-scope">三、页面范围与交互</a></div>
-      <div><a href="#sku-view">四、PID&amp;SKU 维度需求</a><br /><a href="#spu-view">五、SPU 维度需求</a><br /><a href="#field-mapping">六、字段来源与计算口径</a></div>
-      <div><a href="#exception-rule">七、异常判断规则</a><br /><a href="#export-and-permission">八、导出与权限</a><br /><a href="#acceptance">九、验收标准</a></div>
+      <div><strong>目录</strong><br /><a href="#overview">一、需求概述</a><br /><a href="#achievement">二、成果描述</a><br /><a href="#data-source">三、数据源与取数路径</a></div>
+      <div><a href="#page-scope">四、页面范围与交互</a><br /><a href="#sku-view">五、PID&amp;SKU 维度需求</a><br /><a href="#spu-view">六、SPU 维度需求</a></div>
+      <div><a href="#field-mapping">七、字段来源与计算口径</a><br /><a href="#exception-rule">八、异常判断规则</a><br /><a href="#export-and-permission">九、导出与权限</a><br /><a href="#acceptance">十、验收标准</a></div>
     </div>
     <hr />
 
@@ -76,7 +76,18 @@
       <li>页面支持查询、重置、导出、自定义列配置、产品说明和分页。</li>
     </ul>
 
-    <h2 id="data-source">二、数据源与取数路径</h2>
+    <h2 id="achievement">二、成果描述</h2>
+    <p>完成 <strong>TK库存检查</strong> 看板建设，围绕 TikTok 在线商品、积加库存、店铺侧已同步库存及库存阀值配置，形成 SKU / SPU 双维度库存核对能力。看板支持运营按站点、店铺、异常状态、PID、SKU、SPU 等条件快速筛选，统一查看总库存、国内库存、海外在途、海外在库、店铺应同步库存、店铺实际同步库存、库存差异及异常判断结果，帮助快速定位库存同步异常、少同步及超卖风险。</p>
+    <div class="table-wrap"><table class="small-table"><thead><tr><th>指标类型</th><th>核心指标</th><th>业务价值</th></tr></thead><tbody>
+      <tr><td>统计卡片指标</td><td>SKU 总数 / SPU 总数、海外在库总库存、海外在途总库存、国内总库存、阀值同步异常数、少同步异常数、超卖风险异常数。</td><td>提供当前查询范围内的库存规模、库存分布和异常数量概览，异常类卡片可点击后快速筛选明细。</td></tr>
+      <tr><td>库存总览指标</td><td>总库存、总在途库存、总可用库存、总国内库存。</td><td>沉淀商品库存全局口径，支持运营判断库存总量、可用量和在途量是否满足销售与备货需要。</td></tr>
+      <tr><td>海外在途指标</td><td>海外在途总量、三方仓在途量、万邑通 USKY3 / USWC2 / USWC 在途、谷仓美西仓库在途、FBT 在途量、英国退货仓在途量。</td><td>拆分海外在途库存来源，便于跟踪不同仓库与履约链路上的在途库存。</td></tr>
+      <tr><td>海外在库指标</td><td>海外在库总库存、积加-万邑通 USKY3、积加-万邑通 USWC2、积加-万邑通 USWC、积加-谷仓美西仓库、积加-FBA 仓库、积加-FBT 可用、三方仓可用量、积加-英国退货仓。</td><td>汇总海外各仓可用库存，支撑店铺侧同步库存和实际可售库存核对。</td></tr>
+      <tr><td>店铺同步与差异指标</td><td>店铺应该被同步的库存、店铺侧被同步的总库存、库存总差异、各仓同步差异。</td><td>对比店铺后台实际同步库存和业务侧应同步库存，定位具体差异仓库。</td></tr>
+      <tr><td>异常判断指标</td><td>库存阀值设置、库存是否异常、异常仓库、异常类型。</td><td>根据库存总差异和库存阀值识别阀值同步异常、少同步和超卖风险，形成可处理的异常清单。</td></tr>
+    </tbody></table></div>
+
+    <h2 id="data-source">三、数据源与取数路径</h2>
     <p>数据源以 Excel 的 <code>源数据路径</code> 与 <code>映射表</code> Sheet 为准。当前页面主要依赖以下来源：</p>
     <div class="table-wrap"><table><thead><tr><th>数据源</th><th>步骤</th><th>取数路径 / 筛选口径</th><th>确认状态 / 备注</th></tr></thead><tbody>
 <tr><td>TIKTOK-在线商品</td><td>1，</td><td>积加-》销售-》商品管理-》Tiktok自运营-》筛选店铺-》筛选在售<br /><br />店铺：<br />美国TK-艾斯特尼-美区跨境1店<br />美国TK-艾斯特尼-美区跨境2店<br />美国TK-艾斯特尼-美区跨境3店<br />美国TK-艾斯特尼-英国直邮店:GB<br />美国TK独立站-shopify:Global<br />美国TK-艾斯特尼-欧洲直邮店:IT<br />美国TK-艾斯特尼-欧洲直邮店:FR<br />美国TK-艾斯特尼-欧洲直邮店:ES<br />美国TK-艾斯特尼-欧洲直邮店:DE</td><td>OK</td></tr>
@@ -93,7 +104,7 @@
     <div class="note">补充说明：数据源包括 TK 后台商品管理库存与积加后台库存阀值设置。店铺侧仓库名称后续应优先通过 TikTok 仓库列表接口或仓库维表映射补齐，避免仅展示仓库 ID。</div>
 
 
-    <h3>2.1 库存阀值设置参考截图</h3>
+    <h3>3.1 库存阀值设置参考截图</h3>
     <p>库存阀值设置用于异常判断中的 <strong>库存阀值设置</strong> 字段，是判断阀值同步异常、少同步异常和超卖风险异常的重要来源。</p>
     <div class="image-gallery">
       <div class="image-card">
@@ -106,8 +117,8 @@
       </div>
     </div>
 
-    <h2 id="page-scope">三、页面范围与交互</h2>
-    <h3>3.1 筛选条件</h3>
+    <h2 id="page-scope">四、页面范围与交互</h2>
+    <h3>4.1 筛选条件</h3>
     <div class="table-wrap"><table class="small-table"><thead><tr><th>筛选项</th><th>说明</th></tr></thead><tbody>
       <tr><td>站点</td><td>原型保留站点筛选；列表不展示站点列。</td></tr>
       <tr><td>店铺</td><td>支持按店铺筛选；列表展示店铺列。</td></tr>
@@ -115,13 +126,13 @@
       <tr><td>搜索</td><td>支持按 PID、SKU、SPU 进行模糊或精确搜索；精确搜索支持多值输入。</td></tr>
     </tbody></table></div>
 
-    <h3>3.2 统计卡片</h3>
+    <h3>4.2 统计卡片</h3>
     <div class="table-wrap"><table class="small-table"><thead><tr><th>栏目</th><th>卡片</th><th>交互</th></tr></thead><tbody>
       <tr><td>PID&amp;SKU维度</td><td>SKU总数、海外在库总库存、海外在途总库存、国内总库存、阀值同步异常数、少同步异常数、超卖风险异常数</td><td>异常类卡片点击后刷新 PID&amp;SKU 列表筛选结果。</td></tr>
       <tr><td>SPU维度</td><td>SPU总数、海外在库总库存、海外在途总库存、国内总库存、阀值同步异常数、少同步异常数、超卖风险异常数</td><td>异常类卡片点击后刷新 SPU 列表筛选结果。</td></tr>
     </tbody></table></div>
 
-    <h3>3.3 列表与分页</h3>
+    <h3>4.3 列表与分页</h3>
     <ul>
       <li>PID&amp;SKU 维度列表不展示合计行。</li>
       <li>SPU 维度列表展示合计行，合计行字段与 SPU 列表字段一致。</li>
@@ -129,11 +140,11 @@
       <li>两个栏目均需要分页；页码、每页条数、总条数、跳页能力与现有 BI 原型保持一致。</li>
     </ul>
 
-    <h2 id="sku-view">四、PID&amp;SKU 维度需求</h2>
+    <h2 id="sku-view">五、PID&amp;SKU 维度需求</h2>
     <p>PID&amp;SKU 维度用于展示最细库存检查明细，商品基础信息包含店铺、SPU、SPU名称、PID、MSKU、SKU ID、库存SKU、库存SKU名称；其他库存模块按最新原型分组展示。</p>
-    <h3>4.1 字段分组</h3>
+    <h3>5.1 字段分组</h3>
     <p><span class="tag">产品基本信息</span><span class="tag">总库存</span><span class="tag">国内库存</span><span class="tag">海外在途总量</span><span class="tag">海外在库库存</span><span class="tag">店铺应该被同步的库存</span><span class="tag">店铺实际被同步库存的情况</span><span class="tag">库存差异</span><span class="tag">异常判断</span></p>
-    <h3>4.2 字段来源与公式</h3>
+    <h3>5.2 字段来源与公式</h3>
     <div class="table-wrap"><table><thead><tr><th>模块</th><th>字段名</th><th>字段说明</th><th>源数据表 / 位置</th><th>源字段</th><th>条件 / 需求公式</th></tr></thead><tbody>
 <tr><td>产品基本信息</td><td>店铺</td><td>—</td><td>TIKTOK-在线商品</td><td>店铺</td><td class="formula">—</td></tr>
 <tr><td>产品基本信息</td><td>SPU</td><td>—</td><td>TIKTOK-在线商品</td><td>SPU</td><td class="formula">—</td></tr>
@@ -194,15 +205,15 @@
 <tr><td>异常判断</td><td>异常类型</td><td>—</td><td>计算字段 / 聚合字段</td><td>—</td><td class="formula">0<库存总差异<=阀值，类型：阀值问题，提示：库存到达阀值，调整阀值or备货<br />库存总差异>阀值，类型：少同步，提示：库存同步数量少了，安排检查库存<br />库存总差异<0, 类型：超卖风险，提示：实际没那么多库存，可能超卖，立即检查</td></tr>
     </tbody></table></div>
 
-    <h2 id="spu-view">五、SPU 维度需求</h2>
+    <h2 id="spu-view">六、SPU 维度需求</h2>
     <p>SPU 维度基于 PID&amp;SKU 明细底表汇总生成。产品基本信息仅保留店铺、SPU、SPU名称；其他库存、同步、差异、异常模块与 PID&amp;SKU 维度保持一致。</p>
-    <h3>5.1 SPU 展开 SKU 明细</h3>
+    <h3>6.1 SPU 展开 SKU 明细</h3>
     <ul>
       <li>点击 SPU 列表某一行后，在当前行下方展开该 SPU 下的 SKU 明细。</li>
       <li>展开明细使用与 PID&amp;SKU 维度一致的字段结构、排序口径和字段说明。</li>
       <li>若当前 SPU 无 SKU 明细，应展示空状态提示，不影响主列表分页。</li>
     </ul>
-    <h3>5.2 字段来源与公式</h3>
+    <h3>6.2 字段来源与公式</h3>
     <div class="table-wrap"><table><thead><tr><th>模块</th><th>字段名</th><th>字段说明</th><th>源数据表 / 位置</th><th>源字段</th><th>条件 / 需求公式</th></tr></thead><tbody>
 <tr><td>产品基本信息</td><td>店铺</td><td>—</td><td>TIKTOK-在线商品</td><td>店铺</td><td class="formula">—</td></tr>
 <tr><td>产品基本信息</td><td>SPU</td><td>—</td><td>TIKTOK-在线商品</td><td>SPU</td><td class="formula">—</td></tr>
@@ -258,8 +269,8 @@
 <tr><td>异常判断</td><td>异常类型</td><td>—</td><td>计算字段 / 聚合字段</td><td>—</td><td class="formula">0<库存总差异<=阀值，类型：阀值问题，提示：库存到达阀值，调整阀值or备货<br />库存总差异>阀值，类型：少同步，提示：库存同步数量少了，安排检查库存<br />库存总差异<0, 类型：超卖风险，提示：实际没那么多库存，可能超卖，立即检查</td></tr>
     </tbody></table></div>
 
-    <h2 id="field-mapping">六、字段来源与计算口径</h2>
-    <h3>6.1 关键计算公式</h3>
+    <h2 id="field-mapping">七、字段来源与计算口径</h2>
+    <h3>7.1 关键计算公式</h3>
     <div class="table-wrap"><table class="small-table"><thead><tr><th>指标</th><th>计算口径</th></tr></thead><tbody>
       <tr><td>总库存</td><td>总国内库存 + 海外在途总量 + 海外在库总库存。</td></tr>
       <tr><td>总在途库存</td><td>国内库存中非国内在库部分 + 海外在途总量。</td></tr>
@@ -271,10 +282,10 @@
       <tr><td>库存差异</td><td>店铺侧实际同步库存 - 应该被同步库存；仓库级差异按对应仓库逐一相减。</td></tr>
     </tbody></table></div>
 
-    <h3>6.2 最新原型不展示字段</h3>
+    <h3>7.2 最新原型不展示字段</h3>
     <p>本需求文档仅描述最新原型中展示的字段。映射表中存在但页面不展示的字段，不作为本页面字段要求，也不进入列表、导出和字段说明接口。</p>
 
-    <h2 id="exception-rule">七、异常判断规则</h2>
+    <h2 id="exception-rule">八、异常判断规则</h2>
     <div class="table-wrap"><table class="small-table"><thead><tr><th>异常类型</th><th>判断规则</th><th>前端表现</th></tr></thead><tbody>
       <tr><td>阀值同步异常</td><td><code>0 &lt; 库存总差异 &lt;= 库存阀值设置</code>。</td><td>异常类型显示“阀值同步异常”，卡片统计计入阀值同步异常数。</td></tr>
       <tr><td>少同步异常</td><td><code>库存总差异 &gt; 库存阀值设置</code>。</td><td>异常类型显示“少同步”，卡片统计计入少同步异常数。</td></tr>
@@ -283,7 +294,7 @@
     </tbody></table></div>
     <p>异常仓库字段应列出发生仓库级差异的仓库名称；多个仓库可用逗号分隔。库存阀值设置来源于积加后台库存阀值设置 / 调库存规则。</p>
 
-    <h2 id="export-and-permission">八、导出与权限</h2>
+    <h2 id="export-and-permission">九、导出与权限</h2>
     <ul>
       <li>导出范围：按当前筛选条件导出当前栏目列表字段；SPU 维度导出可包含合计行。</li>
       <li>自定义列：默认支持自定义列配置；用户保存后影响页面展示字段和导出字段。</li>
@@ -292,7 +303,7 @@
       <li>数据更新时间：每个栏目单独展示数据更新时间。</li>
     </ul>
 
-    <h2 id="acceptance">九、验收标准</h2>
+    <h2 id="acceptance">十、验收标准</h2>
     <ol>
       <li>页面名称、栏目、筛选条件、统计卡片、列表字段与 <code>库存检查看板-1.0.html</code> 保持一致。</li>
       <li>PID&amp;SKU 维度列表不出现日期、站点、FC 履约仓字段和合计行。</li>
