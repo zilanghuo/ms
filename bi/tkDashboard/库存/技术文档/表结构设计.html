@@ -31,7 +31,7 @@
     <h1>库存模块 表结构设计</h1>
     <p>本文档以 <code>/Users/a1/Documents/Office/code/ms-warehouse-batch-data/ddl/inventory</code> 下的 Doris DDL 为基础，覆盖库存检查已落地 ODS / DIM / DWD / DWS / ADS 表结构，并补充 <code>库存/发补货/htmls/发补货看板-1.0.html</code> 对应的待新增表结构草案。接口文档中的请求、返回字段使用 camelCase；本页底表字段按 Doris 规范使用小写下划线命名。</p>
     <div class="note ok"><strong>命名依据：</strong>表名、字段名、分层和后缀遵循 <code>ms-warehouse-batch-data/AGENTS.md</code> 中 Doris 数仓规范：ODS / DWD / DWS / ADS / DIM 分层、<code>sdt</code> 日期分区、<code>smt</code> 月分区、配置表使用 <code>_config</code> 后缀。</div>
-    <div class="note"><strong>对齐结果：</strong>当前 DDL 目录共 13 张已落地表；库存检查表结构保持与 DDL 一致。发补货看板尚未在 DDL 目录落表，本页新增 <code>ads_inventory_replenishment_*</code> 与 <code>dim_inventory_replenishment_manual_config</code> 作为待新增 Doris 表设计草案，字段以发补货原型和接口文档第二章为准。</div>
+    <div class="note"><strong>对齐结果：</strong>当前 DDL 目录共 13 张已落地表；库存检查表结构保持与 DDL 一致。发补货看板尚未在 DDL 目录落表，本页新增 <code>dim_inventory_replenishment_*</code>、<code>dws_inventory_replenishment_*</code> 与 <code>ads_inventory_replenishment_*</code> 作为待新增 Doris 表设计草案。除 ODS 贴源表外，页面可修改、人工维护、规则配置类信息均落 DIM；中间测算过程优先落 DWS，最终 ADS 展示数据只保留结果字段，必要时由查询口径关联 DIM / DWS 输出。</div>
     <div class="toc"><strong>目录：</strong> <a href="#ods">ODS 贴源表</a> ｜ <a href="#dim">DIM 维表</a> ｜ <a href="#dwd">DWD 明细表</a> ｜ <a href="#dws">DWS 汇总表</a> ｜ <a href="#ads">ADS 报表表</a> ｜ <a href="#replenishment-design">发补货待新增表</a> ｜ <a href="#lineage">链路说明</a></div>
     <h2 id="overview">一、表清单</h2>
     <div class="table-wrap"><table><thead><tr><th>层级</th><th>库表</th><th>字段数</th><th>主键 / 聚合键</th><th>分布</th><th>DDL 文件</th><th>说明</th></tr></thead><tbody>
@@ -41,27 +41,31 @@
       <tr><td><span class="badge ods">ODS</span></td><td><a href="#tbl-ods-ods-inventory-tiktok-fbt-stock-df"><code>ods.ods_inventory_tiktok_fbt_stock_df</code></a></td><td>55</td><td><code>UNIQUE KEY(smt, sdt, store_name, record_id, fbt_id, sku)</code></td><td><code>HASH(sku) BUCKETS 16</code></td><td><code>ods/ods_inventory_tiktok_fbt_stock_df.sql</code></td><td>TikTok FBT 库存自定义导出日全量 ODS 表</td></tr>
       <tr><td><span class="badge ods">ODS</span></td><td><a href="#tbl-ods-ods-inventory-tiktok-product-online-product-df"><code>ods.ods_inventory_tiktok_product_online_product_df</code></a></td><td>32</td><td><code>UNIQUE KEY(smt, sdt, product_id, sku)</code></td><td><code>HASH(sku) BUCKETS 16</code></td><td><code>ods/ods_inventory_tiktok_product_online_product_df.sql</code></td><td>TikTok 在线商品日全量快照 ODS 表</td></tr>
       <tr><td><span class="badge ods">ODS</span></td><td><a href="#tbl-ods-ods-inventory-tiktok-site-product-stock-df"><code>ods.ods_inventory_tiktok_site_product_stock_df</code></a></td><td>67</td><td><code>UNIQUE KEY(smt, sdt, record_id, warehouse_id, market_id, sku)</code></td><td><code>HASH(sku) BUCKETS 16</code></td><td><code>ods/ods_inventory_tiktok_site_product_stock_df.sql</code></td><td>TikTok 站点产品库存自定义导出日全量 ODS 表</td></tr>
+      <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-dim-dim-inventory-replenishment-manual-config"><code>dim.dim_inventory_replenishment_manual_config</code></a></td><td>12</td><td><code>UNIQUE KEY(site_code, store_name, inventory_sku)</code></td><td><code>HASH(inventory_sku) BUCKETS 8</code></td><td><code>待新增 dim/dim_inventory_replenishment_manual_config.sql</code></td><td>发补货备货模型人工修正配置表，承接原型“编辑备货模型字段”弹窗可编辑字段。</td></tr>
+      <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-dim-dim-inventory-replenishment-warehouse-config"><code>dim.dim_inventory_replenishment_warehouse_config</code></a></td><td>13</td><td><code>UNIQUE KEY(site_code, warehouse_code)</code></td><td><code>HASH(warehouse_code) BUCKETS 8</code></td><td><code>待新增 dim/dim_inventory_replenishment_warehouse_config.sql</code></td><td>发补货仓库映射与发货/备货规则配置表，承接人工维护仓库归类、展示名称、是否参与发货和默认运输参数。</td></tr>
       <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-dim-dim-inventory-stock-threshold-config"><code>dim.dim_inventory_stock_threshold_config</code></a></td><td>18</td><td><code>UNIQUE KEY(site_code, store_name, item_id, warehouse_id, msku)</code></td><td><code>HASH(msku) BUCKETS 8</code></td><td><code>dim/dim_inventory_stock_threshold_config.sql</code></td><td>维护库存检查异常判断使用的阀值配置。</td></tr>
       <tr><td><span class="badge dwd">DWD</span></td><td><a href="#tbl-dwd-dwd-inventory-stock-check-sku-snapshot-1d"><code>dwd.dwd_inventory_stock_check_sku_snapshot_1d</code></a></td><td>64</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, spu, pid, msku, sku_id)</code></td><td><code>HASH(sku_id) BUCKETS 16</code></td><td><code>dwd/dwd_inventory_stock_check_sku_snapshot_1d.sql</code></td><td>库存检查 SKU 粒度明细快照表，承接 ODS 和 DIM 清洗后的库存明细与异常判断基础结果。</td></tr>
       <tr><td><span class="badge dws">DWS</span></td><td><a href="#tbl-dws-dws-inventory-stock-check-sku-1d"><code>dws.dws_inventory_stock_check_sku_1d</code></a></td><td>68</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, spu, pid, msku, sku_id)</code></td><td><code>HASH(sku_id) BUCKETS 16</code></td><td><code>dws/dws_inventory_stock_check_sku_1d.sql</code></td><td>库存检查 PID&amp;SKU 维度页面查询表。库存检查看板为纯报表，PID&amp;SKU 列表、导出、异常卡片筛选均查询该 ADS 表。</td></tr>
       <tr><td><span class="badge dws">DWS</span></td><td><a href="#tbl-dws-dws-inventory-stock-check-spu-1d"><code>dws.dws_inventory_stock_check_spu_1d</code></a></td><td>63</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, spu)</code></td><td><code>HASH(spu) BUCKETS 16</code></td><td><code>dws/dws_inventory_stock_check_spu_1d.sql</code></td><td>库存检查 SPU 粒度汇总表，由 DWD SKU 明细按店铺+SPU+SKU去重后聚合生成，支持 SPU 列表和展开 SKU 明细关联。</td></tr>
+      <tr><td><span class="badge dws">DWS</span></td><td><a href="#tbl-dws-dws-inventory-replenishment-inventory-sku-1d"><code>dws.dws_inventory_replenishment_inventory_sku_1d</code></a></td><td>37</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 dws/dws_inventory_replenishment_inventory_sku_1d.sql</code></td><td>发补货-库存看板库存汇总中间宽表，承接仓库归类、国内/海外库存汇总及页面展示仓库列。</td></tr>
+      <tr><td><span class="badge dws">DWS</span></td><td><a href="#tbl-dws-dws-inventory-replenishment-restock-sku-1d"><code>dws.dws_inventory_replenishment_restock_sku_1d</code></a></td><td>19</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 dws/dws_inventory_replenishment_restock_sku_1d.sql</code></td><td>发补货-备货模型销量趋势与动态加权中间表，沉淀 7/30 天日均、过滤后 S7、比值和加权日均等模型中间结果。</td></tr>
+      <tr><td><span class="badge dws">DWS</span></td><td><a href="#tbl-dws-dws-inventory-replenishment-ship-sku-1d"><code>dws.dws_inventory_replenishment_ship_sku_1d</code></a></td><td>25</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 dws/dws_inventory_replenishment_ship_sku_1d.sql</code></td><td>发补货-发货模型触发与数量计算中间表，沉淀海外可售、库存缺口、直邮预留和截单空窗等测算字段。</td></tr>
       <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-stock-check-sku-1d"><code>ads.ads_inventory_stock_check_sku_1d</code></a></td><td>68</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, spu, pid, msku, sku_id)</code></td><td><code>HASH(sku_id) BUCKETS 16</code></td><td><code>ads/ads_inventory_stock_check_sku_1d.sql</code></td><td>库存检查 PID&amp;SKU 维度页面查询表。库存检查看板为纯报表，PID&amp;SKU 列表、导出、异常卡片筛选均查询该 ADS 表。</td></tr>
       <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-stock-check-spu-1d"><code>ads.ads_inventory_stock_check_spu_1d</code></a></td><td>63</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, spu)</code></td><td><code>HASH(spu) BUCKETS 16</code></td><td><code>ads/ads_inventory_stock_check_spu_1d.sql</code></td><td>库存检查 SPU 维度页面查询表。SPU 列表、合计行、异常卡片筛选查询该 ADS 表；展开 SKU 明细关联 ADS SKU 表。</td></tr>
       <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-stock-check-summary-1d"><code>ads.ads_inventory_stock_check_summary_1d</code></a></td><td>14</td><td><code>UNIQUE KEY(smt, sdt, view_grain, site_code, store_name)</code></td><td><code>HASH(sdt) BUCKETS 16</code></td><td><code>ads/ads_inventory_stock_check_summary_1d.sql</code></td><td>库存检查统计卡片查询表，分别沉淀 SKU / SPU 维度汇总卡片；库存数量类卡片统一使用 SPU 汇总口径。</td></tr>
-      <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-dim-dim-inventory-replenishment-manual-config"><code>dim.dim_inventory_replenishment_manual_config</code></a></td><td>11</td><td><code>UNIQUE KEY(site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 8</code></td><td><code>待新增 dim/dim_inventory_replenishment_manual_config.sql</code></td><td>发补货备货模型人工修正配置表，承接原型“编辑备货模型字段”弹窗可编辑字段。</td></tr>
       <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-inventory-sku-1d"><code>ads.ads_inventory_replenishment_inventory_sku_1d</code></a></td><td>37</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_inventory_sku_1d.sql</code></td><td>发补货-库存看板 SKU 粒度页面查询表，对齐原型库存看板全部列。</td></tr>
-      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-restock-sku-1d"><code>ads.ads_inventory_replenishment_restock_sku_1d</code></a></td><td>38</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_restock_sku_1d.sql</code></td><td>发补货-备货模型 SKU 粒度页面查询表，对齐动态加权日均、生命周期、SKU 分层、目标库存和采购决策列。</td></tr>
-      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-ship-sku-1d"><code>ads.ads_inventory_replenishment_ship_sku_1d</code></a></td><td>37</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_ship_sku_1d.sql</code></td><td>发补货-发货模型 SKU 粒度页面查询表，对齐发货触发、数量计算、目的仓、运输方式和告警输出列。</td></tr>
-      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-summary-1d"><code>ads.ads_inventory_replenishment_summary_1d</code></a></td><td>14</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name)</code></td><td><code>HASH(sdt) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_summary_1d.sql</code></td><td>发补货看板全局统计卡片与告警条查询表。</td></tr>
+      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-restock-sku-1d"><code>ads.ads_inventory_replenishment_restock_sku_1d</code></a></td><td>33</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_restock_sku_1d.sql</code></td><td>发补货-备货模型 SKU 粒度结果表，保留生命周期、SKU 分层、目标库存和采购决策等结果字段；动态加权过程字段改由对应 DWS 提供。</td></tr>
+      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-ship-sku-1d"><code>ads.ads_inventory_replenishment_ship_sku_1d</code></a></td><td>25</td><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><td><code>HASH(inventory_sku) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_ship_sku_1d.sql</code></td><td>发补货-发货模型 SKU 粒度结果表，保留建议发货、目的仓、运输方式和告警输出等结果字段；触发与数量计算过程字段改由对应 DWS 提供。</td></tr>
+      <tr><td><span class="badge ads">ADS</span></td><td><a href="#tbl-ads-ads-inventory-replenishment-summary-1d"><code>ads.ads_inventory_replenishment_summary_1d</code></a></td><td>13</td><td><code>UNIQUE KEY(smt, sdt, summary_scope)</code></td><td><code>HASH(sdt) BUCKETS 16</code></td><td><code>待新增 ads/ads_inventory_replenishment_summary_1d.sql</code></td><td>发补货看板全局统计卡片与告警条查询表；接口无请求参数，按全局口径查询。</td></tr>
     </tbody></table></div>
     <h2 id="layer-design">二、分层设计</h2>
     <ul>
       <li><strong>ODS：</strong>承接积加 API、TikTok 在线商品、站点库存、FBT 库存、多平台销售表现、库存阈值规则等贴源数据。</li>
-      <li><strong>DIM：</strong>保留当前生效的库存阈值配置，供库存检查异常判断使用。</li>
+      <li><strong>DIM：</strong>保留当前生效的库存阈值配置、发补货人工修正配置、仓库映射和可维护规则配置；凡是页面可改或业务人工维护的信息，不放入 ODS，也不直接写入 ADS。</li>
       <li><strong>DWD：</strong>沉淀 SKU 粒度库存检查快照，完成商品、库存、店铺同步库存、阈值与异常状态归一。</li>
-      <li><strong>DWS：</strong>保留 SKU 明细宽表并聚合 SPU 维度，支撑 SKU / SPU 两类页面列表。</li>
-      <li><strong>ADS：</strong>面向接口查询，包含 SKU 列表、SPU 列表、统计卡片三类结果表。</li>
-      <li><strong>发补货待新增：</strong>以 ADS 宽表直接服务发补货三个栏目列表、导出、全局卡片和告警条；备货模型人工编辑字段单独进入 DIM 配置表，再回流到备货 ADS 结果。</li>
+      <li><strong>DWS：</strong>保留 SKU 明细宽表并聚合 SPU 维度，支撑 SKU / SPU 两类页面列表；发补货的库存汇总、备货模型动态加权、发货触发与数量计算等中间测算结果统一沉淀在 DWS。</li>
+      <li><strong>ADS：</strong>面向接口查询，包含 SKU 列表、SPU 列表、统计卡片三类结果表；发补货 ADS 基于 DWS 模型结果再关联 DIM，优先保留最终展示、导出与决策字段，避免把 DWS 已有的中间测算字段重复落库到 ADS。</li>
+      <li><strong>发补货待新增：</strong>库存、备货、发货三个栏目列表与导出、全局卡片和告警条最终仍由 ADS 服务；备货模型人工编辑字段、仓库展示/归类、目的仓和运输配置先进入 DIM，模型中间测算先进入 DWS；若页面接口仍需展示这类测算字段，则由查询口径在 ADS 基础上关联对应 DWS 返回。</li>
     </ul>
     <h2 id="ods">3、ODS 贴源表</h2>
     <h3 id="tbl-ods-ods-inventory-jijia-pid-warehouse-stock-df">3.1 ods_inventory_jijia_pid_warehouse_stock_df</h3>
@@ -819,33 +823,106 @@
     </tbody></table></div>
     <h2 id="replenishment-design">8、发补货待新增表设计</h2>
     <div class="note">
-      <strong>说明：</strong>本节为待新增 Doris 表设计草案，尚未在 <code>ms-warehouse-batch-data/ddl/inventory</code> 中落 DDL。命名依据同本文档 Doris 规范；字段以 <code>发补货看板-1.0.html</code> 原型和 <code>接口文档.html</code> 第二章为准，底表字段使用小写下划线，接口字段继续使用 camelCase。
+      <strong>说明：</strong>本节为待新增 Doris 表设计草案，尚未在 <code>ms-warehouse-batch-data/ddl/inventory</code> 中落 DDL。命名依据同本文档 Doris 规范；字段以 <code>发补货看板-1.0.html</code> 原型和 <code>接口文档.html</code> 第二章为准，底表字段使用小写下划线，接口字段继续使用 camelCase。除 ODS 贴源表外，页面可修改或人工维护的信息统一设计为 DIM 当前生效配置表；库存汇总、日均、比值、动态加权、发货触发与数量计算等中间测算结果先沉淀到 DWS，ADS 仅保留关联 DIM 后的最终结果字段。若页面接口仍需展示 DWS 测算字段，则查询层统一按 ADS 关联对应 DWS 返回。
     </div>
 
     <h3 id="tbl-dim-dim-inventory-replenishment-manual-config">8.1 dim_inventory_replenishment_manual_config</h3>
-    <p>发补货备货模型人工修正配置表，承接原型“编辑备货模型字段”弹窗；仅保存页面可编辑字段，不承接模型自动计算字段。</p>
+    <p>发补货备货模型人工修正配置表，承接原型“编辑备货模型字段”弹窗；仅保存页面可编辑字段，不承接模型自动计算字段。生成备货模型 ADS 时按 <code>site_code + store_name + inventory_sku</code> 关联该 DIM，人工值优先覆盖模型自动判断值。</p>
     <div class="table-wrap"><table class="meta"><tbody>
       <tr><th>库表</th><td><code>dim.dim_inventory_replenishment_manual_config</code></td><th>分层</th><td><span class="badge dim">DIM</span></td></tr>
-      <tr><th>DDL 文件</th><td><code>待新增 dim/dim_inventory_replenishment_manual_config.sql</code></td><th>字段数</th><td>11</td></tr>
-      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 8</code></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 dim/dim_inventory_replenishment_manual_config.sql</code></td><th>字段数</th><td>12</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(site_code, store_name, inventory_sku)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 8</code></td></tr>
       <tr><th>分区</th><td>不分区，当前生效配置</td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
     </tbody></table></div>
     <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
       <tr><td>1</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码，对应接口 siteCode</td></tr>
       <tr><td>2</td><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>店铺名称，对应接口 storeName</td></tr>
       <tr><td>3</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU，对应接口 inventorySku</td></tr>
-      <tr><td>4</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID，对应接口 skuId</td></tr>
+      <tr><td>4</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称，对应接口 inventorySkuName</td></tr>
       <tr><td>5</td><td><code>life_cycle</code></td><td><code>VARCHAR(50)</code></td><td></td><td>生命周期，页面可编辑，对应接口 lifeCycle</td></tr>
       <tr><td>6</td><td><code>is_content_burst</code></td><td><code>TINYINT</code></td><td>0</td><td>是否内容爆发，页面可编辑；1 是，0 否</td></tr>
       <tr><td>7</td><td><code>business_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>商务出单占比，页面可编辑，存小数值</td></tr>
       <tr><td>8</td><td><code>editor_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>剪辑出单占比，页面可编辑，存小数值</td></tr>
       <tr><td>9</td><td><code>voc_score</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>VOC 值，页面可编辑</td></tr>
-      <tr><td>10</td><td><code>update_user</code></td><td><code>VARCHAR(100)</code></td><td></td><td>最后修改人</td></tr>
-      <tr><td>11</td><td><code>update_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>最后修改时间</td></tr>
+      <tr><td>10</td><td><code>is_enabled</code></td><td><code>TINYINT</code></td><td>1</td><td>配置是否生效；1 生效，0 停用</td></tr>
+      <tr><td>11</td><td><code>update_user</code></td><td><code>VARCHAR(100)</code></td><td></td><td>最后修改人</td></tr>
+      <tr><td>12</td><td><code>update_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>最后修改时间</td></tr>
     </tbody></table></div>
 
-    <h3 id="tbl-ads-ads-inventory-replenishment-inventory-sku-1d">8.2 ads_inventory_replenishment_inventory_sku_1d</h3>
-    <p>发补货-库存看板 SKU 粒度页面查询表，服务 <code>/tk/inventory/replenishment/inventory/page</code>、库存看板导出和自定义列配置。</p>
+    <h3 id="tbl-dim-dim-inventory-replenishment-warehouse-config">8.2 dim_inventory_replenishment_warehouse_config</h3>
+    <p>发补货仓库映射与可维护规则配置表，承接接口文档第三方章节中“TikTok 可用仓库列表暂不走积加接口、改为人工维护”的约定。该表用于统一解释库存看板中的仓库展示列、发货模型目的仓、调拨单平台站点/FNSKU/备注默认值，以及备货/发货运输方式基础配置。生成三个发补货 ADS 表时按 <code>site_code + warehouse_code</code> 或 <code>site_code + warehouse_name</code> 关联该 DIM。</p>
+    <div class="table-wrap"><table class="meta"><tbody>
+      <tr><th>库表</th><td><code>dim.dim_inventory_replenishment_warehouse_config</code></td><th>分层</th><td><span class="badge dim">DIM</span></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 dim/dim_inventory_replenishment_warehouse_config.sql</code></td><th>字段数</th><td>13</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(site_code, warehouse_code)</code></td><th>分布</th><td><code>HASH(warehouse_code) BUCKETS 8</code></td></tr>
+      <tr><th>分区</th><td>不分区，当前生效配置</td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+      <tr><td>1</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码，如 US、UK</td></tr>
+      <tr><td>2</td><td><code>warehouse_code</code></td><td><code>VARCHAR(100)</code></td><td></td><td>仓库编码或内部维护编码</td></tr>
+      <tr><td>3</td><td><code>warehouse_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>仓库名称，匹配 ODS 或第三方返回仓库名</td></tr>
+      <tr><td>4</td><td><code>warehouse_display_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>页面展示名称，如万邑通 USKY3、谷仓美西仓库、FBT、英国退货仓</td></tr>
+      <tr><td>5</td><td><code>warehouse_type</code></td><td><code>VARCHAR(50)</code></td><td></td><td>仓库类型；domestic、overseas、third_party、fbt、fba、direct_mail、return 等</td></tr>
+      <tr><td>6</td><td><code>inventory_bucket</code></td><td><code>VARCHAR(50)</code></td><td></td><td>库存归类；domestic_on_hand、overseas_in_transit、overseas_on_hand 等，用于汇总到 ADS 展示列</td></tr>
+      <tr><td>7</td><td><code>is_ship_destination</code></td><td><code>TINYINT</code></td><td>0</td><td>是否可作为发货目的仓</td></tr>
+      <tr><td>8</td><td><code>default_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>默认运输方式，供备货/发货模型兜底使用</td></tr>
+      <tr><td>9</td><td><code>min_ship_batch_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>默认最小发货批量，可被更细规则覆盖</td></tr>
+      <tr><td>10</td><td><code>fnsku</code></td><td><code>VARCHAR(100)</code></td><td></td><td>发货调拨单 FNSKU 默认值，按仓库或站点维护</td></tr>
+      <tr><td>11</td><td><code>display_order</code></td><td><code>INT</code></td><td>0</td><td>页面或导出中仓库展示顺序</td></tr>
+      <tr><td>12</td><td><code>is_enabled</code></td><td><code>TINYINT</code></td><td>1</td><td>配置是否生效；1 生效，0 停用</td></tr>
+      <tr><td>13</td><td><code>update_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>最后修改时间</td></tr>
+    </tbody></table></div>
+
+    <h3 id="tbl-dws-dws-inventory-replenishment-inventory-sku-1d">8.3 dws_inventory_replenishment_inventory_sku_1d</h3>
+    <p>发补货-库存看板库存汇总中间宽表，不直接对前端提供接口。该表承接站点库存、FBT、店铺侧同步库存等贴源数据，并结合 <code>dim_inventory_replenishment_warehouse_config</code> 完成仓库归类、国内/海外库存汇总及页面展示仓库列展开，为库存看板 ADS 和下游模型提供统一库存底座。</p>
+    <div class="table-wrap"><table class="meta"><tbody>
+      <tr><th>库表</th><td><code>dws.dws_inventory_replenishment_inventory_sku_1d</code></td><th>分层</th><td><span class="badge dws">DWS</span></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 dws/dws_inventory_replenishment_inventory_sku_1d.sql</code></td><th>字段数</th><td>37</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 16</code></td></tr>
+      <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+      <tr><td>1</td><td><code>smt</code></td><td><code>INT</code></td><td></td><td>月分区，YYYYMM</td></tr>
+      <tr><td>2</td><td><code>sdt</code></td><td><code>VARCHAR(8)</code></td><td></td><td>业务日期，YYYYMMDD</td></tr>
+      <tr><td>3</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码</td></tr>
+      <tr><td>4</td><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>店铺名称</td></tr>
+      <tr><td>5</td><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SPU 编码</td></tr>
+      <tr><td>6</td><td><code>spu_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SPU 名称</td></tr>
+      <tr><td>7</td><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td></td><td>PID</td></tr>
+      <tr><td>8</td><td><code>msku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>MSKU</td></tr>
+      <tr><td>9</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID</td></tr>
+      <tr><td>10</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU</td></tr>
+      <tr><td>11</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称</td></tr>
+      <tr><td>12</td><td><code>total_inventory_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>总库存</td></tr>
+      <tr><td>13</td><td><code>total_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>总在途库存</td></tr>
+      <tr><td>14</td><td><code>total_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>总可用库存</td></tr>
+      <tr><td>15</td><td><code>domestic_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>总国内库存</td></tr>
+      <tr><td>16</td><td><code>purchase_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>采购在途库存</td></tr>
+      <tr><td>17</td><td><code>factory_unfulfilled_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>工厂采购未交量</td></tr>
+      <tr><td>18</td><td><code>domestic_delivery_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内交货在途库存</td></tr>
+      <tr><td>19</td><td><code>domestic_on_hand_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内在库</td></tr>
+      <tr><td>20</td><td><code>overseas_in_transit_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外在途总量</td></tr>
+      <tr><td>21</td><td><code>third_warehouse_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>三方仓在途量</td></tr>
+      <tr><td>22</td><td><code>winit_usky3_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>万邑通 USKY3 在途</td></tr>
+      <tr><td>23</td><td><code>winit_uswc2_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>万邑通 USWC2 在途</td></tr>
+      <tr><td>24</td><td><code>winit_uswc_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>万邑通 USWC 在途</td></tr>
+      <tr><td>25</td><td><code>goodcang_us_west_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>美国谷仓美西仓库在途</td></tr>
+      <tr><td>26</td><td><code>fbt_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>FBT 在途量</td></tr>
+      <tr><td>27</td><td><code>uk_return_in_transit_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>英国退货仓在途量</td></tr>
+      <tr><td>28</td><td><code>overseas_on_hand_total_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外在库总库存</td></tr>
+      <tr><td>29</td><td><code>jijia_winit_usky3_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-万邑通 USKY3 可用</td></tr>
+      <tr><td>30</td><td><code>jijia_winit_uswc2_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-万邑通 USWC2 可用</td></tr>
+      <tr><td>31</td><td><code>jijia_winit_uswc_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-万邑通 USWC 可用</td></tr>
+      <tr><td>32</td><td><code>jijia_goodcang_us_west_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-谷仓美西仓库可用</td></tr>
+      <tr><td>33</td><td><code>fbt_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>FBT 可用</td></tr>
+      <tr><td>34</td><td><code>jijia_fba_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-FBA 仓库可用</td></tr>
+      <tr><td>35</td><td><code>jijia_uk_return_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>积加-英国退货仓可用</td></tr>
+      <tr><td>36</td><td><code>third_warehouse_available_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>三方仓可用量</td></tr>
+      <tr><td>37</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+    </tbody></table></div>
+
+    <h3 id="tbl-ads-ads-inventory-replenishment-inventory-sku-1d">8.4 ads_inventory_replenishment_inventory_sku_1d</h3>
+    <p>发补货-库存看板 SKU 粒度页面查询表，服务 <code>/tk/inventory/replenishment/inventory/page</code> 和库存看板导出。生成该 ADS 时基于 <code>dws_inventory_replenishment_inventory_sku_1d</code> 直接输出页面所需库存列，并保留与仓库 DIM 对齐后的展示口径。</p>
     <div class="table-wrap"><table class="meta"><tbody>
       <tr><th>库表</th><td><code>ads.ads_inventory_replenishment_inventory_sku_1d</code></td><th>分层</th><td><span class="badge ads">ADS</span></td></tr>
       <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_inventory_sku_1d.sql</code></td><th>字段数</th><td>37</td></tr>
@@ -892,11 +969,11 @@
       <tr><td>37</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
     </tbody></table></div>
 
-    <h3 id="tbl-ads-ads-inventory-replenishment-restock-sku-1d">8.3 ads_inventory_replenishment_restock_sku_1d</h3>
-    <p>发补货-备货模型 SKU 粒度页面查询表，服务备货模型分页、导出、采购计划导出预览和编辑后刷新。</p>
+    <h3 id="tbl-dws-dws-inventory-replenishment-restock-sku-1d">8.5 dws_inventory_replenishment_restock_sku_1d</h3>
+    <p>发补货-备货模型销量趋势与动态加权中间表，不直接对前端提供接口。该表承接商品统计销量明细，统一沉淀 7/30 天日均、过滤后 S7、S7/S30 比值、动态权重档位和加权日均，为备货模型 ADS 提供稳定的测算输入。</p>
     <div class="table-wrap"><table class="meta"><tbody>
-      <tr><th>库表</th><td><code>ads.ads_inventory_replenishment_restock_sku_1d</code></td><th>分层</th><td><span class="badge ads">ADS</span></td></tr>
-      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_restock_sku_1d.sql</code></td><th>字段数</th><td>38</td></tr>
+      <tr><th>库表</th><td><code>dws.dws_inventory_replenishment_restock_sku_1d</code></td><th>分层</th><td><span class="badge dws">DWS</span></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 dws/dws_inventory_replenishment_restock_sku_1d.sql</code></td><th>字段数</th><td>19</td></tr>
       <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 16</code></td></tr>
       <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
     </tbody></table></div>
@@ -912,40 +989,101 @@
       <tr><td>9</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID</td></tr>
       <tr><td>10</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU</td></tr>
       <tr><td>11</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称</td></tr>
-      <tr><td>12</td><td><code>daily_sales_qty_7d</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>7 天日均 S7</td></tr>
-      <tr><td>13</td><td><code>daily_sales_qty_30d</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>30 天日均 S30</td></tr>
-      <tr><td>14</td><td><code>s7_s30_ratio</code></td><td><code>DECIMAL(18,4)</code></td><td></td><td>S7/S30 比值，需处理除零</td></tr>
-      <tr><td>15</td><td><code>dynamic_weight_level</code></td><td><code>VARCHAR(100)</code></td><td></td><td>动态权重档位</td></tr>
-      <tr><td>16</td><td><code>weighted_daily_sales_qty</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>加权日均</td></tr>
-      <tr><td>17</td><td><code>life_cycle</code></td><td><code>VARCHAR(50)</code></td><td></td><td>生命周期，优先取人工配置</td></tr>
-      <tr><td>18</td><td><code>is_content_burst</code></td><td><code>TINYINT</code></td><td>0</td><td>是否内容爆发，优先取人工配置</td></tr>
-      <tr><td>19</td><td><code>business_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>商务出单占比，优先取人工配置</td></tr>
-      <tr><td>20</td><td><code>editor_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>剪辑出单占比，优先取人工配置</td></tr>
-      <tr><td>21</td><td><code>overseas_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（海外仓）</td></tr>
-      <tr><td>22</td><td><code>direct_mail_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（直邮仓）</td></tr>
-      <tr><td>23</td><td><code>sku_tier</code></td><td><code>VARCHAR(20)</code></td><td></td><td>SKU 分层</td></tr>
-      <tr><td>24</td><td><code>is_hot_color_size</code></td><td><code>TINYINT</code></td><td>0</td><td>是否热卖色码</td></tr>
-      <tr><td>25</td><td><code>voc_score</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>VOC 值，优先取人工配置</td></tr>
-      <tr><td>26</td><td><code>return_rate_14d</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>近 14 天退货率</td></tr>
-      <tr><td>27</td><td><code>suggest_restock_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（补货）</td></tr>
-      <tr><td>28</td><td><code>target_overseas_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>目标库存（海外仓）</td></tr>
-      <tr><td>29</td><td><code>target_direct_mail_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>目标库存（直邮仓）</td></tr>
-      <tr><td>30</td><td><code>final_safety_stock_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存天数（最终）</td></tr>
-      <tr><td>31</td><td><code>is_purchase</code></td><td><code>TINYINT</code></td><td>0</td><td>是否采购</td></tr>
-      <tr><td>32</td><td><code>suggest_purchase_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>建议采购数量；采购计划导出计划量</td></tr>
-      <tr><td>33</td><td><code>suggest_purchase_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（采购）；采购计划导出物流方式</td></tr>
-      <tr><td>34</td><td><code>purchase_eta_date</code></td><td><code>DATE</code></td><td></td><td>预计到仓日（采购）；采购计划导出计划交期</td></tr>
-      <tr><td>35</td><td><code>purchase_plan_remark</code></td><td><code>VARCHAR(500)</code></td><td></td><td>采购计划导出备注，可由规则生成</td></tr>
-      <tr><td>36</td><td><code>manual_config_update_time</code></td><td><code>DATETIME</code></td><td></td><td>命中的人工配置更新时间</td></tr>
-      <tr><td>37</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>模型结果更新时间</td></tr>
-      <tr><td>38</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+      <tr><td>12</td><td><code>daily_sales_qty_7d</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>7 天日均 S7，按近 7 天销量 / 7 计算</td></tr>
+      <tr><td>13</td><td><code>daily_sales_qty_30d</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>30 天日均 S30，按近 30 天销量 / 30 计算</td></tr>
+      <tr><td>14</td><td><code>daily_sales_qty_7d_filtered</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>过滤后 7 天日均；若某天销量大于 <code>S30 × 2</code>，则按 S30 替换后重算，仅作为模型内部计算口径</td></tr>
+      <tr><td>15</td><td><code>s7_s30_ratio</code></td><td><code>DECIMAL(18,4)</code></td><td></td><td>过滤后 S7 / S30 比值，需处理除零</td></tr>
+      <tr><td>16</td><td><code>dynamic_weight_level</code></td><td><code>VARCHAR(100)</code></td><td></td><td>动态权重档位，如上涨档、平稳档、下滑档</td></tr>
+      <tr><td>17</td><td><code>weighted_daily_sales_qty</code></td><td><code>DECIMAL(18,4)</code></td><td>0</td><td>加权日均；基于过滤后 S7、S30 和动态权重规则计算</td></tr>
+      <tr><td>18</td><td><code>data_update_time</code></td><td><code>DATETIME</code></td><td></td><td>销量模型计算更新时间</td></tr>
+      <tr><td>19</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
     </tbody></table></div>
 
-    <h3 id="tbl-ads-ads-inventory-replenishment-ship-sku-1d">8.4 ads_inventory_replenishment_ship_sku_1d</h3>
-    <p>发补货-发货模型 SKU 粒度页面查询表，服务发货模型分页、导出和“导出发货调拨单”。</p>
+    <h3 id="tbl-ads-ads-inventory-replenishment-restock-sku-1d">8.6 ads_inventory_replenishment_restock_sku_1d</h3>
+    <p>发补货-备货模型 SKU 粒度结果表，服务备货模型分页、导出、采购计划明细和采购计划导出。生成该 ADS 时先关联 <code>dws_inventory_replenishment_restock_sku_1d</code> 取销量趋势与动态加权结果，再关联 <code>dim_inventory_replenishment_manual_config</code>，页面可编辑字段以 DIM 当前生效值优先；同时可关联 <code>dim_inventory_replenishment_warehouse_config</code> 获取默认运输方式等可维护规则。动态加权过程字段不再在 ADS 物理表重复存储，页面需要时由查询口径关联对应 DWS 返回。</p>
+    <div class="table-wrap"><table class="meta"><tbody>
+      <tr><th>库表</th><td><code>ads.ads_inventory_replenishment_restock_sku_1d</code></td><th>分层</th><td><span class="badge ads">ADS</span></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_restock_sku_1d.sql</code></td><th>字段数</th><td>33</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 16</code></td></tr>
+      <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+      <tr><td>1</td><td><code>smt</code></td><td><code>INT</code></td><td></td><td>月分区，YYYYMM</td></tr>
+      <tr><td>2</td><td><code>sdt</code></td><td><code>VARCHAR(8)</code></td><td></td><td>业务日期，YYYYMMDD</td></tr>
+      <tr><td>3</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码</td></tr>
+      <tr><td>4</td><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>店铺名称</td></tr>
+      <tr><td>5</td><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SPU 编码</td></tr>
+      <tr><td>6</td><td><code>spu_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SPU 名称</td></tr>
+      <tr><td>7</td><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td></td><td>PID</td></tr>
+      <tr><td>8</td><td><code>msku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>MSKU</td></tr>
+      <tr><td>9</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID</td></tr>
+      <tr><td>10</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU</td></tr>
+      <tr><td>11</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称</td></tr>
+      <tr><td>12</td><td><code>life_cycle</code></td><td><code>VARCHAR(50)</code></td><td></td><td>生命周期，优先取 <code>dim_inventory_replenishment_manual_config.life_cycle</code></td></tr>
+      <tr><td>13</td><td><code>is_content_burst</code></td><td><code>TINYINT</code></td><td>0</td><td>是否内容爆发，优先取 <code>dim_inventory_replenishment_manual_config.is_content_burst</code></td></tr>
+      <tr><td>14</td><td><code>business_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>商务出单占比，优先取 <code>dim_inventory_replenishment_manual_config.business_order_ratio</code></td></tr>
+      <tr><td>15</td><td><code>editor_order_ratio</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>剪辑出单占比，优先取 <code>dim_inventory_replenishment_manual_config.editor_order_ratio</code></td></tr>
+      <tr><td>16</td><td><code>overseas_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（海外仓）</td></tr>
+      <tr><td>17</td><td><code>direct_mail_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（直邮仓）</td></tr>
+      <tr><td>18</td><td><code>sku_tier</code></td><td><code>VARCHAR(20)</code></td><td></td><td>SKU 分层</td></tr>
+      <tr><td>19</td><td><code>is_hot_color_size</code></td><td><code>TINYINT</code></td><td>0</td><td>是否热卖色码</td></tr>
+      <tr><td>20</td><td><code>voc_score</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>VOC 值，优先取 <code>dim_inventory_replenishment_manual_config.voc_score</code></td></tr>
+      <tr><td>21</td><td><code>return_rate_14d</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>近 14 天退货率</td></tr>
+      <tr><td>22</td><td><code>suggest_restock_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（补货）</td></tr>
+      <tr><td>23</td><td><code>target_overseas_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>目标库存（海外仓）</td></tr>
+      <tr><td>24</td><td><code>target_direct_mail_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>目标库存（直邮仓）</td></tr>
+      <tr><td>25</td><td><code>final_safety_stock_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存天数（最终）</td></tr>
+      <tr><td>26</td><td><code>is_purchase</code></td><td><code>TINYINT</code></td><td>0</td><td>是否采购</td></tr>
+      <tr><td>27</td><td><code>suggest_purchase_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>建议采购数量；采购计划导出计划量</td></tr>
+      <tr><td>28</td><td><code>suggest_purchase_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（采购）；采购计划导出物流方式</td></tr>
+      <tr><td>29</td><td><code>purchase_eta_date</code></td><td><code>DATE</code></td><td></td><td>预计到仓日（采购）；采购计划导出计划交期</td></tr>
+      <tr><td>30</td><td><code>purchase_plan_remark</code></td><td><code>VARCHAR(500)</code></td><td></td><td>采购计划导出备注，可由规则生成</td></tr>
+      <tr><td>31</td><td><code>manual_config_update_time</code></td><td><code>DATETIME</code></td><td></td><td>命中的人工配置更新时间</td></tr>
+      <tr><td>32</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>模型结果更新时间</td></tr>
+      <tr><td>33</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+    </tbody></table></div>
+
+    <h3 id="tbl-dws-dws-inventory-replenishment-ship-sku-1d">8.7 dws_inventory_replenishment_ship_sku_1d</h3>
+    <p>发补货-发货模型触发与数量计算中间表，不直接对前端提供接口。该表基于库存底座、备货模型结果和仓库配置，统一沉淀海外可售、发货触发、直邮预留、国内可发、库存缺口、截单与空窗判断等发货模型过程字段，为发货模型 ADS 和联动告警提供统一输入。</p>
+    <div class="table-wrap"><table class="meta"><tbody>
+      <tr><th>库表</th><td><code>dws.dws_inventory_replenishment_ship_sku_1d</code></td><th>分层</th><td><span class="badge dws">DWS</span></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 dws/dws_inventory_replenishment_ship_sku_1d.sql</code></td><th>字段数</th><td>25</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 16</code></td></tr>
+      <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
+    </tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
+      <tr><td>1</td><td><code>smt</code></td><td><code>INT</code></td><td></td><td>月分区，YYYYMM</td></tr>
+      <tr><td>2</td><td><code>sdt</code></td><td><code>VARCHAR(8)</code></td><td></td><td>业务日期，YYYYMMDD</td></tr>
+      <tr><td>3</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码</td></tr>
+      <tr><td>4</td><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>店铺名称</td></tr>
+      <tr><td>5</td><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SPU 编码</td></tr>
+      <tr><td>6</td><td><code>spu_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SPU 名称</td></tr>
+      <tr><td>7</td><td><code>pid</code></td><td><code>VARCHAR(100)</code></td><td></td><td>PID</td></tr>
+      <tr><td>8</td><td><code>msku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>MSKU</td></tr>
+      <tr><td>9</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID</td></tr>
+      <tr><td>10</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU</td></tr>
+      <tr><td>11</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称</td></tr>
+      <tr><td>12</td><td><code>overseas_effective_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外有效库存</td></tr>
+      <tr><td>13</td><td><code>overseas_sellable_days</code></td><td><code>DECIMAL(18,4)</code></td><td></td><td>海外可售天数，需处理除零</td></tr>
+      <tr><td>14</td><td><code>ship_trigger_threshold_days</code></td><td><code>INT</code></td><td></td><td>发货触发阈值</td></tr>
+      <tr><td>15</td><td><code>urgent_flag</code></td><td><code>TINYINT</code></td><td>0</td><td>紧急标记</td></tr>
+      <tr><td>16</td><td><code>direct_mail_reserved_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>直邮预留量</td></tr>
+      <tr><td>17</td><td><code>domestic_shippable_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内可发库存</td></tr>
+      <tr><td>18</td><td><code>stock_gap_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>库存缺口</td></tr>
+      <tr><td>19</td><td><code>nearest_cutoff_date</code></td><td><code>DATE</code></td><td></td><td>最近截单日</td></tr>
+      <tr><td>20</td><td><code>ship_eta_sellable_date</code></td><td><code>DATE</code></td><td></td><td>预计到仓可售日（发货）</td></tr>
+      <tr><td>21</td><td><code>estimated_out_of_stock_date</code></td><td><code>DATE</code></td><td></td><td>预计断货日</td></tr>
+      <tr><td>22</td><td><code>stockout_to_eta_gap_days</code></td><td><code>INT</code></td><td></td><td>断货到到仓空窗期</td></tr>
+      <tr><td>23</td><td><code>is_direct_mail_connectable</code></td><td><code>TINYINT</code></td><td>0</td><td>直邮可衔接</td></tr>
+      <tr><td>24</td><td><code>data_update_time</code></td><td><code>DATETIME</code></td><td></td><td>发货模型计算更新时间</td></tr>
+      <tr><td>25</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+    </tbody></table></div>
+
+    <h3 id="tbl-ads-ads-inventory-replenishment-ship-sku-1d">8.8 ads_inventory_replenishment_ship_sku_1d</h3>
+    <p>发补货-发货模型 SKU 粒度结果表，服务发货模型分页、导出、发货调拨单明细和“导出发货调拨单”。生成该 ADS 时关联 <code>dws_inventory_replenishment_ship_sku_1d</code> 与 <code>dim_inventory_replenishment_warehouse_config</code> 获取最终发货结果；触发与数量计算过程字段不再在 ADS 物理表重复存储，页面需要时由查询口径关联对应 DWS 返回。</p>
     <div class="table-wrap"><table class="meta"><tbody>
       <tr><th>库表</th><td><code>ads.ads_inventory_replenishment_ship_sku_1d</code></td><th>分层</th><td><span class="badge ads">ADS</span></td></tr>
-      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_ship_sku_1d.sql</code></td><th>字段数</th><td>37</td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_ship_sku_1d.sql</code></td><th>字段数</th><td>25</td></tr>
       <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name, inventory_sku, sku_id)</code></td><th>分布</th><td><code>HASH(inventory_sku) BUCKETS 16</code></td></tr>
       <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
     </tbody></table></div>
@@ -961,57 +1099,44 @@
       <tr><td>9</td><td><code>sku_id</code></td><td><code>VARCHAR(100)</code></td><td></td><td>SKU ID</td></tr>
       <tr><td>10</td><td><code>inventory_sku</code></td><td><code>VARCHAR(200)</code></td><td></td><td>库存 SKU；发货调拨单 *SKU 来源</td></tr>
       <tr><td>11</td><td><code>inventory_sku_name</code></td><td><code>VARCHAR(500)</code></td><td></td><td>SKU 名称</td></tr>
-      <tr><td>12</td><td><code>overseas_effective_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外有效库存</td></tr>
-      <tr><td>13</td><td><code>overseas_sellable_days</code></td><td><code>DECIMAL(18,4)</code></td><td></td><td>海外可售天数，需处理除零</td></tr>
-      <tr><td>14</td><td><code>ship_trigger_threshold_days</code></td><td><code>INT</code></td><td></td><td>发货触发阈值</td></tr>
-      <tr><td>15</td><td><code>urgent_flag</code></td><td><code>TINYINT</code></td><td>0</td><td>紧急标记</td></tr>
-      <tr><td>16</td><td><code>direct_mail_reserved_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>直邮预留量</td></tr>
-      <tr><td>17</td><td><code>domestic_shippable_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内可发库存</td></tr>
-      <tr><td>18</td><td><code>suggest_ship_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>建议发货数量；发货调拨单 *数量来源</td></tr>
-      <tr><td>19</td><td><code>stock_gap_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>库存缺口</td></tr>
-      <tr><td>20</td><td><code>min_ship_batch_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>最小发货批量</td></tr>
-      <tr><td>21</td><td><code>is_meet_min_batch</code></td><td><code>TINYINT</code></td><td>0</td><td>是否满足最小批量</td></tr>
-      <tr><td>22</td><td><code>ship_destination_warehouse</code></td><td><code>VARCHAR(200)</code></td><td></td><td>发货目的仓</td></tr>
-      <tr><td>23</td><td><code>nearest_cutoff_date</code></td><td><code>DATE</code></td><td></td><td>最近截单日</td></tr>
-      <tr><td>24</td><td><code>ship_eta_sellable_date</code></td><td><code>DATE</code></td><td></td><td>预计到仓可售日（发货）</td></tr>
-      <tr><td>25</td><td><code>cutoff_eta_display</code></td><td><code>VARCHAR(50)</code></td><td></td><td>截单/到仓 UI 合并展示列</td></tr>
-      <tr><td>26</td><td><code>estimated_out_of_stock_date</code></td><td><code>DATE</code></td><td></td><td>预计断货日</td></tr>
-      <tr><td>27</td><td><code>stockout_to_eta_gap_days</code></td><td><code>INT</code></td><td></td><td>断货到到仓空窗期</td></tr>
-      <tr><td>28</td><td><code>is_direct_mail_connectable</code></td><td><code>TINYINT</code></td><td>0</td><td>直邮可衔接</td></tr>
-      <tr><td>29</td><td><code>suggest_ship_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（发货）</td></tr>
-      <tr><td>30</td><td><code>is_ship</code></td><td><code>TINYINT</code></td><td>0</td><td>是否发货</td></tr>
-      <tr><td>31</td><td><code>ship_priority</code></td><td><code>VARCHAR(20)</code></td><td></td><td>发货优先级</td></tr>
-      <tr><td>32</td><td><code>linked_alert_type</code></td><td><code>VARCHAR(100)</code></td><td></td><td>联动告警类型，对应顶部告警条文案</td></tr>
-      <tr><td>33</td><td><code>fnsku</code></td><td><code>VARCHAR(100)</code></td><td></td><td>发货调拨单 FNSKU</td></tr>
-      <tr><td>34</td><td><code>ship_detail_remark</code></td><td><code>VARCHAR(500)</code></td><td></td><td>发货调拨单明细备注</td></tr>
-      <tr><td>35</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>模型结果更新时间</td></tr>
-      <tr><td>36</td><td><code>alert_filter_code</code></td><td><code>VARCHAR(100)</code></td><td></td><td>告警筛选编码，如 overseas-low-days、domestic-shortage</td></tr>
-      <tr><td>37</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+      <tr><td>12</td><td><code>suggest_ship_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>建议发货数量；发货调拨单 *数量来源</td></tr>
+      <tr><td>13</td><td><code>min_ship_batch_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>最小发货批量，优先取仓库 DIM 可维护配置</td></tr>
+      <tr><td>14</td><td><code>is_meet_min_batch</code></td><td><code>TINYINT</code></td><td>0</td><td>是否满足最小批量</td></tr>
+      <tr><td>15</td><td><code>ship_destination_warehouse</code></td><td><code>VARCHAR(200)</code></td><td></td><td>发货目的仓，来源于仓库 DIM 的可发货目的仓配置</td></tr>
+      <tr><td>16</td><td><code>cutoff_eta_display</code></td><td><code>VARCHAR(50)</code></td><td></td><td>截单/到仓 UI 合并展示列</td></tr>
+      <tr><td>17</td><td><code>suggest_ship_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（发货），可由仓库 DIM 默认运输方式兜底</td></tr>
+      <tr><td>18</td><td><code>is_ship</code></td><td><code>TINYINT</code></td><td>0</td><td>是否发货</td></tr>
+      <tr><td>19</td><td><code>ship_priority</code></td><td><code>VARCHAR(20)</code></td><td></td><td>发货优先级</td></tr>
+      <tr><td>20</td><td><code>linked_alert_type</code></td><td><code>VARCHAR(100)</code></td><td></td><td>联动告警类型，对应顶部告警条文案</td></tr>
+      <tr><td>21</td><td><code>fnsku</code></td><td><code>VARCHAR(100)</code></td><td></td><td>发货调拨单 FNSKU，优先取仓库 DIM 可维护值</td></tr>
+      <tr><td>22</td><td><code>ship_detail_remark</code></td><td><code>VARCHAR(500)</code></td><td></td><td>发货调拨单明细备注，可由仓库 DIM 与模型规则组合生成</td></tr>
+      <tr><td>23</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>模型结果更新时间</td></tr>
+      <tr><td>24</td><td><code>alert_filter_code</code></td><td><code>VARCHAR(100)</code></td><td></td><td>告警筛选编码，如 overseas-low-days、domestic-shortage</td></tr>
+      <tr><td>25</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
     </tbody></table></div>
 
-    <h3 id="tbl-ads-ads-inventory-replenishment-summary-1d">8.5 ads_inventory_replenishment_summary_1d</h3>
-    <p>发补货看板全局统计卡片与告警条查询表，服务 <code>/tk/inventory/replenishment/summary</code>。</p>
+    <h3 id="tbl-ads-ads-inventory-replenishment-summary-1d">8.9 ads_inventory_replenishment_summary_1d</h3>
+    <p>发补货看板全局统计卡片与告警条查询表，服务 <code>/tk/inventory/replenishment/summary</code>。接口文档约定该接口无请求参数，因此该 ADS 按全局口径沉淀，不再按 <code>site_code</code>、<code>store_name</code> 作为查询粒度。汇总口径基于已关联 DIM 后的库存、备货、发货 ADS 结果。</p>
     <div class="table-wrap"><table class="meta"><tbody>
       <tr><th>库表</th><td><code>ads.ads_inventory_replenishment_summary_1d</code></td><th>分层</th><td><span class="badge ads">ADS</span></td></tr>
-      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_summary_1d.sql</code></td><th>字段数</th><td>14</td></tr>
-      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, site_code, store_name)</code></td><th>分布</th><td><code>HASH(sdt) BUCKETS 16</code></td></tr>
+      <tr><th>DDL 文件</th><td><code>待新增 ads/ads_inventory_replenishment_summary_1d.sql</code></td><th>字段数</th><td>13</td></tr>
+      <tr><th>主键 / 聚合键</th><td><code>UNIQUE KEY(smt, sdt, summary_scope)</code></td><th>分布</th><td><code>HASH(sdt) BUCKETS 16</code></td></tr>
       <tr><th>分区</th><td><code>PARTITION BY RANGE(smt)</code></td><th>引擎</th><td><code>Doris OLAP</code></td></tr>
     </tbody></table></div>
     <div class="table-wrap"><table><thead><tr><th>序号</th><th>字段名</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead><tbody>
       <tr><td>1</td><td><code>smt</code></td><td><code>INT</code></td><td></td><td>月分区，YYYYMM</td></tr>
       <tr><td>2</td><td><code>sdt</code></td><td><code>VARCHAR(8)</code></td><td></td><td>业务日期，YYYYMMDD</td></tr>
-      <tr><td>3</td><td><code>site_code</code></td><td><code>VARCHAR(20)</code></td><td></td><td>站点代码；为空表示全部站点</td></tr>
-      <tr><td>4</td><td><code>store_name</code></td><td><code>VARCHAR(200)</code></td><td></td><td>店铺名称；为空表示全部店铺</td></tr>
-      <tr><td>5</td><td><code>on_sale_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>在售 SKU 总数</td></tr>
-      <tr><td>6</td><td><code>need_ship_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>需发货 SKU 数</td></tr>
-      <tr><td>7</td><td><code>need_purchase_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>需采购 SKU 数</td></tr>
-      <tr><td>8</td><td><code>overseas_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外在库总量</td></tr>
-      <tr><td>9</td><td><code>domestic_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内在库总量</td></tr>
-      <tr><td>10</td><td><code>next_cutoff_date</code></td><td><code>DATE</code></td><td></td><td>下次截单日</td></tr>
-      <tr><td>11</td><td><code>overseas_low_days_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>海外可售天数低于安全库存 SKU 数，对应告警 overseas-low-days</td></tr>
-      <tr><td>12</td><td><code>domestic_shortage_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>国内库存不足无法发货 SKU 数，对应告警 domestic-shortage</td></tr>
-      <tr><td>13</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>数据更新时间</td></tr>
-      <tr><td>14</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
+      <tr><td>3</td><td><code>summary_scope</code></td><td><code>VARCHAR(20)</code></td><td><code>global</code></td><td>汇总范围，固定 <code>global</code>，对应全局统计卡片接口无请求参数</td></tr>
+      <tr><td>4</td><td><code>on_sale_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>在售 SKU 总数</td></tr>
+      <tr><td>5</td><td><code>need_ship_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>需发货 SKU 数</td></tr>
+      <tr><td>6</td><td><code>need_purchase_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>需采购 SKU 数</td></tr>
+      <tr><td>7</td><td><code>overseas_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>海外在库总量</td></tr>
+      <tr><td>8</td><td><code>domestic_stock_qty</code></td><td><code>DECIMAL(18,2)</code></td><td>0</td><td>国内在库总量</td></tr>
+      <tr><td>9</td><td><code>next_cutoff_date</code></td><td><code>DATE</code></td><td></td><td>下次截单日</td></tr>
+      <tr><td>10</td><td><code>overseas_low_days_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>海外可售天数低于安全库存 SKU 数，对应告警 overseas-low-days</td></tr>
+      <tr><td>11</td><td><code>domestic_shortage_sku_count</code></td><td><code>BIGINT</code></td><td>0</td><td>国内库存不足无法发货 SKU 数，对应告警 domestic-shortage</td></tr>
+      <tr><td>12</td><td><code>last_update_time</code></td><td><code>DATETIME</code></td><td></td><td>数据更新时间</td></tr>
+      <tr><td>13</td><td><code>insert_time</code></td><td><code>DATETIME</code></td><td><code>CURRENT_TIMESTAMP</code></td><td>入仓时间</td></tr>
     </tbody></table></div>
 
     <h2 id="lineage">9、链路说明</h2>
@@ -1021,6 +1146,12 @@
       <li><code>ods_inventory_jijia_stock_threshold_sku_di</code> 清洗为 <code>dim_inventory_stock_threshold_config</code>，作为库存阈值配置来源。</li>
       <li><code>dwd_inventory_stock_check_sku_snapshot_1d</code> 统一 SKU 粒度库存检查明细；<code>dws_inventory_stock_check_sku_1d</code> 保留 SKU 宽表服务下游，<code>dws_inventory_stock_check_spu_1d</code> 聚合 SPU 粒度。</li>
       <li><code>ads_inventory_stock_check_sku_1d</code>、<code>ads_inventory_stock_check_spu_1d</code>、<code>ads_inventory_stock_check_summary_1d</code> 分别服务 PID&amp;SKU 列表、SPU 列表和统计卡片接口。</li>
+      <li>发补货库存、销售表现、FBT、站点库存等贴源数据先在 DWD / DWS 层统一到 SKU 粒度；页面可编辑字段写入 <code>dim_inventory_replenishment_manual_config</code>，仓库归类、目的仓、运输方式、FNSKU 等人工维护信息写入 <code>dim_inventory_replenishment_warehouse_config</code>。</li>
+      <li><code>dws_inventory_replenishment_inventory_sku_1d</code> 承接库存看板的仓库归类、国内/海外库存汇总和页面展示仓库列，为库存看板 ADS 与下游模型提供统一库存底座。</li>
+      <li><code>dws_inventory_replenishment_restock_sku_1d</code> 承接备货模型的 7/30 天日均、过滤后 S7、S7/S30 比值、动态权重档位和加权日均等中间测算结果。</li>
+      <li><code>dws_inventory_replenishment_ship_sku_1d</code> 承接发货模型的海外可售、发货触发、直邮预留、国内可发、库存缺口、截单与空窗判断等中间测算结果。</li>
+      <li><code>ads_inventory_replenishment_inventory_sku_1d</code>、<code>ads_inventory_replenishment_restock_sku_1d</code>、<code>ads_inventory_replenishment_ship_sku_1d</code> 均为最终展示表，生成时已完成与 DIM 的关联；其中备货模型 ADS 与发货模型 ADS 不再重复落 DWS 已产出的中间测算字段，前端分页、导出、采购计划明细、发货调拨单明细如需这些字段时，由查询口径关联对应 DWS 返回。</li>
+      <li><code>ads_inventory_replenishment_summary_1d</code> 基于三个发补货 ADS 结果做全局汇总，服务无请求参数的全局统计卡片接口。</li>
     </ul>
     <p class="back"><a href="../库存检查/需求文档.html">库存检查需求文档</a> ｜ <a href="../库存检查/htmls/库存检查看板-1.0.html">库存检查原型</a> ｜ <a href="接口文档.html">接口文档</a></p>
   </div>
