@@ -628,11 +628,13 @@
       box-shadow: 0 8px 18px rgba(13, 148, 136, 0.18);
     }
     .inventory-color-table {
-      min-width: 1700px;
+      min-width: 1900px;
       table-layout: fixed;
     }
     .inventory-color-table th:nth-child(1) { width: 220px; }
-    .inventory-color-table th:nth-child(2) { width: 360px; }
+    .inventory-color-table th:nth-child(2) { width: 120px; }
+    .inventory-color-table th:nth-child(3) { width: 360px; }
+    .inventory-color-table th:nth-child(4) { width: 120px; }
     .inventory-color-table tbody tr.color-group-row { cursor: pointer; }
     .inventory-color-table tbody tr.color-group-row td {
       background: #f8fafc;
@@ -946,7 +948,7 @@
         <div class="tab-group" id="viewTabs">
           <button type="button" class="tab active" data-view="sku">PID&SKU维度</button>
           <button type="button" class="tab" data-view="spu">SPU维度</button>
-          <button type="button" class="tab" data-view="color">颜色看板</button>
+          <button type="button" class="tab" data-view="color">SPU看板</button>
         </div>
         <div class="query-item color-query-item">
           <span class="label">SPU</span>
@@ -2035,7 +2037,7 @@
           </div>
         </div>
         <div class="legend">
-          颜色看板按 <code>单个 SPU</code> 组织展示：先选中一个 SPU，再按颜色汇总展示国内与海外库存相关指标；点击颜色行可下钻查看该颜色下对应的 SKU 明细。
+          SPU看板按 <code>单个 SPU</code> 组织展示：先选中一个 SPU，再按颜色汇总展示国内与海外库存相关指标；点击颜色行可下钻查看该颜色下对应的 SKU 明细。
         </div>
       </div>
 
@@ -2070,7 +2072,9 @@
             <thead>
               <tr>
                 <th data-col-key="color">颜色</th>
+                <th data-col-key="hotColor">是否热卖色</th>
                 <th data-col-key="sku">SKU</th>
+                <th data-col-key="hotSku">是否热卖SKU</th>
                 <th class="num" data-col-key="factoryPending">工厂采购未交量</th>
                 <th class="num" data-col-key="domesticTransit">国内交货在途库存</th>
                 <th class="num" data-col-key="domesticStock">国内在库库存</th>
@@ -2088,7 +2092,7 @@
     <div class="query-card">
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">原型补充说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;">
-        <li><strong>增加颜色看板</strong>：在 SPU 维度下，支持按照颜色查看对应 SKU 的库存信息。</li>
+        <li><strong>增加 SPU看板</strong>：在 SPU 维度下，支持按照颜色查看对应 SKU 的库存信息。</li>
         <li><strong>增加导出功能</strong>：支持导出当前看板展示结果。</li>
         <li><strong>增加常见 SPU</strong>：提供常见 SPU 快捷入口，方便点击筛选。</li>
         <li><strong>表格支持自定义列</strong>：可按业务需要选择展示字段。</li>
@@ -2138,14 +2142,16 @@
   <div class="column-config-mask" id="colorColumnConfigMask">
     <div class="column-config-modal" role="dialog" aria-modal="true" aria-labelledby="colorColumnConfigTitle">
       <div class="column-config-head">
-        <span class="column-config-title" id="colorColumnConfigTitle">颜色看板自定义列</span>
+        <span class="column-config-title" id="colorColumnConfigTitle">SPU看板自定义列</span>
         <button type="button" class="column-config-close" data-color-column-close aria-label="关闭">×</button>
       </div>
       <div class="column-config-body">
-        <div class="column-config-tip">按颜色看板配置表格展示字段；保存后同时影响当前表格展示与导出字段。颜色、SKU 作为基础下钻字段固定展示。</div>
+        <div class="column-config-tip">按 SPU看板配置表格展示字段；保存后同时影响当前表格展示与导出字段。颜色、是否热卖色、SKU、是否热卖SKU 作为基础下钻字段固定展示。</div>
         <div class="column-grid" id="colorColumnOptionList">
           <label class="column-option fixed"><input type="checkbox" checked disabled />颜色</label>
+          <label class="column-option fixed"><input type="checkbox" checked disabled />是否热卖色</label>
           <label class="column-option fixed"><input type="checkbox" checked disabled />SKU</label>
+          <label class="column-option fixed"><input type="checkbox" checked disabled />是否热卖SKU</label>
           <label class="column-option"><input type="checkbox" data-color-column="factoryPending" checked />工厂采购未交量</label>
           <label class="column-option"><input type="checkbox" data-color-column="domesticTransit" checked />国内交货在途库存</label>
           <label class="column-option"><input type="checkbox" data-color-column="domesticStock" checked />国内在库库存</label>
@@ -2356,7 +2362,9 @@
       var activeColorSpu = 'AL-W5558';
       var colorColumnState = {
         color: true,
+        hotColor: true,
         sku: true,
+        hotSku: true,
         factoryPending: true,
         domesticTransit: true,
         domesticStock: true,
@@ -2452,7 +2460,9 @@
         "店铺侧-FBT可用": "说明：按最新原型字段口径展示；具体来源以映射表和后续开发口径为准。",
         "店铺侧-英国退货仓": "来源：积加-商品管理-可用库存",
         "颜色": "来源：商品颜色维度拆分结果。\n公式/条件：在单个 SPU 下，按颜色对对应 SKU 进行分组汇总展示，用于查看该颜色下各尺码 SKU 的库存信息。",
+        "是否热卖色": "来源：发补货看板热卖色码标记。\n公式/条件：当前 SPU 下该颜色命中热卖色码范围时标记为是，否则为否。",
         "SKU": "来源：当前 SPU 和颜色下的 SKU 明细。\n公式/条件：点击颜色分组后，展开展示该颜色下各 SKU 的库存指标明细。",
+        "是否热卖SKU": "来源：发补货看板热卖 SKU / 热卖色码明细。\n公式/条件：当前 SKU 命中热卖 SKU 范围时标记为是，否则为否。",
         "异常仓库": "来源：各仓库同步差异字段。\n公式/条件：汇总差异不为 0 或超过阀值的仓库名称，用于快速定位异常仓。",
         "库存阀值设置": "来源：积加后台的调库存规则 / 库存阀值设置。\n公式/条件：按店铺、SKU、仓库等维度匹配阀值；未匹配时需提示阀值缺失或待维护。",
         "库存是否异常": "来源：库存总差异、库存阀值设置。\n公式/条件：库存总差异不等于 0 时标记异常；等于 0 标记正常。",
@@ -2538,6 +2548,14 @@
         });
       }
 
+      function isHotColor(group) {
+        return /黑|粉|灰|深灰|米白|酒红/.test(group.color || '') ? '是' : '否';
+      }
+
+      function isHotSku(item) {
+        return /-M$|-L$|-S$/.test(item.sku || '') ? '是' : '否';
+      }
+
       function renderColorBoard(spuKey) {
         if (!colorBoardBody || !colorBoardData[spuKey]) return;
         activeColorSpu = spuKey;
@@ -2569,7 +2587,9 @@
 
           html += '<tr class="color-group-row' + (expanded ? ' expanded' : '') + '" data-color-group="' + escapeHtml(group.color) + '">'
             + '<td data-col-key="color"><span class="color-name-cell"><span class="color-toggle">' + (expanded ? '▾' : '▸') + '</span>' + escapeHtml(group.color) + '</span></td>'
+            + '<td data-col-key="hotColor">' + isHotColor(group) + '</td>'
             + '<td data-col-key="sku"></td>'
+            + '<td data-col-key="hotSku"></td>'
             + '<td class="num" data-col-key="factoryPending">' + formatNumber(totals.factoryPending) + '</td>'
             + '<td class="num" data-col-key="domesticTransit">' + formatNumber(totals.domesticTransit) + '</td>'
             + '<td class="num" data-col-key="domesticStock">' + formatNumber(totals.domesticStock) + '</td>'
@@ -2582,7 +2602,9 @@
             group.items.forEach(function(item) {
               html += '<tr class="color-sku-row">'
                 + '<td data-col-key="color"></td>'
+                + '<td data-col-key="hotColor"></td>'
                 + '<td class="color-sku-code" data-col-key="sku">' + escapeHtml(item.sku) + '</td>'
+                + '<td data-col-key="hotSku">' + isHotSku(item) + '</td>'
                 + '<td class="num" data-col-key="factoryPending">' + formatNumber(item.factoryPending) + '</td>'
                 + '<td class="num" data-col-key="domesticTransit">' + formatNumber(item.domesticTransit) + '</td>'
                 + '<td class="num" data-col-key="domesticStock">' + formatNumber(item.domesticStock) + '</td>'
@@ -2596,7 +2618,9 @@
 
         html += '<tr class="color-total-row">'
           + '<td data-col-key="color">总计</td>'
+          + '<td data-col-key="hotColor"></td>'
           + '<td data-col-key="sku"></td>'
+          + '<td data-col-key="hotSku"></td>'
           + '<td class="num" data-col-key="factoryPending">' + formatNumber(totalFactoryPending) + '</td>'
           + '<td class="num" data-col-key="domesticTransit">' + formatNumber(totalDomesticTransit) + '</td>'
           + '<td class="num" data-col-key="domesticStock">' + formatNumber(totalDomesticStock) + '</td>'
@@ -2605,7 +2629,7 @@
           + '<td class="num" data-col-key="overseaStock">' + formatNumber(totalOverseaStock) + '</td>'
           + '</tr>';
 
-        colorBoardBody.innerHTML = html || '<tr><td colspan="8" class="color-board-empty">暂无颜色明细</td></tr>';
+        colorBoardBody.innerHTML = html || '<tr><td colspan="10" class="color-board-empty">暂无颜色明细</td></tr>';
         applyColorColumnVisibility();
 
         if (colorSummarySpu) colorSummarySpu.textContent = dataset.spu;
@@ -2664,7 +2688,7 @@
             }
             closeColorColumnConfig();
             renderColorBoard(activeColorSpu);
-            showToast('已保存颜色看板自定义列配置');
+            showToast('已保存 SPU看板自定义列配置');
           });
         }
         renderColorBoard(activeColorSpu);
@@ -3099,7 +3123,7 @@
       });
 
       document.getElementById('btnMetricHelpColor').addEventListener('click', function() {
-        alert('数据统计说明：\n1. 颜色看板按单个 SPU 展示颜色汇总结果。\n2. 颜色行展示该颜色下全部 SKU 的工厂采购未交量、国内交货在途库存、国内在库库存、采购在途库存、海外在途总量、海外在库总库存汇总。\n3. 点击颜色行可展开查看该颜色下各 SKU 的明细数量。');
+        alert('数据统计说明：\n1. SPU看板按单个 SPU 展示颜色汇总结果。\n2. 颜色行展示该颜色下全部 SKU 的工厂采购未交量、国内交货在途库存、国内在库库存、采购在途库存、海外在途总量、海外在库总库存汇总。\n3. 点击颜色行可展开查看该颜色下各 SKU 的明细数量。');
       });
 
       function getSkuFilterMatched(row, filterType) {
@@ -3409,6 +3433,6 @@
       updateExactSearchPreview();
     })();
   </script>
-  <div class="toast" id="toast">已保存颜色看板自定义列配置</div>
+  <div class="toast" id="toast">已保存SPU看板自定义列配置</div>
 </body>
 </html>

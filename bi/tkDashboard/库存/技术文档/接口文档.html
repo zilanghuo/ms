@@ -823,7 +823,7 @@
           <tr><td><code>data.list[].overseasSafetyStockAdjustDays</code></td><td>number</td><td>海外仓安全库存调整天数</td></tr>
           <tr><td><code>data.list[].directMailSafetyStockAdjustDays</code></td><td>number</td><td>直邮仓安全库存调整天数</td></tr>
           <tr><td><code>data.list[].skuTier</code></td><td>string</td><td>SKU 分层结果</td></tr>
-          <tr><td><code>data.list[].isHotColorSize</code></td><td>boolean</td><td>是否热卖色码</td></tr>
+          <tr><td><code>data.list[].isHotColorSize</code></td><td>boolean</td><td>是否热卖色码，由模型按 SKU 分层与销量趋势计算输出；编辑弹窗仅展示，不支持人工保存</td></tr>
           <tr><td><code>data.list[].vocScore</code></td><td>number</td><td>VOC 值，可由编辑弹窗人工修正</td></tr>
           <tr><td><code>data.list[].returnRate14d</code></td><td>number</td><td>近 14 天退货率</td></tr>
           <tr><td><code>data.list[].suggestRestockTransportMode</code></td><td>string</td><td>补货建议运输方式</td></tr>
@@ -866,7 +866,7 @@
     "overseasSafetyStockAdjustDays": { "fieldDesc": "生命周期判断-安全库存调整天数（海外仓）", "canSort": true },
     "directMailSafetyStockAdjustDays": { "fieldDesc": "生命周期判断-安全库存调整天数（直邮仓）", "canSort": true },
     "skuTier": { "fieldDesc": "SKU四层分层-SKU分层；由模型计算输出，页面不提供编辑", "canSort": false },
-    "isHotColorSize": { "fieldDesc": "SKU四层分层-是否热卖色码；由模型计算输出，页面不提供编辑", "canSort": false },
+    "isHotColorSize": { "fieldDesc": "SKU四层分层-是否热卖色码；由模型计算输出，编辑弹窗仅展示，不支持人工保存", "canSort": false },
     "vocScore": { "fieldDesc": "SKU四层分层-VOC值；编辑弹窗可人工修正", "canSort": true },
     "returnRate14d": { "fieldDesc": "SKU四层分层-退货率（近14天）", "canSort": true },
     "suggestRestockTransportMode": { "fieldDesc": "目标库存计算-建议运输方式（补货）", "canSort": false },
@@ -894,7 +894,7 @@
     </div>
 
     <h3 id="replenishment-restock-update">2.9 备货模型：编辑保存接口</h3>
-    <p>对应原型中的“编辑备货模型字段”弹窗，保存后按库存 SKU 维度刷新当前行。当前页面只有备货模型提供编辑动作，且仅支持编辑 <code>lifeCycle</code>、<code>isContentBurst</code>、<code>businessOrderRatio</code>、<code>editorOrderRatio</code>、<code>vocScore</code>。</p>
+    <p>对应原型中的“编辑备货模型字段”弹窗，保存后按库存 SKU 维度刷新当前行。当前页面只有备货模型提供编辑动作，且仅支持编辑 <code>lifeCycle</code>、<code>isContentBurst</code>、<code>businessOrderRatio</code>、<code>editorOrderRatio</code>、<code>vocScore</code>；弹窗中的 <code>isHotColorSize</code> 为模型计算字段，仅用于查看，不进入保存请求体。</p>
     <pre><code>POST /tk/inventory/replenishment/restock/update</code></pre>
     <p><strong>请求体</strong></p>
     <pre><code>{
@@ -1283,7 +1283,7 @@
           <tr><td>备货模型-生命周期判断</td><td><code>overseasSafetyStockAdjustDays</code></td><td>安全库存调整天数（海外仓）</td><td>海外仓安全库存调整天数</td></tr>
           <tr><td>备货模型-生命周期判断</td><td><code>directMailSafetyStockAdjustDays</code></td><td>安全库存调整天数（直邮仓）</td><td>直邮仓安全库存调整天数</td></tr>
           <tr><td>备货模型-SKU四层分层</td><td><code>skuTier</code></td><td>SKU分层</td><td>SKU 四层分层结果</td></tr>
-          <tr><td>备货模型-SKU四层分层</td><td><code>isHotColorSize</code></td><td>是否热卖色码</td><td>是否热卖色码</td></tr>
+          <tr><td>备货模型-SKU四层分层</td><td><code>isHotColorSize</code></td><td>是否热卖色码</td><td>模型计算输出字段，编辑弹窗仅展示，不支持人工保存</td></tr>
           <tr><td>备货模型-SKU四层分层</td><td><code>vocScore</code></td><td>VOC值</td><td>VOC 评分</td></tr>
           <tr><td>备货模型-SKU四层分层</td><td><code>returnRate14d</code></td><td>退货率（近14天）</td><td>近 14 天退货率</td></tr>
           <tr><td>备货模型-目标库存计算</td><td><code>suggestRestockTransportMode</code></td><td>建议运输方式（补货）</td><td>补货建议运输方式</td></tr>

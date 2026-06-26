@@ -1650,7 +1650,7 @@
                   <td>示例状态</td>
                   <td>示例状态</td>
                   <td>0</td>
-                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-voc="0">编辑</button></td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-hot-color-size="否" data-voc="0">编辑</button></td>
               </tr>
               <tr>
                   <td class="sticky-base sticky-base-1">US</td>
@@ -1685,7 +1685,7 @@
                   <td>示例状态</td>
                   <td>示例状态</td>
                   <td>0</td>
-                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-voc="0">编辑</button></td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-hot-color-size="否" data-voc="0">编辑</button></td>
               </tr>
             </tbody>
           </table>
@@ -2059,7 +2059,7 @@
       <div class="edit-modal-header">
         <div>
           <div class="edit-modal-title" id="restockEditTitle">编辑备货模型字段</div>
-          <div class="export-modal-sub">仅支持编辑“生命周期、是否内容爆发、商务出单占比、剪辑出单占比、VOC值”。</div>
+          <div class="export-modal-sub">仅支持编辑“生命周期、是否内容爆发、商务出单占比、剪辑出单占比、VOC值”；“是否热卖色”为模型计算结果，仅展示。</div>
         </div>
         <button type="button" class="modal-close" data-restock-edit-close aria-label="关闭">×</button>
       </div>
@@ -2095,6 +2095,10 @@
           <div class="edit-form-item">
             <label>剪辑出单占比</label>
             <input type="text" id="restockEditClipRatio" placeholder="例如：20%" />
+          </div>
+          <div class="edit-form-item">
+            <label>是否热卖色</label>
+            <input type="text" id="restockEditHotColorSize" readonly />
           </div>
           <div class="edit-form-item">
             <label>VOC值</label>
@@ -2221,6 +2225,7 @@
       var restockEditLifecycle = document.getElementById('restockEditLifecycle');
       var restockEditBusinessRatio = document.getElementById('restockEditBusinessRatio');
       var restockEditClipRatio = document.getElementById('restockEditClipRatio');
+      var restockEditHotColorSize = document.getElementById('restockEditHotColorSize');
       var restockEditVoc = document.getElementById('restockEditVoc');
       function closeRestockEdit() {
         if (restockEditModal) restockEditModal.classList.remove('visible');
@@ -2234,6 +2239,7 @@
           if (restockEditLifecycle) restockEditLifecycle.value = btn.getAttribute('data-lifecycle') || '平稳期';
           if (restockEditBusinessRatio) restockEditBusinessRatio.value = btn.getAttribute('data-business-ratio') || '';
           if (restockEditClipRatio) restockEditClipRatio.value = btn.getAttribute('data-clip-ratio') || '';
+          if (restockEditHotColorSize) restockEditHotColorSize.value = btn.getAttribute('data-hot-color-size') || '否';
           if (restockEditVoc) restockEditVoc.value = btn.getAttribute('data-voc') || '';
           restockEditModal.classList.add('visible');
         });

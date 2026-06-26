@@ -94,15 +94,6 @@
     .tab-group .tab:last-child { border-right: none; }
     .tab-group .tab.active { background: var(--accent); color: #fff; }
     .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
-    .query-row .color-query-item { display: none; }
-    .query-row.color-view-mode .site-query-item,
-    .query-row.color-view-mode .store-query-item,
-    .query-row.color-view-mode .sales-search-query-item,
-    .query-row.color-view-mode .gran-query-tabs {
-      display: none;
-    }
-    .query-row.color-view-mode .color-query-item { display: flex; }
-
     .filter-info { font-size: 0.8rem; color: var(--accent); }
 
     .action-bar { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.75rem; }
@@ -237,11 +228,15 @@
     .sku-sales-modal-box .analysis-header { background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%); }
     .sku-sales-modal-box .analysis-title small { margin-left: 0.5rem; color: var(--muted); font-weight: 400; font-size: 0.85rem; }
     .sku-sales-summary { padding: 0.75rem 1rem 0; color: var(--muted); font-size: 0.86rem; }
+    .sku-sales-note { margin: 0.5rem 1rem 0; padding: 0.55rem 0.7rem; border-radius: 6px; background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; font-size: 0.8rem; line-height: 1.6; }
+    .sku-sales-note strong { color: #0f172a; }
     .sku-sales-table { min-width: 760px; }
     .sku-sales-table th { background: #ddebf7 !important; color: #111827 !important; font-weight: 600 !important; }
     .sku-sales-table td.num, .sku-sales-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
     .sku-sales-table tr.row-total td { background: #ddebf7; font-weight: 700; }
     .sku-sales-table tr.row-ratio td { background: #fff; font-size: 0.78rem; }
+    .sku-sales-table .size-main { display: block; font-weight: 600; color: #0f172a; }
+    .sku-sales-table .size-ratio { display: block; margin-top: 0.16rem; font-size: 0.72rem; color: #64748b; }
     .sku-sales-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .sku-sales-actions input[type="date"] { border: 1px solid var(--border); border-radius: 4px; padding: 0.35rem 0.5rem; font-size: 0.85rem; }
     .sku-sales-actions .btn-mini { padding: 0.35rem 0.75rem; border: 1px solid var(--accent); border-radius: 4px; background: #fff; color: var(--accent); cursor: pointer; font-size: 0.85rem; }
@@ -250,29 +245,6 @@
     .sku-sales-actions .btn-mini.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
     .spu-detail-link { border: none; background: transparent; padding: 0; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font: inherit; font-weight: 600; }
     .spu-detail-link:hover { color: var(--accent-hover); }
-    .color-quick-card { display: none; padding: 0.75rem 1rem; }
-    .color-quick-card.visible { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
-    .color-quick-title { font-size: 0.88rem; font-weight: 600; color: var(--text); }
-    .color-quick-list { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .color-quick-chip { padding: 0.36rem 0.8rem; border-radius: 999px; border: 1px solid #cbd5e1; background: #fff; color: #334155; font-size: 0.82rem; cursor: pointer; transition: all .16s ease; }
-    .color-quick-chip:hover { border-color: #5eead4; background: #f0fdfa; color: #0f766e; }
-    .color-quick-chip.active { border-color: var(--accent); background: var(--accent); color: #fff; box-shadow: 0 8px 18px rgba(13, 148, 136, 0.18); }
-    #resultTable.color-sales-table { min-width: 1500px; table-layout: fixed; }
-    #resultTable.color-sales-table th.color-sticky,
-    #resultTable.color-sales-table td.color-sticky { position: sticky; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable.color-sales-table th.color-sticky { z-index: 2; background: #f9fafb !important; }
-    #resultTable.color-sales-table .color-sticky-1 { left: 0; width: 140px; min-width: 140px; max-width: 140px; }
-    #resultTable.color-sales-table .color-sticky-2 { left: 140px; width: 180px; min-width: 180px; max-width: 180px; }
-    #resultTable.color-sales-table .color-sticky-3 { left: 320px; width: 260px; min-width: 260px; max-width: 260px; }
-    #resultTable.color-sales-table .color-sticky-4 { left: 580px; width: 70px; min-width: 70px; max-width: 70px; }
-    #resultTable.color-sales-table .color-sticky-5 { left: 650px; width: 70px; min-width: 70px; max-width: 70px; }
-    #resultTable.color-sales-table .color-sticky-6 { left: 720px; width: 76px; min-width: 76px; max-width: 76px; }
-    #resultTable.color-sales-table .color-group-row td { background: #ecfeff; font-weight: 600; cursor: pointer; }
-    #resultTable.color-sales-table .color-group-row:hover td { background: #cffafe; }
-    #resultTable.color-sales-table .color-sku-row td { background: #fff; }
-    #resultTable.color-sales-table .color-sku-row:hover td { background: #f8fafc; }
-    #resultTable.color-sales-table .row-color-total td { background: #dcfce7; font-weight: 700; }
-    .color-toggle { display: inline-flex; width: 16px; height: 16px; align-items: center; justify-content: center; margin-right: 0.35rem; border-radius: 4px; background: #dbeafe; color: #1d4ed8; font-size: 0.76rem; }
     .prompt-block { margin-top: 1rem; padding: 0.9rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: #f8fafc; }
     .prompt-block .prompt-title { margin: 0 0 0.75rem; font-size: 0.95rem; font-weight: 600; color: var(--accent); }
     .prompt-block pre { margin: 0; padding: 1rem; border-radius: 6px; background: #fff; border: 1px solid #e2e8f0; color: var(--text); font-size: 0.85rem; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
@@ -290,18 +262,7 @@
             <button type="button" class="tab active" data-view="spu">SPU汇总</button>
             <button type="button" class="tab" data-view="pid">PID明细</button>
             <button type="button" class="tab" data-view="sku">SKU看板</button>
-            <button type="button" class="tab" data-view="color">颜色看板</button>
           </div>
-        </div>
-        <div class="query-item color-query-item">
-          <span class="label">SPU</span>
-          <select id="colorSpuSelect">
-            <option value="AL-W0161">AL-W0161</option>
-            <option value="AL-W0180">AL-W0180</option>
-            <option value="AL-W0169">AL-W0169</option>
-            <option value="AL-W5558">AL-W5558</option>
-            <option value="ALYMX-DROPSW">ALYMX-DROPSW</option>
-          </select>
         </div>
         <div class="query-item site-query-item">
           <span class="label">站点</span>
@@ -385,18 +346,7 @@
         </div>
       </div>
       <div class="export-tip">
-        <span id="viewDescText">支持顶部切换 `SPU汇总 / PID明细 / SKU看板 / 颜色看板` 四种视图，默认展示 SPU汇总。导出字段随当前维度变化；环比为百分比，日对比昨天、周对比上周、月对比上月、季对比上季、年对比去年。SKU看板沿用店铺、SPU、PID/SKU 搜索和时间粒度筛选。</span>
-      </div>
-    </div>
-
-    <div class="query-card color-quick-card" id="colorQuickCard">
-      <span class="color-quick-title">常见spu</span>
-      <div class="color-quick-list" id="colorQuickList">
-        <button type="button" class="color-quick-chip active" data-color-quick="AL-W0161">AL-W0161</button>
-        <button type="button" class="color-quick-chip" data-color-quick="AL-W0180">AL-W0180</button>
-        <button type="button" class="color-quick-chip" data-color-quick="AL-W0169">AL-W0169</button>
-        <button type="button" class="color-quick-chip" data-color-quick="AL-W5558">AL-W5558</button>
-        <button type="button" class="color-quick-chip" data-color-quick="ALYMX-DROPSW">ALYMX-DROPSW</button>
+        <span id="viewDescText">支持顶部切换 `SPU汇总 / PID明细 / SKU看板` 三种视图，默认展示 SPU汇总。导出字段随当前维度变化；环比为百分比，日对比昨天、周对比上周、月对比上月、季对比上季、年对比去年。SKU看板沿用店铺、SPU、PID/SKU 搜索和时间粒度筛选。</span>
       </div>
     </div>
 
@@ -418,16 +368,15 @@
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.3 版本说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;line-height:1.8;">
         <li>1、调整 <code>SKU看板</code>、<code>SPU汇总</code>、<code>PID明细</code> 部分展示字段，补充热卖色码与断货相关信息（0618）。</li>
-        <li>2、<code>SPU汇总</code> 支持点击 SPU 下钻查看 SKU 销量明细，弹框支持日期筛选与导出，按颜色、尺码展示总计与占比（0618）。</li>
+        <li>2、<code>SPU汇总</code> 支持点击 SPU 下钻查看 SKU 销量明细，弹框支持日期筛选与导出，按颜色、尺码展示总计、颜色占比，以及单个尺码在当前颜色销量中的占比（0618）。</li>
         <li>3、SKU看板字段：店铺名、SPU、PID、SKU编码、SKU产品中文名、颜色、尺码、积加SPU中文名称、小计、平均值、环比、每日销量；SPU 不合并、不展示 SPU 合计行。</li>
-        <li>4、增加 <code>颜色看板</code>：不按店铺维度筛选，按 SPU + 日期范围查看颜色与 SKU 每日销量，日期作为横轴，默认展示颜色汇总，点击颜色下钻 SKU。</li>
-        <li>5、筛选区新增 <code>SKU</code> 搜索项，其他筛选功能沿用原商品统计。</li>
-        <li>6、店铺内容不再做单元格合并，店铺名平铺到每一行，便于复制、导出和逐行核对。</li>
-        <li>7、PID明细中的 SPU 不再做单元格合并，SPU 平铺到每一行，和店铺名展示方式保持一致。</li>
-        <li>8、增加导出功能，导出字段随当前维度变化。</li>
-        <li>9、增加导出图片功能，用于保存当前查询结果截图。</li>
-        <li>10、不需要每天播报。</li>
-        <li>11、颜色、尺码由 SKU 名称拆分展示；“积加SPU中文名称”即原父产品中文名。</li>
+        <li>4、筛选区新增 <code>SKU</code> 搜索项，其他筛选功能沿用原商品统计。</li>
+        <li>5、店铺内容不再做单元格合并，店铺名平铺到每一行，便于复制、导出和逐行核对。</li>
+        <li>6、PID明细中的 SPU 不再做单元格合并，SPU 平铺到每一行，和店铺名展示方式保持一致。</li>
+        <li>7、增加导出功能，导出字段随当前维度变化。</li>
+        <li>8、增加导出图片功能，用于保存当前查询结果截图。</li>
+        <li>9、不需要每天播报。</li>
+        <li>10、颜色、尺码由 SKU 名称拆分展示；“积加SPU中文名称”即原父产品中文名。</li>
       </ul>
     </div>
 
@@ -484,6 +433,7 @@
         </div>
       </div>
       <div class="sku-sales-summary" id="skuSalesSummary"></div>
+      <div class="sku-sales-note" id="skuSalesNote">指标说明：<strong>单个尺码在颜色内占比</strong> = 单个尺码销量 / 当前颜色总销量；例如某颜色总销量 100，M 码销量 25，则 M 码占比为 25%。</div>
       <div class="analysis-body">
         <table class="analysis-table sku-sales-table" id="skuSalesTable">
           <thead id="skuSalesThead"></thead>
@@ -498,9 +448,6 @@
       var curView = 'spu';
       var exactSearchDraft = '';
       var exactSearchApplied = '';
-      var activeColorSpu = 'AL-W0161';
-      var colorExpandedState = {};
-
       var regionTree = [
         { name: '欧洲', children: [
           { label: '德国', code: 'DE' },
@@ -719,71 +666,6 @@
         return s;
       }
 
-      function colorDayQty(spu, color, sku, day) {
-        var h = hash(spu + color + sku + day);
-        return 1 + (h % 38);
-      }
-
-      function buildColorSalesGroups(spu, days) {
-        var colorMap = {};
-        (skuRowsBySpu[spu] || []).forEach(function(row) {
-          var color = row.color || '未识别颜色';
-          if (!colorMap[color]) colorMap[color] = { color: color, skus: [] };
-          var vals = days.map(function(day) { return colorDayQty(spu, color, row.sku, day); });
-          colorMap[color].skus.push({
-            sku: row.sku,
-            name: row.name,
-            vals: vals,
-            sub: vals.reduce(function(a, b) { return a + b; }, 0)
-          });
-        });
-        return Object.keys(colorMap).map(function(color) {
-          var group = colorMap[color];
-          group.skus.sort(function(a, b) { return (b.sub || 0) - (a.sub || 0); });
-          group.vals = days.map(function(_, idx) {
-            return group.skus.reduce(function(sum, row) { return sum + (row.vals[idx] || 0); }, 0);
-          });
-          group.sub = group.vals.reduce(function(a, b) { return a + b; }, 0);
-          group.avg = group.vals.length ? Math.round(group.sub / group.vals.length) : 0;
-          var latest = group.vals.length ? group.vals[group.vals.length - 1] : 0;
-          var prev = group.vals.length > 1 ? group.vals[group.vals.length - 2] : 0;
-          group.diffNum = latest - prev;
-          group.diffStr = fmtChainRatio(latest, prev);
-          return group;
-        }).sort(function(a, b) { return (b.sub || 0) - (a.sub || 0); });
-      }
-
-      function getColorDisplayDays(start, end) {
-        return enumDays(start, end).slice(-10);
-      }
-
-      function syncColorQuickState(spu) {
-        var select = document.getElementById('colorSpuSelect');
-        var quickList = document.getElementById('colorQuickList');
-        activeColorSpu = spu || activeColorSpu;
-        if (select) select.value = activeColorSpu;
-        if (quickList) {
-          quickList.querySelectorAll('[data-color-quick]').forEach(function(btn) {
-            btn.classList.toggle('active', btn.getAttribute('data-color-quick') === activeColorSpu);
-          });
-        }
-      }
-
-      function syncViewMode() {
-        var mainQueryRow = document.getElementById('mainQueryRow');
-        var colorQuickCard = document.getElementById('colorQuickCard');
-        var table = document.getElementById('resultTable');
-        var desc = document.getElementById('viewDescText');
-        if (mainQueryRow) mainQueryRow.classList.toggle('color-view-mode', curView === 'color');
-        if (colorQuickCard) colorQuickCard.classList.toggle('visible', curView === 'color');
-        if (table) table.classList.toggle('color-sales-table', curView === 'color');
-        if (desc) {
-          desc.textContent = curView === 'color'
-            ? '颜色看板按单个 SPU + 日期范围展示每日销量，日期作为横轴；默认只展示颜色汇总，点击颜色行可展开查看 SKU 每日销量明细。该栏目不按站点、店铺筛选。'
-            : '支持顶部切换 `SPU汇总 / PID明细 / SKU看板 / 颜色看板` 四种视图，默认展示 SPU汇总。导出字段随当前维度变化；环比为百分比，日对比昨天、周对比上周、月对比上月、季对比上季、年对比去年。SKU看板沿用店铺、SPU、PID/SKU 搜索和时间粒度筛选。';
-        }
-      }
-
       function getHotCodeBrokenBySpu(spu) {
         return (spu === 'AL-W0169' || spu === 'AL-W0161') ? '是' : '否';
       }
@@ -842,11 +724,14 @@
         if (!modal || !thead || !tbody) return;
         var data = buildSkuSalesRows(spu, startDate, endDate);
         title.innerHTML = 'SKU 销量明细 <small>' + spu + '</small>';
-        summary.textContent = '店铺：' + storeName + '　SPU：' + spu + '　日期：' + (startDate || '全部') + ' 至 ' + (endDate || '全部') + '　按颜色 / 尺码展示销量、总计与尺码占比。';
-        thead.innerHTML = '<tr><th>颜色</th>' + data.sizes.map(function(size) { return '<th class="num">' + size + '</th>'; }).join('') + '<th class="num">总计</th><th class="num">占比</th></tr>';
+        summary.textContent = '店铺：' + storeName + '　SPU：' + spu + '　日期：' + (startDate || '全部') + ' 至 ' + (endDate || '全部') + '　按颜色 / 尺码展示销量、总计、颜色占比，以及单个尺码在当前颜色销量中的占比。';
+        thead.innerHTML = '<tr><th>颜色</th>' + data.sizes.map(function(size) { return '<th class="num">' + size + '</th>'; }).join('') + '<th class="num">总计</th><th class="num">颜色占比</th></tr>';
         var rowsHtml = data.rows.map(function(row) {
-          var ratio = data.grandTotal ? ((row.total / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%';
-          return '<tr><td>' + row.color + '</td>' + row.vals.map(function(v) { return '<td class="num">' + v + '</td>'; }).join('') + '<td class="num">' + row.total + '</td><td class="num">' + ratio + '</td></tr>';
+          var colorRatio = data.grandTotal ? ((row.total / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%';
+          return '<tr><td>' + row.color + '</td>' + row.vals.map(function(v) {
+            var sizeRatio = row.total ? ((v / row.total) * 100).toFixed(2) + '%' : '0.00%';
+            return '<td class="num"><span class="size-main">' + v + '</span><span class="size-ratio">' + sizeRatio + '</span></td>';
+          }).join('') + '<td class="num">' + row.total + '</td><td class="num">' + colorRatio + '</td></tr>';
         }).join('');
         rowsHtml += '<tr class="row-total"><td>总计</td>' + data.totals.map(function(v) { return '<td class="num">' + v + '</td>'; }).join('') + '<td class="num">' + data.grandTotal + '</td><td></td></tr>';
         rowsHtml += '<tr class="row-ratio"><td>尺码占比</td>' + data.totals.map(function(v) { return '<td class="num">' + (data.grandTotal ? ((v / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%') + '</td>'; }).join('') + '<td class="num">100.00%</td><td></td></tr>';
@@ -986,13 +871,6 @@
         var data = getFiltered();
         var tbody = document.getElementById('resultBody');
         var range = getDateRange();
-        syncViewMode();
-
-        if (curView === 'color') {
-          renderColorSalesBoard();
-          return;
-        }
-
         if (!data || !data.spus.length || !range.start || !range.end || range.start > range.end) {
           tbody.innerHTML = '<tr><td colspan="' + (curView === 'spu' ? '11' : curView === 'sku' ? '23' : '13') + '" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
           return;
@@ -1282,90 +1160,6 @@
         });
       }
 
-      function renderColorSalesBoard() {
-        var tbody = document.getElementById('resultBody');
-        var thead = document.getElementById('resultHead');
-        var range = getDateRange();
-        var spu = (document.getElementById('colorSpuSelect') && document.getElementById('colorSpuSelect').value) || activeColorSpu;
-        syncColorQuickState(spu);
-        if (!tbody || !thead) return;
-        if (!spu || !range.start || !range.end || range.start > range.end) {
-          thead.innerHTML = '<tr><th>SPU</th><th>颜色</th><th>SKU</th><th>小计</th><th>平均值</th><th>环比</th></tr>';
-          tbody.innerHTML = '<tr><td colspan="6" class="empty-tip">请选择 SPU 与日期范围后点击「查询」</td></tr>';
-          document.getElementById('filterInfo').textContent = '';
-          return;
-        }
-        var days = getColorDisplayDays(range.start, range.end);
-        var groups = buildColorSalesGroups(spu, days);
-        var dayLabels = days.map(function(day) { return day.slice(5).replace('-', '/'); }).reverse();
-        var dayKeys = days.slice().reverse();
-        document.getElementById('filterInfo').textContent =
-          'SPU：' + spu + '　日期：' + range.start + ' 至 ' + range.end + '　维度：颜色看板（日销量，日期横轴，展示最近10天）';
-        thead.innerHTML =
-          '<tr><th class="color-sticky color-sticky-1">SPU</th><th class="color-sticky color-sticky-2">颜色</th><th class="color-sticky color-sticky-3">SKU</th><th class="color-sticky color-sticky-4">小计</th><th class="color-sticky color-sticky-5">平均值</th><th class="color-sticky color-sticky-6">环比</th><th colspan="' + dayLabels.length + '">每日销量</th></tr>' +
-          '<tr><th class="color-sticky color-sticky-1"></th><th class="color-sticky color-sticky-2"></th><th class="color-sticky color-sticky-3"></th><th class="color-sticky color-sticky-4"></th><th class="color-sticky color-sticky-5"></th><th class="color-sticky color-sticky-6"></th>' +
-          dayLabels.map(function(label) { return '<th>' + label + '</th>'; }).join('') + '</tr>';
-        if (!groups.length) {
-          tbody.innerHTML = '<tr><td colspan="' + (6 + dayLabels.length) + '" class="empty-tip">当前 SPU 暂无颜色销量明细</td></tr>';
-          return;
-        }
-        var html = '';
-        var grandVals = dayKeys.map(function(day) {
-          return groups.reduce(function(sum, group) {
-            var idx = days.indexOf(day);
-            return sum + (idx >= 0 ? (group.vals[idx] || 0) : 0);
-          }, 0);
-        });
-        groups.forEach(function(group) {
-          var expanded = !!colorExpandedState[spu + '|' + group.color];
-          var reversedVals = dayKeys.map(function(day) { return group.vals[days.indexOf(day)] || 0; });
-          html += '<tr class="color-group-row" data-color-name="' + encodeURIComponent(group.color) + '">';
-          html += '<td class="color-sticky color-sticky-1">' + spu + '</td>';
-          html += '<td class="color-sticky color-sticky-2"><span class="color-toggle">' + (expanded ? '▾' : '▸') + '</span>' + group.color + '</td>';
-          html += '<td class="color-sticky color-sticky-3">颜色汇总</td>';
-          html += '<td class="color-sticky color-sticky-4">' + group.sub + '</td>';
-          html += '<td class="color-sticky color-sticky-5">' + group.avg + '</td>';
-          html += '<td class="color-sticky color-sticky-6 ' + (group.diffNum < 0 ? 'diff-neg' : '') + '">' + group.diffStr + '</td>';
-          reversedVals.forEach(function(v) { html += '<td>' + v + '</td>'; });
-          html += '</tr>';
-          if (expanded) {
-            group.skus.forEach(function(row) {
-              var reversedSkuVals = dayKeys.map(function(day) { return row.vals[days.indexOf(day)] || 0; });
-              var skuAvg = row.vals.length ? Math.round(row.sub / row.vals.length) : 0;
-              var latest = row.vals.length ? row.vals[row.vals.length - 1] : 0;
-              var prev = row.vals.length > 1 ? row.vals[row.vals.length - 2] : 0;
-              html += '<tr class="color-sku-row">';
-              html += '<td class="color-sticky color-sticky-1"></td>';
-              html += '<td class="color-sticky color-sticky-2"></td>';
-              html += '<td class="color-sticky color-sticky-3">' + row.sku + '</td>';
-              html += '<td class="color-sticky color-sticky-4">' + row.sub + '</td>';
-              html += '<td class="color-sticky color-sticky-5">' + skuAvg + '</td>';
-              html += '<td class="color-sticky color-sticky-6 ' + ((latest - prev) < 0 ? 'diff-neg' : '') + '">' + fmtChainRatio(latest, prev) + '</td>';
-              reversedSkuVals.forEach(function(v) { html += '<td>' + v + '</td>'; });
-              html += '</tr>';
-            });
-          }
-        });
-        var grandSub = grandVals.reduce(function(a, b) { return a + b; }, 0);
-        var grandAvg = grandVals.length ? Math.round(grandSub / grandVals.length) : 0;
-        var grandLatest = grandVals.length ? grandVals[0] : 0;
-        var grandPrev = grandVals.length > 1 ? grandVals[1] : 0;
-        html += '<tr class="row-color-total">';
-        html += '<td class="color-sticky color-sticky-1">' + spu + '</td><td class="color-sticky color-sticky-2">总计</td><td class="color-sticky color-sticky-3">全部颜色</td>';
-        html += '<td class="color-sticky color-sticky-4">' + grandSub + '</td><td class="color-sticky color-sticky-5">' + grandAvg + '</td><td class="color-sticky color-sticky-6">' + fmtChainRatio(grandLatest, grandPrev) + '</td>';
-        grandVals.forEach(function(v) { html += '<td>' + v + '</td>'; });
-        html += '</tr>';
-        tbody.innerHTML = html;
-        tbody.querySelectorAll('.color-group-row').forEach(function(row) {
-          row.addEventListener('click', function() {
-            var color = decodeURIComponent(row.getAttribute('data-color-name') || '');
-            var key = spu + '|' + color;
-            colorExpandedState[key] = !colorExpandedState[key];
-            renderColorSalesBoard();
-          });
-        });
-      }
-
       function generateAiAnalysis(group, shopName, labels) {
         var t = group.totals;
         var s2 = t.length >= 2 ? t[t.length - 2] : 0;
@@ -1469,10 +1263,6 @@
       function doExport() {
         var data = getFiltered();
         var range = getDateRange();
-        if (curView === 'color') {
-          doColorSalesExport();
-          return;
-        }
         if (!data || !data.spus.length || !range.start || !range.end) {
           alert('请先选择店铺并点击「查询」后再导出');
           return;
@@ -1533,38 +1323,6 @@
         URL.revokeObjectURL(a.href);
       }
 
-      function doColorSalesExport() {
-        var range = getDateRange();
-        var spu = (document.getElementById('colorSpuSelect') && document.getElementById('colorSpuSelect').value) || activeColorSpu;
-        if (!spu || !range.start || !range.end || range.start > range.end) {
-          alert('请先选择 SPU 和日期范围后再导出');
-          return;
-        }
-        var days = getColorDisplayDays(range.start, range.end);
-        var dayKeys = days.slice().reverse();
-        var groups = buildColorSalesGroups(spu, days);
-        var headers = ['SPU', '颜色', 'SKU', '小计', '平均值', '环比'].concat(dayKeys);
-        var lines = [headers.map(escapeCell).join(',')];
-        groups.forEach(function(group) {
-          var reversedVals = dayKeys.map(function(day) { return group.vals[days.indexOf(day)] || 0; });
-          lines.push([spu, group.color, '颜色汇总', group.sub, group.avg, group.diffStr].concat(reversedVals).map(escapeCell).join(','));
-          group.skus.forEach(function(row) {
-            var reversedSkuVals = dayKeys.map(function(day) { return row.vals[days.indexOf(day)] || 0; });
-            var skuAvg = row.vals.length ? Math.round(row.sub / row.vals.length) : 0;
-            var latest = row.vals.length ? row.vals[row.vals.length - 1] : 0;
-            var prev = row.vals.length > 1 ? row.vals[row.vals.length - 2] : 0;
-            lines.push([spu, group.color, row.sku, row.sub, skuAvg, fmtChainRatio(latest, prev)].concat(reversedSkuVals).map(escapeCell).join(','));
-          });
-        });
-        var csv = '\uFEFF' + lines.join('\n');
-        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        var a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = '颜色看板_每日销量_' + spu + '_' + range.start + '_' + range.end + '.csv';
-        a.click();
-        URL.revokeObjectURL(a.href);
-      }
-
       function bindTabs(groupId, setter) {
         var group = document.getElementById(groupId);
         group.querySelectorAll('.tab').forEach(function(tab) {
@@ -1579,10 +1337,6 @@
       bindTabs('granTabs', function(tab) { curGran = tab.getAttribute('data-gran'); });
       bindTabs('viewTabs', function(tab) {
         curView = tab.getAttribute('data-view');
-        if (curView === 'color') {
-          curGran = 'day';
-          document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
-        }
       });
 
       document.getElementById('qSearchMode').addEventListener('change', function() {
@@ -1632,10 +1386,6 @@
         document.getElementById('qSearchField').value = 'spu';
         document.getElementById('qSearchMode').value = 'fuzzy';
         document.getElementById('qSearchVal').value = '';
-        document.getElementById('colorSpuSelect').value = 'AL-W0161';
-        activeColorSpu = 'AL-W0161';
-        colorExpandedState = {};
-        syncColorQuickState(activeColorSpu);
         exactSearchDraft = '';
         exactSearchApplied = '';
         document.getElementById('qSearchExactVal').value = '';
@@ -1644,7 +1394,6 @@
         curView = 'spu';
         document.querySelectorAll('#granTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-gran') === 'day'); });
         document.querySelectorAll('#viewTabs .tab').forEach(function(t) { t.classList.toggle('active', t.getAttribute('data-view') === 'spu'); });
-        syncViewMode();
         document.getElementById('filterInfo').textContent = '';
         document.getElementById('resultBody').innerHTML = '<tr><td colspan="13" class="empty-tip">请选择店铺后点击「查询」</td></tr>';
       };
@@ -1654,22 +1403,11 @@
           '1. 订单数据每半小时更新一次，SPU 主数据按天同步，两个刷新链路独立执行。',
           '2. 查询支持店铺单选，也支持先按站点筛选后联动收敛可选店铺列表。',
           '3. 统计时间按店铺所属市场本地时间归集，仅纳入订单金额不为 0 且非取消状态的订单明细。',
-          '4. 顶部支持 SPU汇总 / PID明细 / SKU看板 / 颜色看板 四种维度切换，默认展示 SPU汇总；SPU 汇总中可点击 SPU 查看 SKU 销量明细。',
-          '5. 颜色看板不按店铺维度筛选，按单个 SPU + 日期范围展示颜色与 SKU 每日销量，日期作为横轴，默认展示颜色汇总，点击颜色可展开 SKU。',
-          '6. 小计、平均值与环比均基于当前时间粒度区间计算；颜色看板固定按日展示。'
+          '4. 顶部支持 SPU汇总 / PID明细 / SKU看板 三种维度切换，默认展示 SPU汇总；SPU 汇总中可点击 SPU 查看 SKU 销量明细。',
+          '5. 小计、平均值与环比均基于当前时间粒度区间计算。'
         ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
-      document.getElementById('colorSpuSelect').addEventListener('change', function() {
-        syncColorQuickState(this.value);
-        if (curView === 'color') render();
-      });
-      document.getElementById('colorQuickList').addEventListener('click', function(e) {
-        var btn = e.target.closest('[data-color-quick]');
-        if (!btn) return;
-        syncColorQuickState(btn.getAttribute('data-color-quick'));
-        if (curView === 'color') render();
-      });
       function exportSkuSalesCsv() {
         var modal = document.getElementById('skuSalesModal');
         if (!modal) return;
@@ -1678,14 +1416,15 @@
         var startDate = modal.getAttribute('data-start') || '';
         var endDate = modal.getAttribute('data-end') || '';
         var data = buildSkuSalesRows(spu, startDate, endDate);
-        var headers = ['颜色'].concat(data.sizes).concat(['总计', '占比']);
+        var headers = ['颜色'].concat(data.sizes.map(function(size) { return size + '销量'; })).concat(data.sizes.map(function(size) { return size + '在颜色内占比'; })).concat(['总计', '颜色占比']);
         var lines = [headers.map(escapeCell).join(',')];
         data.rows.forEach(function(row) {
-          var ratio = data.grandTotal ? ((row.total / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%';
-          lines.push([row.color].concat(row.vals).concat([row.total, ratio]).map(escapeCell).join(','));
+          var colorRatio = data.grandTotal ? ((row.total / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%';
+          var sizeRatios = row.vals.map(function(v) { return row.total ? ((v / row.total) * 100).toFixed(2) + '%' : '0.00%'; });
+          lines.push([row.color].concat(row.vals).concat(sizeRatios).concat([row.total, colorRatio]).map(escapeCell).join(','));
         });
-        lines.push(['总计'].concat(data.totals).concat([data.grandTotal, '']).map(escapeCell).join(','));
-        lines.push(['尺码占比'].concat(data.totals.map(function(v) { return data.grandTotal ? ((v / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%'; })).concat(['100.00%', '']).map(escapeCell).join(','));
+        lines.push(['总计'].concat(data.totals).concat(data.sizes.map(function() { return ''; })).concat([data.grandTotal, '']).map(escapeCell).join(','));
+        lines.push(['尺码占比'].concat(data.totals.map(function(v) { return data.grandTotal ? ((v / data.grandTotal) * 100).toFixed(2) + '%' : '0.00%'; })).concat(data.sizes.map(function() { return ''; })).concat(['100.00%', '']).map(escapeCell).join(','));
         var csv = '\uFEFF' + lines.join('\n');
         var blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
         var a = document.createElement('a');

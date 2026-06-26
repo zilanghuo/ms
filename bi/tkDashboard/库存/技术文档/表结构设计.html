@@ -1026,7 +1026,7 @@
       <tr><td>16</td><td><code>overseas_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（海外仓）</td></tr>
       <tr><td>17</td><td><code>direct_mail_safety_stock_adjust_days</code></td><td><code>INT</code></td><td>0</td><td>安全库存调整天数（直邮仓）</td></tr>
       <tr><td>18</td><td><code>sku_tier</code></td><td><code>VARCHAR(20)</code></td><td></td><td>SKU 分层</td></tr>
-      <tr><td>19</td><td><code>is_hot_color_size</code></td><td><code>TINYINT</code></td><td>0</td><td>是否热卖色码</td></tr>
+      <tr><td>19</td><td><code>is_hot_color_size</code></td><td><code>TINYINT</code></td><td>0</td><td>是否热卖色码，模型计算输出；页面编辑弹窗仅展示，不写入人工配置 DIM</td></tr>
       <tr><td>20</td><td><code>voc_score</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>VOC 值，优先取 <code>dim_inventory_replenishment_manual_config.voc_score</code></td></tr>
       <tr><td>21</td><td><code>return_rate_14d</code></td><td><code>DECIMAL(10,4)</code></td><td></td><td>近 14 天退货率</td></tr>
       <tr><td>22</td><td><code>suggest_restock_transport_mode</code></td><td><code>VARCHAR(50)</code></td><td></td><td>建议运输方式（补货）</td></tr>
