@@ -420,7 +420,8 @@
     <div class="query-card">
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.4 版本说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;line-height:1.8;">
-        <li>1、原 广告单量 --》 GMVMAX 单量</li>
+          <li>0、数据来源：推广系列--》广告（VSA数据模块），方式：RPA</li>
+          <li>1、原 广告单量 --》 GMVMAX 单量</li>
         <li>2、原 广告GMV --》 GMVMAX GMV</li>
         <li>3、原 广告ROI --》 GMVMAX ROI</li>
         <li>4、原 总GMV --》 财务GMV</li>
@@ -433,6 +434,7 @@
         <li>11、在 VSA ROI 后新增 广告总ROI，计算逻辑为 广告总GMV / 广告总消耗。</li>
         <li>12、在 GMVMAX AcoAs 后新增 VSA AcoAs，计算逻辑为 VSA消耗 / VSA GMV。</li>
         <li>13、在 VSA AcoAs 后新增 广告总 AcoAs，计算逻辑为 广告总消耗 / 广告总GMV。</li>
+        <li>14、广告情况字段顺序调整为按小模块展示，每组按 VSA → GMVMAX → 总排序；财务GMV保持独立口径。</li>
       </ul>
       <h3 style="margin:1rem 0 0.75rem;color:var(--text);font-size:1rem;">数据来源</h3>
       <div style="border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff;">
@@ -560,7 +562,7 @@
         { title: '直播', cls: 'bg-blue', fields: ['liveTotalGmv', 'liveTotalExposure', 'liveTotalClickRate', 'liveTotalConversionRate', 'merchantLiveGmv', 'merchantLiveSoldQuantity', 'merchantLiveAvgOrderAmount', 'merchantLiveExposure', 'merchantLivePageView', 'merchantLiveUniqueView', 'merchantLiveUniqueCustomer', 'merchantLiveClickRate', 'merchantLiveConversionRate', 'expertLiveGmv', 'expertLiveExposure', 'expertLiveClickRate', 'expertLiveConversionRate'] },
         { title: '短视频', cls: 'bg-yellow', fields: ['videoTotalGmv', 'videoAvgOrderAmount', 'videoTotalExposure', 'videoAvgExposure', 'videoTotalClickRate', 'videoTotalConversionRate', 'videoGoodsGrossAmount', 'videoDealQty', 'merchantVideoAvgOrderAmount', 'videoExposure', 'merchantVideoAvgExposure', 'videoPageView', 'videoUniqueView', 'videoUniqueCustomer', 'videoClickRate', 'videoConversionRate', 'expertVideoTotalGmv', 'expertVideoDealQty', 'expertVideoAvgOrderAmount', 'expertVideoExposure', 'expertVideoAvgExposure', 'expertVideoClickRate', 'expertVideoConversionRate'] },
         { title: '商务剪辑情况', cls: 'bg-blue', fields: ['bizMountCount', 'editMountCount', 'totalMountCount', 'bizOrderVideoCount', 'editOrderVideoCount', 'totalOrderVideoCount'] },
-        { title: '广告情况', cls: 'bg-yellow', fields: ['vasConsume', 'gmvMaxConsume', 'adTotalConsume', 'adOrderCount', 'vsaOrderCount', 'adOrderQty', 'adGmv', 'vsaGmv', 'adTotalGmv', 'totalGmv', 'totalAcoas', 'adRoiEst', 'vsaRoi', 'adTotalRoi', 'adAcoas', 'vsaAcoas', 'adTotalAcoas'] }
+        { title: '广告情况', cls: 'bg-yellow', fields: ['vasConsume', 'gmvMaxConsume', 'adTotalConsume', 'vsaOrderCount', 'adOrderCount', 'adOrderQty', 'vsaGmv', 'adGmv', 'adTotalGmv', 'totalGmv', 'vsaRoi', 'adRoiEst', 'adTotalRoi', 'vsaAcoas', 'adAcoas', 'adTotalAcoas', 'totalAcoas'] }
       ];
 
       var ALL_FIELDS = [
@@ -639,20 +641,20 @@
         { key: 'vasConsume', label: 'VSA消耗', type: 'money', metric: true },
         { key: 'gmvMaxConsume', label: 'GMVMAX消耗', type: 'money', metric: true },
         { key: 'adTotalConsume', label: '广告总消耗', type: 'money', formula: function(m) { return (m.vasConsume || 0) + (m.gmvMaxConsume || 0); } },
-        { key: 'adOrderCount', label: 'GMVMAX单量', type: 'number', metric: true },
         { key: 'vsaOrderCount', label: 'VSA单量', type: 'number', metric: true, source: 'Excel J 列' },
+        { key: 'adOrderCount', label: 'GMVMAX单量', type: 'number', metric: true },
         { key: 'adOrderQty', label: '广告总单量', type: 'number', formula: function(m) { return (m.adOrderCount || 0) + (m.vsaOrderCount || 0); } },
-        { key: 'adGmv', label: 'GMVMAX GMV', type: 'money', metric: true },
         { key: 'vsaGmv', label: 'VSA GMV', type: 'money', metric: true, source: 'Excel K 列' },
+        { key: 'adGmv', label: 'GMVMAX GMV', type: 'money', metric: true },
         { key: 'adTotalGmv', label: '广告总GMV', type: 'money', formula: function(m) { return (m.adGmv || 0) + (m.vsaGmv || 0); } },
         { key: 'totalGmv', label: '财务GMV', type: 'money', metric: true },
-        { key: 'totalAcoas', label: '实际AcoAs(GMV扣除8%退款金额)', type: 'percent', formula: function(m) { return safeDivide(m.adTotalConsume, m.financeGmv * 0.92) * 100; } },
-        { key: 'adRoiEst', label: 'GMVMAX ROI', type: 'number', formula: function(m) { return safeDivide(m.adGmv, m.gmvMaxConsume); } },
         { key: 'vsaRoi', label: 'VSA ROI', type: 'number', formula: function(m) { return safeDivide(m.vsaGmv, m.vasConsume); } },
+        { key: 'adRoiEst', label: 'GMVMAX ROI', type: 'number', formula: function(m) { return safeDivide(m.adGmv, m.gmvMaxConsume); } },
         { key: 'adTotalRoi', label: '广告总ROI', type: 'number', formula: function(m) { return safeDivide(m.adTotalGmv, m.adTotalConsume); } },
-        { key: 'adAcoas', label: 'GMVMAX AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.gmvMaxConsume, m.adGmv) * 100; } },
         { key: 'vsaAcoas', label: 'VSA AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.vasConsume, m.vsaGmv) * 100; } },
-        { key: 'adTotalAcoas', label: '广告总 AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.adTotalConsume, m.adTotalGmv) * 100; } }
+        { key: 'adAcoas', label: 'GMVMAX AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.gmvMaxConsume, m.adGmv) * 100; } },
+        { key: 'adTotalAcoas', label: '广告总 AcoAs', type: 'percent', formula: function(m) { return safeDivide(m.adTotalConsume, m.adTotalGmv) * 100; } },
+        { key: 'totalAcoas', label: '实际AcoAs(GMV扣除8%退款金额)', type: 'percent', formula: function(m) { return safeDivide(m.adTotalConsume, m.financeGmv * 0.92) * 100; } }
       ];
 
       var FIELD_MAP = {};
