@@ -274,6 +274,7 @@
     .manage-table th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
     .manage-table tr:hover td { background: #f9fafb; }
     .manage-empty { padding: 2rem 1rem; text-align: center; color: var(--muted); font-size: 0.9rem; }
+    .manage-unconfigured { color: #94a3b8; }
     .manage-action-btn { padding: 0.28rem 0.72rem; font-size: 0.78rem; border: 1px solid var(--accent); border-radius: 4px; background: #fff; color: var(--accent); cursor: pointer; }
     .manage-action-btn:hover { background: #f0fdfa; }
     .edit-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 1110; display: none; align-items: center; justify-content: center; padding: 1rem; }
@@ -420,8 +421,8 @@
     <div class="query-card">
       <h3 style="margin:0 0 0.75rem;color:var(--text);font-size:1rem;">1.4 版本说明</h3>
       <ul style="margin:0 0 0 1.25rem;padding:0;line-height:1.8;">
-          <li>0、数据来源：推广系列--》广告（VSA数据模块），方式：RPA</li>
-          <li>1、原 广告单量 --》 GMVMAX 单量</li>
+        <li>0、数据来源：推广系列--》广告（VSA数据模块），方式：RPA</li>
+        <li>1、原 广告单量 --》 GMVMAX 单量</li>
         <li>2、原 广告GMV --》 GMVMAX GMV</li>
         <li>3、原 广告ROI --》 GMVMAX ROI</li>
         <li>4、原 总GMV --》 财务GMV</li>
@@ -494,6 +495,14 @@
             <div class="manage-query-item">
               <span class="label">主推SPU</span>
               <input type="text" id="manageSpu" placeholder="请输入主推SPU" />
+            </div>
+            <div class="manage-query-item">
+              <span class="label">SPU是否配置</span>
+              <select id="manageSpuConfigured">
+                <option value="">全部</option>
+                <option value="configured">已配置</option>
+                <option value="unconfigured">未配置</option>
+              </select>
             </div>
             <div class="manage-query-actions">
               <button type="button" class="btn btn-query" id="btnQueryManagePidSpu">查询</button>
@@ -675,7 +684,8 @@
         { store: '美国 TK・艾斯特尼 - 欧洲直邮店 DE', pid: '1729416165725475173', mainSpu: 'ALYMX-DROPSW', createdAt: '2026-03-20 14:08:45', updatedAt: '2026-04-15 11:36:40' },
         { store: '美国 TK・艾斯特尼 - 欧洲直邮店 FR', pid: '1729380011223344556', mainSpu: 'AL-W0169', createdAt: '2026-03-20 14:10:03', updatedAt: '2026-04-15 11:36:40' },
         { store: '美国 TK・艾斯特尼 - 欧洲直邮店 IT', pid: '1729355500112233445', mainSpu: 'AL-W0169', createdAt: '2026-03-21 08:31:12', updatedAt: '2026-04-16 09:05:17' },
-        { store: '美国TK独立站-shopify:Global', pid: '1729300000112233443', mainSpu: 'AL-W5558', createdAt: '2026-03-21 08:35:56', updatedAt: '2026-04-16 09:05:17' }
+        { store: '美国TK独立站-shopify:Global', pid: '1729300000112233443', mainSpu: 'AL-W5558', createdAt: '2026-03-21 08:35:56', updatedAt: '2026-04-16 09:05:17' },
+        { store: '美国TK独立站-shopify:Global', pid: '1729300000112233444', mainSpu: '', createdAt: '2026-03-22 09:12:30', updatedAt: '2026-04-16 09:05:17' }
       ];
       var editingPidSpuRecord = null;
       var exactSearchDraft = '';
@@ -1015,10 +1025,14 @@
         var store = (document.getElementById('manageStore').value || '').trim();
         var pid = (document.getElementById('managePid').value || '').trim().toLowerCase();
         var spu = (document.getElementById('manageSpu').value || '').trim().toLowerCase();
+        var spuConfigured = (document.getElementById('manageSpuConfigured').value || '').trim();
         return pidSpuManageData.filter(function(item) {
+          var mainSpu = (item.mainSpu || '').trim();
           if (store && item.store !== store) return false;
           if (pid && item.pid.toLowerCase().indexOf(pid) === -1) return false;
-          if (spu && item.mainSpu.toLowerCase().indexOf(spu) === -1) return false;
+          if (spu && mainSpu.toLowerCase().indexOf(spu) === -1) return false;
+          if (spuConfigured === 'configured' && !mainSpu) return false;
+          if (spuConfigured === 'unconfigured' && mainSpu) return false;
           return true;
         });
       }
@@ -1037,7 +1051,7 @@
           return '<tr>' +
             '<td>' + escapeHtml(item.store) + '</td>' +
             '<td>' + escapeHtml(item.pid) + '</td>' +
-            '<td>' + escapeHtml(item.mainSpu) + '</td>' +
+            '<td>' + (item.mainSpu ? escapeHtml(item.mainSpu) : '<span class="manage-unconfigured">未配置</span>') + '</td>' +
             '<td>' + escapeHtml(item.createdAt) + '</td>' +
             '<td>' + escapeHtml(item.updatedAt) + '</td>' +
             '<td><button type="button" class="manage-action-btn" data-pid="' + escapeHtml(item.pid) + '" data-store="' + escapeHtml(item.store) + '">编辑</button></td>' +
@@ -1887,6 +1901,7 @@
         document.getElementById('manageStore').value = '';
         document.getElementById('managePid').value = '';
         document.getElementById('manageSpu').value = '';
+        document.getElementById('manageSpuConfigured').value = '';
         renderManagePidSpuTable();
       };
       document.getElementById('managePidSpuBody').addEventListener('click', function(e) {

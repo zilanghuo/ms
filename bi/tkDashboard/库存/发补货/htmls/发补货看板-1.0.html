@@ -209,22 +209,26 @@
       color: #9a3412;
       font-size: 0.88rem;
       line-height: 1.55;
+      cursor: pointer;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .alert-item:hover {
+      box-shadow: 0 2px 8px rgba(154, 52, 18, 0.12);
+      background: #ffedd5;
     }
     .alert-item.urgent { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+    .alert-item.urgent:hover {
+      background: #fee2e2;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.12);
+    }
     .alert-main { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .alert-index { font-weight: 700; color: inherit; }
     .alert-count { font-weight: 700; color: inherit; }
-    .alert-action {
-      border: 1px solid currentColor;
-      border-radius: 4px;
-      background: transparent;
-      color: inherit;
-      padding: 0.25rem 0.65rem;
-      cursor: pointer;
+    .alert-hint {
+      font-size: 0.78rem;
+      opacity: 0.75;
       white-space: nowrap;
-      font-size: 0.82rem;
     }
-    .alert-action:hover { background: rgba(255,255,255,0.55); }
     .action-bar {
       padding: 0.75rem 1rem;
       margin-bottom: 1rem;
@@ -757,9 +761,11 @@
     .manage-body {
       flex: 1;
       min-height: 0;
-      padding: 1rem 1.25rem 1.25rem;
+      padding: 0 1.25rem 1.25rem;
       background: #f8fafc;
       overflow: auto;
+      display: flex;
+      flex-direction: column;
     }
     .manage-summary {
       margin-bottom: 0.75rem;
@@ -792,6 +798,14 @@
     }
     .manage-table tr:hover td { background: #f9fafb; }
     .manage-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    #alertDetailTable { min-width: 2480px; }
+    .manage-table-card .pagination {
+      border-top: 1px solid var(--border);
+      border-radius: 0;
+    }
+    .manage-table-card .manage-table-wrap {
+      max-height: calc(92vh - 280px);
+    }
     .manage-empty {
       padding: 2rem 1rem;
       text-align: center;
@@ -1213,13 +1227,13 @@
     </div>
 
     <div class="global-alert-bar" aria-label="全局告警">
-      <div class="alert-item urgent">
+      <div class="alert-item urgent" role="button" tabindex="0" data-alert-type="overseas-low-days" data-alert-title="海外可售天数低于安全库存" aria-label="查看海外可售天数低于安全库存告警明细">
         <div class="alert-main"><span class="alert-index">1、</span><span class="alert-count">3个SKU</span><span>海外可售天数低于安全库存，需紧急处理</span></div>
-        <button type="button" class="alert-action" data-alert-filter="overseas-low-days">点击跳转筛选</button>
+        <span class="alert-hint">点击查看明细</span>
       </div>
-      <div class="alert-item">
+      <div class="alert-item" role="button" tabindex="0" data-alert-type="domestic-shortage" data-alert-title="国内库存不足无法发货" aria-label="查看国内库存不足无法发货告警明细">
         <div class="alert-main"><span class="alert-index">2、</span><span class="alert-count">2个SKU</span><span>国内库存不足无法发货，需加急采购 + 空派</span></div>
-        <button type="button" class="alert-action" data-alert-filter="domestic-shortage">点击跳转筛选</button>
+        <span class="alert-hint">点击查看明细</span>
       </div>
     </div>
 
@@ -2113,6 +2127,91 @@
       </div>
     </div>
   </div>
+  <div class="manage-modal-overlay" id="alertDetailModal" aria-hidden="true">
+    <div class="manage-modal-box" role="dialog" aria-modal="true" aria-labelledby="alertDetailTitle">
+      <div class="manage-header">
+        <div>
+          <div class="manage-title" id="alertDetailTitle">Summary 告警明细</div>
+          <div class="export-modal-sub" id="alertDetailSub">对应接口 InventoryShipReplenishmentAlertDetailPageResponse.list[]</div>
+        </div>
+        <button type="button" class="modal-close" data-alert-detail-close aria-label="关闭">×</button>
+      </div>
+      <div class="manage-toolbar">
+        <div class="manage-query-row">
+          <div class="manage-query-item search-query-item" id="alertDetailSearchItem">
+            <span class="label">搜索</span>
+            <select id="alertDetailSearchField" class="search-field-select">
+              <option value="spu">SPU</option>
+              <option value="inventorySku">库存SKU</option>
+              <option value="msku">MSKU</option>
+              <option value="skuId">SKU ID</option>
+            </select>
+            <select id="alertDetailSearchMode" class="search-mode-select">
+              <option value="fuzzy">模糊搜索</option>
+              <option value="exact">精确搜索</option>
+            </select>
+            <input type="text" id="alertDetailSearchFuzzy" class="search-fuzzy-input" placeholder="请输入" title="留空显示全部" />
+            <div class="search-exact-trigger-wrap" id="alertDetailExactWrap">
+              <button type="button" class="search-exact-trigger" id="alertDetailExactTrigger" title="一行一项，按回车键换行">
+                <span class="value placeholder" id="alertDetailExactPreview">请输入</span>
+                <span class="icon">⋯</span>
+              </button>
+              <div class="search-exact-panel" id="alertDetailExactPanel">
+                <div class="search-exact-body">
+                  <textarea id="alertDetailSearchExact" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                  <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+                </div>
+                <div class="search-exact-foot">
+                  <button type="button" class="search-exact-btn" id="alertDetailExactClear">清空</button>
+                  <span class="search-exact-count" id="alertDetailExactCount">0/500行</span>
+                  <div class="search-exact-actions">
+                    <button type="button" class="search-exact-btn" id="alertDetailExactCancel">取消</button>
+                    <button type="button" class="search-exact-btn primary" id="alertDetailExactApply">搜索</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="manage-query-actions">
+            <button type="button" class="btn btn-query" id="alertDetailQueryBtn">查询</button>
+            <button type="button" class="btn btn-secondary" id="alertDetailResetBtn">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="alertDetailSummary">共 0 条告警 SKU</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table" id="alertDetailTable">
+              <thead>
+                <tr>
+                  <th>库存SKU</th>
+                  <th>MSKU</th>
+                  <th>SKU ID</th>
+                  <th>SPU</th>
+                  <th>SPU名称</th>
+                  <th>SKU名称</th>
+                  <th>告警说明</th>
+                  <th>联动告警类型</th>
+                  <th>海外可售天数</th>
+                  <th>发货触发阈值</th>
+                  <th>国内可发数量</th>
+                  <th>库存缺口</th>
+                  <th>建议发货数量</th>
+                  <th>预计断货日</th>
+                  <th>预计到仓可售日</th>
+                  <th>断货到到仓空窗期</th>
+                  <th>建议运输方式</th>
+                </tr>
+              </thead>
+              <tbody id="alertDetailTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="alertDetailPagination" aria-label="告警明细分页"></div>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="toast" id="toast">已保存自定义列配置</div>
 
   <script>
@@ -2192,15 +2291,387 @@
           showToast('导出全部数据：包含库存看板、备货模型、发货模型三个栏目的所有字段数据');
         });
       });
-      Array.prototype.slice.call(document.querySelectorAll('[data-alert-filter]')).forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var filterType = btn.getAttribute('data-alert-filter');
-          var message = filterType === 'overseas-low-days'
-            ? '已筛选：海外可售天数低于安全库存的 3 个 SKU'
-            : '已筛选：国内库存不足无法发货，需加急采购 + 空派的 2 个 SKU';
-          showToast(message);
+      var alertDetailModal = document.getElementById('alertDetailModal');
+      var alertDetailTitle = document.getElementById('alertDetailTitle');
+      var alertDetailSub = document.getElementById('alertDetailSub');
+      var alertDetailSummary = document.getElementById('alertDetailSummary');
+      var alertDetailTableBody = document.getElementById('alertDetailTableBody');
+      var alertDetailPagination = document.getElementById('alertDetailPagination');
+      var alertDetailSearchField = document.getElementById('alertDetailSearchField');
+      var alertDetailSearchMode = document.getElementById('alertDetailSearchMode');
+      var alertDetailSearchFuzzy = document.getElementById('alertDetailSearchFuzzy');
+      var alertDetailExactWrap = document.getElementById('alertDetailExactWrap');
+      var alertDetailExactTrigger = document.getElementById('alertDetailExactTrigger');
+      var alertDetailExactPanel = document.getElementById('alertDetailExactPanel');
+      var alertDetailSearchExact = document.getElementById('alertDetailSearchExact');
+      var alertDetailExactPreview = document.getElementById('alertDetailExactPreview');
+      var alertDetailExactCount = document.getElementById('alertDetailExactCount');
+      var alertDetailExactDraft = '';
+      var alertDetailExactApplied = '';
+      var alertDetailState = {
+        alertType: '',
+        alertTitle: '',
+        page: 1,
+        pageSize: 20,
+        searchField: 'spu',
+        searchMode: 'fuzzy',
+        searchKeyword: '',
+        exactSearchKeywords: ''
+      };
+      function buildAlertDetailMockRow(index, alertType) {
+        var seq = String(index).padStart(3, '0');
+        var isOverseas = alertType === 'overseas-low-days';
+        return {
+          inventorySku: 'INV-SKU-' + seq,
+          msku: 'MSKU-' + seq,
+          skuId: '17300' + seq,
+          spu: 'SPU-DEMO-' + seq,
+          spuName: '示例SPU-' + seq,
+          inventorySkuName: '示例商品-' + seq,
+          alertDesc: isOverseas ? '海外可售天数低于安全库存，需紧急处理' : '国内库存不足无法发货，需加急采购 + 空派',
+          linkedAlertType: isOverseas ? (index % 2 ? '加急空派' : '常规海派') : '加急采购+空派',
+          overseasSellableDays: isOverseas ? (4 + (index % 6)) : (8 + (index % 5)),
+          shipTriggerThresholdDays: 14,
+          domesticShippableQty: isOverseas ? (60 + index * 3) : (index % 3 === 0 ? 0 : 12),
+          stockGapQty: -(40 + index * 2),
+          suggestShipQty: isOverseas ? (80 + index * 4) : 0,
+          estimatedOutOfStockDate: '2026-06-' + String(8 + (index % 10)).padStart(2, '0'),
+          shipEtaSellableDate: '2026-06-' + String(15 + (index % 8)).padStart(2, '0'),
+          stockoutToEtaGapDays: 6 + (index % 4),
+          suggestShipTransportMode: index % 2 ? '空运' : '海运'
+        };
+      }
+      function getAlertDetailAllRows(alertType) {
+        var count = alertType === 'overseas-low-days' ? 28 : 18;
+        var rows = [];
+        for (var i = 1; i <= count; i += 1) rows.push(buildAlertDetailMockRow(i, alertType));
+        return rows;
+      }
+      function normalizeAlertExactLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+      function getAlertRowSearchValue(row, field) {
+        if (field === 'inventorySku') return row.inventorySku;
+        if (field === 'msku') return row.msku;
+        if (field === 'skuId') return row.skuId;
+        if (field === 'skuKey') return row.msku || row.inventorySku || row.skuId;
+        return row.spu;
+      }
+      function filterAlertDetailRows(rows, state) {
+        var field = state.searchField || 'spu';
+        if (state.searchMode === 'exact') {
+          var exactList = normalizeAlertExactLines(state.exactSearchKeywords);
+          if (!exactList.length) return rows;
+          var exactSet = {};
+          exactList.forEach(function(item) { exactSet[item.toLowerCase()] = true; });
+          return rows.filter(function(row) {
+            var value = String(getAlertRowSearchValue(row, field) || '').toLowerCase();
+            return exactSet[value];
+          });
+        }
+        var keyword = String(state.searchKeyword || '').trim().toLowerCase();
+        if (!keyword) return rows;
+        return rows.filter(function(row) {
+          var value = String(getAlertRowSearchValue(row, field) || '').toLowerCase();
+          return value.indexOf(keyword) !== -1;
+        });
+      }
+      function paginateAlertDetailRows(rows, page, pageSize) {
+        var total = rows.length;
+        var totalPages = Math.max(1, Math.ceil(total / pageSize));
+        var safePage = Math.min(Math.max(page, 1), totalPages);
+        var start = (safePage - 1) * pageSize;
+        return {
+          total: total,
+          page: safePage,
+          pageSize: pageSize,
+          totalPages: totalPages,
+          list: rows.slice(start, start + pageSize)
+        };
+      }
+      function formatAlertCell(value) {
+        if (value == null || value === '') return '—';
+        return String(value);
+      }
+      function renderAlertDetailRows(rows) {
+        if (!alertDetailTableBody) return;
+        if (!rows.length) {
+          alertDetailTableBody.innerHTML = '<tr><td colspan="17" class="manage-empty">暂无符合条件的告警 SKU</td></tr>';
+          return;
+        }
+        alertDetailTableBody.innerHTML = rows.map(function(row) {
+          return '<tr>'
+            + '<td>' + formatAlertCell(row.inventorySku) + '</td>'
+            + '<td>' + formatAlertCell(row.msku) + '</td>'
+            + '<td>' + formatAlertCell(row.skuId) + '</td>'
+            + '<td>' + formatAlertCell(row.spu) + '</td>'
+            + '<td>' + formatAlertCell(row.spuName) + '</td>'
+            + '<td>' + formatAlertCell(row.inventorySkuName) + '</td>'
+            + '<td>' + formatAlertCell(row.alertDesc) + '</td>'
+            + '<td>' + formatAlertCell(row.linkedAlertType) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.overseasSellableDays) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.shipTriggerThresholdDays) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.domesticShippableQty) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.stockGapQty) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.suggestShipQty) + '</td>'
+            + '<td>' + formatAlertCell(row.estimatedOutOfStockDate) + '</td>'
+            + '<td>' + formatAlertCell(row.shipEtaSellableDate) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.stockoutToEtaGapDays) + '</td>'
+            + '<td>' + formatAlertCell(row.suggestShipTransportMode) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+      function renderAlertDetailPagination(pageData) {
+        if (!alertDetailPagination) return;
+        var page = pageData.page;
+        var totalPages = pageData.totalPages;
+        var buttons = [];
+        buttons.push('<button type="button" class="page-btn" data-alert-page="prev"' + (page <= 1 ? ' disabled' : '') + '>上一页</button>');
+        var startPage = Math.max(1, page - 2);
+        var endPage = Math.min(totalPages, startPage + 4);
+        startPage = Math.max(1, endPage - 4);
+        for (var i = startPage; i <= endPage; i += 1) {
+          buttons.push('<button type="button" class="page-btn' + (i === page ? ' active' : '') + '" data-alert-page="' + i + '">' + i + '</button>');
+        }
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) buttons.push('<span>...</span>');
+          buttons.push('<button type="button" class="page-btn" data-alert-page="' + totalPages + '">' + totalPages + '</button>');
+        }
+        buttons.push('<button type="button" class="page-btn" data-alert-page="next"' + (page >= totalPages ? ' disabled' : '') + '>下一页</button>');
+        alertDetailPagination.innerHTML = '<div class="pagination-left">'
+          + '<span>共 ' + pageData.total + ' 条</span>'
+          + '<span>每页</span>'
+          + '<select class="page-size" id="alertDetailPageSize">'
+          + '<option value="20"' + (pageData.pageSize === 20 ? ' selected' : '') + '>20条/页</option>'
+          + '<option value="50"' + (pageData.pageSize === 50 ? ' selected' : '') + '>50条/页</option>'
+          + '<option value="100"' + (pageData.pageSize === 100 ? ' selected' : '') + '>100条/页</option>'
+          + '</select>'
+          + '</div>'
+          + '<div class="pagination-right">'
+          + buttons.join('')
+          + '<span>跳至</span>'
+          + '<input class="page-input" id="alertDetailPageInput" type="text" value="' + page + '" />'
+          + '<span>页</span>'
+          + '</div>';
+        var pageSizeSelect = document.getElementById('alertDetailPageSize');
+        if (pageSizeSelect) {
+          pageSizeSelect.addEventListener('change', function() {
+            alertDetailState.pageSize = Number(pageSizeSelect.value) || 20;
+            alertDetailState.page = 1;
+            loadAlertDetailPage();
+          });
+        }
+        var pageInput = document.getElementById('alertDetailPageInput');
+        if (pageInput) {
+          pageInput.addEventListener('keydown', function(event) {
+            if (event.key !== 'Enter') return;
+            var targetPage = Number(pageInput.value);
+            if (!targetPage || targetPage < 1) return;
+            alertDetailState.page = targetPage;
+            loadAlertDetailPage();
+          });
+        }
+        Array.prototype.slice.call(alertDetailPagination.querySelectorAll('[data-alert-page]')).forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var action = btn.getAttribute('data-alert-page');
+            if (action === 'prev') alertDetailState.page -= 1;
+            else if (action === 'next') alertDetailState.page += 1;
+            else alertDetailState.page = Number(action) || 1;
+            loadAlertDetailPage();
+          });
+        });
+      }
+      function syncAlertDetailSearchModeUI() {
+        var mode = (alertDetailSearchMode && alertDetailSearchMode.value) || 'fuzzy';
+        if (alertDetailSearchFuzzy) alertDetailSearchFuzzy.style.display = mode === 'exact' ? 'none' : '';
+        if (alertDetailExactWrap) alertDetailExactWrap.classList.toggle('active', mode === 'exact');
+        closeAlertDetailExactPanel(true);
+      }
+      function updateAlertDetailExactPreview() {
+        var lines = normalizeAlertExactLines(alertDetailExactDraft);
+        if (alertDetailExactCount) alertDetailExactCount.textContent = lines.length + '/500行';
+        if (!alertDetailExactPreview) return;
+        if (!lines.length) {
+          alertDetailExactPreview.textContent = '请输入';
+          alertDetailExactPreview.classList.add('placeholder');
+          return;
+        }
+        alertDetailExactPreview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        alertDetailExactPreview.classList.remove('placeholder');
+      }
+      function closeAlertDetailExactPanel(restoreDraft) {
+        if (!alertDetailExactPanel || !alertDetailExactTrigger || !alertDetailSearchExact) return;
+        if (restoreDraft) {
+          alertDetailExactDraft = alertDetailExactApplied;
+          alertDetailSearchExact.value = alertDetailExactDraft;
+        }
+        alertDetailExactPanel.classList.remove('open');
+        alertDetailExactTrigger.classList.remove('active');
+        updateAlertDetailExactPreview();
+      }
+      function openAlertDetailExactPanel() {
+        if (!alertDetailExactPanel || !alertDetailExactTrigger || !alertDetailSearchExact) return;
+        alertDetailExactDraft = alertDetailExactApplied;
+        alertDetailSearchExact.value = alertDetailExactDraft;
+        updateAlertDetailExactPreview();
+        alertDetailExactPanel.classList.add('open');
+        alertDetailExactTrigger.classList.add('active');
+        setTimeout(function() { alertDetailSearchExact.focus(); }, 0);
+      }
+      function readAlertDetailSearchState() {
+        alertDetailState.searchField = (alertDetailSearchField && alertDetailSearchField.value) || 'spu';
+        alertDetailState.searchMode = (alertDetailSearchMode && alertDetailSearchMode.value) || 'fuzzy';
+        alertDetailState.searchKeyword = alertDetailSearchFuzzy ? alertDetailSearchFuzzy.value.trim() : '';
+        alertDetailState.exactSearchKeywords = alertDetailExactApplied;
+      }
+      function resetAlertDetailSearchUI() {
+        if (alertDetailSearchField) alertDetailSearchField.value = 'spu';
+        if (alertDetailSearchMode) alertDetailSearchMode.value = 'fuzzy';
+        if (alertDetailSearchFuzzy) alertDetailSearchFuzzy.value = '';
+        alertDetailExactDraft = '';
+        alertDetailExactApplied = '';
+        if (alertDetailSearchExact) alertDetailSearchExact.value = '';
+        syncAlertDetailSearchModeUI();
+      }
+      function loadAlertDetailPage() {
+        readAlertDetailSearchState();
+        var allRows = getAlertDetailAllRows(alertDetailState.alertType);
+        var filteredRows = filterAlertDetailRows(allRows, alertDetailState);
+        var pageData = paginateAlertDetailRows(filteredRows, alertDetailState.page, alertDetailState.pageSize);
+        alertDetailState.page = pageData.page;
+        if (alertDetailTitle) alertDetailTitle.textContent = alertDetailState.alertTitle + ' · 告警明细';
+        if (alertDetailSub) {
+          alertDetailSub.textContent = '请求参数：alertType=' + alertDetailState.alertType
+            + '，searchField=' + alertDetailState.searchField
+            + '，page=' + pageData.page + '，pageSize=' + pageData.pageSize;
+        }
+        if (alertDetailSummary) {
+          alertDetailSummary.textContent = '共 ' + pageData.total + ' 条告警 SKU'
+            + (alertDetailState.searchMode === 'exact' && alertDetailState.exactSearchKeywords
+              ? '（精确搜索 ' + normalizeAlertExactLines(alertDetailState.exactSearchKeywords).length + ' 项）'
+              : (alertDetailState.searchKeyword ? '（模糊搜索：' + alertDetailState.searchKeyword + '）' : ''));
+        }
+        renderAlertDetailRows(pageData.list);
+        renderAlertDetailPagination(pageData);
+      }
+      function openAlertDetailModal(alertType, alertTitle) {
+        if (!alertDetailModal) return;
+        alertDetailState.alertType = alertType;
+        alertDetailState.alertTitle = alertTitle || 'Summary 告警';
+        alertDetailState.page = 1;
+        alertDetailState.pageSize = 20;
+        resetAlertDetailSearchUI();
+        loadAlertDetailPage();
+        alertDetailModal.classList.add('visible');
+        alertDetailModal.setAttribute('aria-hidden', 'false');
+      }
+      function closeAlertDetailModal() {
+        if (!alertDetailModal) return;
+        closeAlertDetailExactPanel(true);
+        alertDetailModal.classList.remove('visible');
+        alertDetailModal.setAttribute('aria-hidden', 'true');
+      }
+      if (alertDetailSearchMode) {
+        alertDetailSearchMode.addEventListener('change', syncAlertDetailSearchModeUI);
+      }
+      if (alertDetailExactTrigger) {
+        alertDetailExactTrigger.addEventListener('click', function(event) {
+          event.stopPropagation();
+          if (alertDetailExactPanel && alertDetailExactPanel.classList.contains('open')) closeAlertDetailExactPanel(true);
+          else openAlertDetailExactPanel();
+        });
+      }
+      if (alertDetailSearchExact) {
+        alertDetailSearchExact.addEventListener('input', function() {
+          alertDetailExactDraft = alertDetailSearchExact.value;
+          updateAlertDetailExactPreview();
+        });
+      }
+      var alertDetailExactClear = document.getElementById('alertDetailExactClear');
+      if (alertDetailExactClear) {
+        alertDetailExactClear.addEventListener('click', function() {
+          alertDetailExactDraft = '';
+          if (alertDetailSearchExact) alertDetailSearchExact.value = '';
+          updateAlertDetailExactPreview();
+        });
+      }
+      var alertDetailExactCancel = document.getElementById('alertDetailExactCancel');
+      if (alertDetailExactCancel) {
+        alertDetailExactCancel.addEventListener('click', function() {
+          closeAlertDetailExactPanel(true);
+        });
+      }
+      var alertDetailExactApply = document.getElementById('alertDetailExactApply');
+      if (alertDetailExactApply) {
+        alertDetailExactApply.addEventListener('click', function() {
+          alertDetailExactApplied = alertDetailExactDraft;
+          closeAlertDetailExactPanel(false);
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      var alertDetailQueryBtn = document.getElementById('alertDetailQueryBtn');
+      if (alertDetailQueryBtn) {
+        alertDetailQueryBtn.addEventListener('click', function() {
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      var alertDetailResetBtn = document.getElementById('alertDetailResetBtn');
+      if (alertDetailResetBtn) {
+        alertDetailResetBtn.addEventListener('click', function() {
+          resetAlertDetailSearchUI();
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      if (alertDetailSearchFuzzy) {
+        alertDetailSearchFuzzy.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            alertDetailState.page = 1;
+            loadAlertDetailPage();
+          }
+        });
+      }
+      document.addEventListener('click', function(event) {
+        if (!alertDetailExactPanel || !alertDetailExactWrap) return;
+        if (!alertDetailExactPanel.classList.contains('open')) return;
+        if (alertDetailExactWrap.contains(event.target)) return;
+        closeAlertDetailExactPanel(true);
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-alert-type]')).forEach(function(item) {
+        item.addEventListener('click', function() {
+          openAlertDetailModal(item.getAttribute('data-alert-type'), item.getAttribute('data-alert-title') || 'Summary 告警');
+        });
+        item.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openAlertDetailModal(item.getAttribute('data-alert-type'), item.getAttribute('data-alert-title') || 'Summary 告警');
+          }
         });
       });
+      if (alertDetailModal) {
+        Array.prototype.slice.call(alertDetailModal.querySelectorAll('[data-alert-detail-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeAlertDetailModal);
+        });
+        alertDetailModal.addEventListener('click', function(event) {
+          if (event.target === alertDetailModal) closeAlertDetailModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && alertDetailModal.classList.contains('visible')) closeAlertDetailModal();
+        });
+      }
       var productDescMask = document.getElementById('productDescMask');
       function closeProductDesc() {
         if (productDescMask) productDescMask.classList.remove('open');
