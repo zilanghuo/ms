@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>管理模块 接口文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1400px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 720px; }
+    th, td { padding: 0.4rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: #f1f5f9; color: var(--muted); font-weight: 600; }
+    tr:hover td { background: #f9fafb; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .toc { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
+    .toc h2 { margin-top: 0; font-size: 1.05rem; color: var(--muted); }
+    .toc-grid { display: grid; grid-template-columns: repeat(2, minmax(280px, 1fr)); gap: 0.5rem 2rem; }
+    .toc ul { margin: 0; padding-left: 1.1rem; }
+    .toc li { margin: 0.2rem 0; }
+    .toc a { color: var(--accent); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+    p { margin: 0.5rem 0 1rem; }
+    code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+    pre code { background: none; padding: 0; }
+    .note { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1 id="top">管理模块 接口文档</h1>
+    <p>本文档基于 <code>管理模块/商品模块/商品档案.html</code>、<code>管理模块/商品模块/需求文档.html</code>、<code>管理模块/账号模块/账号维护.html</code> 与账号维护开发需求整理，主要用于将页面结构拆解为后端接口结构。当前仅覆盖商品模块与账号模块；站点、店铺、用户视图等通用接口不单独罗列。</p>
+    <div class="toc">
+      <h2>目录导航</h2>
+      <div class="toc-grid">
+        <ul>
+          <li><a href="#general-rules">通用约定</a></li>
+          <li><a href="#product-module">一、商品模块：商品档案</a></li>
+          <li><a href="#product-common-params">1.1 共用请求参数</a></li>
+          <li><a href="#product-latest-time">1.2 数据最新时间</a></li>
+          <li><a href="#product-page">1.3 商品档案分页列表</a></li>
+          <li><a href="#product-detail">1.4 商品档案详情</a></li>
+          <li><a href="#product-save">1.5 商品档案保存</a></li>
+          <li><a href="#product-sku-detail">1.6 SPU/PID 展开 SKU 明细</a></li>
+          <li><a href="#product-fields">1.7 商品档案字段说明</a></li>
+          <li><a href="#product-export">1.8 商品档案导出</a></li>
+        </ul>
+        <ul>
+          <li><a href="#account-module">二、账号模块：账号维护</a></li>
+          <li><a href="#account-common-params">2.1 共用请求参数</a></li>
+          <li><a href="#account-summary">2.2 Tab 计数与统计栏</a></li>
+          <li><a href="#account-page">2.3 账号分页列表</a></li>
+          <li><a href="#account-detail">2.4 账号详情</a></li>
+          <li><a href="#account-save">2.5 新增/编辑账号</a></li>
+          <li><a href="#account-import-export">2.6 导入导出</a></li>
+          <li><a href="#account-recycle-audit">2.7 删除、回收站与操作日志</a></li>
+          <li><a href="#account-fields">2.8 账号字段说明</a></li>
+          <li><a href="#api-overview">三、接口总览</a></li>
+        </ul>
+      </div>
+    </div>
+    <hr />
+
+    <h2 id="general-rules">通用约定</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>Base URL</td><td>建议使用 <code>/tk/manage</code>；商品档案为 <code>/tk/manage/product-archive</code>，账号维护为 <code>/tk/manage/account</code></td></tr>
+          <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code>；导入使用 <code>multipart/form-data</code></td></tr>
+          <tr><td>响应格式</td><td><code>application/json</code>；导出、模板下载接口返回文件流</td></tr>
+          <tr><td>字段命名</td><td>接口请求参数、返回参数统一使用 camelCase；底层 Doris 字段仅在“对应底表字段”中使用小写下划线</td></tr>
+          <tr><td>分页</td><td><code>page</code> 从 1 开始，<code>pageSize</code> 默认 20；响应返回 <code>total</code>、<code>list</code></td></tr>
+          <tr><td>时间格式</td><td>日期 <code>YYYY-MM-DD</code>；日期时间 <code>YYYY-MM-DD HH:mm:ss</code></td></tr>
+          <tr><td>搜索规则</td><td>手填搜索统一使用 <code>searchField</code>、<code>searchKeyword</code>、<code>exactSearchKeyword</code>。模糊搜索按 LIKE，精确搜索按 IN；两者同时传入时叠加生效</td></tr>
+          <tr><td>用户视图</td><td>自定义列、视图保存等偏通用能力可走统一用户配置接口，本接口文档只说明页面调用点，不单独展开公共接口</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>统一响应结构</strong></p>
+    <pre><code>{
+  "code": 200,
+  "msg": "操作成功",
+  "data": {}
+}</code></pre>
+
+    <h2 id="product-module">一、商品模块：商品档案</h2>
+    <p>页面结构包含 <strong>SPU 看板 / PID 看板 / SKU 看板</strong> 三个栏目，筛选区、操作区、列表区、展开 SKU 明细、编辑抽屉与导出动作。基础数据来源于 TK API 与积加商品主数据，人工维护字段沉淀到商品档案配置。</p>
+    <div class="note"><strong>不单独罗列的通用能力：</strong>平台、店铺、品类、品牌、负责人等下拉选项可由前端静态维护或复用公共配置接口；产品说明、自定义列配置也可使用通用用户配置能力。</div>
+
+    <h3 id="product-common-params">1.1 共用请求参数</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>viewType</code></td><td>string</td><td>是</td><td>看板类型：<code>spu</code>、<code>pid</code>、<code>sku</code></td></tr>
+          <tr><td><code>platformCode</code></td><td>string</td><td>否</td><td>平台：<code>tiktok</code>、<code>site</code>；空表示全部平台</td></tr>
+          <tr><td><code>storeNames</code></td><td>array&lt;string&gt;</td><td>否</td><td>所属店铺列表；空表示全部店铺</td></tr>
+          <tr><td><code>productStatus</code></td><td>string</td><td>否</td><td>商品状态，如在售、停售</td></tr>
+          <tr><td><code>productCategory</code></td><td>string</td><td>否</td><td>产品品类</td></tr>
+          <tr><td><code>productBrand</code></td><td>string</td><td>否</td><td>产品品牌</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>否</td><td>负责运营 / 负责人</td></tr>
+          <tr><td><code>searchField</code></td><td>string</td><td>否</td><td>搜索字段：<code>spu</code>、<code>pid</code>、<code>sku</code>；SPU 看板默认 <code>spu</code></td></tr>
+          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
+          <tr><td><code>exactSearchKeyword</code></td><td>string</td><td>否</td><td>精确搜索关键词，逗号或换行分隔</td></tr>
+          <tr><td><code>sortField</code></td><td>string</td><td>否</td><td>排序字段，使用接口字段名</td></tr>
+          <tr><td><code>sortOrder</code></td><td>string</td><td>否</td><td><code>asc</code> 或 <code>desc</code></td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>否</td><td>页码，从 1 开始</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>否</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-latest-time">1.2 数据最新时间接口</h3>
+    <pre><code>GET /tk/manage/product-archive/dataLatestTime</code></pre>
+    <p>返回商品档案页面操作区展示的数据更新时间。</p>
+    <pre><code>{
+  "code": 200,
+  "msg": "操作成功",
+  "data": {
+    "lastUpdateTime": "2026-05-28 09:12:59",
+    "sourceUpdateDate": "2026-05-28"
+  }
+}</code></pre>
+
+    <h3 id="product-page">1.3 商品档案分页列表接口</h3>
+    <pre><code>POST /tk/manage/product-archive/page</code></pre>
+    <p>按当前看板返回列表数据。SPU/PID 看板返回聚合行，SKU 看板返回 SKU 明细行；分页在当前看板粒度下生效。</p>
+    <pre><code>{
+  "viewType": "pid",
+  "platformCode": "tiktok",
+  "storeNames": ["美国TK-艾斯特尼-美区跨境1店"],
+  "productStatus": "在售",
+  "searchField": "pid",
+  "searchKeyword": "",
+  "exactSearchKeyword": "",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>total</code></td><td>integer</td><td>总条数</td></tr>
+          <tr><td><code>list</code></td><td>array</td><td>当前页列表；字段随 <code>viewType</code> 返回，见下方字段清单</td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>SPU 看板 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>spu</code></td><td>string</td><td>产品主 SPU</td></tr>
+          <tr><td><code>spuName</code></td><td>string</td><td>SPU 名称 / 产品中文名</td></tr>
+          <tr><td><code>pidCount</code></td><td>integer</td><td>该 SPU 下关联 PID 数</td></tr>
+          <tr><td><code>skuCount</code></td><td>integer</td><td>该 SPU 下关联 SKU 数</td></tr>
+          <tr><td><code>storeName</code></td><td>string</td><td>所属店铺；多店铺聚合时可返回逗号分隔展示值</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点代码，如 US</td></tr>
+          <tr><td><code>expandable</code></td><td>boolean</td><td>是否支持展开 SKU 明细</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>PID 看板 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>pid</code></td><td>string</td><td>TikTok 商品 ID / 平台商品 ID</td></tr>
+          <tr><td><code>spu</code></td><td>string</td><td>产品主 SPU</td></tr>
+          <tr><td><code>productNameCn</code></td><td>string</td><td>产品中文名</td></tr>
+          <tr><td><code>mainSku</code></td><td>string</td><td>产品主 SKU，价格归属该 SKU</td></tr>
+          <tr><td><code>skuCount</code></td><td>integer</td><td>该 PID 下 SKU 数</td></tr>
+          <tr><td><code>colorName</code></td><td>string</td><td>颜色</td></tr>
+          <tr><td><code>sizeName</code></td><td>string</td><td>尺码</td></tr>
+          <tr><td><code>skuNameCn</code></td><td>string</td><td>SKU 中文名</td></tr>
+          <tr><td><code>sellableStockQty</code></td><td>integer</td><td>可售库存</td></tr>
+          <tr><td><code>storeName</code></td><td>string</td><td>所属店铺</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点代码</td></tr>
+          <tr><td><code>mainImageUrl</code></td><td>string</td><td>主图 URL</td></tr>
+          <tr><td><code>productStatus</code></td><td>string</td><td>商品状态 / 销售状态</td></tr>
+          <tr><td><code>tkAuditStatus</code></td><td>string</td><td>TK 审核状态</td></tr>
+          <tr><td><code>pidUsage</code></td><td>string</td><td>PID 作用</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>负责运营</td></tr>
+          <tr><td><code>tagPrice</code></td><td>decimal</td><td>吊牌价</td></tr>
+          <tr><td><code>expandable</code></td><td>boolean</td><td>是否支持展开 SKU 明细</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>SKU 看板 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>pid</code></td><td>string</td><td>TikTok 商品 ID / 平台商品 ID</td></tr>
+          <tr><td><code>storeName</code></td><td>string</td><td>所属店铺</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点代码</td></tr>
+          <tr><td><code>mainImageUrl</code></td><td>string</td><td>主图 URL，取 SKU 主属性图第一张</td></tr>
+          <tr><td><code>productStatus</code></td><td>string</td><td>商品状态 / 销售状态</td></tr>
+          <tr><td><code>tkAuditStatus</code></td><td>string</td><td>TK 审核状态</td></tr>
+          <tr><td><code>spu</code></td><td>string</td><td>产品主 SPU</td></tr>
+          <tr><td><code>mainSku</code></td><td>string</td><td>产品主 SKU</td></tr>
+          <tr><td><code>sku</code></td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td><code>colorName</code></td><td>string</td><td>颜色</td></tr>
+          <tr><td><code>sizeName</code></td><td>string</td><td>尺码</td></tr>
+          <tr><td><code>skuNameCn</code></td><td>string</td><td>SKU 中文名</td></tr>
+          <tr><td><code>sellableStockQty</code></td><td>integer</td><td>可售库存</td></tr>
+          <tr><td><code>productNameCn</code></td><td>string</td><td>产品中文名</td></tr>
+          <tr><td><code>productBrand</code></td><td>string</td><td>产品品牌</td></tr>
+          <tr><td><code>productCategory</code></td><td>string</td><td>产品品类</td></tr>
+          <tr><td><code>pidUsage</code></td><td>string</td><td>PID 作用</td></tr>
+          <tr><td><code>sourceUpdateDate</code></td><td>string</td><td>更新日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>负责运营</td></tr>
+          <tr><td><code>tagPrice</code></td><td>decimal</td><td>吊牌价</td></tr>
+          <tr><td><code>dailySalePrice</code></td><td>decimal</td><td>日常折线价</td></tr>
+          <tr><td><code>sitePrice</code></td><td>decimal</td><td>独立站价格</td></tr>
+          <tr><td><code>amazonPrice</code></td><td>decimal</td><td>亚马逊定价</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-detail">1.4 商品档案详情接口</h3>
+    <pre><code>GET /tk/manage/product-archive/detail?platformCode=tiktok&amp;storeName=xxx&amp;pid=1732388385375162725&amp;sku=AL-W6675-BLK-XS</code></pre>
+    <p>用于点击编辑按钮后打开抽屉。PID/SPU 聚合行点击编辑时，前端应传入当前主 SKU 或后端按主 SKU 规则返回可编辑档案。</p>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>platformCode</code></td><td>string</td><td>平台代码</td></tr>
+          <tr><td><code>storeName</code></td><td>string</td><td>所属店铺</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>站点代码</td></tr>
+          <tr><td><code>pid</code></td><td>string</td><td>PID / 商品 ID</td></tr>
+          <tr><td><code>sku</code></td><td>string</td><td>SKU 编码</td></tr>
+          <tr><td><code>spu</code></td><td>string</td><td>产品主 SPU</td></tr>
+          <tr><td><code>mainSku</code></td><td>string</td><td>产品主 SKU</td></tr>
+          <tr><td><code>productNameCn</code></td><td>string</td><td>产品中文名</td></tr>
+          <tr><td><code>productStatus</code></td><td>string</td><td>商品状态</td></tr>
+          <tr><td><code>pidUsage</code></td><td>string</td><td>PID 作用</td></tr>
+          <tr><td><code>productCategory</code></td><td>string</td><td>产品品类</td></tr>
+          <tr><td><code>seasonTags</code></td><td>array&lt;string&gt;</td><td>季节，多选</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>负责运营</td></tr>
+          <tr><td><code>businessOwner</code></td><td>string</td><td>负责商务</td></tr>
+          <tr><td><code>guidanceOwner</code></td><td>string</td><td>负责指导</td></tr>
+          <tr><td><code>editorOwner</code></td><td>string</td><td>负责剪辑</td></tr>
+          <tr><td><code>liveOwner</code></td><td>string</td><td>直播运营</td></tr>
+          <tr><td><code>adOwner</code></td><td>string</td><td>投放负责人</td></tr>
+          <tr><td><code>tagPrice</code></td><td>decimal</td><td>吊牌价</td></tr>
+          <tr><td><code>dailySalePrice</code></td><td>decimal</td><td>日常折线价</td></tr>
+          <tr><td><code>liveFlashPrice</code></td><td>decimal</td><td>直播间秒杀价</td></tr>
+          <tr><td><code>campaignPrice</code></td><td>decimal</td><td>活动报名价</td></tr>
+          <tr><td><code>amazonPrice</code></td><td>decimal</td><td>亚马逊定价</td></tr>
+          <tr><td><code>sitePrice</code></td><td>decimal</td><td>独立站价格</td></tr>
+          <tr><td><code>publicCommissionRate</code></td><td>decimal</td><td>公开佣金</td></tr>
+          <tr><td><code>targetCommissionRate</code></td><td>decimal</td><td>定向佣金</td></tr>
+          <tr><td><code>adCommissionRate</code></td><td>decimal</td><td>广告佣金</td></tr>
+          <tr><td><code>ippcRegisterStatus</code></td><td>string</td><td>IPPC 注册情况</td></tr>
+          <tr><td><code>ippcRemark</code></td><td>string</td><td>IPPC 情况说明</td></tr>
+          <tr><td><code>productSellingPoints</code></td><td>string</td><td>产品卖点</td></tr>
+          <tr><td><code>tkProductUrl</code></td><td>string</td><td>TK 商品链接</td></tr>
+          <tr><td><code>siteProductUrl</code></td><td>string</td><td>独立站商品链接</td></tr>
+          <tr><td><code>mainImageUrl</code></td><td>string</td><td>主图资源链接</td></tr>
+          <tr><td><code>assetFolderUrl</code></td><td>string</td><td>素材文件夹链接</td></tr>
+          <tr><td><code>updatedTime</code></td><td>string</td><td>档案更新时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-save">1.5 商品档案保存接口</h3>
+    <pre><code>POST /tk/manage/product-archive/save</code></pre>
+    <p>保存编辑抽屉中的人工维护字段；平台同步字段只读，不允许覆盖 TK API 原始状态、审核状态等字段。</p>
+    <pre><code>{
+  "platformCode": "tiktok",
+  "storeName": "美国TK-艾斯特尼-美区跨境1店",
+  "pid": "1732388385375162725",
+  "sku": "AL-W6675-BLK-XS",
+  "productNameCn": "男女正肩洗水T-黑色04-XS",
+  "spu": "AL-W6675",
+  "mainSku": "AL-W6675-BLK-XS",
+  "productStatus": "在售",
+  "pidUsage": "主推",
+  "productCategory": "NW122-女式上衣（洗水）",
+  "seasonTags": ["春", "夏"],
+  "operatorOwner": "Bob Wang",
+  "tagPrice": 39.99,
+  "dailySalePrice": 29.99,
+  "tkProductUrl": "https://partner.tiktokshop.com/product/1732388385375162725",
+  "siteProductUrl": "",
+  "mainImageUrl": "",
+  "assetFolderUrl": ""
+}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>success</code></td><td>boolean</td><td>是否保存成功</td></tr>
+          <tr><td><code>pid</code></td><td>string</td><td>保存成功的 PID</td></tr>
+          <tr><td><code>sku</code></td><td>string</td><td>保存成功的 SKU</td></tr>
+          <tr><td><code>updatedTime</code></td><td>string</td><td>保存后的更新时间</td></tr>
+          <tr><td><code>updatedBy</code></td><td>string</td><td>更新人</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-sku-detail">1.6 SPU/PID 展开 SKU 明细接口</h3>
+    <pre><code>POST /tk/manage/product-archive/sku-detail</code></pre>
+    <p>SPU 看板和 PID 看板展开时调用，返回对应 SKU 明细表格，字段结构与 SKU 看板列表一致。</p>
+    <pre><code>{
+  "viewType": "spu",
+  "spu": "AL-W0161",
+  "pid": "",
+  "platformCode": "tiktok",
+  "storeNames": ["美国TK-艾斯特尼-美区跨境1店"]
+}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>total</code></td><td>integer</td><td>明细总条数</td></tr>
+          <tr><td><code>list</code></td><td>array</td><td>SKU 明细列表；字段同 1.3 SKU 看板 list 字段</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-fields">1.7 商品档案字段说明接口</h3>
+    <pre><code>GET /tk/manage/product-archive/fields?viewType=sku</code></pre>
+    <p>返回当前看板可展示、可导出、可编辑的字段说明，支撑字段问号说明、自定义列配置和导出字段口径。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口字段</th><th>对应底表字段</th><th>适用看板</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>pid</code></td><td><code>pid</code></td><td>PID/SKU/展开明细</td><td>TikTok 商品 ID / 平台商品 ID</td></tr>
+          <tr><td><code>spu</code></td><td><code>spu</code></td><td>SPU/PID/SKU</td><td>产品主 SPU</td></tr>
+          <tr><td><code>sku</code></td><td><code>sku</code></td><td>SKU/展开明细</td><td>SKU 编码</td></tr>
+          <tr><td><code>mainSku</code></td><td><code>main_sku</code></td><td>PID/SKU</td><td>产品主 SKU，价格归属该 SKU</td></tr>
+          <tr><td><code>productNameCn</code></td><td><code>product_name_cn</code></td><td>SPU/PID/SKU</td><td>产品中文名 / SKU 中文名</td></tr>
+          <tr><td><code>productBrand</code></td><td><code>product_brand</code></td><td>SKU</td><td>产品品牌</td></tr>
+          <tr><td><code>productCategory</code></td><td><code>product_category</code></td><td>SKU</td><td>产品品类</td></tr>
+          <tr><td><code>mainImageUrl</code></td><td><code>main_image_url</code></td><td>PID/SKU</td><td>主图，取 SKU 主属性图第一张</td></tr>
+          <tr><td><code>productStatus</code></td><td><code>product_status_name</code></td><td>PID/SKU</td><td>商品状态 / 销售状态</td></tr>
+          <tr><td><code>tkAuditStatus</code></td><td><code>tk_audit_status_name</code></td><td>PID/SKU</td><td>TK 审核状态，只读</td></tr>
+          <tr><td><code>operatorOwner</code></td><td><code>operator_owner</code></td><td>PID/SKU</td><td>负责运营</td></tr>
+          <tr><td><code>tagPrice</code></td><td><code>tag_price</code></td><td>PID/SKU</td><td>吊牌价</td></tr>
+          <tr><td><code>dailySalePrice</code></td><td><code>daily_sale_price</code></td><td>SKU/编辑抽屉</td><td>日常折线价</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="product-export">1.8 商品档案导出接口</h3>
+    <pre><code>POST /tk/manage/product-archive/export</code></pre>
+    <p>按当前筛选条件、当前看板和自定义列配置导出。默认文件名：<code>商品档案_yyyyMMddHHmmss.xlsx</code>。</p>
+    <p><strong>响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
+
+    <h2 id="account-module">二、账号模块：账号维护</h2>
+    <p>页面结构包含 <strong>全部账号 / 渠道号 / 达人号 / TAP 机构号</strong> 四个 Tab，筛选区、统计栏、列表区、新增/编辑抽屉、导入导出、自定义列、删除/回收站、操作日志等能力。账号维护为手动维护数据源，不依赖第三方 API。</p>
+    <div class="note"><strong>安全约定：</strong>邮箱密码、TK 密码等敏感字段必须加密或脱敏存储；列表和导出默认不返回明文。若后续需要查看明文，应增加二次确认与权限校验接口。</div>
+
+    <h3 id="account-common-params">2.1 共用请求参数</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>accountType</code></td><td>string</td><td>否</td><td>账号类型：渠道号、达人号、TAP 机构号；空表示全部账号</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>否</td><td>国家 / 站点，如 US、UK、AU、CA、DE、FR</td></tr>
+          <tr><td><code>accountStatus</code></td><td>string</td><td>否</td><td>账号状态：活跃、暂停、停用</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>否</td><td>运营人员 / 最新商务归属</td></tr>
+          <tr><td><code>creatorSource</code></td><td>string</td><td>否</td><td>达人来源；达人号、TAP 机构号栏目使用</td></tr>
+          <tr><td><code>creatorLevel</code></td><td>string</td><td>否</td><td>达人等级；达人号、TAP 机构号栏目使用</td></tr>
+          <tr><td><code>searchField</code></td><td>string</td><td>否</td><td>搜索字段：<code>all</code>、<code>handle</code>、<code>uid</code>、<code>nickname</code>、<code>email</code></td></tr>
+          <tr><td><code>searchKeyword</code></td><td>string</td><td>否</td><td>模糊搜索关键词</td></tr>
+          <tr><td><code>exactSearchKeyword</code></td><td>string</td><td>否</td><td>精确搜索关键词，逗号或换行分隔</td></tr>
+          <tr><td><code>sortField</code></td><td>string</td><td>否</td><td>排序字段：<code>handleName</code>、<code>tiktokUid</code>、<code>accountStatus</code>、<code>siteCode</code> 等</td></tr>
+          <tr><td><code>sortOrder</code></td><td>string</td><td>否</td><td><code>asc</code> 或 <code>desc</code></td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>否</td><td>页码，从 1 开始</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>否</td><td>每页条数，支持 20/50/100</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-summary">2.2 Tab 计数与统计栏接口</h3>
+    <pre><code>POST /tk/manage/account/summary</code></pre>
+    <p>按当前筛选条件返回四个 Tab 计数和账号状态统计。Tab 计数忽略当前 Tab 类型过滤，但保留其他筛选条件。</p>
+    <pre><code>{
+  "siteCode": "US",
+  "accountStatus": "",
+  "operatorOwner": "",
+  "searchField": "all",
+  "searchKeyword": "",
+  "exactSearchKeyword": ""
+}</code></pre>
+    <pre><code>{
+  "code": 200,
+  "msg": "操作成功",
+  "data": {
+    "tabCounts": {
+      "all": 10,
+      "channel": 3,
+      "creator": 5,
+      "tapAgency": 2
+    },
+    "statusCounts": {
+      "total": 10,
+      "active": 8,
+      "paused": 1,
+      "disabled": 1
+    }
+  }
+}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>tabCounts.all</code></td><td>integer</td><td>全部账号数量</td></tr>
+          <tr><td><code>tabCounts.channel</code></td><td>integer</td><td>渠道号数量</td></tr>
+          <tr><td><code>tabCounts.creator</code></td><td>integer</td><td>达人号数量</td></tr>
+          <tr><td><code>tabCounts.tapAgency</code></td><td>integer</td><td>TAP 机构号数量</td></tr>
+          <tr><td><code>statusCounts.total</code></td><td>integer</td><td>当前 Tab + 筛选条件下账号总数</td></tr>
+          <tr><td><code>statusCounts.active</code></td><td>integer</td><td>活跃账号数</td></tr>
+          <tr><td><code>statusCounts.paused</code></td><td>integer</td><td>暂停账号数</td></tr>
+          <tr><td><code>statusCounts.disabled</code></td><td>integer</td><td>停用账号数</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-page">2.3 账号分页列表接口</h3>
+    <pre><code>POST /tk/manage/account/page</code></pre>
+    <p>按当前 Tab 返回列表。全部账号栏目展示通用字段；渠道号栏目展示自营账号字段；达人号和 TAP 机构号栏目展示达人业务字段。</p>
+    <pre><code>{
+  "accountType": "达人号",
+  "siteCode": "UK",
+  "accountStatus": "活跃",
+  "creatorSource": "自主开发",
+  "creatorLevel": "L3",
+  "searchField": "all",
+  "searchKeyword": "sweet",
+  "exactSearchKeyword": "",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>total</code></td><td>integer</td><td>总条数</td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
+          <tr><td><code>list</code></td><td>array</td><td>账号列表；字段随当前 Tab 返回，见下方字段清单</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>全部账号 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>handleName</code></td><td>string</td><td>账号 / 主页展示名</td></tr>
+          <tr><td><code>tiktokHomeUrl</code></td><td>string</td><td>TikTok 主页链接</td></tr>
+          <tr><td><code>nickname</code></td><td>string</td><td>账号昵称</td></tr>
+          <tr><td><code>tiktokUid</code></td><td>string</td><td>TikTok UID</td></tr>
+          <tr><td><code>accountType</code></td><td>string</td><td>账号类型</td></tr>
+          <tr><td><code>regionName</code></td><td>string</td><td>区域，如美区、英区</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>国家 / 站点</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>归属人员</td></tr>
+          <tr><td><code>accountStatus</code></td><td>string</td><td>账号状态</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>渠道号 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>handleName</code></td><td>string</td><td>Handle Name</td></tr>
+          <tr><td><code>tiktokHomeUrl</code></td><td>string</td><td>TikTok 主页链接</td></tr>
+          <tr><td><code>tiktokUid</code></td><td>string</td><td>TikTok UID</td></tr>
+          <tr><td><code>accountType</code></td><td>string</td><td>账号类型</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>国家 / 站点</td></tr>
+          <tr><td><code>contentShopName</code></td><td>string</td><td>内容挂车店铺</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>运营人员</td></tr>
+          <tr><td><code>accountStatus</code></td><td>string</td><td>账号状态</td></tr>
+          <tr><td><code>accountGender</code></td><td>string</td><td>账号定位性别</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>达人号 / TAP 机构号 list 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>tiktokUid</code></td><td>string</td><td>TikTok UID / TIKTOK ID</td></tr>
+          <tr><td><code>nickname</code></td><td>string</td><td>达人昵称</td></tr>
+          <tr><td><code>handleName</code></td><td>string</td><td>Handle Name</td></tr>
+          <tr><td><code>tiktokHomeUrl</code></td><td>string</td><td>TikTok 主页链接</td></tr>
+          <tr><td><code>regionName</code></td><td>string</td><td>区域</td></tr>
+          <tr><td><code>creatorSource</code></td><td>string</td><td>达人来源</td></tr>
+          <tr><td><code>creatorLevel</code></td><td>string</td><td>达人等级</td></tr>
+          <tr><td><code>isOpened</code></td><td>boolean</td><td>是否开单</td></tr>
+          <tr><td><code>cooperationMode</code></td><td>string</td><td>合作模式</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>最新商务归属</td></tr>
+          <tr><td><code>accountStatus</code></td><td>string</td><td>账号状态</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-detail">2.4 账号详情接口</h3>
+    <pre><code>GET /tk/manage/account/detail?tiktokUid=7234567890123456789</code></pre>
+    <p>用于新增/编辑抽屉回显完整字段。敏感凭证字段默认返回脱敏值和是否已配置标记，不直接返回明文。</p>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>handleName</code></td><td>string</td><td>Handle Name</td></tr>
+          <tr><td><code>nickname</code></td><td>string</td><td>账号昵称</td></tr>
+          <tr><td><code>tiktokHomeUrl</code></td><td>string</td><td>TikTok 主页 URL</td></tr>
+          <tr><td><code>tiktokUid</code></td><td>string</td><td>TikTok UID</td></tr>
+          <tr><td><code>platform</code></td><td>string</td><td>平台，默认 TikTok</td></tr>
+          <tr><td><code>siteCode</code></td><td>string</td><td>国家 / 站点</td></tr>
+          <tr><td><code>contentShopName</code></td><td>string</td><td>内容挂车店铺</td></tr>
+          <tr><td><code>operatorOwner</code></td><td>string</td><td>运营人员 / 最新商务归属</td></tr>
+          <tr><td><code>contentSources</code></td><td>array&lt;string&gt;</td><td>内容来源，多选</td></tr>
+          <tr><td><code>accountType</code></td><td>string</td><td>账号类型</td></tr>
+          <tr><td><code>accountGender</code></td><td>string</td><td>账号定位性别</td></tr>
+          <tr><td><code>creatorSource</code></td><td>string</td><td>达人来源</td></tr>
+          <tr><td><code>creatorLevel</code></td><td>string</td><td>达人等级</td></tr>
+          <tr><td><code>isOpened</code></td><td>boolean</td><td>是否开单</td></tr>
+          <tr><td><code>cooperationMode</code></td><td>string</td><td>合作模式</td></tr>
+          <tr><td><code>customTags</code></td><td>array&lt;string&gt;</td><td>自定义标签</td></tr>
+          <tr><td><code>affiliatedShopName</code></td><td>string</td><td>账号归属店铺</td></tr>
+          <tr><td><code>backendBindShop</code></td><td>boolean</td><td>是否后台绑定店铺</td></tr>
+          <tr><td><code>backendShopName</code></td><td>string</td><td>后台绑定店铺名</td></tr>
+          <tr><td><code>shopCode</code></td><td>string</td><td>Shop Code</td></tr>
+          <tr><td><code>email</code></td><td>string</td><td>账号注册邮箱，可按权限脱敏</td></tr>
+          <tr><td><code>emailPasswordConfigured</code></td><td>boolean</td><td>邮箱密码是否已配置</td></tr>
+          <tr><td><code>emailLoginUrl</code></td><td>string</td><td>邮箱登录地址</td></tr>
+          <tr><td><code>tkPasswordConfigured</code></td><td>boolean</td><td>TK 密码是否已配置</td></tr>
+          <tr><td><code>networkLine</code></td><td>string</td><td>网络线路</td></tr>
+          <tr><td><code>accountStatus</code></td><td>string</td><td>账号状态</td></tr>
+          <tr><td><code>notes</code></td><td>string</td><td>备注</td></tr>
+          <tr><td><code>createdTime</code></td><td>string</td><td>创建时间</td></tr>
+          <tr><td><code>updatedTime</code></td><td>string</td><td>更新时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-save">2.5 新增/编辑账号接口</h3>
+    <pre><code>POST /tk/manage/account/save</code></pre>
+    <p>新增和编辑共用。以 <code>tiktokUid</code> 为唯一键；保存成功后写入操作日志。</p>
+    <pre><code>{
+  "handleName": "@faiable_official",
+  "nickname": "FAIABLE 官方",
+  "tiktokUid": "7234567890123456789",
+  "tiktokHomeUrl": "https://www.tiktok.com/@faiable_official",
+  "platform": "TikTok",
+  "siteCode": "US",
+  "accountType": "渠道号",
+  "accountStatus": "活跃",
+  "accountGender": "未知",
+  "contentSources": ["混剪", "实拍"],
+  "customTags": ["品牌自营", "高转化"],
+  "contentShopName": "FAIABLE US Official",
+  "affiliatedShopName": "FAIABLE US Official",
+  "backendBindShop": true,
+  "backendShopName": "FAIABLE US Official",
+  "shopCode": "FAI-US-01",
+  "operatorOwner": "Bob Wang",
+  "email": "faiable.official@gmail.com",
+  "emailPassword": "",
+  "emailLoginUrl": "https://mail.google.com",
+  "tkPassword": "",
+  "networkLine": "美国节点-01",
+  "notes": "主品牌官方账号，重点运营"
+}</code></pre>
+    <p><strong>校验规则</strong>：<code>handleName</code> 必填；<code>tiktokUid</code> 必填且为 18~19 位数字；<code>accountType</code>、<code>accountStatus</code>、<code>accountGender</code> 必须符合枚举；<code>handleName</code> 变更时可自动生成 <code>tiktokHomeUrl</code>。</p>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>success</code></td><td>boolean</td><td>是否保存成功</td></tr>
+          <tr><td><code>tiktokUid</code></td><td>string</td><td>保存成功的 TikTok UID</td></tr>
+          <tr><td><code>actionType</code></td><td>string</td><td>操作类型：新增、编辑</td></tr>
+          <tr><td><code>updatedTime</code></td><td>string</td><td>保存后的更新时间</td></tr>
+          <tr><td><code>auditLogId</code></td><td>string</td><td>本次保存生成的操作日志 ID</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-import-export">2.6 导入导出接口</h3>
+    <pre><code>GET  /tk/manage/account/import-template
+POST /tk/manage/account/import
+POST /tk/manage/account/export</code></pre>
+    <p>导入模板不包含凭证字段。导入以 <code>tiktokUid</code> 查重：UID 不存在则新增，UID 已存在则有值字段覆盖更新、空白字段保持原值。导出按当前筛选结果生成 Excel，不包含邮箱密码、TK 密码等敏感凭证明文。</p>
+    <p><strong>模板下载响应</strong>：返回文件流，文件名建议为 <code>账号维护导入模板.xlsx</code>。</p>
+    <p><strong>导入响应 data 字段</strong></p>
+    <pre><code>{
+  "successCount": 120,
+  "updateCount": 18,
+  "failCount": 2,
+  "errorFileUrl": "/download/account_import_error_20260525.xlsx"
+}</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>successCount</code></td><td>integer</td><td>新增成功条数</td></tr>
+          <tr><td><code>updateCount</code></td><td>integer</td><td>覆盖更新条数</td></tr>
+          <tr><td><code>failCount</code></td><td>integer</td><td>校验失败条数</td></tr>
+          <tr><td><code>errorFileUrl</code></td><td>string</td><td>错误明细下载地址；无失败时为空</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>导出响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
+
+    <h3 id="account-recycle-audit">2.7 删除、回收站与操作日志接口</h3>
+    <pre><code>POST /tk/manage/account/delete
+POST /tk/manage/account/restore
+POST /tk/manage/account/permanent-delete
+POST /tk/manage/account/recycle-page
+POST /tk/manage/account/audit-log-page</code></pre>
+    <p>删除为软删除，回收站展示 30 天内删除记录；恢复清除删除标记。操作日志记录新增、编辑、删除、恢复等动作及变更前后值。</p>
+    <p><strong>删除 / 恢复 / 彻底删除响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>success</code></td><td>boolean</td><td>是否操作成功</td></tr>
+          <tr><td><code>affectedCount</code></td><td>integer</td><td>影响账号数量</td></tr>
+          <tr><td><code>tiktokUids</code></td><td>array&lt;string&gt;</td><td>本次操作的 TikTok UID 列表</td></tr>
+          <tr><td><code>auditLogIds</code></td><td>array&lt;string&gt;</td><td>本次操作生成的日志 ID 列表</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>回收站分页响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>total</code></td><td>integer</td><td>回收站总条数</td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
+          <tr><td><code>list[].tiktokUid</code></td><td>string</td><td>TikTok UID</td></tr>
+          <tr><td><code>list[].handleName</code></td><td>string</td><td>Handle Name</td></tr>
+          <tr><td><code>list[].accountType</code></td><td>string</td><td>账号类型</td></tr>
+          <tr><td><code>list[].accountStatus</code></td><td>string</td><td>删除前账号状态</td></tr>
+          <tr><td><code>list[].deletedTime</code></td><td>string</td><td>删除时间</td></tr>
+          <tr><td><code>list[].deletedBy</code></td><td>string</td><td>删除人</td></tr>
+          <tr><td><code>list[].expireTime</code></td><td>string</td><td>回收站保留到期时间</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>操作日志分页响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>total</code></td><td>integer</td><td>日志总条数</td></tr>
+          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
+          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
+          <tr><td><code>list[].auditLogId</code></td><td>string</td><td>日志 ID</td></tr>
+          <tr><td><code>list[].tiktokUid</code></td><td>string</td><td>关联账号 UID</td></tr>
+          <tr><td><code>list[].handleName</code></td><td>string</td><td>关联账号 Handle Name</td></tr>
+          <tr><td><code>list[].actionType</code></td><td>string</td><td>新增、编辑、删除、恢复、彻底删除</td></tr>
+          <tr><td><code>list[].operator</code></td><td>string</td><td>操作人</td></tr>
+          <tr><td><code>list[].operateTime</code></td><td>string</td><td>操作时间</td></tr>
+          <tr><td><code>list[].changeFields</code></td><td>array</td><td>变更字段列表，包含字段名、变更前值、变更后值</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="account-fields">2.8 账号字段说明接口</h3>
+    <pre><code>GET /tk/manage/account/fields?accountType=达人号</code></pre>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口字段</th><th>对应底表字段</th><th>适用栏目</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>handleName</code></td><td><code>handle_name</code></td><td>全部/渠道/达人/TAP</td><td>TikTok 账号名，可生成主页链接</td></tr>
+          <tr><td><code>tiktokUid</code></td><td><code>tiktok_uid</code></td><td>全部/渠道/达人/TAP</td><td>账号唯一键</td></tr>
+          <tr><td><code>nickname</code></td><td><code>nickname</code></td><td>全部/达人/TAP</td><td>账号昵称</td></tr>
+          <tr><td><code>accountType</code></td><td><code>account_type_name</code></td><td>全部/渠道/达人/TAP</td><td>渠道号、达人号、TAP 机构号</td></tr>
+          <tr><td><code>siteCode</code></td><td><code>site_code</code></td><td>全部/渠道/达人/TAP</td><td>国家 / 站点</td></tr>
+          <tr><td><code>contentShopName</code></td><td><code>cart_store_name</code></td><td>渠道</td><td>内容挂车店铺</td></tr>
+          <tr><td><code>operatorOwner</code></td><td><code>operator_owner</code></td><td>全部/渠道/达人/TAP</td><td>运营人员 / 最新商务归属</td></tr>
+          <tr><td><code>accountStatus</code></td><td><code>account_status_name</code></td><td>全部/渠道/达人/TAP</td><td>活跃、暂停、停用</td></tr>
+          <tr><td><code>creatorSource</code></td><td><code>creator_source_name</code></td><td>达人/TAP</td><td>自主开发、离职继承、被动建联等</td></tr>
+          <tr><td><code>creatorLevel</code></td><td><code>creator_level_name</code></td><td>达人/TAP</td><td>L3以下、L3、L4、L5、L6</td></tr>
+          <tr><td><code>credentialConfigured</code></td><td><code>credential_cipher_text</code></td><td>详情/编辑抽屉</td><td>凭证是否已配置；不返回明文</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="api-overview">三、接口总览</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>模块</th><th>接口</th><th>方法</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/dataLatestTime</code></td><td>GET</td><td>数据最新时间</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/page</code></td><td>POST</td><td>SPU/PID/SKU 看板分页列表</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/detail</code></td><td>GET</td><td>编辑抽屉详情</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/save</code></td><td>POST</td><td>保存商品档案维护字段</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/sku-detail</code></td><td>POST</td><td>SPU/PID 展开 SKU 明细</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/fields</code></td><td>GET</td><td>字段说明与自定义列配置基础字段</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/export</code></td><td>POST</td><td>导出商品档案</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/summary</code></td><td>POST</td><td>Tab 计数与状态统计</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/page</code></td><td>POST</td><td>账号分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/detail</code></td><td>GET</td><td>账号详情</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/save</code></td><td>POST</td><td>新增 / 编辑账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/import-template</code></td><td>GET</td><td>下载导入模板</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/import</code></td><td>POST</td><td>导入账号档案</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/export</code></td><td>POST</td><td>导出账号列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/delete</code></td><td>POST</td><td>软删除账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/restore</code></td><td>POST</td><td>回收站恢复账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/recycle-page</code></td><td>POST</td><td>回收站分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/manage/account/audit-log-page</code></td><td>POST</td><td>操作日志分页列表</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="back"><a href="../index.html">返回首页</a> &nbsp; <a href="商品模块/商品档案.html">商品档案</a> &nbsp; <a href="账号模块/账号维护.html">账号维护</a> &nbsp; <a href="表结构设计.html">表结构设计</a></p>
+  </div>
+</body>
+</html>

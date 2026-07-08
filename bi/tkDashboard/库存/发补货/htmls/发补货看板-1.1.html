@@ -1,0 +1,3781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>发补货看板</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #333;
+      --muted: #666;
+      --accent: #0d9488;
+      --accent-hover: #0f766e;
+      --border: #e0e0e0;
+      --input-border: #d1d5db;
+      --danger: #dc2626;
+      --warn-bg: #fff7ed;
+      --warn-text: #9a3412;
+      --ok-bg: #f0fdf4;
+      --ok-text: #166534;
+      --bad-bg: #fef2f2;
+      --bad-text: #991b1b;
+      --note-bg: #eff6ff;
+      --note-text: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      margin: 0;
+      padding: 1.5rem;
+      font-size: 14px;
+    }
+    .container { max-width: 100%; margin: 0 auto; }
+    .page-title {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 0 0 1rem;
+      color: var(--text);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      background: #e0f2fe;
+      color: #0369a1;
+    }
+    .query-card, .summary-card, .table-card, .action-bar {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    .query-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
+    .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
+    .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
+    .query-item input[type="date"], .query-item input[type="text"], .query-item select {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+    }
+    .query-item input[type="text"] { min-width: 180px; }
+    .query-item select { min-width: 160px; cursor: pointer; }
+    .search-query-item { position: relative; gap: 0; }
+    .search-query-item select { min-width: 0; }
+    .search-query-item select + select { margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-query-item .search-field-select { width: 92px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
+    .search-query-item .search-mode-select { width: 102px; border-radius: 0; }
+    .search-query-item .search-fuzzy-input { min-width: 0; width: 170px; margin-left: -1px; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+    .search-exact-trigger-wrap { position: relative; display: none; align-items: center; margin-left: -1px; }
+    .search-exact-trigger-wrap.active { display: flex; }
+    .search-exact-trigger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.35rem;
+      width: 196px;
+      height: 38px;
+      padding: 0 0.7rem;
+      border: 1px solid var(--input-border);
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .search-exact-trigger.active { border-color: #2563eb; box-shadow: 0 0 0 1px rgba(37,99,235,0.1); }
+    .search-exact-trigger .placeholder { color: #94a3b8; }
+    .search-exact-trigger .value { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; text-align: left; }
+    .search-exact-trigger .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #64748b; font-size: 1rem; }
+    .search-exact-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 320px;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.16);
+      z-index: 220;
+      overflow: hidden;
+    }
+    .search-exact-panel.open { display: block; }
+    .search-exact-body { padding: 0.75rem 0.75rem 0.5rem; }
+    .search-exact-textarea {
+      width: 100%;
+      min-height: 180px;
+      resize: none;
+      border: none;
+      outline: none;
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      font-family: inherit;
+    }
+    .search-exact-tip { margin-top: 0.25rem; font-size: 0.78rem; color: #94a3b8; line-height: 1.5; }
+    .search-exact-foot { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.75rem 0.75rem; border-top: 1px solid #e2e8f0; background: #fff; }
+    .search-exact-count { font-size: 0.78rem; color: #94a3b8; margin-left: auto; }
+    .search-exact-actions { display: flex; align-items: center; gap: 0.5rem; }
+    .search-exact-btn { min-width: 62px; padding: 0.3rem 0.7rem; border-radius: 4px; border: 1px solid var(--input-border); background: #fff; color: var(--text); cursor: pointer; font-size: 0.82rem; }
+    .search-exact-btn:hover { background: #f8fafc; }
+    .search-exact-btn.primary { border-color: #2563eb; background: #2563eb; color: #fff; }
+    .search-exact-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+    .query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .btn {
+      border-radius: 4px;
+      padding: 0.45rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-query { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn-query:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+    .btn-secondary { background: #fff; color: var(--text); border-color: var(--input-border); }
+    .btn-secondary:hover { background: #f9fafb; }
+    .btn-export-transfer { background: #e1f5ee; color: #085041; border-color: #5dcaa5; }
+    .btn-export-transfer:hover { background: #c8eddf; border-color: #3fb88f; }
+    .btn-export-purchase { background: #e6f1fb; color: #0c447c; border-color: #85b7eb; }
+    .btn-export-purchase:hover { background: #d4e8f8; border-color: #5f9fe2; }
+    .tab-group {
+      display: inline-flex;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .tab-group .tab {
+      padding: 0.4rem 0.9rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      border-right: 1px solid var(--accent);
+    }
+    .tab-group .tab:last-child { border-right: none; }
+    .tab-group .tab.active { background: var(--accent); color: #fff; }
+    .tab-group .tab:hover:not(.active) { background: #f0fdfa; }
+    .tip-bar {
+      margin-top: 0.75rem;
+      padding: 0.65rem 0.8rem;
+      border-radius: 6px;
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      font-size: 0.82rem;
+      border: 1px solid #fdba74;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .global-summary-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    .summary-card { padding: 0.9rem 1rem; min-height: 90px; }
+    .summary-label { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.45rem; }
+    .summary-value { font-size: 1.35rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .summary-sub { margin-top: 0.4rem; font-size: 0.78rem; color: var(--muted); }
+    .summary-danger .summary-value { color: var(--danger); }
+    .summary-note .summary-value { color: #1d4ed8; }
+    .global-alert-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin: 0 0 1rem;
+    }
+    .alert-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #fdba74;
+      border-radius: 8px;
+      background: #fff7ed;
+      color: #9a3412;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      cursor: pointer;
+      transition: background 0.15s ease, box-shadow 0.15s ease;
+    }
+    .alert-item:hover {
+      box-shadow: 0 2px 8px rgba(154, 52, 18, 0.12);
+      background: #ffedd5;
+    }
+    .alert-item.urgent { border-color: #fecaca; background: #fef2f2; color: #991b1b; }
+    .alert-item.urgent:hover {
+      background: #fee2e2;
+      box-shadow: 0 2px 8px rgba(153, 27, 27, 0.12);
+    }
+    .alert-main { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .alert-index { font-weight: 700; color: inherit; }
+    .alert-count { font-weight: 700; color: inherit; }
+    .alert-hint {
+      font-size: 0.78rem;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+    .action-bar {
+      padding: 0.75rem 1rem;
+      margin-bottom: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .action-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+    .action-bar .btns { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .meta-info { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; min-width: 260px; }
+    .update-time { font-size: 0.85rem; color: #64748b; }
+    .legend {
+      flex: 1;
+      min-width: 280px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .legend code {
+      background: #f1f5f9;
+      padding: 0.08rem 0.25rem;
+      border-radius: 3px;
+    }
+    .export-modal-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.38);
+    }
+    .export-modal-mask.open { display: flex; }
+    .export-modal {
+      width: min(720px, 100%);
+      max-height: calc(100vh - 3rem);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border: 1px solid #dbe7e2;
+      border-radius: 8px;
+      box-shadow: 0 22px 56px rgba(15, 23, 42, 0.22);
+    }
+    .export-modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.1rem 0.8rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .export-modal-title { margin: 0; font-size: 1rem; font-weight: 600; color: var(--text); }
+    .export-modal-sub { margin: 0.25rem 0 0; font-size: 0.82rem; color: #64748b; }
+    .export-modal-close {
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: #64748b;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .export-modal-close:hover { background: #f8fafc; color: var(--text); }
+    .export-modal-body { padding: 1rem 1.1rem; overflow: auto; }
+    .export-modal-tip {
+      margin-bottom: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      border: 1px solid #bbf7d0;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: 0.82rem;
+    }
+    .export-preview-table {
+      width: 100%;
+      min-width: 640px;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+    .export-preview-table th {
+      padding: 0.5rem 0.6rem;
+      text-align: left;
+      white-space: nowrap;
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 600;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .export-preview-table td {
+      padding: 0.5rem 0.6rem;
+      border-bottom: 1px solid #edf2f7;
+      white-space: nowrap;
+    }
+    .export-modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0.8rem 1.1rem 1rem;
+      border-top: 1px solid #e2e8f0;
+      background: #fff;
+    }
+    .column-config-mask {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 520;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(15, 23, 42, 0.42);
+    }
+    .column-config-mask.open { display: flex; }
+    .column-config-modal {
+      width: min(620px, 100%);
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 22px 56px rgba(15, 23, 42, 0.22);
+      overflow: hidden;
+    }
+    .column-config-head {
+      height: 56px;
+      padding: 0 1.1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .column-config-title { font-weight: 600; font-size: 1rem; color: var(--text); }
+    .column-config-close {
+      border: 0;
+      background: transparent;
+      font-size: 22px;
+      color: #9ca3af;
+      cursor: pointer;
+    }
+    .column-config-body { padding: 1rem 1.1rem; }
+    .column-config-tip { color: var(--muted); font-size: 0.82rem; margin-bottom: 0.75rem; line-height: 1.7; }
+    .column-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; }
+    .column-option {
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.42rem 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #52657a;
+      background: #fff;
+      font-size: 0.82rem;
+    }
+    .column-option input { width: 15px; height: 15px; accent-color: var(--accent); }
+    .column-config-actions {
+      height: 58px;
+      padding: 0.7rem 1.1rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.65rem;
+    }
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 28px;
+      transform: translateX(-50%);
+      z-index: 700;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      background: #111827;
+      color: #fff;
+      font-size: 0.86rem;
+    }
+    .toast.show { opacity: 0.94; }
+    .table-card { overflow: hidden; margin-bottom: 1rem; }
+    .table-wrap { overflow: auto; }
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      table-layout: auto;
+    }
+    th, td {
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      vertical-align: top;
+    }
+    th {
+      background: #f9fafb;
+      color: var(--muted);
+      font-weight: 500;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    th.sortable-num {
+      position: sticky;
+      padding-right: 1.35rem;
+    }
+    .sort-trigger {
+      position: absolute;
+      right: 0.45rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.72rem;
+      color: #94a3b8;
+      cursor: pointer;
+      user-select: none;
+      line-height: 1;
+      padding: 0.1rem 0.15rem;
+      border-radius: 3px;
+    }
+    .sort-trigger:hover {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    th.sortable-num.sort-asc .sort-trigger,
+    th.sortable-num.sort-desc .sort-trigger {
+      color: var(--accent);
+    }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    td.center { text-align: center; }
+    tr:hover td { background: #f9fafb; }
+    tr.row-total td {
+      font-weight: 600;
+      background: #f0fdf4;
+    }
+    tr.row-total:hover td {
+      background: #dcfce7;
+    }
+    .sticky-col-1, .sticky-col-2, .sticky-col-3, .sticky-col-4, .sticky-col-5 {
+      position: sticky;
+      background: var(--card);
+      z-index: 1;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08);
+    }
+    th.sticky-col-1, th.sticky-col-2, th.sticky-col-3, th.sticky-col-4, th.sticky-col-5 {
+      z-index: 3;
+      background: #f9fafb !important;
+    }
+    .sticky-col-1 { left: 0; min-width: 120px; }
+    .sticky-col-2 { left: 120px; min-width: 140px; }
+    .sticky-col-3 { left: 260px; min-width: 140px; }
+    .sticky-col-4 { left: 400px; min-width: 180px; }
+    .sticky-col-5 { left: 580px; min-width: 160px; }
+    .model-table th { min-width: 132px; vertical-align: top; }
+    .model-table th.model-key-col { min-width: 170px; }
+    .model-table td { white-space: nowrap; }
+    .field-head {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      width: 100%;
+      line-height: 1.35;
+    }
+    .field-help {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 1px solid #93c5fd;
+      background: #eff6ff;
+      color: #2563eb;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: help;
+    }
+    .field-tooltip {
+      position: fixed;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      padding: 0.65rem 0.75rem;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #fff;
+      color: #1e293b;
+      box-shadow: 0 12px 28px rgba(15,23,42,0.18);
+      white-space: pre-line;
+      text-align: left;
+      font-size: 0.82rem;
+      font-weight: 400;
+      line-height: 1.55;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity 0.12s ease, transform 0.12s ease, visibility 0s linear 0.12s;
+      z-index: 9999;
+    }
+    .field-tooltip.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      transition-delay: 0s;
+    }
+    .model-action-col { min-width: 88px; text-align: center; }
+    .row-edit-btn {
+      padding: 0.28rem 0.72rem;
+      font-size: 0.78rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .row-edit-btn:hover { background: #f0fdfa; }
+    .status-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .status-ok { background: var(--ok-bg); color: var(--ok-text); }
+    .status-bad { background: var(--bad-bg); color: var(--bad-text); }
+    .status-warn { background: #fef3c7; color: #92400e; }
+    .mini-note {
+      margin-bottom: 1rem;
+      padding: 0.75rem 0.9rem;
+      border: 1px solid #bfdbfe;
+      background: var(--note-bg);
+      color: var(--note-text);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
+    .back { font-size: 0.85rem; margin-top: 1rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    .cascade-wrap { position: relative; display: inline-block; }
+    .cascade-trigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: #fff;
+      cursor: pointer;
+      min-width: 160px;
+      user-select: none;
+    }
+    .cascade-trigger::after {
+      content: '';
+      margin-left: auto;
+      border: 4px solid transparent;
+      border-top: 5px solid var(--muted);
+    }
+    .cascade-trigger.open { border-color: var(--accent); }
+    .cascade-trigger .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: #e0f2fe;
+      color: #0369a1;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-size: 0.8rem;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cascade-trigger .tag .tag-close {
+      cursor: pointer;
+      font-size: 0.7rem;
+      margin-left: 2px;
+      color: #0369a1;
+    }
+    .cascade-trigger .tag .tag-close:hover { color: #dc2626; }
+    .cascade-trigger .placeholder { color: var(--muted); }
+    .cascade-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 100;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      min-width: 340px;
+    }
+    .cascade-panel.open { display: flex; }
+    .cascade-left {
+      width: 140px;
+      border-right: 1px solid var(--border);
+      max-height: 260px;
+      overflow-y: auto;
+    }
+    .cascade-right {
+      flex: 1;
+      max-height: 260px;
+      overflow-y: auto;
+      padding: 4px 0;
+    }
+    .cascade-left .cl-item {
+      display: flex;
+      align-items: center;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+    .cascade-left .cl-item:hover,
+    .cascade-left .cl-item.active { background: #eff6ff; color: #2563eb; }
+    .cascade-left .cl-item .arrow { margin-left: auto; font-size: 0.7rem; color: var(--muted); }
+    .cascade-left .cl-item.active .arrow { color: #2563eb; }
+    .cascade-left .cl-item .only-btn {
+      display: none;
+      margin-left: auto;
+      font-size: 0.7rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 1px 8px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .cascade-left .cl-item:hover .only-btn { display: inline-block; }
+    .cascade-left .cl-item:hover .arrow { display: none; }
+    .cascade-right .cr-item {
+      display: flex;
+      align-items: center;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background 0.1s;
+    }
+    .cascade-right .cr-item:hover { background: #f0f9ff; color: #2563eb; }
+    .manage-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .manage-modal-overlay.visible { display: flex; }
+    .manage-modal-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 14px 48px rgba(0,0,0,0.24);
+      width: min(1320px, 96vw);
+      height: min(780px, 92vh);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .manage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #ecfeff 0%, #f8fafc 100%);
+    }
+    .manage-title { font-size: 1rem; font-weight: 600; color: var(--text); }
+    .modal-close {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: none;
+      border-radius: 6px;
+      background: #e2e8f0;
+      color: #475569;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .modal-close:hover { background: #cbd5e1; }
+    .manage-toolbar {
+      padding: 1rem 1.25rem 0.75rem;
+      border-bottom: 1px solid var(--border);
+      background: #fff;
+    }
+    .manage-query-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 1rem;
+    }
+    .manage-query-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .manage-query-item .label {
+      color: var(--text);
+      font-size: 0.88rem;
+      white-space: nowrap;
+    }
+    .manage-query-item input, .manage-query-item select {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fff;
+      min-width: 180px;
+    }
+    .manage-query-actions { margin-left: auto; display: flex; gap: 0.5rem; }
+    .manage-body {
+      flex: 1;
+      min-height: 0;
+      padding: 0 1.25rem 1.25rem;
+      background: #f8fafc;
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+    }
+    .manage-summary {
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .manage-table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .manage-table-wrap { overflow: auto; }
+    .manage-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      min-width: 1680px;
+    }
+    .manage-table th, .manage-table td {
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--border);
+      text-align: left;
+      white-space: nowrap;
+    }
+    .manage-table th {
+      background: #f1f5f9;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .manage-table tr:hover td { background: #f9fafb; }
+    .manage-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    #alertDetailTable { min-width: 2480px; }
+    #restockSpuSkuTable { min-width: 4200px; }
+    .manage-table-card .pagination {
+      border-top: 1px solid var(--border);
+      border-radius: 0;
+    }
+    .manage-table-card .manage-table-wrap {
+      max-height: calc(92vh - 280px);
+    }
+    .manage-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .manage-action-btn {
+      padding: 0.28rem 0.72rem;
+      font-size: 0.78rem;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--accent);
+      cursor: pointer;
+    }
+    .manage-action-btn:hover { background: #f0fdfa; }
+    .link-btn {
+      border: none;
+      background: transparent;
+      color: var(--accent);
+      padding: 0;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .link-btn:hover { color: var(--accent-hover); }
+    .edit-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.3);
+      z-index: 210;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .edit-modal-overlay.visible { display: flex; }
+    .edit-modal-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.2);
+      width: min(680px, 96vw);
+      overflow: hidden;
+    }
+    .edit-modal-header {
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .edit-modal-title { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+    .edit-modal-body {
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+    }
+    .edit-base-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .edit-form-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .edit-form-item label {
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+    .edit-form-item input, .edit-form-item select {
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0.5rem 0.65rem;
+      font-size: 0.88rem;
+      color: var(--text);
+      background: #fff;
+    }
+    .edit-form-item input[readonly] { background: #f8fafc; color: #64748b; }
+    .edit-form-item select { cursor: pointer; background: #fff; }
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .edit-form-tip {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .edit-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      padding: 0 1rem 1rem;
+    }
+
+    .module-head-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #f0fdfa 0%, #ffffff 100%);
+    }
+    .module-head-card h2 {
+      margin: 0 0 0.35rem;
+      font-size: 1.08rem;
+      color: var(--text);
+    }
+    .module-head-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+    .module-stats {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .module-stats span {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 0.25rem;
+      padding: 0.35rem 0.65rem;
+      border: 1px solid #ccfbf1;
+      border-radius: 999px;
+      background: #f0fdfa;
+      color: #0f766e;
+    }
+    .field-section-card {
+      overflow: hidden;
+      margin-bottom: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+    }
+    .field-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: #f9fafb;
+    }
+    .field-section-head h3 {
+      margin: 0;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+    .field-section-head span {
+      color: var(--muted);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .field-mapping-table {
+      width: 100%;
+      min-width: 760px;
+      table-layout: fixed;
+    }
+    .field-mapping-table th,
+    .field-mapping-table td {
+      white-space: normal;
+      line-height: 1.55;
+    }
+    .field-mapping-table .seq-col {
+      width: 76px;
+      text-align: center;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .field-mapping-table .field-col { width: 220px; }
+    .field-mapping-table .field-name {
+      color: #0f766e;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .dashboard-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .dashboard-table th,
+    .dashboard-table td {
+      min-width: 132px;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dashboard-table thead tr:first-child th {
+      top: 0;
+      background: #ecfdf5;
+      color: #047857;
+      text-align: center;
+      font-weight: 700;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(2) th {
+      top: 38px;
+      background: #f0fdfa;
+      color: #0f766e;
+      text-align: center;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(3) th {
+      top: 76px;
+      z-index: 4;
+    }
+    .dashboard-table .field-head {
+      justify-content: flex-start;
+    }
+    .module-group,
+    .submodule-group {
+      white-space: nowrap;
+    }
+
+    .module-tab-group { flex-wrap: wrap; max-width: 100%; }
+    .module-tab-group .tab { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .module-tab-group .tab span { opacity: 0.78; font-size: 0.76rem; }
+    .module-subtitle { margin-left: 0.6rem; color: var(--muted); font-size: 0.82rem; font-weight: 400; }
+    .dashboard-table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+    .dashboard-table th,
+    .dashboard-table td {
+      min-width: 132px;
+      max-width: 220px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .dashboard-table thead tr:first-child th {
+      top: 0;
+      background: #f0fdfa;
+      color: #0f766e;
+      text-align: center;
+      font-weight: 700;
+      z-index: 4;
+    }
+    .dashboard-table thead tr:nth-child(2) th {
+      top: 38px;
+      z-index: 4;
+    }
+    .dashboard-table .field-head { justify-content: flex-start; }
+    .submodule-group { white-space: nowrap; }
+
+    .dashboard-table .sticky-base {
+      position: sticky;
+      background: #fff;
+      z-index: 5;
+      box-shadow: 2px 0 4px -2px rgba(0,0,0,0.12);
+    }
+    .dashboard-table th.sticky-base {
+      background: #f9fafb;
+      z-index: 8;
+    }
+    .dashboard-table .base-group {
+      background: #dcfce7 !important;
+      color: #166534 !important;
+      text-align: center;
+      z-index: 7 !important;
+    }
+    .dashboard-table .sticky-base-group {
+      left: auto;
+      min-width: auto;
+      width: auto;
+      max-width: none;
+      box-shadow: none;
+    }
+    .dashboard-table thead tr:nth-child(2) th.sticky-base {
+      top: 38px;
+      background: #f9fafb;
+      z-index: 8;
+    }
+    .dashboard-table .sticky-base-1 { left: 0; min-width: 120px; }
+    .dashboard-table .sticky-base-2 { left: 120px; min-width: 150px; }
+    .dashboard-table .sticky-base-3 { left: 270px; min-width: 140px; }
+    .dashboard-table .sticky-base-4 { left: 410px; min-width: 180px; }
+    .dashboard-table .sticky-base-5 { left: 590px; min-width: 120px; }
+    .dashboard-table .sticky-base-6 { left: 710px; min-width: 140px; }
+    .dashboard-table .sticky-base-7 { left: 850px; min-width: 130px; }
+    .dashboard-table .sticky-base-8 { left: 980px; min-width: 140px; }
+    .dashboard-table .sticky-base-9 { left: 1120px; min-width: 180px; }
+
+    .pagination {
+      border-top: 1px solid var(--border);
+      padding: 0.65rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      background: #fff;
+      color: #64748b;
+      font-size: 0.85rem;
+    }
+    .pagination-left,
+    .pagination-right {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .page-size {
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      padding: 0 0.5rem;
+    }
+    .page-input {
+      width: 54px;
+      height: 32px;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      padding: 0 0.45rem;
+      text-align: center;
+      color: var(--text);
+    }
+    .page-btn {
+      min-width: 32px;
+      height: 32px;
+      padding: 0 0.55rem;
+      border: 1px solid var(--input-border);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .page-btn:hover { background: #f8fafc; }
+    .page-btn.active { border-color: var(--accent); background: var(--accent); color: #fff; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    @media (max-width: 1200px) {
+      .summary-grid, .global-summary-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .summary-grid, .global-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .query-actions { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="page-title">
+      发补货看板
+    </h1>
+
+    <div class="query-card">
+      <div class="query-row">
+        <div class="tab-group module-tab-group" id="moduleTabs">
+          <button type="button" class="tab active" data-target="view-module-1">库存看板</button>
+          <button type="button" class="tab" data-target="view-module-2">备货模型（SKU）</button>
+          <button type="button" class="tab" data-target="view-module-3">备货模型（SPU）</button>
+          <button type="button" class="tab" data-target="view-module-4">发货模型（SKU）</button>
+          <button type="button" class="tab" data-target="view-module-5">发货模型（SPU）</button>
+        </div>
+        <div class="query-item">
+          <span class="label">站点</span>
+          <select><option>全部站点</option><option>US</option><option>UK</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">店铺</span>
+          <select><option>全部店铺</option></select>
+        </div>
+        <div class="query-item">
+          <span class="label">生命周期</span>
+          <select>
+            <option>全部生命周期</option>
+            <option>上升期</option>
+            <option>平稳期</option>
+            <option>下降期</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">SKU分层</span>
+          <select>
+            <option>全部分层</option>
+            <option>A</option>
+            <option>B</option>
+            <option>C</option>
+            <option>D</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">是否发货</span>
+          <select>
+            <option>全部</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+        <div class="query-item">
+          <span class="label">是否采购</span>
+          <select>
+            <option>全部</option>
+            <option>是</option>
+            <option>否</option>
+          </select>
+        </div>
+        <div class="query-item search-query-item">
+          <span class="label">搜索</span>
+          <select class="search-field-select"><option>SPU</option><option>库存SKU</option><option>PID</option><option>MSKU</option></select>
+          <select class="search-mode-select"><option>模糊搜索</option><option>精确搜索</option></select>
+          <input type="text" class="search-fuzzy-input" placeholder="请输入" />
+        </div>
+        <div class="query-actions">
+          <button type="button" class="btn btn-query">查询</button>
+          <button type="button" class="btn btn-secondary">重置</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="global-alert-bar" aria-label="全局告警">
+      <div class="alert-item urgent" role="button" tabindex="0" data-alert-type="overseas-low-days" data-alert-title="海外可售天数低于安全库存" aria-label="查看海外可售天数低于安全库存告警明细">
+        <div class="alert-main"><span class="alert-index">1、</span><span class="alert-count">3个SKU</span><span>海外可售天数低于安全库存，需紧急处理</span></div>
+        <span class="alert-hint">点击查看明细</span>
+      </div>
+      <div class="alert-item" role="button" tabindex="0" data-alert-type="domestic-shortage" data-alert-title="国内库存不足无法发货" aria-label="查看国内库存不足无法发货告警明细">
+        <div class="alert-main"><span class="alert-index">2、</span><span class="alert-count">2个SKU</span><span>国内库存不足无法发货，需加急采购 + 空派</span></div>
+        <span class="alert-hint">点击查看明细</span>
+      </div>
+    </div>
+
+    <div class="summary-grid global-summary-grid" aria-label="全局汇总指标">
+      <div class="summary-card summary-note">
+        <div class="summary-label">在售SKU总数</div>
+        <div class="summary-value">96</div>
+        <div class="summary-sub">当前筛选范围内在售库存 SKU 数。</div>
+      </div>
+      <div class="summary-card summary-danger">
+        <div class="summary-label">需发货SKU数</div>
+        <div class="summary-value">18</div>
+        <div class="summary-sub">发货模型（SKU）中“是否发货 = 是”的 SKU 数。</div>
+      </div>
+      <div class="summary-card summary-danger">
+        <div class="summary-label">需采购SKU数</div>
+        <div class="summary-value">12</div>
+        <div class="summary-sub">备货模型（SKU）中“是否采购 = 是”的 SKU 数。</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">海外在库总量</div>
+        <div class="summary-value">12,860</div>
+        <div class="summary-sub">海外仓在库库存汇总。</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-label">国内在库总量</div>
+        <div class="summary-value">8,432</div>
+        <div class="summary-sub">国内仓在库库存汇总。</div>
+      </div>
+      <div class="summary-card summary-note">
+        <div class="summary-label">下次截单日</div>
+        <div class="summary-value">2026-06-13</div>
+        <div class="summary-sub">用于发货模型截单与到仓测算。</div>
+      </div>
+    </div>
+
+
+
+    <section class="view-panel active" id="view-module-1">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary product-desc-btn" data-product-desc="replenishment">产品说明</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">当前栏目：<code>库存看板</code>；商品基础信息固定前置，后续字段按该栏目的二级模块展开。</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="4" class="submodule-group">汇总库存</th>
+                  <th colspan="4" class="submodule-group">A.国内库存</th>
+                  <th colspan="8" class="submodule-group">B.海外在途库存</th>
+                  <th colspan="9" class="submodule-group">C.海外在库库存</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="全链路库存总量（国内+在途+海外在库）">
+                    <span class="field-head"><span>总库存</span><span class="field-help" data-tip="全链路库存总量（国内+在途+海外在库）">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有在途库存汇总（国内在途+海外在途）">
+                    <span class="field-head"><span>总在途库存</span><span class="field-help" data-tip="所有在途库存汇总（国内在途+海外在途）">?</span></span>
+                  </th>
+                  <th class="field-col" title="当前可用于销售的库存（国内在库+海外在库）">
+                    <span class="field-head"><span>总可用库存</span><span class="field-help" data-tip="当前可用于销售的库存（国内在库+海外在库）">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内仓全部库存合计">
+                    <span class="field-head"><span>总国内库存</span><span class="field-help" data-tip="国内仓全部库存合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="已下采购单、货在工厂或运往国内仓途中的库存">
+                    <span class="field-head"><span>采购在途库存</span><span class="field-help" data-tip="已下采购单、货在工厂或运往国内仓途中的库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="已下单但工厂尚未交货的数量">
+                    <span class="field-head"><span>工厂采购未交量</span><span class="field-help" data-tip="已下单但工厂尚未交货的数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="工厂已交货、正在运往国内仓的库存">
+                    <span class="field-head"><span>国内交货在途库存</span><span class="field-help" data-tip="工厂已交货、正在运往国内仓的库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内仓当前实际可用库存">
+                    <span class="field-head"><span>国内在库</span><span class="field-help" data-tip="国内仓当前实际可用库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有已发出但尚未到海外仓的库存合计">
+                    <span class="field-head"><span>海外在途总量</span><span class="field-help" data-tip="所有已发出但尚未到海外仓的库存合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往四个三方仓（万邑通各仓+谷仓）的在途汇总">
+                    <span class="field-head"><span>三方仓在途量</span><span class="field-help" data-tip="发往四个三方仓（万邑通各仓+谷仓）的在途汇总">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USKY3仓的在途量">
+                    <span class="field-head"><span>万邑通USKY3在途</span><span class="field-help" data-tip="发往万邑通USKY3仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USWC2仓的在途量">
+                    <span class="field-head"><span>万邑通USWC2在途</span><span class="field-help" data-tip="发往万邑通USWC2仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往万邑通USWC仓的在途量">
+                    <span class="field-head"><span>万邑通USWC在途</span><span class="field-help" data-tip="发往万邑通USWC仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往美国谷仓美西仓库的在途量">
+                    <span class="field-head"><span>美国谷仓:美西仓库在途</span><span class="field-help" data-tip="发往美国谷仓美西仓库的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往FBT仓的在途量">
+                    <span class="field-head"><span>FBT在途量</span><span class="field-help" data-tip="发往FBT仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="发往英国退货仓的在途量">
+                    <span class="field-head"><span>英国退货仓在途量</span><span class="field-help" data-tip="发往英国退货仓的在途量">?</span></span>
+                  </th>
+                  <th class="field-col" title="所有海外仓当前在库可用量合计">
+                    <span class="field-head"><span>海外在库总库存</span><span class="field-help" data-tip="所有海外仓当前在库可用量合计">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USKY3仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USKY3</span><span class="field-help" data-tip="万邑通USKY3仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USWC2仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USWC2</span><span class="field-help" data-tip="万邑通USWC2仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="万邑通USWC仓当前在库可用量">
+                    <span class="field-head"><span>积加-万邑通USWC</span><span class="field-help" data-tip="万邑通USWC仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="美国谷仓美西仓库当前在库可用量">
+                    <span class="field-head"><span>积加-谷仓美西仓库</span><span class="field-help" data-tip="美国谷仓美西仓库当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="FBT仓当前可用库存">
+                    <span class="field-head"><span>FBT可用</span><span class="field-help" data-tip="FBT仓当前可用库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="FBA仓库存（预留字段）">
+                    <span class="field-head"><span>积加-FBA仓库</span><span class="field-help" data-tip="FBA仓库存（预留字段）">?</span></span>
+                  </th>
+                  <th class="field-col" title="英国退货仓当前在库可用量">
+                    <span class="field-head"><span>积加-英国退货仓</span><span class="field-help" data-tip="英国退货仓当前在库可用量">?</span></span>
+                  </th>
+                  <th class="field-col" title="四个三方仓可用库存合计">
+                    <span class="field-head"><span>三方仓可用量</span><span class="field-help" data-tip="四个三方仓可用库存合计">?</span></span>
+                  </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+              </tr>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 128 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><span>...</span><button type="button" class="page-btn">7</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <section class="view-panel" id="view-module-2">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-export-purchase" id="exportPurchaseBtn">导出采购计划</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">当前栏目：<code>备货模型（SKU）</code>；商品基础信息固定前置，后续字段按 SKU 粒度展开。</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="5" class="submodule-group">动态加权日均</th>
+                  <th colspan="6" class="submodule-group">生命周期判断</th>
+                  <th colspan="5" class="submodule-group">SKU四层分层</th>
+                  <th colspan="3" class="submodule-group">目标库存计算</th>
+                  <th colspan="4" class="submodule-group">补货决策输出</th>
+                  <th colspan="1" class="submodule-group">操作</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="过去7天平均日销量（过滤爆发日前的原始值）">
+                    <span class="field-head"><span>7天日均（S7）</span><span class="field-help" data-tip="过去7天平均日销量（过滤爆发日前的原始值）">?</span></span>
+                  </th>
+                  <th class="field-col" title="过去30天平均日销量">
+                    <span class="field-head"><span>30天日均（S30）</span><span class="field-help" data-tip="过去30天平均日销量">?</span></span>
+                  </th>
+                  <th class="field-col" title="近7天日均与近30天日均的比值，用于判断趋势方向">
+                    <span class="field-head"><span>S7/S30比值</span><span class="field-help" data-tip="近7天日均与近30天日均的比值，用于判断趋势方向">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据S7/S30比值自动选择7天/30天权重组合">
+                    <span class="field-head"><span>动态权重档位</span><span class="field-help" data-tip="根据S7/S30比值自动选择7天/30天权重组合">?</span></span>
+                  </th>
+                  <th class="field-col" title="综合近期趋势的预测日销量，作为所有库存计算的基准">
+                    <span class="field-head"><span>加权日均</span><span class="field-help" data-tip="综合近期趋势的预测日销量，作为所有库存计算的基准">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU当前所处的销售生命周期">
+                    <span class="field-head"><span>生命周期</span><span class="field-help" data-tip="该SKU当前所处的销售生命周期">?</span></span>
+                  </th>
+                  <th class="field-col" title="标记该SKU上涨是否由单达人/单视频偶发导致（非真实需求上涨）">
+                    <span class="field-head"><span>是否内容爆发</span><span class="field-help" data-tip="标记该SKU上涨是否由单达人/单视频偶发导致（非真实需求上涨）">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU来自商务达人渠道的出单量占总出单量的比例">
+                    <span class="field-head"><span>商务出单占比</span><span class="field-help" data-tip="该SKU来自商务达人渠道的出单量占总出单量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU来自剪辑视频渠道的出单量占总出单量的比例">
+                    <span class="field-head"><span>剪辑出单占比</span><span class="field-help" data-tip="该SKU来自剪辑视频渠道的出单量占总出单量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据生命周期对海外仓基准安全库存天数的调整量">
+                    <span class="field-head"><span>安全库存调整天数（海外仓）</span><span class="field-help" data-tip="根据生命周期对海外仓基准安全库存天数的调整量">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据生命周期对直邮仓基准安全库存天数的调整量">
+                    <span class="field-head"><span>安全库存调整天数（直邮仓）</span><span class="field-help" data-tip="根据生命周期对直邮仓基准安全库存天数的调整量">?</span></span>
+                  </th>
+                  <th class="field-col" title="该子SKU（颜色×尺码）的备货优先级分层">
+                    <span class="field-head"><span>SKU分层</span><span class="field-help" data-tip="该子SKU（颜色×尺码）的备货优先级分层">?</span></span>
+                  </th>
+                  <th class="field-col" title="标记该SKU是否为SPU内主销颜色尺码组合">
+                    <span class="field-head"><span>是否热卖色码</span><span class="field-help" data-tip="标记该SKU是否为SPU内主销颜色尺码组合">?</span></span>
+                  </th>
+                  <th class="field-col" title="商品违规指数（Violation of Commerce），用于质量风险判断">
+                    <span class="field-head"><span>VOC值</span><span class="field-help" data-tip="商品违规指数（Violation of Commerce），用于质量风险判断">?</span></span>
+                  </th>
+                  <th class="field-col" title="近14天退货量占近14天销量的比例">
+                    <span class="field-head"><span>退货率（近14天）</span><span class="field-help" data-tip="近14天退货量占近14天销量的比例">?</span></span>
+                  </th>
+                  <th class="field-col" title="根据SKU分层推荐的采购补货运输方式">
+                    <span class="field-head"><span>建议运输方式（补货）</span><span class="field-help" data-tip="根据SKU分层推荐的采购补货运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="海外仓应保持的理想库存水位">
+                    <span class="field-head"><span>目标库存（海外仓）</span><span class="field-help" data-tip="海外仓应保持的理想库存水位">?</span></span>
+                  </th>
+                  <th class="field-col" title="直邮仓应保持的理想库存水位">
+                    <span class="field-head"><span>目标库存（直邮仓）</span><span class="field-help" data-tip="直邮仓应保持的理想库存水位">?</span></span>
+                  </th>
+                  <th class="field-col" title="实际使用的安全库存天数（基准+生命周期调整）">
+                    <span class="field-head"><span>安全库存天数（最终）</span><span class="field-help" data-tip="实际使用的安全库存天数（基准+生命周期调整）">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU是否需要下采购单">
+                    <span class="field-head"><span>是否采购</span><span class="field-help" data-tip="该SKU是否需要下采购单">?</span></span>
+                  </th>
+                  <th class="field-col" title="建议向工厂下单的采购数量">
+                    <span class="field-head"><span>建议采购数量</span><span class="field-help" data-tip="建议向工厂下单的采购数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="采购场景的建议运输方式">
+                    <span class="field-head"><span>建议运输方式（采购）</span><span class="field-help" data-tip="采购场景的建议运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前建议运输方式预估货物到海外仓可售日期">
+                    <span class="field-head"><span>预计到仓日（采购）</span><span class="field-help" data-tip="按当前建议运输方式预估货物到海外仓可售日期">?</span></span>
+                  </th>
+                  <th class="field-col model-action-col">
+                    <span class="field-head"><span>操作</span></span>
+                  </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-hot-color-size="否" data-voc="0">编辑</button></td>
+              </tr>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0.80</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td class="model-action-col"><button type="button" class="row-edit-btn restock-edit-btn" data-spu="SPU-DEMO-001" data-sku="SKU-DEMO-001" data-lifecycle="平稳期" data-content-burst="否" data-business-ratio="0" data-clip-ratio="0" data-hot-color-size="否" data-voc="0">编辑</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 96 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <section class="view-panel" id="view-module-3">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">当前栏目：<code>备货模型（SPU）</code>；按 SPU 聚合展示备货模型核心指标，用于快速定位需要采购或重点关注的商品款。</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th colspan="4" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                <th colspan="6" class="submodule-group">销量与趋势</th>
+                <th colspan="5" class="submodule-group">SKU结构</th>
+                <th colspan="5" class="submodule-group">备货决策汇总</th>
+              </tr>
+              <tr>
+                <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                  <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                  <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                  <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                  <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                </th>
+                <th class="field-col" title="SPU维度近7天日均销量">
+                  <span class="field-head"><span>7天日均（S7）</span><span class="field-help" data-tip="SPU 下 SKU 近7天日均销量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU维度近30天日均销量">
+                  <span class="field-head"><span>30天日均（S30）</span><span class="field-help" data-tip="SPU 下 SKU 近30天日均销量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU维度S7/S30比值">
+                  <span class="field-head"><span>S7/S30比值</span><span class="field-help" data-tip="SPU 维度近期销量变化比值">?</span></span>
+                </th>
+                <th class="field-col" title="SPU趋势档位">
+                  <span class="field-head"><span>动态权重档位</span><span class="field-help" data-tip="按 SPU 汇总销量判断的动态权重档位">?</span></span>
+                </th>
+                <th class="field-col" title="SPU维度加权日均销量">
+                  <span class="field-head"><span>加权日均</span><span class="field-help" data-tip="SPU 下 SKU 加权日均销量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="近14天退货量占近14天销量的比例">
+                  <span class="field-head"><span>退货率（近14天）</span><span class="field-help" data-tip="近14天退货量占近14天销量的比例">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下A类SKU数量">
+                  <span class="field-head"><span>A类SKU数</span><span class="field-help" data-tip="当前 SPU 下 A 类 SKU 数量">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下B类SKU数量">
+                  <span class="field-head"><span>B类SKU数</span><span class="field-help" data-tip="当前 SPU 下 B 类 SKU 数量">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下C类SKU数量">
+                  <span class="field-head"><span>C类SKU数</span><span class="field-help" data-tip="当前 SPU 下 C 类 SKU 数量">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下D类SKU数量">
+                  <span class="field-head"><span>D类SKU数</span><span class="field-help" data-tip="当前 SPU 下 D 类 SKU 数量">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下热卖色码SKU数量">
+                  <span class="field-head"><span>热卖色码SKU数</span><span class="field-help" data-tip="当前 SPU 下是否热卖色码为是的 SKU 数">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下建议采购SKU数量">
+                  <span class="field-head"><span>需采购SKU数</span><span class="field-help" data-tip="当前 SPU 下是否采购为是的 SKU 数">?</span></span>
+                </th>
+                <th class="field-col" title="SPU建议采购数量汇总">
+                  <span class="field-head"><span>建议采购数量</span><span class="field-help" data-tip="当前 SPU 下 SKU 建议采购数量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU海外仓目标库存汇总">
+                  <span class="field-head"><span>目标库存（海外仓）</span><span class="field-help" data-tip="当前 SPU 下 SKU 海外仓目标库存汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU直邮仓目标库存汇总">
+                  <span class="field-head"><span>目标库存（直邮仓）</span><span class="field-help" data-tip="当前 SPU 下 SKU 直邮仓目标库存汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU维度备货优先级">
+                  <span class="field-head"><span>备货优先级</span><span class="field-help" data-tip="按需采购SKU数、建议采购数量和可售风险综合排序">?</span></span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-base sticky-base-1">US</td>
+                <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                <td class="sticky-base sticky-base-3"><button type="button" class="link-btn restock-spu-detail-btn" data-spu="SPU-DEMO-001" data-spu-name="示例商品">SPU-DEMO-001</button></td>
+                <td class="sticky-base sticky-base-4">示例商品</td>
+                <td>18.6</td>
+                <td>12.4</td>
+                <td>1.50</td>
+                <td>上涨档</td>
+                <td>16.7</td>
+                <td>6%</td>
+                <td>4</td>
+                <td>3</td>
+                <td>4</td>
+                <td>1</td>
+                <td>4</td>
+                <td>6</td>
+                <td>360</td>
+                <td>1,240</td>
+                <td>520</td>
+                <td>P1</td>
+              </tr>
+              <tr>
+                <td class="sticky-base sticky-base-1">US</td>
+                <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                <td class="sticky-base sticky-base-3"><button type="button" class="link-btn restock-spu-detail-btn" data-spu="SPU-DEMO-002" data-spu-name="示例商品">SPU-DEMO-002</button></td>
+                <td class="sticky-base sticky-base-4">示例商品</td>
+                <td>9.2</td>
+                <td>10.5</td>
+                <td>0.88</td>
+                <td>平稳档</td>
+                <td>9.7</td>
+                <td>5%</td>
+                <td>2</td>
+                <td>3</td>
+                <td>3</td>
+                <td>0</td>
+                <td>2</td>
+                <td>3</td>
+                <td>180</td>
+                <td>760</td>
+                <td>320</td>
+                <td>P2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" aria-label="分页控件">
+          <div class="pagination-left">
+            <span>共 24 条</span>
+            <span>每页</span>
+            <select class="page-size">
+              <option value="20" selected>20条/页</option>
+              <option value="50">50条/页</option>
+              <option value="100">100条/页</option>
+              <option value="200">200条/页</option>
+            </select>
+          </div>
+          <div class="pagination-right">
+            <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">下一页</button>
+            <span>跳至</span>
+            <input class="page-input" type="text" value="1" />
+            <span>页</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view-panel" id="view-module-4">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-export-transfer" id="exportTransferBtn">导出发货调拨单</button>
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">当前栏目：<code>发货模型（SKU）</code>；商品基础信息固定前置，后续字段按 SKU 粒度展开。</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                  <th colspan="9" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                  <th colspan="4" class="submodule-group">发货触发条件</th>
+                  <th colspan="4" class="submodule-group">发货数量计算</th>
+                  <th colspan="2" class="submodule-group">最小批量校验</th>
+                  <th colspan="1" class="submodule-group">目的仓选择</th>
+                  <th colspan="7" class="submodule-group">运输方式判断</th>
+                  <th colspan="2" class="submodule-group">发货决策输出</th>
+                  <th colspan="1" class="submodule-group">联动输出字段</th>
+              </tr>
+              <tr>
+                  <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                    <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                    <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                    <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                    <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-5" title="商品唯一标识（Product ID）">
+                    <span class="field-head"><span>PID</span><span class="field-help" data-tip="商品唯一标识（Product ID）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-6" title="Merchant SKU（卖家自定义SKU编码）">
+                    <span class="field-head"><span>MSKU</span><span class="field-help" data-tip="Merchant SKU（卖家自定义SKU编码）">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-7" title="TikTok平台SKU唯一标识">
+                    <span class="field-head"><span>SKU ID</span><span class="field-help" data-tip="TikTok平台SKU唯一标识">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-8" title="积加ERP内的SKU编码">
+                    <span class="field-head"><span>库存SKU</span><span class="field-help" data-tip="积加ERP内的SKU编码">?</span></span>
+                  </th>
+                  <th class="field-col sticky-base sticky-base-9" title="积加ERP内的商品名称（含颜色尺码）">
+                    <span class="field-head"><span>SKU名称</span><span class="field-help" data-tip="积加ERP内的商品名称（含颜色尺码）">?</span></span>
+                  </th>
+                  <th class="field-col" title="海外仓实际可用于覆盖未来销售的库存（在库+在途）">
+                    <span class="field-head"><span>海外有效库存</span><span class="field-help" data-tip="海外仓实际可用于覆盖未来销售的库存（在库+在途）">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前加权日均，海外有效库存还能支撑多少天">
+                    <span class="field-head"><span>海外可售天数</span><span class="field-help" data-tip="按当前加权日均，海外有效库存还能支撑多少天">?</span></span>
+                  </th>
+                  <th class="field-col" title="触发发货的可售天数下限（对应各类安全库存基准）">
+                    <span class="field-head"><span>发货触发阈值</span><span class="field-help" data-tip="触发发货的可售天数下限（对应各类安全库存基准）">?</span></span>
+                  </th>
+                  <th class="field-col" title="综合告警标记，标注当前SKU的紧急类型">
+                    <span class="field-head"><span>紧急标记</span><span class="field-help" data-tip="综合告警标记，标注当前SKU的紧急类型">?</span></span>
+                  </th>
+                  <th class="field-col" title="国内库存中需预留给直邮渠道的数量，不可调拨到海外仓">
+                    <span class="field-head"><span>直邮预留量</span><span class="field-help" data-tip="国内库存中需预留给直邮渠道的数量，不可调拨到海外仓">?</span></span>
+                  </th>
+                  <th class="field-col" title="扣除直邮预留后，实际可调拨到海外仓的国内库存">
+                    <span class="field-head"><span>国内可发库存</span><span class="field-help" data-tip="扣除直邮预留后，实际可调拨到海外仓的国内库存">?</span></span>
+                  </th>
+                  <th class="field-col" title="建议本次从国内仓调拨至FBT的数量">
+                    <span class="field-head"><span>建议发货数量</span><span class="field-help" data-tip="建议本次从国内仓调拨至FBT的数量">?</span></span>
+                  </th>
+                  <th class="field-col" title="当前总库存与目标库存（海外仓）的差值，负数表示缺货，正数表示充裕">
+                    <span class="field-head"><span>库存缺口</span><span class="field-help" data-tip="当前总库存与目标库存（海外仓）的差值，负数表示缺货，正数表示充裕">?</span></span>
+                  </th>
+                  <th class="field-col" title="单次发货的重量下限（低于此值不建议发货）">
+                    <span class="field-head"><span>最小发货批量</span><span class="field-help" data-tip="单次发货的重量下限（低于此值不建议发货）">?</span></span>
+                  </th>
+                  <th class="field-col" title="本次建议发货数量是否达到最小批量要求">
+                    <span class="field-head"><span>是否满足最小批量</span><span class="field-help" data-tip="本次建议发货数量是否达到最小批量要求">?</span></span>
+                  </th>
+                  <th class="field-col" title="本次发货的目标海外仓库">
+                    <span class="field-head"><span>发货目的仓</span><span class="field-help" data-tip="本次发货的目标海外仓库">?</span></span>
+                  </th>
+                  <th class="field-col" title="距今最近的一次海派截单日期">
+                    <span class="field-head"><span>最近截单日</span><span class="field-help" data-tip="距今最近的一次海派截单日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="若本周六截单，货物预计到FBT可售的日期">
+                    <span class="field-head"><span>预计到仓可售日（发货）</span><span class="field-help" data-tip="若本周六截单，货物预计到FBT可售的日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="将最近截单日（字段69）与预计到仓可售日（字段70）合并为一列展示在UI主表，节省列宽">
+                    <span class="field-head"><span>截单/到仓（UI合并展示列）</span><span class="field-help" data-tip="将最近截单日（字段69）与预计到仓可售日（字段70）合并为一列展示在UI主表，节省列宽">?</span></span>
+                  </th>
+                  <th class="field-col" title="按当前加权日均，海外有效库存预计耗尽的日期">
+                    <span class="field-head"><span>预计断货日</span><span class="field-help" data-tip="按当前加权日均，海外有效库存预计耗尽的日期">?</span></span>
+                  </th>
+                  <th class="field-col" title="从海外预计断货日到下批货到仓可售日之间的天数">
+                    <span class="field-head"><span>断货到到仓空窗期</span><span class="field-help" data-tip="从海外预计断货日到下批货到仓可售日之间的天数">?</span></span>
+                  </th>
+                  <th class="field-col" title="断货空窗期内直邮是否能覆盖，避免完全断货">
+                    <span class="field-head"><span>直邮可衔接</span><span class="field-help" data-tip="断货空窗期内直邮是否能覆盖，避免完全断货">?</span></span>
+                  </th>
+                  <th class="field-col" title="系统推荐的本次发货运输方式">
+                    <span class="field-head"><span>建议运输方式（发货）</span><span class="field-help" data-tip="系统推荐的本次发货运输方式">?</span></span>
+                  </th>
+                  <th class="field-col" title="该SKU是否需要本周安排发货">
+                    <span class="field-head"><span>是否发货</span><span class="field-help" data-tip="该SKU是否需要本周安排发货">?</span></span>
+                  </th>
+                  <th class="field-col" title="本周需发货的SKU优先顺序">
+                    <span class="field-head"><span>发货优先级</span><span class="field-help" data-tip="本周需发货的SKU优先顺序">?</span></span>
+                  </th>
+                  <th class="field-col" title="补货模型与发货模型综合判断后的行动指令类型">
+                    <span class="field-head"><span>联动告警类型</span><span class="field-help" data-tip="补货模型与发货模型综合判断后的行动指令类型">?</span></span>
+                  </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+              </tr>
+              <tr>
+                  <td class="sticky-base sticky-base-1">US</td>
+                  <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                  <td class="sticky-base sticky-base-3">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-4">SPU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-5">PID100001</td>
+                  <td class="sticky-base sticky-base-6">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-7">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-8">SKU-DEMO-001</td>
+                  <td class="sticky-base sticky-base-9">示例商品</td>
+                  <td>0</td>
+                  <td>7</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+                  <td>示例状态</td>
+                  <td>0</td>
+                  <td>示例状态</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+          <div class="pagination" aria-label="分页控件">
+            <div class="pagination-left">
+              <span>共 96 条</span>
+              <span>每页</span>
+              <select class="page-size">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+                <option value="200">200条/页</option>
+              </select>
+            </div>
+            <div class="pagination-right">
+              <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">3</button><button type="button" class="page-btn">4</button><button type="button" class="page-btn">5</button><button type="button" class="page-btn">下一页</button>
+              <span>跳至</span>
+              <input class="page-input" type="text" value="1" />
+              <span>页</span>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <section class="view-panel" id="view-module-5">
+      <div class="action-bar">
+        <div class="action-head">
+          <div class="btns">
+            <button type="button" class="btn btn-secondary">导出</button>
+            <button type="button" class="btn btn-secondary export-data-source-btn">导出全部数据</button>
+            <button type="button" class="btn btn-secondary btn-column-config">自定义列配置</button>
+          </div>
+          <div class="meta-info">
+            <span class="update-time">数据更新时间：2026-06-05 16:00:20</span>
+          </div>
+        </div>
+        <div class="legend">当前栏目：<code>发货模型（SPU）</code>；按 SPU 聚合展示发货触发、建议发货数量、到仓时效和优先级。</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table class="dashboard-table">
+            <thead>
+              <tr>
+                <th colspan="4" class="submodule-group base-group sticky-base-group">商品基础信息</th>
+                <th colspan="5" class="submodule-group">发货触发汇总</th>
+                <th colspan="5" class="submodule-group">发货数量汇总</th>
+                <th colspan="5" class="submodule-group">运输与决策汇总</th>
+              </tr>
+              <tr>
+                <th class="field-col sticky-base sticky-base-1" title="商品所属销售站点">
+                  <span class="field-head"><span>站点</span><span class="field-help" data-tip="商品所属销售站点">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-2" title="商品所属TikTok店铺名称">
+                  <span class="field-head"><span>店铺</span><span class="field-help" data-tip="商品所属TikTok店铺名称">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-3" title="TikTok Shop商品主推SPU编号">
+                  <span class="field-head"><span>SPU编码</span><span class="field-help" data-tip="TikTok Shop商品主推SPU编号">?</span></span>
+                </th>
+                <th class="field-col sticky-base sticky-base-4" title="商品父产品中文名称">
+                  <span class="field-head"><span>SPU名称</span><span class="field-help" data-tip="商品父产品中文名称">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下需要发货的SKU数量">
+                  <span class="field-head"><span>需发货SKU数</span><span class="field-help" data-tip="当前 SPU 下是否发货为是的 SKU 数">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下海外有效库存汇总">
+                  <span class="field-head"><span>海外有效库存</span><span class="field-help" data-tip="当前 SPU 下 SKU 海外有效库存汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下最低海外可售天数">
+                  <span class="field-head"><span>最低海外可售天数</span><span class="field-help" data-tip="当前 SPU 下 SKU 海外可售天数最小值">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下最早预计断货日">
+                  <span class="field-head"><span>最早预计断货日</span><span class="field-help" data-tip="当前 SPU 下 SKU 最早预计断货日期">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下最高紧急等级">
+                  <span class="field-head"><span>最高紧急标记</span><span class="field-help" data-tip="按 SPU 下 SKU 紧急程度取最高等级">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下直邮预留量汇总">
+                  <span class="field-head"><span>直邮预留量</span><span class="field-help" data-tip="当前 SPU 下 SKU 直邮预留量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下国内可发库存汇总">
+                  <span class="field-head"><span>国内可发库存</span><span class="field-help" data-tip="当前 SPU 下 SKU 国内可发库存汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU建议发货数量汇总">
+                  <span class="field-head"><span>建议发货数量</span><span class="field-help" data-tip="当前 SPU 下 SKU 建议发货数量汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU库存缺口汇总">
+                  <span class="field-head"><span>库存缺口</span><span class="field-help" data-tip="当前 SPU 下 SKU 库存缺口汇总">?</span></span>
+                </th>
+                <th class="field-col" title="SPU下满足最小批量的SKU数量">
+                  <span class="field-head"><span>满足最小批量SKU数</span><span class="field-help" data-tip="当前 SPU 下满足最小发货批量的 SKU 数">?</span></span>
+                </th>
+                <th class="field-col" title="SPU主要发货目的仓">
+                  <span class="field-head"><span>主要发货目的仓</span><span class="field-help" data-tip="当前 SPU 下建议发货数量最多的目的仓">?</span></span>
+                </th>
+                <th class="field-col" title="SPU最近截单日">
+                  <span class="field-head"><span>最近截单日</span><span class="field-help" data-tip="当前 SPU 下建议发货 SKU 的最近截单日">?</span></span>
+                </th>
+                <th class="field-col" title="SPU预计到仓可售日">
+                  <span class="field-head"><span>预计到仓可售日</span><span class="field-help" data-tip="当前 SPU 下建议发货 SKU 的预计到仓可售日">?</span></span>
+                </th>
+                <th class="field-col" title="SPU建议运输方式">
+                  <span class="field-head"><span>建议运输方式</span><span class="field-help" data-tip="当前 SPU 下建议发货数量最多的运输方式">?</span></span>
+                </th>
+                <th class="field-col" title="SPU发货优先级">
+                  <span class="field-head"><span>发货优先级</span><span class="field-help" data-tip="按最低可售天数、建议发货数量和紧急等级综合排序">?</span></span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="sticky-base sticky-base-1">US</td>
+                <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                <td class="sticky-base sticky-base-3"><button type="button" class="link-btn shipment-spu-detail-btn" data-spu="SPU-DEMO-001" data-spu-name="示例商品">SPU-DEMO-001</button></td>
+                <td class="sticky-base sticky-base-4">示例商品</td>
+                <td>5</td>
+                <td>860</td>
+                <td>6.8</td>
+                <td>2026-06-12</td>
+                <td>紧急</td>
+                <td>260</td>
+                <td>420</td>
+                <td>360</td>
+                <td>520</td>
+                <td>4</td>
+                <td>FBT</td>
+                <td>2026-06-13</td>
+                <td>2026-07-15</td>
+                <td>空派</td>
+                <td>P1</td>
+              </tr>
+              <tr>
+                <td class="sticky-base sticky-base-1">US</td>
+                <td class="sticky-base sticky-base-2">TikTok Shop 示例店铺</td>
+                <td class="sticky-base sticky-base-3"><button type="button" class="link-btn shipment-spu-detail-btn" data-spu="SPU-DEMO-002" data-spu-name="示例商品">SPU-DEMO-002</button></td>
+                <td class="sticky-base sticky-base-4">示例商品</td>
+                <td>2</td>
+                <td>540</td>
+                <td>18.5</td>
+                <td>2026-06-24</td>
+                <td>关注</td>
+                <td>180</td>
+                <td>310</td>
+                <td>160</td>
+                <td>240</td>
+                <td>2</td>
+                <td>FBT</td>
+                <td>2026-06-13</td>
+                <td>2026-07-15</td>
+                <td>海运</td>
+                <td>P2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" aria-label="分页控件">
+          <div class="pagination-left">
+            <span>共 24 条</span>
+            <span>每页</span>
+            <select class="page-size">
+              <option value="20" selected>20条/页</option>
+              <option value="50">50条/页</option>
+              <option value="100">100条/页</option>
+              <option value="200">200条/页</option>
+            </select>
+          </div>
+          <div class="pagination-right">
+            <button type="button" class="page-btn" disabled>上一页</button><button type="button" class="page-btn active">1</button><button type="button" class="page-btn">2</button><button type="button" class="page-btn">下一页</button>
+            <span>跳至</span>
+            <input class="page-input" type="text" value="1" />
+            <span>页</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="mini-note">
+      <strong>说明：</strong><br />
+      本版栏目拆分为：库存看板、备货模型（SKU）、备货模型（SPU）、发货模型（SKU）、发货模型（SPU）。SKU 栏目保留明细粒度与行级操作；SPU 栏目用于汇总展示同一 SPU 下的 SKU 数量、建议数量、风险和优先级。
+    </div>
+
+    <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
+  </div>
+  <div class="field-tooltip" id="fieldTooltip" role="tooltip"></div>
+  <div class="export-modal-mask" id="exportTransferModal" role="dialog" aria-modal="true" aria-labelledby="exportTransferTitle">
+    <div class="export-modal">
+      <div class="export-modal-head">
+        <div>
+          <h2 class="export-modal-title" id="exportTransferTitle">导出发货调拨单</h2>
+          <p class="export-modal-sub">格式对应积加「调拨单添加商品模板（非FBA仓）」，可直接导入。</p>
+        </div>
+        <button type="button" class="export-modal-close" data-export-close aria-label="关闭">×</button>
+      </div>
+      <div class="export-modal-body">
+        <div class="export-modal-tip">仅导出当前筛选结果中“建议发货数量 &gt; 0”的 SKU；“*数量”来源于发货模型字段“建议发货数量”。以下为示例预览。</div>
+        <div class="table-wrap">
+          <table class="export-preview-table">
+            <thead>
+              <tr>
+                <th>*SKU</th>
+                <th>MSKU</th>
+                <th>*平台站点</th>
+                <th>*数量</th>
+                <th>FNSKU</th>
+                <th>明细备注</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>INV-SKU-001</td><td>MSKU-001</td><td>US</td><td>180</td><td>-</td><td>空运｜紧急补货</td></tr>
+              <tr><td>INV-SKU-002</td><td>MSKU-002</td><td>UK</td><td>96</td><td>-</td><td>海运｜常规调拨</td></tr>
+              <tr><td>INV-SKU-003</td><td>MSKU-003</td><td>US</td><td>72</td><td>-</td><td>空运｜可售天数低</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="export-modal-foot">
+        <button type="button" class="btn btn-secondary" data-export-close>关闭</button>
+        <button type="button" class="btn btn-export-transfer">确认导出 3 条</button>
+      </div>
+    </div>
+  </div>
+  <div class="export-modal-mask" id="exportPurchaseModal" role="dialog" aria-modal="true" aria-labelledby="exportPurchaseTitle">
+    <div class="export-modal">
+      <div class="export-modal-head">
+        <div>
+          <h2 class="export-modal-title" id="exportPurchaseTitle">导出采购计划</h2>
+          <p class="export-modal-sub">格式对应积加「采购计划导入产品模板（单仓）」，可直接导入。</p>
+        </div>
+        <button type="button" class="export-modal-close" data-export-close aria-label="关闭">×</button>
+      </div>
+      <div class="export-modal-body">
+        <div class="export-modal-tip">仅导出当前筛选结果中“建议采购数量 &gt; 0”的 SKU。以下为示例预览。</div>
+        <div class="table-wrap">
+          <table class="export-preview-table">
+            <thead>
+              <tr>
+                <th>*MSKU(SKU)</th>
+                <th>平台站点</th>
+                <th>*计划量</th>
+                <th>计划交期</th>
+                <th>备注</th>
+                <th>物流方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>INV-SKU-004</td><td>US</td><td>240</td><td>2026-06-20</td><td>核心款补采</td><td>空运</td></tr>
+              <tr><td>INV-SKU-005</td><td>UK</td><td>160</td><td>2026-06-25</td><td>低库存补采</td><td>海运</td></tr>
+              <tr><td>INV-SKU-006</td><td>US</td><td>120</td><td>2026-06-18</td><td>活动备货</td><td>空运</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="export-modal-tip" style="margin-top: 0.75rem; margin-bottom: 0;">
+          备注：计划量 = 建议采购数量（字段56）；计划交期 = 预计到仓日采购（字段58）。
+        </div>
+      </div>
+      <div class="export-modal-foot">
+        <button type="button" class="btn btn-secondary" data-export-close>关闭</button>
+        <button type="button" class="btn btn-export-purchase">确认导出 3 条</button>
+      </div>
+    </div>
+  </div>
+  <div class="column-config-mask" id="columnConfigMask">
+    <div class="column-config-modal" role="dialog" aria-modal="true" aria-labelledby="columnConfigTitle">
+      <div class="column-config-head">
+        <span class="column-config-title" id="columnConfigTitle">自定义列配置</span>
+        <button type="button" class="column-config-close" data-column-close aria-label="关闭">×</button>
+      </div>
+      <div class="column-config-body">
+        <div class="column-config-tip">按当前栏目配置列表展示字段；保存后影响页面展示与导出字段，实际开发时按用户维度持久化。</div>
+        <div class="column-grid">
+          <label class="column-option"><input type="checkbox" checked />商品基础信息</label>
+          <label class="column-option"><input type="checkbox" checked />汇总库存</label>
+          <label class="column-option"><input type="checkbox" checked />国内库存</label>
+          <label class="column-option"><input type="checkbox" checked />海外在途库存</label>
+          <label class="column-option"><input type="checkbox" checked />海外在库库存</label>
+          <label class="column-option"><input type="checkbox" checked />备货测算字段</label>
+          <label class="column-option"><input type="checkbox" checked />发货测算字段</label>
+          <label class="column-option"><input type="checkbox" checked />联动输出字段</label>
+        </div>
+      </div>
+      <div class="column-config-actions">
+        <button type="button" class="btn btn-secondary" data-column-close>取消</button>
+        <button type="button" class="btn btn-query" id="columnConfigSave">保存配置</button>
+      </div>
+    </div>
+  </div>
+  <div class="column-config-mask" id="productDescMask">
+    <div class="column-config-modal" role="dialog" aria-modal="true" aria-labelledby="productDescTitle">
+      <div class="column-config-head">
+        <span class="column-config-title" id="productDescTitle">产品说明</span>
+        <button type="button" class="column-config-close" data-product-desc-close aria-label="关闭">×</button>
+      </div>
+      <div class="column-config-body">
+        <div class="column-config-tip">发补货看板当前第一个栏目为“库存看板”，产品说明参考商品档案的说明展示方式，用于解释商品基础数据与人工维护字段来源。</div>
+        <ol class="product-desc-list">
+          <li>商品基础信息字段在所有栏目中固定展示，包含站点、店铺、SPU、PID、MSKU、SKU ID、库存 SKU、SKU 名称等。</li>
+          <li>产品基础数据优先来源于 TikTok 在线商品与积加商品主数据，后续补充人工维护字段。</li>
+          <li>库存看板用于展示商品基础信息、汇总库存、国内库存、海外在途库存、海外在库库存等库存现状。</li>
+          <li>对应的是否热卖色码、对应的 SKU、是否热卖色码断货指标，需要补充到库存检查看板中。</li>
+          <li>备货模型（SKU）、备货模型（SPU）、发货模型（SKU）、发货模型（SPU）会继续复用同一套商品基础信息，并在各自栏目下展开模型测算字段。</li>
+          <li>自定义列配置结果用于控制列表展示字段，并影响后续导出字段范围。</li>
+        </ol>
+      </div>
+      <div class="column-config-actions">
+        <button type="button" class="btn btn-query" data-product-desc-close>我知道了</button>
+      </div>
+    </div>
+  </div>
+  <div class="edit-modal-overlay" id="restockEditModal">
+    <div class="edit-modal-box" role="dialog" aria-modal="true" aria-labelledby="restockEditTitle">
+      <div class="edit-modal-header">
+        <div>
+          <div class="edit-modal-title" id="restockEditTitle">编辑备货模型字段</div>
+          <div class="export-modal-sub">仅支持编辑“生命周期、是否内容爆发、商务出单占比、剪辑出单占比、VOC值”；“是否热卖色”为模型计算结果，仅展示。</div>
+        </div>
+        <button type="button" class="modal-close" data-restock-edit-close aria-label="关闭">×</button>
+      </div>
+      <div class="edit-modal-body">
+        <div class="edit-base-grid">
+          <div class="edit-form-item">
+            <label>SPU编码</label>
+            <input type="text" id="restockEditSpu" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label>库存SKU</label>
+            <input type="text" id="restockEditSku" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label>是否内容爆发</label>
+            <select id="restockEditContentBurst">
+              <option value="否">否</option>
+              <option value="是">是</option>
+            </select>
+          </div>
+          <div class="edit-form-item">
+            <label>生命周期</label>
+            <select id="restockEditLifecycle">
+              <option value="上升期">上升期</option>
+              <option value="平稳期">平稳期</option>
+              <option value="下降期">下降期</option>
+            </select>
+          </div>
+          <div class="edit-form-item">
+            <label>商务出单占比</label>
+            <input type="text" id="restockEditBusinessRatio" placeholder="例如：35%" />
+          </div>
+          <div class="edit-form-item">
+            <label>剪辑出单占比</label>
+            <input type="text" id="restockEditClipRatio" placeholder="例如：20%" />
+          </div>
+          <div class="edit-form-item">
+            <label>是否热卖色</label>
+            <input type="text" id="restockEditHotColorSize" readonly />
+          </div>
+          <div class="edit-form-item">
+            <label>VOC值</label>
+            <input type="text" id="restockEditVoc" placeholder="请输入 VOC 值" />
+          </div>
+        </div>
+        <div class="edit-form-tip">保存后用于备货模型人工修正示意；正式开发时按库存 SKU 维度落库并刷新当前行。</div>
+      </div>
+      <div class="edit-modal-actions">
+        <button type="button" class="btn btn-secondary" data-restock-edit-close>取消</button>
+        <button type="button" class="btn btn-query" id="restockEditSave">保存</button>
+      </div>
+    </div>
+  </div>
+  <div class="manage-modal-overlay" id="alertDetailModal" aria-hidden="true">
+    <div class="manage-modal-box" role="dialog" aria-modal="true" aria-labelledby="alertDetailTitle">
+      <div class="manage-header">
+        <div>
+          <div class="manage-title" id="alertDetailTitle">Summary 告警明细</div>
+          <div class="export-modal-sub" id="alertDetailSub">对应接口 InventoryShipReplenishmentAlertDetailPageResponse.list[]</div>
+        </div>
+        <button type="button" class="modal-close" data-alert-detail-close aria-label="关闭">×</button>
+      </div>
+      <div class="manage-toolbar">
+        <div class="manage-query-row">
+          <div class="manage-query-item search-query-item" id="alertDetailSearchItem">
+            <span class="label">搜索</span>
+            <select id="alertDetailSearchField" class="search-field-select">
+              <option value="spu">SPU</option>
+              <option value="inventorySku">库存SKU</option>
+              <option value="msku">MSKU</option>
+              <option value="skuId">SKU ID</option>
+            </select>
+            <select id="alertDetailSearchMode" class="search-mode-select">
+              <option value="fuzzy">模糊搜索</option>
+              <option value="exact">精确搜索</option>
+            </select>
+            <input type="text" id="alertDetailSearchFuzzy" class="search-fuzzy-input" placeholder="请输入" title="留空显示全部" />
+            <div class="search-exact-trigger-wrap" id="alertDetailExactWrap">
+              <button type="button" class="search-exact-trigger" id="alertDetailExactTrigger" title="一行一项，按回车键换行">
+                <span class="value placeholder" id="alertDetailExactPreview">请输入</span>
+                <span class="icon">⋯</span>
+              </button>
+              <div class="search-exact-panel" id="alertDetailExactPanel">
+                <div class="search-exact-body">
+                  <textarea id="alertDetailSearchExact" class="search-exact-textarea" placeholder="一行一项，按回车键换行，最多500行&#10;重复数据判断为一行"></textarea>
+                  <div class="search-exact-tip">一行一项，按回车键换行，最多500行<br />重复数据判断为一行</div>
+                </div>
+                <div class="search-exact-foot">
+                  <button type="button" class="search-exact-btn" id="alertDetailExactClear">清空</button>
+                  <span class="search-exact-count" id="alertDetailExactCount">0/500行</span>
+                  <div class="search-exact-actions">
+                    <button type="button" class="search-exact-btn" id="alertDetailExactCancel">取消</button>
+                    <button type="button" class="search-exact-btn primary" id="alertDetailExactApply">搜索</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="manage-query-actions">
+            <button type="button" class="btn btn-query" id="alertDetailQueryBtn">查询</button>
+            <button type="button" class="btn btn-secondary" id="alertDetailResetBtn">重置</button>
+          </div>
+        </div>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="alertDetailSummary">共 0 条告警 SKU</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table" id="alertDetailTable">
+              <thead>
+                <tr>
+                  <th>库存SKU</th>
+                  <th>MSKU</th>
+                  <th>SKU ID</th>
+                  <th>SPU</th>
+                  <th>SPU名称</th>
+                  <th>SKU名称</th>
+                  <th>告警说明</th>
+                  <th>联动告警类型</th>
+                  <th>海外可售天数</th>
+                  <th>发货触发阈值</th>
+                  <th>国内可发数量</th>
+                  <th>库存缺口</th>
+                  <th>建议发货数量</th>
+                  <th>预计断货日</th>
+                  <th>预计到仓可售日</th>
+                  <th>断货到到仓空窗期</th>
+                  <th>建议运输方式</th>
+                </tr>
+              </thead>
+              <tbody id="alertDetailTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="alertDetailPagination" aria-label="告警明细分页"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="manage-modal-overlay" id="restockSpuSkuModal" aria-hidden="true">
+    <div class="manage-modal-box" role="dialog" aria-modal="true" aria-labelledby="restockSpuSkuTitle">
+      <div class="manage-header">
+        <div>
+          <div class="manage-title" id="restockSpuSkuTitle">备货模型 SKU 明细</div>
+          <div class="export-modal-sub" id="restockSpuSkuSub">点击备货模型（SPU）中的 SPU 编码后，按 SPU 筛选展示备货模型（SKU）明细。</div>
+        </div>
+        <button type="button" class="modal-close" data-restock-spu-sku-close aria-label="关闭">×</button>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="restockSpuSkuSummary">共 0 条 SKU 明细</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table" id="restockSpuSkuTable">
+              <thead>
+                <tr>
+                  <th>站点</th>
+                  <th>店铺</th>
+                  <th>SPU编码</th>
+                  <th>SPU名称</th>
+                  <th>PID</th>
+                  <th>MSKU</th>
+                  <th>SKU ID</th>
+                  <th>库存SKU</th>
+                  <th>SKU名称</th>
+                  <th>7天日均（S7）</th>
+                  <th>30天日均（S30）</th>
+                  <th>S7/S30比值</th>
+                  <th>动态权重档位</th>
+                  <th>加权日均</th>
+                  <th>生命周期</th>
+                  <th>是否内容爆发</th>
+                  <th>商务出单占比</th>
+                  <th>剪辑出单占比</th>
+                  <th>安全库存调整天数（海外仓）</th>
+                  <th>安全库存调整天数（直邮仓）</th>
+                  <th>SKU分层</th>
+                  <th>是否热卖色码</th>
+                  <th>VOC值</th>
+                  <th>退货率（近14天）</th>
+                  <th>建议运输方式（补货）</th>
+                  <th>目标库存（海外仓）</th>
+                  <th>目标库存（直邮仓）</th>
+                  <th>安全库存天数（最终）</th>
+                  <th>是否采购</th>
+                  <th>建议采购数量</th>
+                  <th>建议运输方式（采购）</th>
+                  <th>预计到仓日（采购）</th>
+                </tr>
+              </thead>
+              <tbody id="restockSpuSkuTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="restockSpuSkuPagination" aria-label="备货模型 SKU 明细分页"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="manage-modal-overlay" id="shipmentSpuSkuModal" aria-hidden="true">
+    <div class="manage-modal-box" role="dialog" aria-modal="true" aria-labelledby="shipmentSpuSkuTitle">
+      <div class="manage-header">
+        <div>
+          <div class="manage-title" id="shipmentSpuSkuTitle">发货模型 SKU 明细</div>
+          <div class="export-modal-sub" id="shipmentSpuSkuSub">点击发货模型（SPU）中的 SPU 编码后，按 SPU 筛选展示发货模型（SKU）明细。</div>
+        </div>
+        <button type="button" class="modal-close" data-shipment-spu-sku-close aria-label="关闭">×</button>
+      </div>
+      <div class="manage-body">
+        <div class="manage-summary" id="shipmentSpuSkuSummary">共 0 条 SKU 明细</div>
+        <div class="manage-table-card">
+          <div class="manage-table-wrap">
+            <table class="manage-table" id="shipmentSpuSkuTable">
+              <thead>
+                <tr>
+                  <th>站点</th>
+                  <th>店铺</th>
+                  <th>SPU编码</th>
+                  <th>SPU名称</th>
+                  <th>PID</th>
+                  <th>MSKU</th>
+                  <th>SKU ID</th>
+                  <th>库存SKU</th>
+                  <th>SKU名称</th>
+                  <th>海外有效库存</th>
+                  <th>海外可售天数</th>
+                  <th>发货触发阈值</th>
+                  <th>紧急标记</th>
+                  <th>直邮预留量</th>
+                  <th>国内可发库存</th>
+                  <th>建议发货数量</th>
+                  <th>库存缺口</th>
+                  <th>最小发货批量</th>
+                  <th>是否满足最小批量</th>
+                  <th>发货目的仓</th>
+                  <th>最近截单日</th>
+                  <th>预计到仓可售日（发货）</th>
+                  <th>截单/到仓（UI合并展示列）</th>
+                  <th>预计断货日</th>
+                  <th>断货到到仓空窗期</th>
+                  <th>直邮可衔接</th>
+                  <th>建议运输方式（发货）</th>
+                  <th>是否发货</th>
+                  <th>发货优先级</th>
+                  <th>联动告警类型</th>
+                </tr>
+              </thead>
+              <tbody id="shipmentSpuSkuTableBody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="shipmentSpuSkuPagination" aria-label="发货模型 SKU 明细分页"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast">已保存自定义列配置</div>
+
+  <script>
+    (function() {
+      var tabs = Array.prototype.slice.call(document.querySelectorAll('#moduleTabs .tab'));
+      var panels = Array.prototype.slice.call(document.querySelectorAll('.view-panel'));
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          var target = tab.getAttribute('data-target');
+          tabs.forEach(function(item) { item.classList.toggle('active', item === tab); });
+          panels.forEach(function(panel) { panel.classList.toggle('active', panel.id === target); });
+        });
+      });
+      var tooltip = document.getElementById('fieldTooltip');
+      Array.prototype.slice.call(document.querySelectorAll('.field-help')).forEach(function(el) {
+        el.addEventListener('mouseenter', function() {
+          if (!tooltip) return;
+          tooltip.textContent = el.getAttribute('data-tip') || '';
+          var rect = el.getBoundingClientRect();
+          tooltip.style.left = Math.min(rect.left, window.innerWidth - 360) + 'px';
+          tooltip.style.top = (rect.bottom + 8) + 'px';
+          tooltip.classList.add('visible');
+        });
+        el.addEventListener('mouseleave', function() { if (tooltip) tooltip.classList.remove('visible'); });
+      });
+      function bindExportModal(buttonId, modalId) {
+        var button = document.getElementById(buttonId);
+        var modal = document.getElementById(modalId);
+        if (!button || !modal) return;
+        function closeExportModal() { modal.classList.remove('open'); }
+        button.addEventListener('click', function() { modal.classList.add('open'); });
+        Array.prototype.slice.call(modal.querySelectorAll('[data-export-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeExportModal);
+        });
+        modal.addEventListener('click', function(event) {
+          if (event.target === modal) closeExportModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape') closeExportModal();
+        });
+      }
+      bindExportModal('exportTransferBtn', 'exportTransferModal');
+      bindExportModal('exportPurchaseBtn', 'exportPurchaseModal');
+      var columnConfigMask = document.getElementById('columnConfigMask');
+      var toast = document.getElementById('toast');
+      function closeColumnConfig() {
+        if (columnConfigMask) columnConfigMask.classList.remove('open');
+      }
+      function showToast(text) {
+        if (!toast) return;
+        if (text) toast.textContent = text;
+        toast.classList.add('show');
+        setTimeout(function() { toast.classList.remove('show'); }, 1400);
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.btn-column-config')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (columnConfigMask) columnConfigMask.classList.add('open');
+        });
+      });
+      if (columnConfigMask) {
+        Array.prototype.slice.call(columnConfigMask.querySelectorAll('[data-column-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeColumnConfig);
+        });
+        columnConfigMask.addEventListener('click', function(event) {
+          if (event.target === columnConfigMask) closeColumnConfig();
+        });
+      }
+      var columnConfigSave = document.getElementById('columnConfigSave');
+      if (columnConfigSave) {
+        columnConfigSave.addEventListener('click', function() {
+          closeColumnConfig();
+          showToast('已保存自定义列配置');
+        });
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.export-data-source-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          showToast('导出全部数据：包含库存看板、备货模型（SKU）、备货模型（SPU）、发货模型（SKU）、发货模型（SPU）五个栏目的所有字段数据');
+        });
+      });
+      var alertDetailModal = document.getElementById('alertDetailModal');
+      var alertDetailTitle = document.getElementById('alertDetailTitle');
+      var alertDetailSub = document.getElementById('alertDetailSub');
+      var alertDetailSummary = document.getElementById('alertDetailSummary');
+      var alertDetailTableBody = document.getElementById('alertDetailTableBody');
+      var alertDetailPagination = document.getElementById('alertDetailPagination');
+      var alertDetailSearchField = document.getElementById('alertDetailSearchField');
+      var alertDetailSearchMode = document.getElementById('alertDetailSearchMode');
+      var alertDetailSearchFuzzy = document.getElementById('alertDetailSearchFuzzy');
+      var alertDetailExactWrap = document.getElementById('alertDetailExactWrap');
+      var alertDetailExactTrigger = document.getElementById('alertDetailExactTrigger');
+      var alertDetailExactPanel = document.getElementById('alertDetailExactPanel');
+      var alertDetailSearchExact = document.getElementById('alertDetailSearchExact');
+      var alertDetailExactPreview = document.getElementById('alertDetailExactPreview');
+      var alertDetailExactCount = document.getElementById('alertDetailExactCount');
+      var alertDetailExactDraft = '';
+      var alertDetailExactApplied = '';
+      var alertDetailState = {
+        alertType: '',
+        alertTitle: '',
+        page: 1,
+        pageSize: 20,
+        searchField: 'spu',
+        searchMode: 'fuzzy',
+        searchKeyword: '',
+        exactSearchKeywords: ''
+      };
+      function buildAlertDetailMockRow(index, alertType) {
+        var seq = String(index).padStart(3, '0');
+        var isOverseas = alertType === 'overseas-low-days';
+        return {
+          inventorySku: 'INV-SKU-' + seq,
+          msku: 'MSKU-' + seq,
+          skuId: '17300' + seq,
+          spu: 'SPU-DEMO-' + seq,
+          spuName: '示例SPU-' + seq,
+          inventorySkuName: '示例商品-' + seq,
+          alertDesc: isOverseas ? '海外可售天数低于安全库存，需紧急处理' : '国内库存不足无法发货，需加急采购 + 空派',
+          linkedAlertType: isOverseas ? (index % 2 ? '加急空派' : '常规海派') : '加急采购+空派',
+          overseasSellableDays: isOverseas ? (4 + (index % 6)) : (8 + (index % 5)),
+          shipTriggerThresholdDays: 14,
+          domesticShippableQty: isOverseas ? (60 + index * 3) : (index % 3 === 0 ? 0 : 12),
+          stockGapQty: -(40 + index * 2),
+          suggestShipQty: isOverseas ? (80 + index * 4) : 0,
+          estimatedOutOfStockDate: '2026-06-' + String(8 + (index % 10)).padStart(2, '0'),
+          shipEtaSellableDate: '2026-06-' + String(15 + (index % 8)).padStart(2, '0'),
+          stockoutToEtaGapDays: 6 + (index % 4),
+          suggestShipTransportMode: index % 2 ? '空运' : '海运'
+        };
+      }
+      function getAlertDetailAllRows(alertType) {
+        var count = alertType === 'overseas-low-days' ? 28 : 18;
+        var rows = [];
+        for (var i = 1; i <= count; i += 1) rows.push(buildAlertDetailMockRow(i, alertType));
+        return rows;
+      }
+      function normalizeAlertExactLines(raw) {
+        var seen = {};
+        var result = [];
+        String(raw || '').split(/\r?\n/).forEach(function(line) {
+          var value = line.trim();
+          if (!value || result.length >= 500) return;
+          var key = value.toLowerCase();
+          if (seen[key]) return;
+          seen[key] = true;
+          result.push(value);
+        });
+        return result;
+      }
+      function getAlertRowSearchValue(row, field) {
+        if (field === 'inventorySku') return row.inventorySku;
+        if (field === 'msku') return row.msku;
+        if (field === 'skuId') return row.skuId;
+        if (field === 'skuKey') return row.msku || row.inventorySku || row.skuId;
+        return row.spu;
+      }
+      function filterAlertDetailRows(rows, state) {
+        var field = state.searchField || 'spu';
+        if (state.searchMode === 'exact') {
+          var exactList = normalizeAlertExactLines(state.exactSearchKeywords);
+          if (!exactList.length) return rows;
+          var exactSet = {};
+          exactList.forEach(function(item) { exactSet[item.toLowerCase()] = true; });
+          return rows.filter(function(row) {
+            var value = String(getAlertRowSearchValue(row, field) || '').toLowerCase();
+            return exactSet[value];
+          });
+        }
+        var keyword = String(state.searchKeyword || '').trim().toLowerCase();
+        if (!keyword) return rows;
+        return rows.filter(function(row) {
+          var value = String(getAlertRowSearchValue(row, field) || '').toLowerCase();
+          return value.indexOf(keyword) !== -1;
+        });
+      }
+      function paginateAlertDetailRows(rows, page, pageSize) {
+        var total = rows.length;
+        var totalPages = Math.max(1, Math.ceil(total / pageSize));
+        var safePage = Math.min(Math.max(page, 1), totalPages);
+        var start = (safePage - 1) * pageSize;
+        return {
+          total: total,
+          page: safePage,
+          pageSize: pageSize,
+          totalPages: totalPages,
+          list: rows.slice(start, start + pageSize)
+        };
+      }
+      function formatAlertCell(value) {
+        if (value == null || value === '') return '—';
+        return String(value);
+      }
+      function renderAlertDetailRows(rows) {
+        if (!alertDetailTableBody) return;
+        if (!rows.length) {
+          alertDetailTableBody.innerHTML = '<tr><td colspan="17" class="manage-empty">暂无符合条件的告警 SKU</td></tr>';
+          return;
+        }
+        alertDetailTableBody.innerHTML = rows.map(function(row) {
+          return '<tr>'
+            + '<td>' + formatAlertCell(row.inventorySku) + '</td>'
+            + '<td>' + formatAlertCell(row.msku) + '</td>'
+            + '<td>' + formatAlertCell(row.skuId) + '</td>'
+            + '<td>' + formatAlertCell(row.spu) + '</td>'
+            + '<td>' + formatAlertCell(row.spuName) + '</td>'
+            + '<td>' + formatAlertCell(row.inventorySkuName) + '</td>'
+            + '<td>' + formatAlertCell(row.alertDesc) + '</td>'
+            + '<td>' + formatAlertCell(row.linkedAlertType) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.overseasSellableDays) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.shipTriggerThresholdDays) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.domesticShippableQty) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.stockGapQty) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.suggestShipQty) + '</td>'
+            + '<td>' + formatAlertCell(row.estimatedOutOfStockDate) + '</td>'
+            + '<td>' + formatAlertCell(row.shipEtaSellableDate) + '</td>'
+            + '<td class="num">' + formatAlertCell(row.stockoutToEtaGapDays) + '</td>'
+            + '<td>' + formatAlertCell(row.suggestShipTransportMode) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+      function renderAlertDetailPagination(pageData) {
+        if (!alertDetailPagination) return;
+        var page = pageData.page;
+        var totalPages = pageData.totalPages;
+        var buttons = [];
+        buttons.push('<button type="button" class="page-btn" data-alert-page="prev"' + (page <= 1 ? ' disabled' : '') + '>上一页</button>');
+        var startPage = Math.max(1, page - 2);
+        var endPage = Math.min(totalPages, startPage + 4);
+        startPage = Math.max(1, endPage - 4);
+        for (var i = startPage; i <= endPage; i += 1) {
+          buttons.push('<button type="button" class="page-btn' + (i === page ? ' active' : '') + '" data-alert-page="' + i + '">' + i + '</button>');
+        }
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) buttons.push('<span>...</span>');
+          buttons.push('<button type="button" class="page-btn" data-alert-page="' + totalPages + '">' + totalPages + '</button>');
+        }
+        buttons.push('<button type="button" class="page-btn" data-alert-page="next"' + (page >= totalPages ? ' disabled' : '') + '>下一页</button>');
+        alertDetailPagination.innerHTML = '<div class="pagination-left">'
+          + '<span>共 ' + pageData.total + ' 条</span>'
+          + '<span>每页</span>'
+          + '<select class="page-size" id="alertDetailPageSize">'
+          + '<option value="20"' + (pageData.pageSize === 20 ? ' selected' : '') + '>20条/页</option>'
+          + '<option value="50"' + (pageData.pageSize === 50 ? ' selected' : '') + '>50条/页</option>'
+          + '<option value="100"' + (pageData.pageSize === 100 ? ' selected' : '') + '>100条/页</option>'
+          + '</select>'
+          + '</div>'
+          + '<div class="pagination-right">'
+          + buttons.join('')
+          + '<span>跳至</span>'
+          + '<input class="page-input" id="alertDetailPageInput" type="text" value="' + page + '" />'
+          + '<span>页</span>'
+          + '</div>';
+        var pageSizeSelect = document.getElementById('alertDetailPageSize');
+        if (pageSizeSelect) {
+          pageSizeSelect.addEventListener('change', function() {
+            alertDetailState.pageSize = Number(pageSizeSelect.value) || 20;
+            alertDetailState.page = 1;
+            loadAlertDetailPage();
+          });
+        }
+        var pageInput = document.getElementById('alertDetailPageInput');
+        if (pageInput) {
+          pageInput.addEventListener('keydown', function(event) {
+            if (event.key !== 'Enter') return;
+            var targetPage = Number(pageInput.value);
+            if (!targetPage || targetPage < 1) return;
+            alertDetailState.page = targetPage;
+            loadAlertDetailPage();
+          });
+        }
+        Array.prototype.slice.call(alertDetailPagination.querySelectorAll('[data-alert-page]')).forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var action = btn.getAttribute('data-alert-page');
+            if (action === 'prev') alertDetailState.page -= 1;
+            else if (action === 'next') alertDetailState.page += 1;
+            else alertDetailState.page = Number(action) || 1;
+            loadAlertDetailPage();
+          });
+        });
+      }
+      function syncAlertDetailSearchModeUI() {
+        var mode = (alertDetailSearchMode && alertDetailSearchMode.value) || 'fuzzy';
+        if (alertDetailSearchFuzzy) alertDetailSearchFuzzy.style.display = mode === 'exact' ? 'none' : '';
+        if (alertDetailExactWrap) alertDetailExactWrap.classList.toggle('active', mode === 'exact');
+        closeAlertDetailExactPanel(true);
+      }
+      function updateAlertDetailExactPreview() {
+        var lines = normalizeAlertExactLines(alertDetailExactDraft);
+        if (alertDetailExactCount) alertDetailExactCount.textContent = lines.length + '/500行';
+        if (!alertDetailExactPreview) return;
+        if (!lines.length) {
+          alertDetailExactPreview.textContent = '请输入';
+          alertDetailExactPreview.classList.add('placeholder');
+          return;
+        }
+        alertDetailExactPreview.textContent = lines.length === 1 ? lines[0] : ('已输入 ' + lines.length + ' 项');
+        alertDetailExactPreview.classList.remove('placeholder');
+      }
+      function closeAlertDetailExactPanel(restoreDraft) {
+        if (!alertDetailExactPanel || !alertDetailExactTrigger || !alertDetailSearchExact) return;
+        if (restoreDraft) {
+          alertDetailExactDraft = alertDetailExactApplied;
+          alertDetailSearchExact.value = alertDetailExactDraft;
+        }
+        alertDetailExactPanel.classList.remove('open');
+        alertDetailExactTrigger.classList.remove('active');
+        updateAlertDetailExactPreview();
+      }
+      function openAlertDetailExactPanel() {
+        if (!alertDetailExactPanel || !alertDetailExactTrigger || !alertDetailSearchExact) return;
+        alertDetailExactDraft = alertDetailExactApplied;
+        alertDetailSearchExact.value = alertDetailExactDraft;
+        updateAlertDetailExactPreview();
+        alertDetailExactPanel.classList.add('open');
+        alertDetailExactTrigger.classList.add('active');
+        setTimeout(function() { alertDetailSearchExact.focus(); }, 0);
+      }
+      function readAlertDetailSearchState() {
+        alertDetailState.searchField = (alertDetailSearchField && alertDetailSearchField.value) || 'spu';
+        alertDetailState.searchMode = (alertDetailSearchMode && alertDetailSearchMode.value) || 'fuzzy';
+        alertDetailState.searchKeyword = alertDetailSearchFuzzy ? alertDetailSearchFuzzy.value.trim() : '';
+        alertDetailState.exactSearchKeywords = alertDetailExactApplied;
+      }
+      function resetAlertDetailSearchUI() {
+        if (alertDetailSearchField) alertDetailSearchField.value = 'spu';
+        if (alertDetailSearchMode) alertDetailSearchMode.value = 'fuzzy';
+        if (alertDetailSearchFuzzy) alertDetailSearchFuzzy.value = '';
+        alertDetailExactDraft = '';
+        alertDetailExactApplied = '';
+        if (alertDetailSearchExact) alertDetailSearchExact.value = '';
+        syncAlertDetailSearchModeUI();
+      }
+      function loadAlertDetailPage() {
+        readAlertDetailSearchState();
+        var allRows = getAlertDetailAllRows(alertDetailState.alertType);
+        var filteredRows = filterAlertDetailRows(allRows, alertDetailState);
+        var pageData = paginateAlertDetailRows(filteredRows, alertDetailState.page, alertDetailState.pageSize);
+        alertDetailState.page = pageData.page;
+        if (alertDetailTitle) alertDetailTitle.textContent = alertDetailState.alertTitle + ' · 告警明细';
+        if (alertDetailSub) {
+          alertDetailSub.textContent = '请求参数：alertType=' + alertDetailState.alertType
+            + '，searchField=' + alertDetailState.searchField
+            + '，page=' + pageData.page + '，pageSize=' + pageData.pageSize;
+        }
+        if (alertDetailSummary) {
+          alertDetailSummary.textContent = '共 ' + pageData.total + ' 条告警 SKU'
+            + (alertDetailState.searchMode === 'exact' && alertDetailState.exactSearchKeywords
+              ? '（精确搜索 ' + normalizeAlertExactLines(alertDetailState.exactSearchKeywords).length + ' 项）'
+              : (alertDetailState.searchKeyword ? '（模糊搜索：' + alertDetailState.searchKeyword + '）' : ''));
+        }
+        renderAlertDetailRows(pageData.list);
+        renderAlertDetailPagination(pageData);
+      }
+      function openAlertDetailModal(alertType, alertTitle) {
+        if (!alertDetailModal) return;
+        alertDetailState.alertType = alertType;
+        alertDetailState.alertTitle = alertTitle || 'Summary 告警';
+        alertDetailState.page = 1;
+        alertDetailState.pageSize = 20;
+        resetAlertDetailSearchUI();
+        loadAlertDetailPage();
+        alertDetailModal.classList.add('visible');
+        alertDetailModal.setAttribute('aria-hidden', 'false');
+      }
+      function closeAlertDetailModal() {
+        if (!alertDetailModal) return;
+        closeAlertDetailExactPanel(true);
+        alertDetailModal.classList.remove('visible');
+        alertDetailModal.setAttribute('aria-hidden', 'true');
+      }
+      if (alertDetailSearchMode) {
+        alertDetailSearchMode.addEventListener('change', syncAlertDetailSearchModeUI);
+      }
+      if (alertDetailExactTrigger) {
+        alertDetailExactTrigger.addEventListener('click', function(event) {
+          event.stopPropagation();
+          if (alertDetailExactPanel && alertDetailExactPanel.classList.contains('open')) closeAlertDetailExactPanel(true);
+          else openAlertDetailExactPanel();
+        });
+      }
+      if (alertDetailSearchExact) {
+        alertDetailSearchExact.addEventListener('input', function() {
+          alertDetailExactDraft = alertDetailSearchExact.value;
+          updateAlertDetailExactPreview();
+        });
+      }
+      var alertDetailExactClear = document.getElementById('alertDetailExactClear');
+      if (alertDetailExactClear) {
+        alertDetailExactClear.addEventListener('click', function() {
+          alertDetailExactDraft = '';
+          if (alertDetailSearchExact) alertDetailSearchExact.value = '';
+          updateAlertDetailExactPreview();
+        });
+      }
+      var alertDetailExactCancel = document.getElementById('alertDetailExactCancel');
+      if (alertDetailExactCancel) {
+        alertDetailExactCancel.addEventListener('click', function() {
+          closeAlertDetailExactPanel(true);
+        });
+      }
+      var alertDetailExactApply = document.getElementById('alertDetailExactApply');
+      if (alertDetailExactApply) {
+        alertDetailExactApply.addEventListener('click', function() {
+          alertDetailExactApplied = alertDetailExactDraft;
+          closeAlertDetailExactPanel(false);
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      var alertDetailQueryBtn = document.getElementById('alertDetailQueryBtn');
+      if (alertDetailQueryBtn) {
+        alertDetailQueryBtn.addEventListener('click', function() {
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      var alertDetailResetBtn = document.getElementById('alertDetailResetBtn');
+      if (alertDetailResetBtn) {
+        alertDetailResetBtn.addEventListener('click', function() {
+          resetAlertDetailSearchUI();
+          alertDetailState.page = 1;
+          loadAlertDetailPage();
+        });
+      }
+      if (alertDetailSearchFuzzy) {
+        alertDetailSearchFuzzy.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter') {
+            alertDetailState.page = 1;
+            loadAlertDetailPage();
+          }
+        });
+      }
+      document.addEventListener('click', function(event) {
+        if (!alertDetailExactPanel || !alertDetailExactWrap) return;
+        if (!alertDetailExactPanel.classList.contains('open')) return;
+        if (alertDetailExactWrap.contains(event.target)) return;
+        closeAlertDetailExactPanel(true);
+      });
+      Array.prototype.slice.call(document.querySelectorAll('[data-alert-type]')).forEach(function(item) {
+        item.addEventListener('click', function() {
+          openAlertDetailModal(item.getAttribute('data-alert-type'), item.getAttribute('data-alert-title') || 'Summary 告警');
+        });
+        item.addEventListener('keydown', function(event) {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            openAlertDetailModal(item.getAttribute('data-alert-type'), item.getAttribute('data-alert-title') || 'Summary 告警');
+          }
+        });
+      });
+      if (alertDetailModal) {
+        Array.prototype.slice.call(alertDetailModal.querySelectorAll('[data-alert-detail-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeAlertDetailModal);
+        });
+        alertDetailModal.addEventListener('click', function(event) {
+          if (event.target === alertDetailModal) closeAlertDetailModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && alertDetailModal.classList.contains('visible')) closeAlertDetailModal();
+        });
+      }
+      var restockSpuSkuModal = document.getElementById('restockSpuSkuModal');
+      var restockSpuSkuTitle = document.getElementById('restockSpuSkuTitle');
+      var restockSpuSkuSub = document.getElementById('restockSpuSkuSub');
+      var restockSpuSkuSummary = document.getElementById('restockSpuSkuSummary');
+      var restockSpuSkuTableBody = document.getElementById('restockSpuSkuTableBody');
+      var restockSpuSkuPagination = document.getElementById('restockSpuSkuPagination');
+      var restockSpuSkuState = {
+        spu: '',
+        page: 1,
+        pageSize: 1
+      };
+      var restockSpuSkuRows = [
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-001',
+          spuName: '示例商品',
+          pid: 'PID100001',
+          msku: 'MSKU-DEMO-001',
+          skuId: 'SKU-ID-001',
+          inventorySku: 'SKU-DEMO-001',
+          inventorySkuName: '示例商品 黑色 S',
+          s7: '18.6',
+          s30: '12.4',
+          ratio: '1.50',
+          weightLevel: '上涨档',
+          weightedDaily: '16.7',
+          lifeCycle: '上升期',
+          contentBurst: '否',
+          businessRatio: '42%',
+          clipRatio: '31%',
+          overseasAdjust: '5',
+          directMailAdjust: '3',
+          skuTier: 'A',
+          hotColor: '是',
+          voc: '1.2',
+          returnRate: '6%',
+          restockTransport: '海运',
+          targetOverseas: '520',
+          targetDirectMail: '180',
+          safetyDays: '28',
+          purchase: '是',
+          purchaseQty: '240',
+          purchaseTransport: '空派',
+          etaDate: '2026-06-28'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-001',
+          spuName: '示例商品',
+          pid: 'PID100002',
+          msku: 'MSKU-DEMO-002',
+          skuId: 'SKU-ID-002',
+          inventorySku: 'SKU-DEMO-002',
+          inventorySkuName: '示例商品 黑色 M',
+          s7: '12.8',
+          s30: '10.1',
+          ratio: '1.27',
+          weightLevel: '平稳档',
+          weightedDaily: '11.7',
+          lifeCycle: '平稳期',
+          contentBurst: '否',
+          businessRatio: '36%',
+          clipRatio: '28%',
+          overseasAdjust: '0',
+          directMailAdjust: '0',
+          skuTier: 'B',
+          hotColor: '否',
+          voc: '1.0',
+          returnRate: '4%',
+          restockTransport: '海运',
+          targetOverseas: '360',
+          targetDirectMail: '140',
+          safetyDays: '25',
+          purchase: '是',
+          purchaseQty: '120',
+          purchaseTransport: '海运',
+          etaDate: '2026-07-02'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-002',
+          spuName: '示例商品',
+          pid: 'PID200001',
+          msku: 'MSKU-DEMO-101',
+          skuId: 'SKU-ID-101',
+          inventorySku: 'SKU-DEMO-101',
+          inventorySkuName: '示例商品 白色 S',
+          s7: '9.2',
+          s30: '10.5',
+          ratio: '0.88',
+          weightLevel: '平稳档',
+          weightedDaily: '9.7',
+          lifeCycle: '平稳期',
+          contentBurst: '否',
+          businessRatio: '30%',
+          clipRatio: '22%',
+          overseasAdjust: '0',
+          directMailAdjust: '0',
+          skuTier: 'B',
+          hotColor: '否',
+          voc: '1.5',
+          returnRate: '5%',
+          restockTransport: '海运',
+          targetOverseas: '260',
+          targetDirectMail: '110',
+          safetyDays: '25',
+          purchase: '是',
+          purchaseQty: '100',
+          purchaseTransport: '海运',
+          etaDate: '2026-07-05'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-002',
+          spuName: '示例商品',
+          pid: 'PID200002',
+          msku: 'MSKU-DEMO-102',
+          skuId: 'SKU-ID-102',
+          inventorySku: 'SKU-DEMO-102',
+          inventorySkuName: '示例商品 白色 M',
+          s7: '7.5',
+          s30: '8.9',
+          ratio: '0.84',
+          weightLevel: '平稳档',
+          weightedDaily: '8.1',
+          lifeCycle: '平稳期',
+          contentBurst: '否',
+          businessRatio: '24%',
+          clipRatio: '18%',
+          overseasAdjust: '0',
+          directMailAdjust: '0',
+          skuTier: 'C',
+          hotColor: '否',
+          voc: '1.1',
+          returnRate: '3%',
+          restockTransport: '直邮',
+          targetOverseas: '180',
+          targetDirectMail: '90',
+          safetyDays: '25',
+          purchase: '是',
+          purchaseQty: '80',
+          purchaseTransport: '海运',
+          etaDate: '2026-07-05'
+        }
+      ];
+      function formatRestockSkuCell(value) {
+        if (value == null || value === '') return '—';
+        return String(value);
+      }
+      function paginateSpuSkuRows(rows, page, pageSize) {
+        var total = rows.length;
+        var totalPages = Math.max(1, Math.ceil(total / pageSize));
+        var safePage = Math.min(Math.max(page, 1), totalPages);
+        var start = (safePage - 1) * pageSize;
+        return {
+          total: total,
+          page: safePage,
+          pageSize: pageSize,
+          totalPages: totalPages,
+          list: rows.slice(start, start + pageSize)
+        };
+      }
+      function renderSpuSkuPagination(paginationEl, pageData, state, loadPage, pageSizeId, pageInputId, pageAttr) {
+        if (!paginationEl) return;
+        var page = pageData.page;
+        var totalPages = pageData.totalPages;
+        var buttons = [];
+        buttons.push('<button type="button" class="page-btn" data-' + pageAttr + '="prev"' + (page <= 1 ? ' disabled' : '') + '>上一页</button>');
+        var startPage = Math.max(1, page - 2);
+        var endPage = Math.min(totalPages, startPage + 4);
+        startPage = Math.max(1, endPage - 4);
+        for (var i = startPage; i <= endPage; i += 1) {
+          buttons.push('<button type="button" class="page-btn' + (i === page ? ' active' : '') + '" data-' + pageAttr + '="' + i + '">' + i + '</button>');
+        }
+        if (endPage < totalPages) {
+          if (endPage < totalPages - 1) buttons.push('<span>...</span>');
+          buttons.push('<button type="button" class="page-btn" data-' + pageAttr + '="' + totalPages + '">' + totalPages + '</button>');
+        }
+        buttons.push('<button type="button" class="page-btn" data-' + pageAttr + '="next"' + (page >= totalPages ? ' disabled' : '') + '>下一页</button>');
+        paginationEl.innerHTML = '<div class="pagination-left">'
+          + '<span>共 ' + pageData.total + ' 条</span>'
+          + '<span>每页</span>'
+          + '<select class="page-size" id="' + pageSizeId + '">'
+          + '<option value="1"' + (pageData.pageSize === 1 ? ' selected' : '') + '>1条/页</option>'
+          + '<option value="20"' + (pageData.pageSize === 20 ? ' selected' : '') + '>20条/页</option>'
+          + '<option value="50"' + (pageData.pageSize === 50 ? ' selected' : '') + '>50条/页</option>'
+          + '<option value="100"' + (pageData.pageSize === 100 ? ' selected' : '') + '>100条/页</option>'
+          + '</select>'
+          + '</div>'
+          + '<div class="pagination-right">'
+          + buttons.join('')
+          + '<span>跳至</span>'
+          + '<input class="page-input" id="' + pageInputId + '" type="text" value="' + page + '" />'
+          + '<span>页</span>'
+          + '</div>';
+        var pageSizeSelect = document.getElementById(pageSizeId);
+        if (pageSizeSelect) {
+          pageSizeSelect.addEventListener('change', function() {
+            state.pageSize = Number(pageSizeSelect.value) || 20;
+            state.page = 1;
+            loadPage();
+          });
+        }
+        var pageInput = document.getElementById(pageInputId);
+        if (pageInput) {
+          pageInput.addEventListener('keydown', function(event) {
+            if (event.key !== 'Enter') return;
+            var targetPage = Number(pageInput.value);
+            if (!targetPage || targetPage < 1) return;
+            state.page = targetPage;
+            loadPage();
+          });
+        }
+        Array.prototype.slice.call(paginationEl.querySelectorAll('[data-' + pageAttr + ']')).forEach(function(btn) {
+          btn.addEventListener('click', function() {
+            if (btn.disabled) return;
+            var action = btn.getAttribute('data-' + pageAttr);
+            if (action === 'prev') state.page -= 1;
+            else if (action === 'next') state.page += 1;
+            else state.page = Number(action) || 1;
+            loadPage();
+          });
+        });
+      }
+      function renderRestockSpuSkuRows(rows) {
+        if (!restockSpuSkuTableBody) return;
+        if (!rows.length) {
+          restockSpuSkuTableBody.innerHTML = '<tr><td colspan="32" class="manage-empty">暂无该 SPU 下的备货模型 SKU 明细</td></tr>';
+          return;
+        }
+        restockSpuSkuTableBody.innerHTML = rows.map(function(row) {
+          return '<tr>'
+            + '<td>' + formatRestockSkuCell(row.site) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.store) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.spu) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.spuName) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.pid) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.msku) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.skuId) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.inventorySku) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.inventorySkuName) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.s7) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.s30) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.ratio) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.weightLevel) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.weightedDaily) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.lifeCycle) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.contentBurst) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.businessRatio) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.clipRatio) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.overseasAdjust) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.directMailAdjust) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.skuTier) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.hotColor) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.voc) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.returnRate) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.restockTransport) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.targetOverseas) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.targetDirectMail) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.safetyDays) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.purchase) + '</td>'
+            + '<td class="num">' + formatRestockSkuCell(row.purchaseQty) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.purchaseTransport) + '</td>'
+            + '<td>' + formatRestockSkuCell(row.etaDate) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+      function loadRestockSpuSkuPage() {
+        var rows = restockSpuSkuRows.filter(function(row) { return row.spu === restockSpuSkuState.spu; });
+        var pageData = paginateSpuSkuRows(rows, restockSpuSkuState.page, restockSpuSkuState.pageSize);
+        restockSpuSkuState.page = pageData.page;
+        if (restockSpuSkuSummary) restockSpuSkuSummary.textContent = '共 ' + pageData.total + ' 条 SKU 明细';
+        renderRestockSpuSkuRows(pageData.list);
+        renderSpuSkuPagination(restockSpuSkuPagination, pageData, restockSpuSkuState, loadRestockSpuSkuPage, 'restockSpuSkuPageSize', 'restockSpuSkuPageInput', 'restock-spu-sku-page');
+      }
+      function openRestockSpuSkuModal(spu, spuName) {
+        if (!restockSpuSkuModal) return;
+        if (restockSpuSkuTitle) restockSpuSkuTitle.textContent = spu + ' · 备货模型 SKU 明细';
+        if (restockSpuSkuSub) restockSpuSkuSub.textContent = '筛选条件：SPU编码=' + spu + (spuName ? '，SPU名称=' + spuName : '') + '；字段格式与备货模型（SKU）列表一致。';
+        restockSpuSkuState.spu = spu;
+        restockSpuSkuState.page = 1;
+        loadRestockSpuSkuPage();
+        restockSpuSkuModal.classList.add('visible');
+        restockSpuSkuModal.setAttribute('aria-hidden', 'false');
+      }
+      function closeRestockSpuSkuModal() {
+        if (!restockSpuSkuModal) return;
+        restockSpuSkuModal.classList.remove('visible');
+        restockSpuSkuModal.setAttribute('aria-hidden', 'true');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.restock-spu-detail-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          openRestockSpuSkuModal(btn.getAttribute('data-spu') || '', btn.getAttribute('data-spu-name') || '');
+        });
+      });
+      if (restockSpuSkuModal) {
+        Array.prototype.slice.call(restockSpuSkuModal.querySelectorAll('[data-restock-spu-sku-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeRestockSpuSkuModal);
+        });
+        restockSpuSkuModal.addEventListener('click', function(event) {
+          if (event.target === restockSpuSkuModal) closeRestockSpuSkuModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && restockSpuSkuModal.classList.contains('visible')) closeRestockSpuSkuModal();
+        });
+      }
+      var shipmentSpuSkuModal = document.getElementById('shipmentSpuSkuModal');
+      var shipmentSpuSkuTitle = document.getElementById('shipmentSpuSkuTitle');
+      var shipmentSpuSkuSub = document.getElementById('shipmentSpuSkuSub');
+      var shipmentSpuSkuSummary = document.getElementById('shipmentSpuSkuSummary');
+      var shipmentSpuSkuTableBody = document.getElementById('shipmentSpuSkuTableBody');
+      var shipmentSpuSkuPagination = document.getElementById('shipmentSpuSkuPagination');
+      var shipmentSpuSkuState = {
+        spu: '',
+        page: 1,
+        pageSize: 1
+      };
+      var shipmentSpuSkuRows = [
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-001',
+          spuName: '示例商品',
+          pid: 'PID100001',
+          msku: 'MSKU-DEMO-001',
+          skuId: 'SKU-ID-001',
+          inventorySku: 'SKU-DEMO-001',
+          inventorySkuName: '示例商品 黑色 S',
+          overseasStock: '0',
+          overseasDays: '7',
+          triggerThreshold: '10',
+          emergencyFlag: '紧急',
+          directReserve: '30',
+          domesticAvailable: '120',
+          shipmentQty: '80',
+          stockGap: '120',
+          minBatch: '50',
+          batchSatisfied: '是',
+          destinationWarehouse: 'FBT',
+          cutoffDate: '2026-06-13',
+          arrivalDate: '2026-07-15',
+          cutoffArrival: '06-13 / 07-15',
+          stockoutDate: '2026-06-12',
+          gapDays: '33',
+          directMailBridge: '是',
+          shipmentTransport: '空派',
+          shipment: '是',
+          shipmentPriority: 'P1',
+          alertType: '海外仓缺货'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-001',
+          spuName: '示例商品',
+          pid: 'PID100002',
+          msku: 'MSKU-DEMO-002',
+          skuId: 'SKU-ID-002',
+          inventorySku: 'SKU-DEMO-002',
+          inventorySkuName: '示例商品 黑色 M',
+          overseasStock: '140',
+          overseasDays: '9',
+          triggerThreshold: '12',
+          emergencyFlag: '关注',
+          directReserve: '40',
+          domesticAvailable: '100',
+          shipmentQty: '60',
+          stockGap: '90',
+          minBatch: '50',
+          batchSatisfied: '是',
+          destinationWarehouse: 'FBT',
+          cutoffDate: '2026-06-13',
+          arrivalDate: '2026-07-15',
+          cutoffArrival: '06-13 / 07-15',
+          stockoutDate: '2026-06-14',
+          gapDays: '31',
+          directMailBridge: '是',
+          shipmentTransport: '空派',
+          shipment: '是',
+          shipmentPriority: 'P1',
+          alertType: '发货预警'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-002',
+          spuName: '示例商品',
+          pid: 'PID200001',
+          msku: 'MSKU-DEMO-101',
+          skuId: 'SKU-ID-101',
+          inventorySku: 'SKU-DEMO-101',
+          inventorySkuName: '示例商品 白色 S',
+          overseasStock: '260',
+          overseasDays: '18',
+          triggerThreshold: '15',
+          emergencyFlag: '关注',
+          directReserve: '80',
+          domesticAvailable: '160',
+          shipmentQty: '90',
+          stockGap: '140',
+          minBatch: '50',
+          batchSatisfied: '是',
+          destinationWarehouse: 'FBT',
+          cutoffDate: '2026-06-13',
+          arrivalDate: '2026-07-15',
+          cutoffArrival: '06-13 / 07-15',
+          stockoutDate: '2026-06-24',
+          gapDays: '21',
+          directMailBridge: '是',
+          shipmentTransport: '海运',
+          shipment: '是',
+          shipmentPriority: 'P2',
+          alertType: '发货预警'
+        },
+        {
+          site: 'US',
+          store: 'TikTok Shop 示例店铺',
+          spu: 'SPU-DEMO-002',
+          spuName: '示例商品',
+          pid: 'PID200002',
+          msku: 'MSKU-DEMO-102',
+          skuId: 'SKU-ID-102',
+          inventorySku: 'SKU-DEMO-102',
+          inventorySkuName: '示例商品 白色 M',
+          overseasStock: '280',
+          overseasDays: '20',
+          triggerThreshold: '15',
+          emergencyFlag: '关注',
+          directReserve: '60',
+          domesticAvailable: '150',
+          shipmentQty: '70',
+          stockGap: '100',
+          minBatch: '50',
+          batchSatisfied: '是',
+          destinationWarehouse: 'FBT',
+          cutoffDate: '2026-06-13',
+          arrivalDate: '2026-07-15',
+          cutoffArrival: '06-13 / 07-15',
+          stockoutDate: '2026-06-27',
+          gapDays: '18',
+          directMailBridge: '是',
+          shipmentTransport: '海运',
+          shipment: '是',
+          shipmentPriority: 'P2',
+          alertType: '发货预警'
+        }
+      ];
+      function formatShipmentSkuCell(value) {
+        if (value == null || value === '') return '—';
+        return String(value);
+      }
+      function renderShipmentSpuSkuRows(rows) {
+        if (!shipmentSpuSkuTableBody) return;
+        if (!rows.length) {
+          shipmentSpuSkuTableBody.innerHTML = '<tr><td colspan="30" class="manage-empty">暂无该 SPU 下的发货模型 SKU 明细</td></tr>';
+          return;
+        }
+        shipmentSpuSkuTableBody.innerHTML = rows.map(function(row) {
+          return '<tr>'
+            + '<td>' + formatShipmentSkuCell(row.site) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.store) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.spu) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.spuName) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.pid) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.msku) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.skuId) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.inventorySku) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.inventorySkuName) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.overseasStock) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.overseasDays) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.triggerThreshold) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.emergencyFlag) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.directReserve) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.domesticAvailable) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.shipmentQty) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.stockGap) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.minBatch) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.batchSatisfied) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.destinationWarehouse) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.cutoffDate) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.arrivalDate) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.cutoffArrival) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.stockoutDate) + '</td>'
+            + '<td class="num">' + formatShipmentSkuCell(row.gapDays) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.directMailBridge) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.shipmentTransport) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.shipment) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.shipmentPriority) + '</td>'
+            + '<td>' + formatShipmentSkuCell(row.alertType) + '</td>'
+            + '</tr>';
+        }).join('');
+      }
+      function loadShipmentSpuSkuPage() {
+        var rows = shipmentSpuSkuRows.filter(function(row) { return row.spu === shipmentSpuSkuState.spu; });
+        var pageData = paginateSpuSkuRows(rows, shipmentSpuSkuState.page, shipmentSpuSkuState.pageSize);
+        shipmentSpuSkuState.page = pageData.page;
+        if (shipmentSpuSkuSummary) shipmentSpuSkuSummary.textContent = '共 ' + pageData.total + ' 条 SKU 明细';
+        renderShipmentSpuSkuRows(pageData.list);
+        renderSpuSkuPagination(shipmentSpuSkuPagination, pageData, shipmentSpuSkuState, loadShipmentSpuSkuPage, 'shipmentSpuSkuPageSize', 'shipmentSpuSkuPageInput', 'shipment-spu-sku-page');
+      }
+      function openShipmentSpuSkuModal(spu, spuName) {
+        if (!shipmentSpuSkuModal) return;
+        if (shipmentSpuSkuTitle) shipmentSpuSkuTitle.textContent = spu + ' · 发货模型 SKU 明细';
+        if (shipmentSpuSkuSub) shipmentSpuSkuSub.textContent = '筛选条件：SPU编码=' + spu + (spuName ? '，SPU名称=' + spuName : '') + '；字段格式与发货模型（SKU）列表一致。';
+        shipmentSpuSkuState.spu = spu;
+        shipmentSpuSkuState.page = 1;
+        loadShipmentSpuSkuPage();
+        shipmentSpuSkuModal.classList.add('visible');
+        shipmentSpuSkuModal.setAttribute('aria-hidden', 'false');
+      }
+      function closeShipmentSpuSkuModal() {
+        if (!shipmentSpuSkuModal) return;
+        shipmentSpuSkuModal.classList.remove('visible');
+        shipmentSpuSkuModal.setAttribute('aria-hidden', 'true');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.shipment-spu-detail-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          openShipmentSpuSkuModal(btn.getAttribute('data-spu') || '', btn.getAttribute('data-spu-name') || '');
+        });
+      });
+      if (shipmentSpuSkuModal) {
+        Array.prototype.slice.call(shipmentSpuSkuModal.querySelectorAll('[data-shipment-spu-sku-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeShipmentSpuSkuModal);
+        });
+        shipmentSpuSkuModal.addEventListener('click', function(event) {
+          if (event.target === shipmentSpuSkuModal) closeShipmentSpuSkuModal();
+        });
+        document.addEventListener('keydown', function(event) {
+          if (event.key === 'Escape' && shipmentSpuSkuModal.classList.contains('visible')) closeShipmentSpuSkuModal();
+        });
+      }
+      var productDescMask = document.getElementById('productDescMask');
+      function closeProductDesc() {
+        if (productDescMask) productDescMask.classList.remove('open');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.product-desc-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (productDescMask) productDescMask.classList.add('open');
+        });
+      });
+      if (productDescMask) {
+        Array.prototype.slice.call(productDescMask.querySelectorAll('[data-product-desc-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeProductDesc);
+        });
+        productDescMask.addEventListener('click', function(event) {
+          if (event.target === productDescMask) closeProductDesc();
+        });
+      }
+      var restockEditModal = document.getElementById('restockEditModal');
+      var restockEditSpu = document.getElementById('restockEditSpu');
+      var restockEditSku = document.getElementById('restockEditSku');
+      var restockEditContentBurst = document.getElementById('restockEditContentBurst');
+      var restockEditLifecycle = document.getElementById('restockEditLifecycle');
+      var restockEditBusinessRatio = document.getElementById('restockEditBusinessRatio');
+      var restockEditClipRatio = document.getElementById('restockEditClipRatio');
+      var restockEditHotColorSize = document.getElementById('restockEditHotColorSize');
+      var restockEditVoc = document.getElementById('restockEditVoc');
+      function closeRestockEdit() {
+        if (restockEditModal) restockEditModal.classList.remove('visible');
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.restock-edit-btn')).forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          if (!restockEditModal) return;
+          if (restockEditSpu) restockEditSpu.value = btn.getAttribute('data-spu') || '';
+          if (restockEditSku) restockEditSku.value = btn.getAttribute('data-sku') || '';
+          if (restockEditContentBurst) restockEditContentBurst.value = btn.getAttribute('data-content-burst') || '否';
+          if (restockEditLifecycle) restockEditLifecycle.value = btn.getAttribute('data-lifecycle') || '平稳期';
+          if (restockEditBusinessRatio) restockEditBusinessRatio.value = btn.getAttribute('data-business-ratio') || '';
+          if (restockEditClipRatio) restockEditClipRatio.value = btn.getAttribute('data-clip-ratio') || '';
+          if (restockEditHotColorSize) restockEditHotColorSize.value = btn.getAttribute('data-hot-color-size') || '否';
+          if (restockEditVoc) restockEditVoc.value = btn.getAttribute('data-voc') || '';
+          restockEditModal.classList.add('visible');
+        });
+      });
+      if (restockEditModal) {
+        Array.prototype.slice.call(restockEditModal.querySelectorAll('[data-restock-edit-close]')).forEach(function(btn) {
+          btn.addEventListener('click', closeRestockEdit);
+        });
+        restockEditModal.addEventListener('click', function(event) {
+          if (event.target === restockEditModal) closeRestockEdit();
+        });
+      }
+      var restockEditSave = document.getElementById('restockEditSave');
+      if (restockEditSave) {
+        restockEditSave.addEventListener('click', function() {
+          closeRestockEdit();
+          showToast('已保存备货模型编辑内容');
+        });
+      }
+      function parseNumericCell(text) {
+        var raw = String(text || '').trim();
+        if (!raw || raw === '—' || raw === '-' || raw === '待确认') return null;
+        var normalized = raw.replace(/,/g, '').replace(/%$/, '');
+        var num = Number(normalized);
+        return isNaN(num) ? null : num;
+      }
+      function isNumericColumn(tbody, columnIndex) {
+        var hasNumericValue = false;
+        return Array.prototype.every.call(tbody.rows, function(row) {
+          var cell = row.cells[columnIndex];
+          if (!cell || cell.querySelector('button, input, select, textarea')) return false;
+          var value = parseNumericCell(cell.textContent);
+          if (value == null) return false;
+          hasNumericValue = true;
+          return true;
+        }) && hasNumericValue;
+      }
+      function initNumericTableSort(table) {
+        if (!table || !table.tHead || !table.tBodies || !table.tBodies[0]) return;
+        var tbody = table.tBodies[0];
+        if (!tbody.rows.length) return;
+        var headerRows = table.tHead.rows;
+        var sortRow = headerRows[headerRows.length - 1];
+        if (!sortRow) return;
+
+        Array.prototype.forEach.call(sortRow.cells, function(th, index) {
+          if (th.className.indexOf('sticky-base') !== -1) return;
+          if (!isNumericColumn(tbody, index)) return;
+          th.classList.add('sortable-num');
+          th.dataset.sortState = '';
+          Array.prototype.forEach.call(tbody.rows, function(row) {
+            if (row.cells[index]) row.cells[index].classList.add('num');
+          });
+          if (!th.querySelector('.sort-trigger')) {
+            var trigger = document.createElement('span');
+            trigger.className = 'sort-trigger';
+            trigger.textContent = '⇅';
+            th.appendChild(trigger);
+          }
+          th.querySelector('.sort-trigger').addEventListener('click', function(event) {
+            event.stopPropagation();
+            var nextState = th.dataset.sortState === 'asc' ? 'desc' : (th.dataset.sortState === 'desc' ? '' : 'asc');
+            Array.prototype.forEach.call(sortRow.cells, function(cell) {
+              cell.dataset.sortState = '';
+              cell.classList.remove('sort-asc', 'sort-desc');
+              var cellTrigger = cell.querySelector('.sort-trigger');
+              if (cellTrigger) cellTrigger.textContent = '⇅';
+            });
+            th.dataset.sortState = nextState;
+            var currentTrigger = th.querySelector('.sort-trigger');
+            if (nextState) {
+              th.classList.add(nextState === 'asc' ? 'sort-asc' : 'sort-desc');
+              if (currentTrigger) currentTrigger.textContent = nextState === 'asc' ? '↑' : '↓';
+            }
+            var rows = Array.prototype.slice.call(tbody.rows).map(function(row, originalIndex) {
+              return { row: row, originalIndex: originalIndex };
+            });
+            if (!nextState) {
+              rows.sort(function(a, b) { return a.originalIndex - b.originalIndex; });
+            } else {
+              rows.sort(function(a, b) {
+                var aValue = parseNumericCell(a.row.cells[index] ? a.row.cells[index].textContent : '');
+                var bValue = parseNumericCell(b.row.cells[index] ? b.row.cells[index].textContent : '');
+                if (aValue == null && bValue == null) return a.originalIndex - b.originalIndex;
+                if (aValue == null) return 1;
+                if (bValue == null) return -1;
+                if (aValue === bValue) return a.originalIndex - b.originalIndex;
+                return nextState === 'asc' ? aValue - bValue : bValue - aValue;
+              });
+            }
+            rows.forEach(function(item) { tbody.appendChild(item.row); });
+          });
+        });
+      }
+      Array.prototype.slice.call(document.querySelectorAll('.dashboard-table')).forEach(initNumericTableSort);
+    })();
+  </script>
+</body>
+</html>
