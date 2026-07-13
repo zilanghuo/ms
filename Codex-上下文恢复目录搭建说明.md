@@ -23,6 +23,7 @@ codex-context/
 ├── decisions.md        # 技术、文档、流程决策
 ├── todo.md             # 下一步计划
 ├── prompts.md          # 常用 Prompt
+├── handoff.md          # 每日/会话交接文档，给新会话快速接手
 └── sessions/
     └── .gitkeep        # 保留 sessions 目录
 ```
@@ -45,7 +46,7 @@ mkdir -p codex-context/sessions
 cat > codex-context/context.md <<'EOF'
 # 当前上下文
 
-本文件用于账号、实例或任务切换后快速恢复上下文。新实例进入本仓库后，优先读取本文件，再读取 `progress.md`、`decisions.md`、`todo.md` 和 `prompts.md`。
+本文件用于账号、实例或任务切换后快速恢复上下文。新实例进入本仓库后，优先读取 `handoff.md`，再读取本文件、`progress.md`、`decisions.md`、`todo.md` 和 `prompts.md`。
 
 ## 仓库信息
 
@@ -69,11 +70,12 @@ cat > codex-context/context.md <<'EOF'
 ## 恢复顺序
 
 1. 读取 `AGENTS.md`，确认仓库规则。
-2. 读取 `codex-context/context.md`，恢复背景。
-3. 读取 `codex-context/progress.md`，确认已完成和当前状态。
-4. 读取 `codex-context/decisions.md`，沿用已做决策。
-5. 读取 `codex-context/todo.md`，继续下一步。
-6. 需要常用指令时读取 `codex-context/prompts.md`。
+2. 读取 `codex-context/handoff.md`，先掌握最近一次交接摘要。
+3. 读取 `codex-context/context.md`，恢复背景。
+4. 读取 `codex-context/progress.md`，确认已完成和当前状态。
+5. 读取 `codex-context/decisions.md`，沿用已做决策。
+6. 读取 `codex-context/todo.md`，继续下一步。
+7. 需要常用指令时读取 `codex-context/prompts.md`。
 
 ## 注意事项
 
@@ -168,7 +170,7 @@ cat > codex-context/prompts.md <<'EOF'
 ## 恢复上下文
 
 ```text
-请先读取 AGENTS.md，然后依次读取 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md，恢复当前仓库上下文。先总结你理解到的当前状态、关键规则、阻塞项和下一步计划，暂时不要修改文件。
+请先读取 AGENTS.md，然后依次读取 codex-context/handoff.md、codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md，恢复当前仓库上下文。先总结你理解到的当前状态、关键规则、阻塞项、下一步计划，以及有哪些坑绝对不要再踩，暂时不要修改文件。
 ```
 
 ## 继续上次任务
@@ -180,14 +182,68 @@ cat > codex-context/prompts.md <<'EOF'
 ## 更新恢复文件
 
 ```text
-请根据本次对话和实际文件变更，更新 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md。不要记录 token、cookie、API key、账号密码或其他敏感信息。
+请根据本次对话和实际文件变更，更新 codex-context/handoff.md、codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md。不要记录 token、cookie、API key、账号密码或其他敏感信息。
+```
+
+## 写交接文档
+
+```text
+请写一份交接文档并保存到 codex-context/handoff.md。写给一个完全没参与上一段工作的全新会话看。必须说明：我们在做什么任务、已经完成了什么、当前卡在哪、下一步计划是什么、有哪些踩过的坑绝对不要再踩、有哪些关键决策必须沿用。内容要简洁但足够接手，不要记录 token、cookie、API key、账号密码或其他敏感信息。
 ```
 
 ## 归纳 15 天前内容
 
 ```text
-请读取 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md 和 codex-context/sessions/ 下的会话摘要，将距今天超过 15 天且仍有保留价值的内容归纳为简短历史摘要。保留仍影响当前工作的决策、约束、阻塞和结论；删除或压缩已经过期的流水账。不要记录 token、cookie、API key、账号密码或其他敏感信息。
+请读取 codex-context/handoff.md、codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md 和 codex-context/sessions/ 下的会话摘要，将距今天超过 15 天且仍有保留价值的内容归纳为简短历史摘要。保留仍影响当前工作的决策、约束、阻塞和结论；删除或压缩已经过期的流水账。不要记录 token、cookie、API key、账号密码或其他敏感信息。
 ```
+EOF
+
+cat > codex-context/handoff.md <<'EOF'
+# 交接文档
+
+最后更新：YYYY-MM-DD HH:mm
+
+## 给新会话的第一句话
+
+请先读完本文，再读取 `AGENTS.md` 和 `codex-context/` 下其他恢复文件。本文是最近一次交接摘要，优先级高于普通进度流水。
+
+## 我们在做什么任务
+
+- 当前任务：
+- 目标：
+- 涉及文件/目录：
+
+## 已经完成了什么
+
+- 
+
+## 当前卡在哪里
+
+- 
+
+## 下一步计划
+
+1. 
+2. 
+3. 
+
+## 绝对不要再踩的坑
+
+- 
+
+## 需要保留的关键决策
+
+- 
+
+## 新会话启动建议
+
+- 先读取：
+  - `AGENTS.md`
+  - `codex-context/context.md`
+  - `codex-context/progress.md`
+  - `codex-context/decisions.md`
+  - `codex-context/todo.md`
+- 然后根据本文“下一步计划”继续。
 EOF
 
 touch codex-context/sessions/.gitkeep
@@ -212,6 +268,7 @@ EOF
 
 - 本仓库使用 `codex-context/` 目录保存账号、实例或任务切换后的恢复上下文。
 - 新实例进入本仓库后，应优先读取以下文件：
+  - `codex-context/handoff.md`：最近一次交接摘要，优先级最高。
   - `codex-context/context.md`：当前上下文与重要背景。
   - `codex-context/progress.md`：当前开发进度、已完成事项与阻塞项。
   - `codex-context/decisions.md`：已经确认的技术、文档和流程决策。
@@ -232,6 +289,7 @@ cat >> AGENTS.md <<'EOF'
 
 - 本仓库使用 `codex-context/` 目录保存账号、实例或任务切换后的恢复上下文。
 - 新实例进入本仓库后，应优先读取以下文件：
+  - `codex-context/handoff.md`：最近一次交接摘要，优先级最高。
   - `codex-context/context.md`：当前上下文与重要背景。
   - `codex-context/progress.md`：当前开发进度、已完成事项与阻塞项。
   - `codex-context/decisions.md`：已经确认的技术、文档和流程决策。
@@ -253,6 +311,7 @@ EOF
 | `decisions.md` | 保存已确认的技术、文档、流程决策 | 每次做出不可轻易回滚的判断时 |
 | `todo.md` | 保存下一步计划和优先级 | 每次任务结束前 |
 | `prompts.md` | 保存常用 Prompt | 沉淀出可复用工作方式时 |
+| `handoff.md` | 保存每日或会话交接摘要，帮助全新会话快速接手 | 每天结束、长任务中断、切账号、切实例、切新会话前 |
 | `sessions/` | 保存按日期或任务拆分的会话摘要 | 长任务、跨天任务、重要任务结束后 |
 
 ## 新实例恢复 Prompt
@@ -260,7 +319,7 @@ EOF
 新开账号、新开实例或新开任务时，可以直接发送：
 
 ```text
-请先读取 AGENTS.md，然后依次读取 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md，恢复当前仓库上下文。先总结你理解到的当前状态、关键规则、阻塞项和下一步计划，暂时不要修改文件。
+请先读取 AGENTS.md，然后依次读取 codex-context/handoff.md、codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md，恢复当前仓库上下文。先总结你理解到的当前状态、关键规则、阻塞项、下一步计划，以及有哪些坑绝对不要再踩，暂时不要修改文件。
 ```
 
 ## 维护建议
@@ -270,6 +329,7 @@ EOF
 - `decisions.md` 记录“为什么这样做”，避免后续重复讨论。
 - `todo.md` 面向下一步行动，尽量写成可以执行的清单；对未实施但已梳理清楚的任务，使用 `[待执行][逻辑已固化][业务代码未改]` 等状态标签区分“还没做”和“方案已沉淀”。
 - `prompts.md` 放经过验证好用的提示词，不要堆太多一次性 Prompt。
+- `handoff.md` 面向完全没参与上一段工作的全新会话，重点写清楚当前任务、已完成、卡点、下一步和不要再踩的坑；每天结束、长任务中断、切账号、切实例、切新会话前都建议更新一次。
 - `sessions/` 只保存关键会话摘要，不需要保存完整对话；长任务摘要顶部建议写明状态，例如 `[待执行][逻辑已固化][业务代码未改]` 或 `[已完成]`。
 - 距当前日期超过 15 天的内容不要长期堆在当前上下文里，应归纳为简短历史摘要；只保留仍影响当前工作的决策、约束、阻塞和结论。
 
@@ -304,5 +364,6 @@ codex-context/progress.md
 codex-context/decisions.md
 codex-context/todo.md
 codex-context/prompts.md
+codex-context/handoff.md
 codex-context/sessions/.gitkeep
 ```
