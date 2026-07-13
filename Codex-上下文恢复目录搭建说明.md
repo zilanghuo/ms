@@ -150,6 +150,14 @@ cat > codex-context/todo.md <<'EOF'
 - 新账号或新实例进入仓库后，读取 `AGENTS.md` 和 `codex-context/context.md` 能理解当前工作背景。
 - 读取 `codex-context/progress.md` 能知道已经做了什么、哪里阻塞。
 - 读取 `codex-context/todo.md` 能继续下一步。
+
+## 状态标签约定
+
+- `[待执行]`：需求还没有落实到业务代码、文档正式产物或实际交付物。
+- `[逻辑已固化]`：已经完成资料阅读、差异梳理和执行方案沉淀，下次可直接按记录执行。
+- `[业务代码未改]`：明确没有改动 `packages/`、`apps/`、后端模块等业务实现文件。
+- `[已完成]`：实际修改已完成，并记录了必要验证结果。
+- 对“先记下来、暂时不做”的事项，建议组合使用 `[待执行][逻辑已固化][业务代码未改]`。
 EOF
 
 cat > codex-context/prompts.md <<'EOF'
@@ -173,6 +181,12 @@ cat > codex-context/prompts.md <<'EOF'
 
 ```text
 请根据本次对话和实际文件变更，更新 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md。不要记录 token、cookie、API key、账号密码或其他敏感信息。
+```
+
+## 归纳 15 天前内容
+
+```text
+请读取 codex-context/context.md、codex-context/progress.md、codex-context/decisions.md、codex-context/todo.md 和 codex-context/sessions/ 下的会话摘要，将距今天超过 15 天且仍有保留价值的内容归纳为简短历史摘要。保留仍影响当前工作的决策、约束、阻塞和结论；删除或压缩已经过期的流水账。不要记录 token、cookie、API key、账号密码或其他敏感信息。
 ```
 EOF
 
@@ -204,6 +218,7 @@ EOF
   - `codex-context/todo.md`：下一步计划。
   - `codex-context/prompts.md`：常用 Prompt。
 - `codex-context/sessions/` 可用于保存按日期或任务拆分的会话摘要。
+- 对距当前日期超过 15 天的恢复内容，应定期归纳为简短历史摘要，只保留仍影响当前工作的决策、约束、阻塞和结论。
 - 不要在 `codex-context/` 中记录 token、cookie、API key、账号密码或其他敏感凭据。
 - 若 `codex-context/` 中的恢复信息与用户最新明确指令冲突，以用户最新明确指令为准。
 ```
@@ -223,6 +238,7 @@ cat >> AGENTS.md <<'EOF'
   - `codex-context/todo.md`：下一步计划。
   - `codex-context/prompts.md`：常用 Prompt。
 - `codex-context/sessions/` 可用于保存按日期或任务拆分的会话摘要。
+- 对距当前日期超过 15 天的恢复内容，应定期归纳为简短历史摘要，只保留仍影响当前工作的决策、约束、阻塞和结论。
 - 不要在 `codex-context/` 中记录 token、cookie、API key、账号密码或其他敏感凭据。
 - 若 `codex-context/` 中的恢复信息与用户最新明确指令冲突，以用户最新明确指令为准。
 EOF
@@ -252,9 +268,10 @@ EOF
 - `context.md` 只放真正影响恢复的信息，不要写流水账。
 - `progress.md` 记录状态变化，避免新实例不知道任务卡在哪里。
 - `decisions.md` 记录“为什么这样做”，避免后续重复讨论。
-- `todo.md` 面向下一步行动，尽量写成可以执行的清单。
+- `todo.md` 面向下一步行动，尽量写成可以执行的清单；对未实施但已梳理清楚的任务，使用 `[待执行][逻辑已固化][业务代码未改]` 等状态标签区分“还没做”和“方案已沉淀”。
 - `prompts.md` 放经过验证好用的提示词，不要堆太多一次性 Prompt。
-- `sessions/` 只保存关键会话摘要，不需要保存完整对话。
+- `sessions/` 只保存关键会话摘要，不需要保存完整对话；长任务摘要顶部建议写明状态，例如 `[待执行][逻辑已固化][业务代码未改]` 或 `[已完成]`。
+- 距当前日期超过 15 天的内容不要长期堆在当前上下文里，应归纳为简短历史摘要；只保留仍影响当前工作的决策、约束、阻塞和结论。
 
 ## 安全注意事项
 
