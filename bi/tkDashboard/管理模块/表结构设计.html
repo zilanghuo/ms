@@ -45,7 +45,7 @@
         <thead><tr><th>层级</th><th>表名</th><th>服务页面</th><th>粒度 / 主键</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-product-archive"><code>dim_product_archive_config</code></a></td><td>商品档案</td><td>平台 + 店铺 + PID + SKU</td><td>商品档案当前生效配置，承接 TK API、积加商品主数据与人工维护字段。</td></tr>
-          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-account-archive"><code>dim_product_tiktok_account_config</code></a></td><td>账号维护</td><td>TikTok UID</td><td>TikTok 账号当前生效档案，手动维护渠道号、达人号、TAP 机构号及运营归属。</td></tr>
+          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-account-archive"><code>dim_platform_tiktok_account_config</code></a></td><td>账号维护</td><td>TikTok UID</td><td>TikTok 账号当前生效档案，手动维护渠道号、达人号、TAP 机构号及运营归属。</td></tr>
           <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-video-config"><code>dim_product_tiktok_video_config</code></a></td><td>视频数据</td><td>视频 ID</td><td>TikTok 视频当前生效配置，承接已绑定账号 / 联盟账号源数据与人工维护字段。</td></tr>
         </tbody>
       </table>
@@ -73,17 +73,24 @@
           <tr><td><code>spu</code></td><td><code>VARCHAR(100)</code></td><td>PID 主推 SPU 维护 / 积加</td><td>产品主 SPU。</td></tr>
           <tr><td><code>main_sku</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>产品主 SKU；价格归属该产品主 SKU。</td></tr>
           <tr><td><code>sku</code></td><td><code>VARCHAR(100)</code></td><td>TK API / 积加</td><td>SKU 编码，SKU 看板展示字段。</td></tr>
+          <tr><td><code>color_name</code></td><td><code>VARCHAR(100)</code></td><td>TK API / SKU 解析 / 人工维护</td><td>颜色，PID 看板与 SKU 看板展示字段。</td></tr>
+          <tr><td><code>size_name</code></td><td><code>VARCHAR(100)</code></td><td>TK API / SKU 解析 / 人工维护</td><td>尺码，PID 看板与 SKU 看板展示字段。</td></tr>
+          <tr><td><code>sku_name_cn</code></td><td><code>VARCHAR(500)</code></td><td>积加 / 人工维护</td><td>SKU 中文名。</td></tr>
+          <tr><td><code>sellable_stock_qty</code></td><td><code>BIGINT</code></td><td>库存数据 / TK API</td><td>可售库存数量。</td></tr>
           <tr><td><code>product_name_cn</code></td><td><code>VARCHAR(500)</code></td><td>积加 SPU 中文名 / 人工维护</td><td>产品中文名。</td></tr>
           <tr><td><code>product_brand</code></td><td><code>VARCHAR(100)</code></td><td>商品主数据 / 人工维护</td><td>产品品牌。</td></tr>
           <tr><td><code>product_category</code></td><td><code>VARCHAR(200)</code></td><td>商品主数据 / 人工维护</td><td>产品品类。</td></tr>
-          <tr><td><code>main_image_url</code></td><td><code>STRING</code></td><td>TK API / 商品图片</td><td>主图 URL，取 SKU 主属性图第一张图。</td></tr>
+          <tr><td><code>main_image_url</code></td><td><code>STRING</code></td><td>TK API / 商品图片 / 人工维护</td><td>主图 URL，取 SKU 主属性图第一张图；也可承接编辑抽屉维护的主图资源链接。</td></tr>
           <tr><td><code>product_status_name</code></td><td><code>VARCHAR(50)</code></td><td>TK API / 人工维护</td><td>商品状态，如在售、停售。</td></tr>
           <tr><td><code>tk_audit_status_name</code></td><td><code>VARCHAR(50)</code></td><td>TK API</td><td>TK 审核状态，如已通过。</td></tr>
           <tr><td><code>pid_usage</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>PID 作用。</td></tr>
+          <tr><td><code>product_operation_level_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>商品运营级别，如 S级、A级、B级、C级。</td></tr>
+          <tr><td><code>product_operation_status_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>商品运营状态，如重点运营、常规运营、观察中、暂停运营。</td></tr>
+          <tr><td><code>product_tags</code></td><td><code>STRING</code></td><td>人工维护</td><td>商品标签，多个标签用逗号分隔。</td></tr>
           <tr><td><code>season_tags</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>季节多选，逗号分隔：春、夏、秋、冬。</td></tr>
           <tr><td><code>operator_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责运营；后续 PID 数据看板可扩展展示。</td></tr>
           <tr><td><code>business_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责商务。</td></tr>
-          <tr><td><code>guidance_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责指导。</td></tr>
+          <tr><td><code>guidance_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责指导 / 编导。</td></tr>
           <tr><td><code>editor_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>负责剪辑。</td></tr>
           <tr><td><code>live_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>直播运营。</td></tr>
           <tr><td><code>ad_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>投放负责人。</td></tr>
@@ -99,6 +106,10 @@
           <tr><td><code>ippc_register_status</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>IPPC 注册情况。</td></tr>
           <tr><td><code>ippc_remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>IPPC 情况说明。</td></tr>
           <tr><td><code>product_selling_points</code></td><td><code>STRING</code></td><td>人工维护</td><td>产品卖点。</td></tr>
+          <tr><td><code>product_analysis</code></td><td><code>STRING</code></td><td>人工维护</td><td>提按商品分析 / 商品分析说明。</td></tr>
+          <tr><td><code>tk_product_url</code></td><td><code>STRING</code></td><td>人工维护 / TK API</td><td>TK 商品链接。</td></tr>
+          <tr><td><code>site_product_url</code></td><td><code>STRING</code></td><td>人工维护</td><td>独立站商品链接。</td></tr>
+          <tr><td><code>asset_folder_url</code></td><td><code>STRING</code></td><td>人工维护</td><td>素材文件夹链接。</td></tr>
           <tr><td><code>source_update_date</code></td><td><code>DATE</code></td><td>TK API / 商品主数据</td><td>源数据更新日期。</td></tr>
           <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记，0 否，1 是。</td></tr>
           <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
@@ -117,17 +128,24 @@
     spu                           VARCHAR(100)   COMMENT '产品主 SPU',
     main_sku                      VARCHAR(100)   COMMENT '产品主 SKU，价格归属该 SKU',
     sku                           VARCHAR(100)   COMMENT 'SKU 编码',
+    color_name                    VARCHAR(100)   COMMENT '颜色',
+    size_name                     VARCHAR(100)   COMMENT '尺码',
+    sku_name_cn                   VARCHAR(500)   COMMENT 'SKU 中文名',
+    sellable_stock_qty            BIGINT         COMMENT '可售库存数量',
     product_name_cn               VARCHAR(500)   COMMENT '产品中文名',
     product_brand                 VARCHAR(100)   COMMENT '产品品牌',
     product_category              VARCHAR(200)   COMMENT '产品品类',
-    main_image_url                STRING         COMMENT '主图 URL，SKU 主属性图第一张',
+    main_image_url                STRING         COMMENT '主图 URL，SKU 主属性图第一张或人工维护主图资源链接',
     product_status_name           VARCHAR(50)    COMMENT '商品状态',
     tk_audit_status_name          VARCHAR(50)    COMMENT 'TK 审核状态',
     pid_usage                     VARCHAR(200)   COMMENT 'PID 作用',
+    product_operation_level_name  VARCHAR(50)    COMMENT '商品运营级别',
+    product_operation_status_name VARCHAR(50)    COMMENT '商品运营状态',
+    product_tags                  STRING         COMMENT '商品标签，逗号分隔',
     season_tags                   VARCHAR(100)   COMMENT '季节标签，逗号分隔',
     operator_owner                VARCHAR(100)   COMMENT '负责运营',
     business_owner                VARCHAR(100)   COMMENT '负责商务',
-    guidance_owner                VARCHAR(100)   COMMENT '负责指导',
+    guidance_owner                VARCHAR(100)   COMMENT '负责指导 / 编导',
     editor_owner                  VARCHAR(100)   COMMENT '负责剪辑',
     live_owner                    VARCHAR(100)   COMMENT '直播运营',
     ad_owner                      VARCHAR(100)   COMMENT '投放负责人',
@@ -143,6 +161,10 @@
     ippc_register_status          VARCHAR(50)    COMMENT 'IPPC 注册情况',
     ippc_remark                   STRING         COMMENT 'IPPC 情况说明',
     product_selling_points        STRING         COMMENT '产品卖点',
+    product_analysis              STRING         COMMENT '提按商品分析 / 商品分析说明',
+    tk_product_url                STRING         COMMENT 'TK 商品链接',
+    site_product_url              STRING         COMMENT '独立站商品链接',
+    asset_folder_url              STRING         COMMENT '素材文件夹链接',
     source_update_date            DATE           COMMENT '源数据更新日期',
     is_deleted                    TINYINT        DEFAULT '0' COMMENT '逻辑删除标记',
     created_time                  DATETIME       COMMENT '创建时间',
@@ -156,7 +178,7 @@ PROPERTIES (
     "replication_num" = "1"
 );</code></pre>
 
-    <h2 id="tbl-account-archive">四、dim_product_tiktok_account_config</h2>
+    <h2 id="tbl-account-archive">四、dim_platform_tiktok_account_config</h2>
     <p>TikTok 账号当前生效档案表，支撑账号类型、站点、状态、运营人员、账号 / UID 搜索，以及新增 / 编辑账号抽屉。</p>
     <div class="table-wrap">
       <table>
@@ -165,15 +187,32 @@ PROPERTIES (
           <tr><td><code>tiktok_uid</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>TikTok UID，账号唯一主键。</td></tr>
           <tr><td><code>handle_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>Handle Name，如 @faiable_official。</td></tr>
           <tr><td><code>handle_url</code></td><td><code>STRING</code></td><td>人工维护</td><td>账号主页 URL；页面支持编辑 URL。</td></tr>
+          <tr><td><code>nickname</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>账号昵称。</td></tr>
+          <tr><td><code>platform_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>平台名称，当前默认为 TikTok。</td></tr>
+          <tr><td><code>region_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>区域名称，如美区、英区、澳区。</td></tr>
           <tr><td><code>account_type_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>账号类型：渠道号、达人号、TAP 机构号。</td></tr>
+          <tr><td><code>content_sources</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>内容来源，多选后逗号分隔，如混剪、实拍、AI、图文。</td></tr>
+          <tr><td><code>custom_tags</code></td><td><code>STRING</code></td><td>人工维护</td><td>自定义标签，支持预设标签与自由输入。</td></tr>
+          <tr><td><code>creator_source_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>达人来源，如自主开发、离职继承、被动建联。</td></tr>
+          <tr><td><code>creator_level_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>达人等级，如 L3以下、L3、L4、L5、L6。</td></tr>
+          <tr><td><code>is_opened</code></td><td><code>TINYINT</code></td><td>人工维护</td><td>是否开单，1 是，0 否。</td></tr>
+          <tr><td><code>cooperation_mode</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>合作模式，如寄样+佣金、纯佣合作。</td></tr>
           <tr><td><code>site_code</code></td><td><code>VARCHAR(30)</code></td><td>人工维护</td><td>国家 / 站点，如 US、UK、AU。</td></tr>
           <tr><td><code>cart_store_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>内容挂车店铺。</td></tr>
+          <tr><td><code>affiliated_shop_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>账号归属店铺。</td></tr>
+          <tr><td><code>backend_bind_shop</code></td><td><code>TINYINT</code></td><td>人工维护</td><td>是否后台绑定店铺，1 已绑定，0 未绑定。</td></tr>
+          <tr><td><code>backend_shop_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>后台绑定店铺名。</td></tr>
+          <tr><td><code>shop_code</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>店铺编码。</td></tr>
           <tr><td><code>operator_owner</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>运营人员。</td></tr>
           <tr><td><code>account_status_name</code></td><td><code>VARCHAR(50)</code></td><td>人工维护</td><td>账号状态：活跃、暂停、停用。</td></tr>
           <tr><td><code>position_gender_name</code></td><td><code>VARCHAR(20)</code></td><td>人工维护</td><td>账号定位性别：未知、女、男。</td></tr>
-          <tr><td><code>credential_cipher_text</code></td><td><code>STRING</code></td><td>人工维护 / 加密存储</td><td>登录凭证密文；正式系统不得明文保存。</td></tr>
-          <tr><td><code>credential_remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>登录凭证备注 / 授权说明。</td></tr>
-          <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记；回收站使用。</td></tr>
+          <tr><td><code>email</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>账号注册邮箱。</td></tr>
+          <tr><td><code>email_login_url</code></td><td><code>STRING</code></td><td>人工维护</td><td>邮箱登录地址。</td></tr>
+          <tr><td><code>email_password_cipher_text</code></td><td><code>STRING</code></td><td>人工维护 / 加密存储</td><td>邮箱密码密文；正式系统不得明文保存。</td></tr>
+          <tr><td><code>tk_password_cipher_text</code></td><td><code>STRING</code></td><td>人工维护 / 加密存储</td><td>TK 密码密文；正式系统不得明文保存。</td></tr>
+          <tr><td><code>network_line</code></td><td><code>VARCHAR(100)</code></td><td>人工维护</td><td>网络线路 / 代理节点。</td></tr>
+          <tr><td><code>notes</code></td><td><code>STRING</code></td><td>人工维护</td><td>备注。</td></tr>
+          <tr><td><code>is_deleted</code></td><td><code>TINYINT</code></td><td>系统字段</td><td>逻辑删除标记，0 否，1 是。</td></tr>
           <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
           <tr><td><code>updated_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>更新时间。</td></tr>
           <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>Doris 入仓时间。</td></tr>
@@ -182,18 +221,35 @@ PROPERTIES (
     </div>
 
     <h3>4.1 DDL 草案</h3>
-    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_product_tiktok_account_config (
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_platform_tiktok_account_config (
     tiktok_uid                    VARCHAR(100)   COMMENT 'TikTok UID',
     handle_name                   VARCHAR(200)   COMMENT 'Handle Name',
     handle_url                    STRING         COMMENT '账号主页 URL',
+    nickname                      VARCHAR(100)   COMMENT '账号昵称',
+    platform_name                 VARCHAR(50)    COMMENT '平台名称',
+    region_name                   VARCHAR(50)    COMMENT '区域名称',
     account_type_name             VARCHAR(50)    COMMENT '账号类型',
+    content_sources               VARCHAR(200)   COMMENT '内容来源，逗号分隔',
+    custom_tags                   STRING         COMMENT '自定义标签，逗号分隔',
+    creator_source_name           VARCHAR(50)    COMMENT '达人来源',
+    creator_level_name            VARCHAR(50)    COMMENT '达人等级',
+    is_opened                     TINYINT        DEFAULT '0' COMMENT '是否开单',
+    cooperation_mode              VARCHAR(200)   COMMENT '合作模式',
     site_code                     VARCHAR(30)    COMMENT '国家 / 站点',
     cart_store_name               VARCHAR(200)   COMMENT '内容挂车店铺',
+    affiliated_shop_name          VARCHAR(200)   COMMENT '账号归属店铺',
+    backend_bind_shop             TINYINT        DEFAULT '0' COMMENT '是否后台绑定店铺',
+    backend_shop_name             VARCHAR(200)   COMMENT '后台绑定店铺名',
+    shop_code                     VARCHAR(50)    COMMENT '店铺编码',
     operator_owner                VARCHAR(100)   COMMENT '运营人员',
     account_status_name           VARCHAR(50)    COMMENT '账号状态',
     position_gender_name          VARCHAR(20)    COMMENT '账号定位性别',
-    credential_cipher_text        STRING         COMMENT '登录凭证密文',
-    credential_remark             STRING         COMMENT '登录凭证备注 / 授权说明',
+    email                         VARCHAR(200)   COMMENT '账号注册邮箱',
+    email_login_url               STRING         COMMENT '邮箱登录地址',
+    email_password_cipher_text    STRING         COMMENT '邮箱密码密文',
+    tk_password_cipher_text       STRING         COMMENT 'TK 密码密文',
+    network_line                  VARCHAR(100)   COMMENT '网络线路 / 代理节点',
+    notes                         STRING         COMMENT '备注',
     is_deleted                    TINYINT        DEFAULT '0' COMMENT '逻辑删除标记',
     created_time                  DATETIME       COMMENT '创建时间',
     updated_time                  DATETIME       COMMENT '更新时间',
@@ -304,12 +360,20 @@ PROPERTIES (
       <table>
         <thead><tr><th>页面</th><th>页面字段</th><th>对应表字段</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>商品档案</td><td>主图</td><td><code>main_image_url</code></td><td>SKU 主属性图第一张。</td></tr>
+          <tr><td>商品档案</td><td>主图 / 主图资源链接</td><td><code>main_image_url</code></td><td>SKU 主属性图第一张；也可承接编辑抽屉维护的主图资源链接。</td></tr>
           <tr><td>商品档案</td><td>产品主 SKU</td><td><code>main_sku</code></td><td>价格归属该 SKU，编辑抽屉可维护。</td></tr>
+          <tr><td>商品档案</td><td>颜色 / 尺码 / SKU中文名 / 可售库存</td><td><code>color_name</code>、<code>size_name</code>、<code>sku_name_cn</code>、<code>sellable_stock_qty</code></td><td>PID 看板、SKU 看板与展开 SKU 明细展示字段。</td></tr>
           <tr><td>商品档案</td><td>负责运营</td><td><code>operator_owner</code></td><td>后续可同步给 PID 数据看板运营责任人。</td></tr>
+          <tr><td>商品档案</td><td>商品运营级别 / 商品运营状态 / 商品标签</td><td><code>product_operation_level_name</code>、<code>product_operation_status_name</code>、<code>product_tags</code></td><td>编辑抽屉运营维护字段。</td></tr>
+          <tr><td>商品档案</td><td>TK 商品链接 / 独立站商品链接 / 素材文件夹链接</td><td><code>tk_product_url</code>、<code>site_product_url</code>、<code>asset_folder_url</code></td><td>编辑抽屉链接与素材维护字段。</td></tr>
+          <tr><td>商品档案</td><td>产品卖点 / 提按商品分析</td><td><code>product_selling_points</code>、<code>product_analysis</code></td><td>内容运营说明字段。</td></tr>
           <tr><td>账号维护</td><td>Handle Name</td><td><code>handle_name</code></td><td>账号展示名，可生成主页 URL。</td></tr>
           <tr><td>账号维护</td><td>TikTok UID</td><td><code>tiktok_uid</code></td><td>账号唯一键。</td></tr>
-          <tr><td>账号维护</td><td>登录凭证/备注</td><td><code>credential_cipher_text</code>、<code>credential_remark</code></td><td>正式系统需加密凭证并记录备注。</td></tr>
+          <tr><td>账号维护</td><td>昵称 / 平台 / 区域</td><td><code>nickname</code>、<code>platform_name</code>、<code>region_name</code></td><td>账号基础信息与全部账号列表展示字段。</td></tr>
+          <tr><td>账号维护</td><td>内容来源 / 自定义标签</td><td><code>content_sources</code>、<code>custom_tags</code></td><td>账号分类字段，多选值用逗号分隔。</td></tr>
+          <tr><td>账号维护</td><td>达人来源 / 达人等级 / 是否开单 / 合作模式</td><td><code>creator_source_name</code>、<code>creator_level_name</code>、<code>is_opened</code>、<code>cooperation_mode</code></td><td>达人号与 TAP 机构号栏目业务字段。</td></tr>
+          <tr><td>账号维护</td><td>账号归属店铺 / 后台绑定 / 后台绑定店铺名 / Shop Code</td><td><code>affiliated_shop_name</code>、<code>backend_bind_shop</code>、<code>backend_shop_name</code>、<code>shop_code</code></td><td>店铺信息与后台绑定字段。</td></tr>
+          <tr><td>账号维护</td><td>邮箱 / 邮箱登录地址 / 邮箱密码 / TK 密码 / 网络线路 / 备注</td><td><code>email</code>、<code>email_login_url</code>、<code>email_password_cipher_text</code>、<code>tk_password_cipher_text</code>、<code>network_line</code>、<code>notes</code></td><td>凭证类字段必须加密或脱敏存储，不落明文密码。</td></tr>
           <tr><td>视频数据</td><td>视频ID</td><td><code>video_id</code></td><td>视频记录唯一键，列表、源数据维护和编辑抽屉共用。</td></tr>
           <tr><td>视频数据</td><td>达人账号 / 达人ID</td><td><code>creator_account_name</code>、<code>creator_id</code>、<code>tiktok_uid</code></td><td>用于搜索、展示，并与账号维护 / 寄样记录关联。</td></tr>
           <tr><td>视频数据</td><td>视频类型 / 内容类型</td><td><code>video_type_name</code>、<code>content_type_name</code></td><td>支撑全部视频、联盟视频、自制视频、图文视频、AI 视频切换与内容类型筛选。</td></tr>

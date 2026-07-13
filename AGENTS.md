@@ -36,3 +36,16 @@
   - 原因是接口集成语言为 Java 8，接口入参与出参需符合 Java 常用 DTO / VO 命名风格。
   - 数仓底表、DWD / DWS / ADS / DIM / ODS 表字段仍按 Doris 规范使用小写加下划线命名。
   - 接口文档如需说明底层映射关系，应通过“来源字段 / 对应底表字段”方式说明，不要直接把下划线字段名当成接口返回字段名。
+
+## 5. 上下文恢复文件
+
+- 本仓库使用 `codex-context/` 目录保存账号、实例或任务切换后的恢复上下文。
+- 新实例进入本仓库后，应优先读取以下文件：
+  - `codex-context/context.md`：当前上下文与重要背景。
+  - `codex-context/progress.md`：当前开发进度、已完成事项与阻塞项。
+  - `codex-context/decisions.md`：已经确认的技术、文档和流程决策。
+  - `codex-context/todo.md`：下一步计划。
+  - `codex-context/prompts.md`：常用 Prompt。
+- `codex-context/sessions/` 可用于保存按日期或任务拆分的会话摘要。
+- 不要在 `codex-context/` 中记录 token、cookie、API key、账号密码或其他敏感凭据。
+- 若 `codex-context/` 中的恢复信息与用户最新明确指令冲突，以用户最新明确指令为准。

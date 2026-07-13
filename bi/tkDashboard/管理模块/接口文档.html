@@ -49,13 +49,14 @@
           <li><a href="#general-rules">通用约定</a></li>
           <li><a href="#product-module">一、商品模块：商品档案</a></li>
           <li><a href="#product-common-params">1.1 共用请求参数</a></li>
-          <li><a href="#product-latest-time">1.2 数据最新时间</a></li>
-          <li><a href="#product-page">1.3 商品档案分页列表</a></li>
-          <li><a href="#product-detail">1.4 商品档案详情</a></li>
-          <li><a href="#product-save">1.5 商品档案保存</a></li>
-          <li><a href="#product-sku-detail">1.6 SPU/PID 展开 SKU 明细</a></li>
-          <li><a href="#product-fields">1.7 商品档案字段说明</a></li>
-          <li><a href="#product-export">1.8 商品档案导出</a></li>
+          <li><a href="#product-options">1.2 商品档案下拉选项</a></li>
+          <li><a href="#product-latest-time">1.3 数据最新时间</a></li>
+          <li><a href="#product-page">1.4 商品档案分页列表</a></li>
+          <li><a href="#product-detail">1.5 商品档案详情</a></li>
+          <li><a href="#product-save">1.6 商品档案保存</a></li>
+          <li><a href="#product-sku-detail">1.7 SPU/PID 展开 SKU 明细</a></li>
+          <li><a href="#product-fields">1.8 商品档案字段说明</a></li>
+          <li><a href="#product-export">1.9 商品档案导出</a></li>
         </ul>
         <ul>
           <li><a href="#account-module">二、账号模块：账号维护</a></li>
@@ -78,7 +79,7 @@
       <table>
         <thead><tr><th>项</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td>Base URL</td><td>建议使用 <code>/tk/manage</code>；商品档案为 <code>/tk/manage/product-archive</code>，账号维护为 <code>/tk/manage/account</code></td></tr>
+          <tr><td>Base URL</td><td>建议商品档案使用 <code>/tk/content/product/archive</code>；账号维护使用 <code>/tk/content/account</code></td></tr>
           <tr><td>请求格式</td><td>GET 使用 query string；POST 使用 <code>application/json</code>；导入使用 <code>multipart/form-data</code></td></tr>
           <tr><td>响应格式</td><td><code>application/json</code>；导出、模板下载接口返回文件流</td></tr>
           <tr><td>字段命名</td><td>接口请求参数、返回参数统一使用 camelCase；底层 Doris 字段仅在“对应底表字段”中使用小写下划线</td></tr>
@@ -98,7 +99,7 @@
 
     <h2 id="product-module">一、商品模块：商品档案</h2>
     <p>页面结构包含 <strong>SPU 看板 / PID 看板 / SKU 看板</strong> 三个栏目，筛选区、操作区、列表区、展开 SKU 明细、编辑抽屉与导出动作。基础数据来源于 TK API 与积加商品主数据，人工维护字段沉淀到商品档案配置。</p>
-    <div class="note"><strong>不单独罗列的通用能力：</strong>平台、店铺、品类、品牌、负责人等下拉选项可由前端静态维护或复用公共配置接口；产品说明、自定义列配置也可使用通用用户配置能力。</div>
+    <div class="note"><strong>通用能力说明：</strong>平台、店铺可复用公共配置接口或前端固定选项；状态、品类、品牌、负责人按本章节下拉选项接口提供；产品说明、自定义列配置可使用通用用户配置能力。</div>
 
     <h3 id="product-common-params">1.1 共用请求参数</h3>
     <div class="table-wrap">
@@ -123,7 +124,51 @@
       </table>
     </div>
 
-    <h3 id="product-latest-time">1.2 数据最新时间接口</h3>
+    <h3 id="product-options">1.2 商品档案下拉选项接口</h3>
+    <p>商品档案筛选区中的状态、品类、品牌、负责人由后端接口返回。四个接口响应结构一致，<code>data</code> 直接返回选项数组，业务字段固定为 <code>label</code> 和 <code>value</code>。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>选项</th><th>接口</th><th>方法</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>状态</td><td><code>/tk/manage/product-archive/options/status</code></td><td>GET</td><td>返回商品状态筛选项，对应请求参数 <code>productStatus</code></td></tr>
+          <tr><td>品类</td><td><code>/tk/manage/product-archive/options/category</code></td><td>GET</td><td>返回产品品类筛选项，对应请求参数 <code>productCategory</code></td></tr>
+          <tr><td>品牌</td><td><code>/tk/manage/product-archive/options/brand</code></td><td>GET</td><td>返回产品品牌筛选项，对应请求参数 <code>productBrand</code></td></tr>
+          <tr><td>负责人</td><td><code>/tk/manage/product-archive/options/operator-owner</code></td><td>GET</td><td>返回负责运营 / 负责人筛选项，对应请求参数 <code>operatorOwner</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>请求参数</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>viewType</code></td><td>string</td><td>否</td><td>看板类型：<code>spu</code>、<code>pid</code>、<code>sku</code>；用于按当前看板粒度裁剪可选项</td></tr>
+          <tr><td><code>platformCode</code></td><td>string</td><td>否</td><td>平台代码；为空返回全部平台可选项</td></tr>
+          <tr><td><code>storeNames</code></td><td>array&lt;string&gt;</td><td>否</td><td>所属店铺列表；为空返回全部店铺可选项</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应 data 字段</strong></p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>label</code></td><td>string</td><td>前端展示文案</td></tr>
+          <tr><td><code>value</code></td><td>string</td><td>实际提交值，列表查询时传入对应筛选参数</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>响应示例</strong></p>
+    <pre><code>{
+  "code": 200,
+  "msg": "操作成功",
+  "data": [
+    { "label": "在售", "value": "在售" },
+    { "label": "停售", "value": "停售" }
+  ]
+}</code></pre>
+
+    <h3 id="product-latest-time">1.3 数据最新时间接口</h3>
     <pre><code>GET /tk/manage/product-archive/dataLatestTime</code></pre>
     <p>返回商品档案页面操作区展示的数据更新时间。</p>
     <pre><code>{
@@ -135,7 +180,7 @@
   }
 }</code></pre>
 
-    <h3 id="product-page">1.3 商品档案分页列表接口</h3>
+    <h3 id="product-page">1.4 商品档案分页列表接口</h3>
     <pre><code>POST /tk/manage/product-archive/page</code></pre>
     <p>按当前看板返回列表数据。SPU/PID 看板返回聚合行，SKU 看板返回 SKU 明细行；分页在当前看板粒度下生效。</p>
     <pre><code>{
@@ -234,7 +279,7 @@
       </table>
     </div>
 
-    <h3 id="product-detail">1.4 商品档案详情接口</h3>
+    <h3 id="product-detail">1.5 商品档案详情接口</h3>
     <pre><code>GET /tk/manage/product-archive/detail?platformCode=tiktok&amp;storeName=xxx&amp;pid=1732388385375162725&amp;sku=AL-W6675-BLK-XS</code></pre>
     <p>用于点击编辑按钮后打开抽屉。PID/SPU 聚合行点击编辑时，前端应传入当前主 SKU 或后端按主 SKU 规则返回可编辑档案。</p>
     <p><strong>响应 data 字段</strong></p>
@@ -281,7 +326,7 @@
       </table>
     </div>
 
-    <h3 id="product-save">1.5 商品档案保存接口</h3>
+    <h3 id="product-save">1.6 商品档案保存接口</h3>
     <pre><code>POST /tk/manage/product-archive/save</code></pre>
     <p>保存编辑抽屉中的人工维护字段；平台同步字段只读，不允许覆盖 TK API 原始状态、审核状态等字段。</p>
     <pre><code>{
@@ -318,7 +363,7 @@
       </table>
     </div>
 
-    <h3 id="product-sku-detail">1.6 SPU/PID 展开 SKU 明细接口</h3>
+    <h3 id="product-sku-detail">1.7 SPU/PID 展开 SKU 明细接口</h3>
     <pre><code>POST /tk/manage/product-archive/sku-detail</code></pre>
     <p>SPU 看板和 PID 看板展开时调用，返回对应 SKU 明细表格，字段结构与 SKU 看板列表一致。</p>
     <pre><code>{
@@ -339,7 +384,7 @@
       </table>
     </div>
 
-    <h3 id="product-fields">1.7 商品档案字段说明接口</h3>
+    <h3 id="product-fields">1.8 商品档案字段说明接口</h3>
     <pre><code>GET /tk/manage/product-archive/fields?viewType=sku</code></pre>
     <p>返回当前看板可展示、可导出、可编辑的字段说明，支撑字段问号说明、自定义列配置和导出字段口径。</p>
     <div class="table-wrap">
@@ -363,7 +408,7 @@
       </table>
     </div>
 
-    <h3 id="product-export">1.8 商品档案导出接口</h3>
+    <h3 id="product-export">1.9 商品档案导出接口</h3>
     <pre><code>POST /tk/manage/product-archive/export</code></pre>
     <p>按当前筛选条件、当前看板和自定义列配置导出。默认文件名：<code>商品档案_yyyyMMddHHmmss.xlsx</code>。</p>
     <p><strong>响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
@@ -395,7 +440,7 @@
     </div>
 
     <h3 id="account-summary">2.2 Tab 计数与统计栏接口</h3>
-    <pre><code>POST /tk/manage/account/summary</code></pre>
+    <pre><code>POST /tk/content/account/summary</code></pre>
     <p>按当前筛选条件返回四个 Tab 计数和账号状态统计。Tab 计数忽略当前 Tab 类型过滤，但保留其他筛选条件。</p>
     <pre><code>{
   "siteCode": "US",
@@ -441,8 +486,10 @@
     </div>
 
     <h3 id="account-page">2.3 账号分页列表接口</h3>
-    <pre><code>POST /tk/manage/account/page</code></pre>
-    <p>按当前 Tab 返回列表。全部账号栏目展示通用字段；渠道号栏目展示自营账号字段；达人号和 TAP 机构号栏目展示达人业务字段。</p>
+    <pre><code>POST /tk/content/account/channel/page
+POST /tk/content/account/creator/page
+POST /tk/content/account/tap/agency/page</code></pre>
+    <p>列表查询按账号类型拆分为三个接口，每个接口使用独立 request 和 response，不再通过 accountType 参数区分。渠道号栏目展示自营账号字段；达人号和 TAP 机构号栏目展示达人业务字段。</p>
     <pre><code>{
   "accountType": "达人号",
   "siteCode": "UK",
@@ -522,7 +569,7 @@
     </div>
 
     <h3 id="account-detail">2.4 账号详情接口</h3>
-    <pre><code>GET /tk/manage/account/detail?tiktokUid=7234567890123456789</code></pre>
+    <pre><code>POST /tk/content/account/detail</code></pre>
     <p>用于新增/编辑抽屉回显完整字段。敏感凭证字段默认返回脱敏值和是否已配置标记，不直接返回明文。</p>
     <p><strong>响应 data 字段</strong></p>
     <div class="table-wrap">
@@ -563,8 +610,8 @@
     </div>
 
     <h3 id="account-save">2.5 新增/编辑账号接口</h3>
-    <pre><code>POST /tk/manage/account/save</code></pre>
-    <p>新增和编辑共用。以 <code>tiktokUid</code> 为唯一键；保存成功后写入操作日志。</p>
+    <pre><code>POST /tk/content/account/save</code></pre>
+    <p>新增和编辑共用。以 <code>tiktokUid</code> 为唯一键；当前表结构仅写入账号当前生效配置，不写操作日志。</p>
     <pre><code>{
   "handleName": "@faiable_official",
   "nickname": "FAIABLE 官方",
@@ -600,45 +647,21 @@
           <tr><td><code>tiktokUid</code></td><td>string</td><td>保存成功的 TikTok UID</td></tr>
           <tr><td><code>actionType</code></td><td>string</td><td>操作类型：新增、编辑</td></tr>
           <tr><td><code>updatedTime</code></td><td>string</td><td>保存后的更新时间</td></tr>
-          <tr><td><code>auditLogId</code></td><td>string</td><td>本次保存生成的操作日志 ID</td></tr>
         </tbody>
       </table>
     </div>
 
     <h3 id="account-import-export">2.6 导入导出接口</h3>
-    <pre><code>GET  /tk/manage/account/import-template
-POST /tk/manage/account/import
-POST /tk/manage/account/export</code></pre>
-    <p>导入模板不包含凭证字段。导入以 <code>tiktokUid</code> 查重：UID 不存在则新增，UID 已存在则有值字段覆盖更新、空白字段保持原值。导出按当前筛选结果生成 Excel，不包含邮箱密码、TK 密码等敏感凭证明文。</p>
-    <p><strong>模板下载响应</strong>：返回文件流，文件名建议为 <code>账号维护导入模板.xlsx</code>。</p>
-    <p><strong>导入响应 data 字段</strong></p>
-    <pre><code>{
-  "successCount": 120,
-  "updateCount": 18,
-  "failCount": 2,
-  "errorFileUrl": "/download/account_import_error_20260525.xlsx"
-}</code></pre>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td><code>successCount</code></td><td>integer</td><td>新增成功条数</td></tr>
-          <tr><td><code>updateCount</code></td><td>integer</td><td>覆盖更新条数</td></tr>
-          <tr><td><code>failCount</code></td><td>integer</td><td>校验失败条数</td></tr>
-          <tr><td><code>errorFileUrl</code></td><td>string</td><td>错误明细下载地址；无失败时为空</td></tr>
-        </tbody>
-      </table>
-    </div>
+    <pre><code>POST /tk/content/account/export</code></pre>
+    <p>导出按当前筛选结果生成 Excel，不包含邮箱密码、TK 密码等敏感凭证明文。导入模板与导入接口不在本期实现范围。</p>
     <p><strong>导出响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
 
     <h3 id="account-recycle-audit">2.7 删除、回收站与操作日志接口</h3>
-    <pre><code>POST /tk/manage/account/delete
-POST /tk/manage/account/restore
-POST /tk/manage/account/permanent-delete
-POST /tk/manage/account/recycle-page
-POST /tk/manage/account/audit-log-page</code></pre>
-    <p>删除为软删除，回收站展示 30 天内删除记录；恢复清除删除标记。操作日志记录新增、编辑、删除、恢复等动作及变更前后值。</p>
-    <p><strong>删除 / 恢复 / 彻底删除响应 data 字段</strong></p>
+    <pre><code>POST /tk/content/account/delete
+POST /tk/content/account/restore
+POST /tk/content/account/recycle/page</code></pre>
+    <p>删除为软删除，恢复清除删除标记；当前表结构仅支持单表软删与恢复，不实现彻底删除、删除人和操作日志分页。</p>
+    <p><strong>删除 / 恢复响应 data 字段</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
@@ -646,7 +669,7 @@ POST /tk/manage/account/audit-log-page</code></pre>
           <tr><td><code>success</code></td><td>boolean</td><td>是否操作成功</td></tr>
           <tr><td><code>affectedCount</code></td><td>integer</td><td>影响账号数量</td></tr>
           <tr><td><code>tiktokUids</code></td><td>array&lt;string&gt;</td><td>本次操作的 TikTok UID 列表</td></tr>
-          <tr><td><code>auditLogIds</code></td><td>array&lt;string&gt;</td><td>本次操作生成的日志 ID 列表</td></tr>
+          
         </tbody>
       </table>
     </div>
@@ -663,32 +686,13 @@ POST /tk/manage/account/audit-log-page</code></pre>
           <tr><td><code>list[].accountType</code></td><td>string</td><td>账号类型</td></tr>
           <tr><td><code>list[].accountStatus</code></td><td>string</td><td>删除前账号状态</td></tr>
           <tr><td><code>list[].deletedTime</code></td><td>string</td><td>删除时间</td></tr>
-          <tr><td><code>list[].deletedBy</code></td><td>string</td><td>删除人</td></tr>
-          <tr><td><code>list[].expireTime</code></td><td>string</td><td>回收站保留到期时间</td></tr>
         </tbody>
       </table>
     </div>
-    <p><strong>操作日志分页响应 data 字段</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td><code>total</code></td><td>integer</td><td>日志总条数</td></tr>
-          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
-          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
-          <tr><td><code>list[].auditLogId</code></td><td>string</td><td>日志 ID</td></tr>
-          <tr><td><code>list[].tiktokUid</code></td><td>string</td><td>关联账号 UID</td></tr>
-          <tr><td><code>list[].handleName</code></td><td>string</td><td>关联账号 Handle Name</td></tr>
-          <tr><td><code>list[].actionType</code></td><td>string</td><td>新增、编辑、删除、恢复、彻底删除</td></tr>
-          <tr><td><code>list[].operator</code></td><td>string</td><td>操作人</td></tr>
-          <tr><td><code>list[].operateTime</code></td><td>string</td><td>操作时间</td></tr>
-          <tr><td><code>list[].changeFields</code></td><td>array</td><td>变更字段列表，包含字段名、变更前值、变更后值</td></tr>
-        </tbody>
-      </table>
-    </div>
+    
 
     <h3 id="account-fields">2.8 账号字段说明接口</h3>
-    <pre><code>GET /tk/manage/account/fields?accountType=达人号</code></pre>
+    <pre><code>GET /tk/content/account/fields?viewType=creator</code></pre>
     <div class="table-wrap">
       <table>
         <thead><tr><th>接口字段</th><th>对应底表字段</th><th>适用栏目</th><th>说明</th></tr></thead>
@@ -703,7 +707,8 @@ POST /tk/manage/account/audit-log-page</code></pre>
           <tr><td><code>accountStatus</code></td><td><code>account_status_name</code></td><td>全部/渠道/达人/TAP</td><td>活跃、暂停、停用</td></tr>
           <tr><td><code>creatorSource</code></td><td><code>creator_source_name</code></td><td>达人/TAP</td><td>自主开发、离职继承、被动建联等</td></tr>
           <tr><td><code>creatorLevel</code></td><td><code>creator_level_name</code></td><td>达人/TAP</td><td>L3以下、L3、L4、L5、L6</td></tr>
-          <tr><td><code>credentialConfigured</code></td><td><code>credential_cipher_text</code></td><td>详情/编辑抽屉</td><td>凭证是否已配置；不返回明文</td></tr>
+          <tr><td><code>emailPasswordConfigured</code></td><td><code>email_password_cipher_text</code></td><td>详情/编辑抽屉</td><td>邮箱密码是否已配置；不返回明文</td></tr>
+          <tr><td><code>tkPasswordConfigured</code></td><td><code>tk_password_cipher_text</code></td><td>详情/编辑抽屉</td><td>TK 密码是否已配置；不返回明文</td></tr>
         </tbody>
       </table>
     </div>
@@ -713,6 +718,10 @@ POST /tk/manage/account/audit-log-page</code></pre>
       <table>
         <thead><tr><th>模块</th><th>接口</th><th>方法</th><th>用途</th></tr></thead>
         <tbody>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/status</code></td><td>GET</td><td>商品状态下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/category</code></td><td>GET</td><td>产品品类下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/brand</code></td><td>GET</td><td>产品品牌下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/operator-owner</code></td><td>GET</td><td>负责人下拉选项</td></tr>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/dataLatestTime</code></td><td>GET</td><td>数据最新时间</td></tr>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/page</code></td><td>POST</td><td>SPU/PID/SKU 看板分页列表</td></tr>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/detail</code></td><td>GET</td><td>编辑抽屉详情</td></tr>
@@ -720,17 +729,18 @@ POST /tk/manage/account/audit-log-page</code></pre>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/sku-detail</code></td><td>POST</td><td>SPU/PID 展开 SKU 明细</td></tr>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/fields</code></td><td>GET</td><td>字段说明与自定义列配置基础字段</td></tr>
           <tr><td>商品档案</td><td><code>/tk/manage/product-archive/export</code></td><td>POST</td><td>导出商品档案</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/summary</code></td><td>POST</td><td>Tab 计数与状态统计</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/page</code></td><td>POST</td><td>账号分页列表</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/detail</code></td><td>GET</td><td>账号详情</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/save</code></td><td>POST</td><td>新增 / 编辑账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/import-template</code></td><td>GET</td><td>下载导入模板</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/import</code></td><td>POST</td><td>导入账号档案</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/export</code></td><td>POST</td><td>导出账号列表</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/delete</code></td><td>POST</td><td>软删除账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/restore</code></td><td>POST</td><td>回收站恢复账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/recycle-page</code></td><td>POST</td><td>回收站分页列表</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/manage/account/audit-log-page</code></td><td>POST</td><td>操作日志分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/summary</code></td><td>POST</td><td>Tab 计数与状态统计</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/channel/page</code></td><td>POST</td><td>渠道号分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/creator/page</code></td><td>POST</td><td>达人号分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/tap/agency/page</code></td><td>POST</td><td>TAP 机构号分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/detail</code></td><td>GET</td><td>账号详情</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/save</code></td><td>POST</td><td>新增 / 编辑账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/import/template</code></td><td>GET</td><td>下载导入模板</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/import</code></td><td>POST</td><td>导入账号档案</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/export</code></td><td>POST</td><td>导出账号列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/delete</code></td><td>POST</td><td>软删除账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/restore</code></td><td>POST</td><td>回收站恢复账号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/recycle/page</code></td><td>POST</td><td>回收站分页列表</td></tr>
         </tbody>
       </table>
     </div>
