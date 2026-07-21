@@ -50,14 +50,18 @@
     .btn-query:hover { border-color: var(--danger-hover); background: var(--danger-hover); }
     .btn-light { color: #4b5563; border-color: var(--input-border); background: #fff; }
     .btn-light:hover { background: #f9fafb; }
+    .btn-overdue.active { color: #fff; border-color: var(--warning); background: var(--warning); }
     .icon-btn { width: 34px; height: 34px; padding: 0; border-color: var(--input-border); color: #718096; }
     .query-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: .75rem; }
     .query-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
     .query-item { display: flex; align-items: center; gap: .35rem; }
+    .query-label { color: #475569; font-size: .9rem; font-weight: 700; white-space: nowrap; }
     .query-item select,
     .query-item input[type="text"],
     .query-item input[type="date"] { height: 38px; border: 1px solid var(--input-border); border-radius: 4px; padding: .4rem .6rem; color: var(--text); background: #fff; font-size: .9rem; outline: none; }
     .query-item select { min-width: 150px; cursor: pointer; }
+    .date-range-item input[type="date"] { width: 142px; }
+    .date-separator { color: var(--muted-2); font-size: .85rem; }
     .search-query-item { position: relative; gap: 0; }
     .search-query-item select { min-width: 0; }
     .search-query-item .search-field-select { width: 112px; border-top-right-radius: 0; border-bottom-right-radius: 0; }
@@ -105,7 +109,11 @@
     .link-op:hover { color: var(--danger-hover); }
     .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
     .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
-    .content-note ol { margin: 0; padding-left: 20px; }
+    .content-note-section { margin-top: 10px; }
+    .content-note-section:first-of-type { margin-top: 0; }
+    .content-note-subtitle { margin: 0 0 4px; color: #334155; font-size: 13px; font-weight: 700; }
+    .content-note ol,
+    .content-note ul { margin: 0; padding-left: 20px; }
     .content-note li { margin: 0; line-height: 1.7; }
     .drawer-mask { position: fixed; inset: 0; background: rgba(15, 23, 42, .38); display: none; z-index: 50; }
     .drawer-mask.open { display: block; }
@@ -151,7 +159,7 @@
         <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 8-9-5-9 5 9 5 9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg></span>
         <div>
           <h1 class="page-title">寄样管理</h1>
-          <div class="record-count">共 <strong id="topTotal">12</strong> 条记录</div>
+          <div class="record-count">共 <strong id="topTotal">13</strong> 条记录</div>
         </div>
       </div>
       <div class="toolbar">
@@ -163,23 +171,22 @@
     <section class="query-card">
       <div class="query-row">
         <div class="query-item"><select id="statusFilter"><option value="">全部寄样状态</option><option>待发货</option><option>已发货</option><option>运输中</option><option>已签收</option><option>签收异常</option><option>签收待履约</option><option>已履约</option></select></div>
-        <div class="query-item"><select id="stageFilter"><option value="">全部合作阶段</option><option>首次合作</option><option>二次合作</option><option>多次合作</option></select></div>
         <div class="query-item"><select id="levelFilter"><option value="">全部达人等级</option><option>L3以下</option><option>L3</option><option>L4</option><option>L5</option><option>L6</option><option>L6+</option></select></div>
-        <div class="query-item"><select id="genderFilter"><option value="">全部达人性别</option><option>男</option><option>女</option><option>未知</option></select></div>
-        <div class="query-item"><select id="openedFilter"><option value="">是否开单达人</option><option>是</option><option>否</option></select></div>
+        <div class="query-item"><select id="stageFilter"><option value="">全部合作阶段</option><option>首次合作</option><option>二次合作</option><option>多次合作</option></select></div>
         <div class="query-item"><select id="ownerFilter"><option value="">全部寄样商务</option><option>Alice Chen</option><option>Bob Wang</option><option>Carol Liu</option><option>David Zhang</option><option>Emma Li</option><option>Frank Wu</option><option>Grace Zhao</option><option>Henry Sun</option></select></div>
-        <div class="query-item"><select id="mainSkuFilter"><option value="">全部寄样主SKU</option><option>AL-W0161</option><option>BG-T0088</option><option>KT-H0234</option><option>EL-L0456</option><option>FT-S0789</option><option>HM-C0321</option><option>SK-B0567</option><option>PT-P0890</option></select></div>
-        <div class="query-item"><select id="shopFilter"><option value="">全部合作店铺</option><option>Faiable Fashion</option><option>Faiable Days</option><option>Faiable Comfywear</option><option>Faiable Chic</option></select></div>
-        <div class="query-item"><select id="siteFilter"><option value="">全部合作站点</option><option>US</option><option>UK</option><option>EU</option><option>CA</option><option>JP</option><option>AU</option><option>DE</option><option>FR</option><option>MX</option><option>BR</option></select></div>
-        <div class="query-item"><select id="monthFilter"><option value="">全部寄样月份</option><option>2025年7月</option><option>2025年8月</option><option>2025年9月</option><option>2025年10月</option></select></div>
-        <div class="query-item"><input type="date" id="startDate" title="寄样开始时间" /><input type="date" id="endDate" title="寄样结束时间" /></div>
+        <div class="query-item date-range-item">
+          <span class="query-label">寄样时间</span>
+          <input type="date" id="startDate" aria-label="寄样开始时间" title="寄样开始时间" />
+          <span class="date-separator">至</span>
+          <input type="date" id="endDate" aria-label="寄样结束时间" title="寄样结束时间" />
+        </div>
+        <button type="button" class="btn btn-light btn-overdue" id="btnOverdue">ⓘ 逾期提醒</button>
         <div class="query-item search-query-item">
           <select class="search-field-select" id="searchField">
             <option value="all">达人/商品/订单</option>
             <option value="id">达人ID（TIKTOK ID）</option>
             <option value="name">达人名字</option>
             <option value="sku">寄样SKU</option>
-            <option value="mainSku">寄样主SKU</option>
             <option value="productName">商品名称</option>
             <option value="productId">定向Product ID</option>
             <option value="order">积加订单编号</option>
@@ -193,14 +200,13 @@
         <div class="query-actions">
           <button type="button" class="btn btn-query" id="btnQuery">查询</button>
           <button type="button" class="btn btn-light" id="btnReset">重置</button>
-          <button type="button" class="btn btn-light" id="btnOverdue">ⓘ 逾期提醒</button>
         </div>
       </div>
     </section>
 
     <div class="summary">
-      <span>共 <strong id="totalCount">12</strong> 条</span>
-      <span class="done">已履约 <strong id="doneCount">2</strong> 条</span>
+      <span>共 <strong id="totalCount">13</strong> 条</span>
+      <span class="done">已履约 <strong id="doneCount">3</strong> 条</span>
       <span class="pending">待跟进 <strong id="pendingCount">7</strong> 条</span>
       <span class="abnormal">异常 <strong id="abnormalCount">2</strong> 条</span>
     </div>
@@ -236,13 +242,33 @@
 
     <section class="content-note" aria-label="内容说明">
       <div class="content-note-title">内容说明</div>
-      <ol>
-        <li>看板字段以 <strong>TikTok_IT映射表_寄样管理.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为寄样管理，二级模块对应表单分区。</li>
-        <li>寄样的订单，就是样品订单，通过 TK 的订单详情，能获取到该标识（is_sample_order）。</li>
-        <li>达人ID（TIKTOK ID）+ 寄样SKU 作为重复校验口径；同一组合第二次出现时，补寄情况自动标记为“补寄”。</li>
-        <li>寄样时间按 UTC 存储，前端展示支持 PT / CST 口径；寄样月份由寄样时间自动计算，例如 2025年8月。</li>
-        <li>默认隐藏字段：寄样颜色、寄样尺码、寄样数量、合作店铺、合作站点、寄样渠道、物流状态、补寄情况、达人佣金、备注，可在编辑弹窗维护。</li>
-      </ol>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">一、页面说明</h3>
+        <ol>
+          <li>看板字段以 <strong>TikTok_IT映射表_寄样管理.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为寄样管理，二级模块对应表单分区。</li>
+          <li>寄样订单指样品订单，可通过 TK 订单详情中的样品订单标识 <strong>is_sample_order</strong> 识别。</li>
+          <li>列表默认展示寄样核心字段；寄样颜色、寄样尺码、寄样数量、合作店铺、合作站点、寄样渠道、物流状态、补寄情况、达人佣金、备注等字段默认隐藏，可在编辑弹窗维护。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">二、重新梳理后的准确逻辑</h3>
+        <ol>
+          <li><strong>订单数据来源</strong>：订单数据来源于 TikTok API 的订单明细，仅取订单类型为 <strong>is_sample_order</strong> 的样品订单。</li>
+          <li><strong>列表数据粒度</strong>：本页面按 <strong>SKU 维度</strong> 拆分展示。若一个订单包含 3 个不同 SKU，则拆成 3 行记录；每行可分别对应不同 PID / Product ID。</li>
+          <li><strong>达人信息维护</strong>：达人 ID、达人名字、达人等级、达人性别、是否开单达人、合作阶段、达人佣金、备注等达人相关信息通过手动编辑维护。</li>
+          <li><strong>寄样状态关联逻辑</strong>：寄样状态需要与视频数据关联判断，寄样订单与视频数据通过 <strong>PID + 达人信息</strong> 进行匹配。</li>
+          <li><strong>履约逾期判断</strong>：以订单签收日期为起点，签收后 0-6 天内若未关联到对应视频，不算逾期，订单仍处于正常待履约状态；签收后达到或超过 7 天（&gt;= 7 天）仍未关联到视频时，判定为逾期。</li>
+          <li><strong>编辑补充达人</strong>：编辑寄样记录时，如果达人列表中未出现对应达人，支持手动填入达人相关信息；保存后默认同步写入账户维护（达人）列表，后续可在账户维护中继续维护。</li>
+          <li><strong>签收时间来源</strong>：物流签收时间优先取订单 API 的 <strong>delivery_time</strong> 字段；若接口暂未返回 delivery_time，则通过跟踪号码接物流查询获取签收日期。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">三、逾期提醒 Demo</h3>
+        <ol>
+          <li><strong>物流签收示例</strong>：订单 <strong>order01</strong>，寄样商务 X，达人 A，产品 B，2026-07-10 寄样。系统通过订单 API 的 <strong>delivery_time</strong> 获取签收时间；若 delivery_time 为空，则通过跟踪号码查询物流签收结果。本例 2026-07-17 签收，未超过 7 个自然日，物流侧不算逾期。</li>
+          <li><strong>视频履约示例</strong>：订单 <strong>order01</strong> 对应达人 A、PID 为产品 B；达人在 2026-07-24 发布并关联到对应视频 <strong>VID</strong>，则计入履约。如果 2026-07-24 仍未通过 PID + 达人信息关联到视频，则签收后已达到 7 天，标记为“履约逾期”，进入逾期提醒筛选。</li>
+        </ol>
+      </div>
     </section>
   </div>
 
@@ -294,6 +320,7 @@
 
   <script>
     var samples = [
+      { time: '2026/07/10 00:00', month: '2026年7月', id: '达人A', name: '达人A', owner: '商务X', sku: '产品B-SKU', mainSku: '产品B', order: 'order01', status: '已履约', overdue: '', stage: '首次合作', level: 'L4', gender: '未知', opened: '是', productId: '产品B', productName: '产品B', color: '示例色', size: 'ONE', qty: '1', shop: 'Demo Shop', site: 'US', channel: '线上', logistics: 'delivery_time=2026-07-17；跟踪号码可接物流查询', resend: '', commission: '示例佣金', remark: '联盟视频 VID 于 2026-07-24 发布，计入寄样后履约；若 2026-07-25 仍未发布则标记逾期发布' },
       { time: '2025/08/05 11:30', month: '2025年8月', id: '123456789012345678', name: 'FashionQueen_Sarah', owner: 'Alice Chen', sku: 'AL-W0161-BLK-M', mainSku: 'AL-W0161', order: 'JJ-2025-001234', status: '已履约', overdue: '', stage: '多次合作', level: 'L5', gender: '女', opened: '是', productId: 'TK-PROD-8801', productName: '铝合金折叠椅', color: '黑色', size: 'M', qty: '1', shop: 'Faiable Fashion', site: 'US', channel: '线上', logistics: 'FedEx 已揽收', resend: '', commission: '15%', remark: '合作顺利，视频效果好' },
       { time: '2025/08/12 07:00', month: '2025年8月', id: '234567890123456789', name: 'OutdoorVibes_Mike', owner: 'Bob Wang', sku: 'BG-T0088-GRN-L', mainSku: 'BG-T0088', order: 'JJ-2025-001567', status: '运输中', overdue: '逾期274天', stage: '首次合作', level: 'L4', gender: '男', opened: '否', productId: 'TK-PROD-8812', productName: '户外防晒夹克', color: '绿色', size: 'L', qty: '1', shop: 'Faiable Fashion', site: 'US', channel: '线上', logistics: 'DHL 运输中', resend: '物流超时跟进', commission: '12%', remark: '需催达人确认收货' },
       { time: '2025/09/01 02:00', month: '2025年9月', id: '345678901234567890', name: 'HomeDecor_Emma', owner: 'Carol Liu', sku: 'KT-H0234-SLV-ONE', mainSku: 'KT-H0234', order: 'JJ-2025-002001', status: '签收待履约', overdue: '', stage: '二次合作', level: 'L6', gender: '女', opened: '是', productId: 'TK-PROD-8820', productName: '厨房收纳套装', color: '银色', size: 'ONE', qty: '1', shop: 'Faiable Days', site: 'US', channel: '线上', logistics: 'UPS 已签收', resend: '', commission: '18%', remark: '等待达人发布视频' },
@@ -307,6 +334,7 @@
       { time: '2025/10/12 03:00', month: '2025年10月', id: '123456789012345678', name: 'FashionQueen_Sarah', owner: 'Alice Chen', sku: 'BG-T0088-BLK-M', mainSku: 'BG-T0088', order: 'JJ-2025-006002', status: '运输中', overdue: '逾期213天', stage: '多次合作', level: 'L5', gender: '女', opened: '是', productId: 'TK-PROD-8897', productName: '户外双肩包', color: '黑色', size: 'M', qty: '1', shop: 'Faiable Fashion', site: 'US', channel: '线上', logistics: 'UPS 运输中', resend: '', commission: '15%', remark: '二次补发跟进' },
       { time: '2025/10/14 23:00', month: '2025年10月', id: '012345678901234567', name: 'TravelVlog_Kevin', owner: 'Bob Wang', sku: 'KT-H0234-GLD-ONE', mainSku: 'KT-H0234', order: '—', status: '待发货', overdue: '', stage: '首次合作', level: 'L3', gender: '男', opened: '否', productId: 'TK-PROD-8898', productName: '旅行收纳包', color: '金色', size: 'ONE', qty: '1', shop: 'Faiable Days', site: 'US', channel: '线上', logistics: '待发货', resend: '', commission: '10%', remark: '' }
     ];
+    var overdueOnly = false;
     function byId(id) { return document.getElementById(id); }
     function parseDate(value) {
       if (!value) return null;
@@ -320,13 +348,7 @@
       var status = byId('statusFilter').value;
       var stage = byId('stageFilter').value;
       var level = byId('levelFilter').value;
-      var gender = byId('genderFilter').value;
-      var opened = byId('openedFilter').value;
       var owner = byId('ownerFilter').value;
-      var mainSku = byId('mainSkuFilter').value;
-      var shop = byId('shopFilter').value;
-      var site = byId('siteFilter').value;
-      var month = byId('monthFilter').value;
       var startDate = parseDate(byId('startDate').value);
       var endDate = parseDate(byId('endDate').value);
       var rows = samples.filter(function(item) {
@@ -334,17 +356,12 @@
         if (status && item.status !== status) return false;
         if (stage && item.stage !== stage) return false;
         if (level && item.level !== level) return false;
-        if (gender && item.gender !== gender) return false;
-        if (opened && item.opened !== opened) return false;
         if (owner && item.owner !== owner) return false;
-        if (mainSku && item.mainSku !== mainSku) return false;
-        if (shop && item.shop !== shop) return false;
-        if (site && item.site !== site) return false;
-        if (month && item.month !== month) return false;
         if (startDate && itemDate && itemDate < startDate) return false;
         if (endDate && itemDate && itemDate > endDate) return false;
+        if (overdueOnly && !item.overdue) return false;
         if (!keyword) return true;
-        var targets = searchField === 'all' ? [item.id, item.name, item.sku, item.mainSku, item.productName, item.productId, item.order] : [item[searchField]];
+        var targets = searchField === 'all' ? [item.id, item.name, item.sku, item.productName, item.productId, item.order] : [item[searchField]];
         return targets.some(function(value) {
           value = String(value || '').toLowerCase();
           return searchMode === 'exact' ? value === keyword : value.indexOf(keyword) >= 0;
@@ -423,28 +440,28 @@
       if (edit) openDrawer(samples[Number(edit.getAttribute('data-edit'))]);
       if (del) showToast('已移入回收站');
     });
-    ['keyword', 'searchField', 'searchMode', 'statusFilter', 'stageFilter', 'levelFilter', 'genderFilter', 'openedFilter', 'ownerFilter', 'mainSkuFilter', 'shopFilter', 'siteFilter', 'monthFilter', 'startDate', 'endDate'].forEach(function(id) { byId(id).addEventListener(id === 'keyword' ? 'input' : 'change', renderRows); });
+    ['keyword', 'searchField', 'searchMode', 'statusFilter', 'levelFilter', 'stageFilter', 'ownerFilter', 'startDate', 'endDate'].forEach(function(id) { byId(id).addEventListener(id === 'keyword' ? 'input' : 'change', renderRows); });
     byId('btnQuery').addEventListener('click', renderRows);
     byId('btnReset').addEventListener('click', function() {
       byId('keyword').value = '';
       byId('searchField').value = 'all';
       byId('searchMode').value = 'fuzzy';
       byId('statusFilter').value = '';
-      byId('stageFilter').value = '';
       byId('levelFilter').value = '';
-      byId('genderFilter').value = '';
-      byId('openedFilter').value = '';
+      byId('stageFilter').value = '';
       byId('ownerFilter').value = '';
-      byId('mainSkuFilter').value = '';
-      byId('shopFilter').value = '';
-      byId('siteFilter').value = '';
-      byId('monthFilter').value = '';
       byId('startDate').value = '';
       byId('endDate').value = '';
+      overdueOnly = false;
+      byId('btnOverdue').classList.remove('active');
       renderRows();
     });
     byId('btnAdd').addEventListener('click', function() { openDrawer(samples[0]); });
-    byId('btnOverdue').addEventListener('click', function() { byId('statusFilter').value = '运输中'; renderRows(); });
+    byId('btnOverdue').addEventListener('click', function() {
+      overdueOnly = !overdueOnly;
+      byId('btnOverdue').classList.toggle('active', overdueOnly);
+      renderRows();
+    });
     byId('btnClose').addEventListener('click', closeDrawer);
     byId('btnCancel').addEventListener('click', closeDrawer);
     byId('drawerMask').addEventListener('click', closeDrawer);

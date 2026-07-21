@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>tkDashboard 待办事项</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --accent: #0d9488;
+      --border: #e2e8f0;
+      --head: #f1f5f9;
+      --todo-bg: #fff7ed;
+      --todo-text: #c2410c;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 2rem 3rem 3rem;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .doc {
+      max-width: 1280px;
+      min-height: calc(100vh - 4rem);
+      margin: 0 auto;
+      padding: 2.5rem 3rem 3rem;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    h1 {
+      margin: 0 0 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent);
+      font-size: 1.5rem;
+      color: var(--text);
+    }
+    h2 {
+      margin: 2rem 0 0.75rem;
+      font-size: 1.15rem;
+      color: var(--text);
+    }
+    .intro {
+      margin: 0.75rem 0 1rem;
+      color: var(--muted);
+    }
+    .note {
+      margin: 1rem 0;
+      padding: 0.8rem 1rem;
+      border: 1px solid #99f6e4;
+      border-radius: 6px;
+      background: #f0fdfa;
+      color: #0f766e;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin: 1rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      min-width: 820px;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    th,
+    td {
+      padding: 0.55rem 0.7rem;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    th:last-child,
+    td:last-child { border-right: 0; }
+    tr:last-child td { border-bottom: 0; }
+    th {
+      background: var(--head);
+      color: #475569;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    tbody tr:hover td { background: #f8fafc; }
+    .module-col { width: 16%; white-space: nowrap; }
+    .content-col { width: 34%; }
+    .solution-col { width: 28%; }
+    .date-col { width: 14%; white-space: nowrap; }
+    .status-col { width: 14%; white-space: nowrap; }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      min-height: 1.45rem;
+      padding: 0.08rem 0.5rem;
+      border-radius: 999px;
+      background: var(--todo-bg);
+      color: var(--todo-text);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .empty { color: #cbd5e1; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>tkDashboard 待办事项</h1>
+    <p class="intro">用于临时记录尚未展开细节的事项。先把内容沉淀下来，后续再补充需求背景、可行性判断、排期和完成记录。</p>
+
+    <div class="note">
+      填写列：模块、内容、解决方案、提出时间、是否可实现、完成时间。是否可实现建议使用：待评估、待排查、可实现、部分可实现、不可实现。
+    </div>
+
+    <h2>通用 / 入口</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>自定义列</td><td>关于自定义列，增加字段分类、字段排序功能。</td><td class="empty">待补充</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>数据更新时间</td><td>每个板块的数据更新时间旁边标记更新频率，说明该板块多久更新一次；如果是分钟级别的数据，需要支持自动刷新该更新时间。</td><td>统一梳理各板块数据刷新频率，在页面更新时间旁展示更新周期；分钟级数据增加定时刷新机制，自动更新页面展示的更新时间。</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>销售</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>销售数据</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>商品统计</td><td>SPU 汇总栏目增加“销售分析”按钮，支持从商品统计直接查看对应 SPU 的销售分析。</td><td>在商品统计的 SPU 汇总行或操作区增加“销售分析”按钮，点击后跳转到 PID 的 SPU 汇总页面，并携带当前 SPU 相关筛选条件。</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>PID</td><td>数据层级需要调研：当前获取前两天的数据，需要确认是否能支持获取前一天的数据。</td><td>调研 PID 数据来源、同步链路、任务调度时间和数据完整性要求，确认前一天数据是否可稳定产出；如可支持，再评估对接口、页面口径和数据更新时间说明的影响。</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>PID</td><td>SKU 退货比存在订单部分退款差异：订单状态为 COMPLETED，但订单内部分 SKU 为 cancelled。当前退货比按订单整体状态计算，可能与 SKU 实际状态不一致。</td><td>根据订单详情获取每个 SKU 各自状态后逐项核对，再计算退货比。</td><td>2026-07-20</td><td><span class="status">可实现</span></td><td></td></tr>
+          <tr><td>PID</td><td>增加文字提示，用户悬浮后展示对应指标或字段的计算逻辑说明，降低口径理解成本。</td><td>在 PID 页面相关指标名称、字段名称或说明文字旁增加提示入口，使用悬浮框展示对应计算逻辑；提示内容后续按已确认口径补充，并与需求文档、接口文档保持一致。</td><td>2026-07-20</td><td><span class="status">可实现</span></td><td></td></tr>
+          <tr><td>技术文档</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>库存</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>库存检查</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>发补货</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>备货补货</td><td>增加字段：实际销量判断、是否热卖 SKU、热卖码是否断货、推广是否放量、剪辑素材量、商务素材量、投放中剪辑素材占比、剪辑素材产出、投放中商务素材占比、商务素材产出、男模特占比、女模特占比。</td><td>逐项调研字段数据来源、计算口径和展示粒度，确认能否稳定获取；其中热卖、断货、推广放量、素材产出和模特占比相关数据逻辑均待评估。</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>备货模型</td><td>关于编辑功能，增加导出 Excel 模型能力，并支持通过批量导入数据进行修改。</td><td>提供 Excel 模型导出入口，导出当前可编辑字段和数据；用户线下批量修改后再导入，系统按主键或唯一标识匹配记录并批量更新。</td><td>2026-07-20</td><td><span class="status">可实现</span></td><td></td></tr>
+          <tr><td>技术文档</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>管理模块</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>商品模块</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>账号模块</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>寄样管理</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>视频数据</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td>联盟订单</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>订单</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>订单模块</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>打品系统</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>打品系统</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>数据源相关</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">解决方案</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>源数据统一梳理</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>问题待排查</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块</th>
+            <th class="content-col">内容</th>
+            <th class="solution-col">排查结论</th>
+            <th class="date-col">提出时间</th>
+            <th class="status-col">是否可实现</th>
+            <th class="date-col">完成时间</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>PID 数据看板</td><td>order_qty 字段命名为“订单数”，但逻辑疑似取 quantity；quantity 更像销售件数，不是订单数，字段名称和计算口径可能不一致。</td><td>结论：已确认并已修正。GMV 计算明细表新增 order_quantity，按 shop_id + platform_order_id 去重统计订单数。</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>商品卡客单价使用 card_gmv / card_deal_qty，实际更像“件均价”或“成交件均 GMV”，不是严格订单客单价。</td><td>结论：非问题。 按 card_gmv / card_deal_qty 计算，基于 Excel 文件的逻辑。 代码注释需优化</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>视频总点击率 / 直播总点击率可能使用简单平均，例如将商家视频点击率与达人点击率直接相加后除以 2，未按曝光量加权。</td><td>结论：非问题，代码层，该界面字段已经是调整为 真实字段比率，非均值平均。 代码注释需优化</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>视频总转化率 / 直播总转化率可能使用简单平均，例如商家视频转化率与达人视频转化率相加后除以 2，容易受样本量影响。</td><td>结论：非问题，代码层，该界面字段已经是调整为 真实字段比率，非均值平均。 代码注释需优化</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>达人视频 GMV 口径可能混用了“达人总归因”和“达人视频归因”，如 expert_video_gmv 新口径取 all_creator_attributed_gmv，但达人视频客单价又使用 affiliate_video_attributed_gmv。</td><td>结论：非问题，界面层统一使用 affiliate_video_attributed_gmv，非sql。 代码注释需优化 。</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>部分字段“旧口径无来源置 0 / 新口径取值”，可能导致历史趋势断层，例如商品卡点击量、去重点击、达人视频点击等。</td><td>结论：可以忽略，新版的商品数据分析，缺乏这三个字段，只能设置为0，后期会进行界面字段移除。</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>merchant_live_uv_user 等字段当前暂无来源但置 0，容易让用户误以为真实指标为 0，实际是没有数据源。</td><td>结论：可以忽略。暂无 ODS 来源但固定置 0； 后期会进行界面字段移除。</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+          <tr><td>PID 数据看板</td><td>total_acoas 使用固定扣除 8% 退款金额的规则，公式疑似为 ad_total_consume / (financial_gmv * 0.92) * 100，口径偏硬编码。</td><td>结论：非问题；业务已确认固定扣减规则。</td><td>2026-07-20</td><td><span class="status">已排查</span></td><td>2026-07-21</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="back"><a href="./index.html">← 返回首页</a></p>
+  </div>
+</body>
+</html>

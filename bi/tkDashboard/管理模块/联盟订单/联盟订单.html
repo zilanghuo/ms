@@ -81,6 +81,9 @@
     .pager select { height: 32px; border: 1px solid var(--input-border); border-radius: 4px; color: var(--muted); background: #fff; }
     .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; margin-top: 1rem; color: #52657a; font-size: 13px; }
     .content-note-title { margin-bottom: 6px; color: var(--text); font-size: 14px; font-weight: 600; }
+    .content-note-section { margin-top: 10px; }
+    .content-note-section:first-of-type { margin-top: 0; }
+    .content-note-subtitle { margin: 0 0 4px; color: #334155; font-size: 13px; font-weight: 700; }
     .content-note ol { margin: 0; padding-left: 20px; }
     .content-note li { margin: 0; line-height: 1.7; }
     .rpa-preview { margin-top: 12px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
@@ -196,13 +199,27 @@
 
     <section class="content-note" aria-label="内容说明">
       <div class="content-note-title">内容说明</div>
-      <ol>
-        <li>联盟订单页面用于汇总联盟视频维度的开单、订单、GMV、归属商务与授权码维护情况。</li>
-        <li>联盟订单的数据来源为 RPA，RPA 操作界面如下图所示。</li>
-        <li>一个视频 ID 专属于某一个达人，但同一个视频 ID 会产生多个订单。</li>
-        <li>联盟订单明细里有视频 ID 的关联字段，业务关系为：达人 → 视频 ID → 订单，整体为 1 对 N 对 N。</li>
-        <li>页面风格、筛选区、表格和按钮体系保持与商品档案页面一致。</li>
-      </ol>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">一、说明</h3>
+        <ol>
+          <li>联盟订单页面用于汇总联盟视频维度的开单、订单、GMV、归属商务与授权码维护情况。</li>
+          <li>页面风格、筛选区、表格和按钮体系保持与商品档案页面一致。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">二、重新梳理后的准确逻辑</h3>
+        <ol>
+          <li><strong>订单数据来源</strong>：订单来源为联盟订单的 RPA 导出数据。</li>
+          <li><strong>与寄样 / 视频的关联逻辑</strong>：联盟订单与视频数据的关联逻辑，和寄样订单与视频数据的逻辑一致；通过达人信息与 PID 进行关联判断。</li>
+          <li><strong>订单明细拆分</strong>：订单也可能按 SKU 维度拆分；如果一个订单包含多个 SKU，且对应多个 PID，则需要拆成多条明细记录，每条记录保留当前 SKU 对应的 PID。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">三、RPA 操作界面</h3>
+        <ol>
+          <li>联盟订单的数据来源为 RPA，RPA 操作界面如下图所示。</li>
+        </ol>
+      </div>
       <div class="rpa-preview" aria-label="RPA 操作界面截图">
         <figure class="rpa-shot">
           <img src="img/ScreenShot_2026-06-03_170619_339.png" alt="联盟订单 RPA 操作界面截图 1" />

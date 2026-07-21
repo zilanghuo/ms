@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>TK 打品工作台数据落地评估 — 需求文档</title>
+  <style>
+    :root { --bg: #f5f6f8; --card: #fff; --text: #333; --muted: #666; --accent: #0d9488; --border: #e0e0e0; --soft: #f1f5f9; --warn: #b45309; --warn-bg: #fff7ed; }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; margin: 0; padding: 2rem 3rem 3rem; font-size: 14px; min-height: 100vh; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); padding: 2.5rem 3rem 3rem; border-radius: 8px; border: 1px solid var(--border); }
+    h1 { font-size: 1.5rem; margin: 0 0 0.5rem; color: var(--text); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.2rem; margin: 2rem 0 0.75rem; color: var(--text); }
+    h3 { font-size: 1.05rem; margin: 1.5rem 0 0.5rem; color: var(--muted); }
+    p { margin: 0.5rem 0 1rem; }
+    ul, ol { margin: 0.5rem 0 1rem 1.25rem; padding: 0; }
+    li { margin: 0.25rem 0; }
+    strong { color: var(--text); }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: 0.92em; background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.05rem 0.25rem; }
+    blockquote { margin: 1rem 0; padding: 0.5rem 0 0.5rem 1rem; border-left: 4px solid var(--accent); color: var(--muted); font-size: 0.95rem; }
+    hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .meta-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0 1.25rem; }
+    .meta-card { border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 0.9rem; background: #fbfdff; }
+    .meta-card .label { color: var(--muted); font-size: 0.8rem; margin-bottom: 0.2rem; }
+    .meta-card .value { color: var(--text); font-weight: 600; }
+    .summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+    .summary-card, .decision-card, .phase-card { border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; background: #fff; }
+    .summary-card h3, .decision-card h3, .phase-card h3 { margin-top: 0; }
+    .note { border: 1px solid #fed7aa; background: var(--warn-bg); color: var(--warn); border-radius: 6px; padding: 0.75rem 0.9rem; margin: 1rem 0; }
+    .table-wrap { overflow-x: auto; margin: 1rem 0; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 980px; }
+    th, td { padding: 0.45rem 0.6rem; text-align: left; border: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--soft); color: var(--muted); font-weight: 600; white-space: nowrap; }
+    tr:hover td { background: #f9fafb; }
+    .tag { display: inline-block; border-radius: 999px; padding: 0.08rem 0.5rem; font-size: 0.75rem; line-height: 1.5; background: #ecfeff; color: #0f766e; border: 1px solid #99f6e4; white-space: nowrap; }
+    .tag-muted { background: #f8fafc; color: #64748b; border-color: #e2e8f0; }
+    .tag-warn { background: #fff7ed; color: #b45309; border-color: #fed7aa; }
+    .phase-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; margin: 0.75rem 0 1rem; }
+    .phase-card { padding: 0.75rem; }
+    .phase-card strong { display: block; margin-bottom: 0.25rem; }
+    .path-list li { margin-bottom: 0.4rem; }
+    .checklist { list-style: none; margin-left: 0; }
+    .checklist li { padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 6px; background: #fbfdff; margin: 0.45rem 0; }
+    .back { margin-top: 2rem; font-size: 0.9rem; }
+    @media (max-width: 900px) {
+      body { padding: 1rem; }
+      .doc { padding: 1.5rem; }
+      .meta-grid, .summary-grid, .phase-list { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>TK 打品工作台数据落地评估 — 需求文档</h1>
+    <blockquote>
+      来源：<code>docs/TK打品系统化_数据评估_周一带给IT.md</code>。用途：与 IT 团队讨论“要搭建自动派单工作台，数据侧需要补什么”。更新日期：2026-07-17。
+    </blockquote>
+
+    <div class="meta-grid">
+      <div class="meta-card">
+        <div class="label">业务方向</div>
+        <div class="value">TK 打品系统</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">核心对象</div>
+        <div class="value">自动派单工作台</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">规则规模</div>
+        <div class="value">16 条打品规则</div>
+      </div>
+      <div class="meta-card">
+        <div class="label">当前状态</div>
+        <div class="value">待 IT 数据盘点</div>
+      </div>
+    </div>
+
+    <hr />
+
+    <h2>一、需求背景</h2>
+    <p>当前打品动作较多依赖运营经验判断，下一步希望沉淀为“系统自动生成、按风险排序、派单给运营的 TO-DO 工作台”。系统通过规则库判断单品、素材、库存、投放、达人协同等状态，自动生成责任人、标准动作、优先级和处理时限。</p>
+    <p>本需求文档聚焦数据落地评估：现有数据是否足够支撑 16 条规则触发，缺失字段应补在哪些业务模块，哪些指标需要先建立历史留存和统一口径。</p>
+
+    <h2>二、目标与范围</h2>
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>2.1 建设目标</h3>
+        <ul>
+          <li>建立规则触发所需的数据字段、派生指标和状态标记清单。</li>
+          <li>确认哪些规则可基于现有数据先上线，哪些需要补字段或新建模块。</li>
+          <li>为后续规则引擎、派单工作台和运营 TO-DO 看板提供数据依据。</li>
+        </ul>
+      </div>
+      <div class="summary-card">
+        <h3>2.2 本期边界</h3>
+        <ul>
+          <li>本期先做数据侧可行性评估，不直接定义最终页面交互。</li>
+          <li>规则动作、负责人、优先级以配套规则表为准，本页只整理数据依赖。</li>
+          <li>“现状”列需在 IT 盘点后补齐，当前默认待确认。</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>三、数据缺口总览</h2>
+    <p>数据缺口主要集中在两类。第一类是派生指标，例如库存可支撑天数、日销环比、老素材恢复率；这类指标通常依赖历史明细和统一计算口径。第二类是状态或标记，例如生命周期阶段、是否推品失败、备货方向；这类字段看似简单，但往往需要系统自动判断、人工回写和工作流配合。</p>
+    <div class="note">
+      优先级建议：先补“按天历史留存”和“事件流时间戳”，再做派生指标。否则部分基线数据事后无法补回，规则会缺少可靠触发依据。
+    </div>
+
+    <h2>四、模块缺口清单</h2>
+    <p>以下清单用于 IT 现场逐行确认。现状列建议填写：已有直接可用 / 有但要改造 / 没有需新建。</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>模块</th>
+            <th>要补关键字段</th>
+            <th>类型</th>
+            <th>解锁规则</th>
+            <th>关键判断 / 口径</th>
+            <th>现状</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>商品档案</td><td>季节属性（夏 / 秋冬 / 四季）</td><td><span class="tag">标记</span></td><td>R-B3、R-B4</td><td>按款打标，决定备货分仓方向。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>商品档案</td><td>生命周期阶段</td><td><span class="tag">计算 / 标记</span></td><td>R-B1、S1、S2、B3</td><td>规则触发枢纽字段，建议通过规则自动推导。</td><td><span class="tag tag-warn">重点确认</span></td></tr>
+          <tr><td>交易 / 销售</td><td>日销量（逐日留历史）</td><td><span class="tag">采集</span></td><td>几乎所有规则</td><td>必须按 SKU × 日存历史。</td><td><span class="tag tag-warn">优先确认</span></td></tr>
+          <tr><td>交易 / 销售</td><td>近 7 日均日销、日销环比</td><td><span class="tag">计算</span></td><td>R-D1、D2、S1</td><td>建议通过定时任务计算。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>库存</td><td>分仓库存（本地 / 海外 / 在途）</td><td><span class="tag">采集·加维度</span></td><td>R-B3、B4</td><td>若当前只有总库存，需要先拆分仓维度。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>库存</td><td>库存可支撑天数</td><td><span class="tag">计算</span></td><td>R-B1、B2、S2、D2</td><td>建议口径：可售库存 ÷ 近 7 日均日销。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>库存</td><td>海外仓占比</td><td><span class="tag">计算</span></td><td>R-B3</td><td>海外仓库存 ÷ 总库存。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>库存</td><td>备货状态 / 补货 LeadTime / 安全库存天数</td><td><span class="tag">标记 / 配置</span></td><td>R-B1、B2</td><td>备货状态需要支持业务回写。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>广告 / 投放</td><td>ROI（按渠道 × 固定窗口）</td><td><span class="tag">计算</span></td><td>R-S1、D1</td><td>投放窗口和 ROI 口径需要统一。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>广告 / 投放</td><td>到货后是否有投放</td><td><span class="tag">计算</span></td><td>R-A1</td><td>需要根据时间戳判断，不能只看累计值。</td><td><span class="tag tag-warn">重点确认</span></td></tr>
+          <tr><td>达人 / 挂车</td><td>挂车事件（带时间戳）</td><td><span class="tag">采集</span></td><td>R-A1、A3</td><td>用于计算首次挂车、到货后是否挂车。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>素材</td><td>老素材流量（逐日留历史）</td><td><span class="tag">采集</span></td><td>R-A2</td><td>需要保留历史，用于恢复率和断货前基线对比。</td><td><span class="tag tag-warn">优先确认</span></td></tr>
+          <tr><td>素材</td><td>素材 code / 回收状态</td><td><span class="tag">标记</span></td><td>R-M（0169）</td><td>用于增长归因和素材回收跟进。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>履约 / 到货</td><td>到货状态、到货日期</td><td><span class="tag">采集</span></td><td>R-A1、A2</td><td>多为已有字段，需要确认可用性和粒度。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>履约 / 到货</td><td>预设推广启动日</td><td><span class="tag">采集·规划输入</span></td><td>R-A3</td><td>月度计划需要结构化录入。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>规划 / 协同</td><td>协同节点：类型 / 计划日 / 进度</td><td><span class="tag">采集·新建</span></td><td>R-C1</td><td>达人寄样、跨部门推进等节点需要结构化。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>规划 / 协同</td><td>失败标签 + 复盘状态</td><td><span class="tag">标记·新建工作流</span></td><td>R-M2</td><td>需要标记推品失败原因，并跟踪是否已复盘。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+          <tr><td>规划 / 协同</td><td>新品状态 / 出货进度 / 计划进度</td><td><span class="tag">采集</span></td><td>R-M3</td><td>用于跟踪新品上架和出货推进。</td><td><span class="tag tag-muted">待盘点</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>五、高成本数据设计判断</h2>
+    <div class="decision-card">
+      <h3>5.1 生命周期阶段自动判定</h3>
+      <p>生命周期阶段是多条规则的触发枢纽，不建议完全依赖人工打标。可与 IT 确认是否落为定时任务或数据视图。</p>
+      <div class="phase-list">
+        <div class="phase-card"><strong>新品</strong>上架不超过 14 天，且无放量渠道。</div>
+        <div class="phase-card"><strong>测试</strong>已有投放或挂车，但主要在剪辑侧验证。</div>
+        <div class="phase-card"><strong>放量</strong>已进入商务 / 直播渠道，或日销持续增长。</div>
+        <div class="phase-card"><strong>成熟</strong>日销稳定高位持续达到 N 天。</div>
+        <div class="phase-card"><strong>衰退</strong>日销连续下滑达到 K 天。</div>
+      </div>
+    </div>
+
+    <div class="decision-card">
+      <h3>5.2 基线快照必须提前保存</h3>
+      <p>老素材恢复率需要对比断货前均流量，日销环比需要对比历史。如果当前只存现值或累计值，断货时点的基线无法事后补回。</p>
+      <p>第一优先级不是立即计算所有指标，而是先把日销、素材流量、库存按天落历史表。</p>
+    </div>
+
+    <div class="decision-card">
+      <h3>5.3 派生指标口径必须唯一</h3>
+      <p>库存可支撑天数的分母使用近 7 日均销还是近 3 日均销，ROI 使用哪个投放窗口、是否包含自然流量，都需要在上线前锁定唯一口径。否则同一条规则在不同商品上可能出现不一致触发。</p>
+    </div>
+
+    <div class="decision-card">
+      <h3>5.4 窗口判断需要事件流</h3>
+      <p>例如 R-A1“到货后一周无投放”，需要判断到货日之后是否发生投放事件，而不是读取累计投放金额。挂车、投放等底层数据建议保留带时间戳的事件记录，再由事件流计算窗口判断。</p>
+    </div>
+
+    <h2>六、建议搭建顺序</h2>
+    <ol class="path-list">
+      <li><strong>采集 + 历史留存层：</strong>先补日销逐日、库存分仓、投放 / 挂车事件流、素材流量逐日。该层是后续规则计算的地基。</li>
+      <li><strong>计算层：</strong>将库存可支撑天数、均值 / 环比、ROI、海外仓占比、恢复率等派生指标做成定时任务，并锁定口径。</li>
+      <li><strong>标记 / 规划层：</strong>补生命周期自动推导、协同节点结构化、失败标签工作流等能力。该层依赖前两层产出。</li>
+    </ol>
+    <div class="note">
+      MVP 建议：优先选择现有数据较可能支撑的规则启动工作台，例如断货预警 R-B2、备货触发 R-B1、爆量低备货 R-D2，边运行边补齐判断字段。
+    </div>
+
+    <h2>七、周一 IT 调研问题清单</h2>
+    <h3>7.1 数据模块盘点</h3>
+    <ul class="checklist">
+      <li>现在系统分几块表或数据模块，例如商品、订单、库存、广告、达人、素材？各模块是否有字段清单或表头？</li>
+    </ul>
+
+    <h3>7.2 历史与快照</h3>
+    <ul class="checklist">
+      <li>日销是按天留历史，还是只有当前值或累计值？</li>
+      <li>库存是否按本地、海外、在途分仓保存，还是只有一个总库存？</li>
+      <li>素材流量、广告花费是否有逐日历史？</li>
+      <li>挂车、投放存的是累计数，还是带时间戳的事件记录？</li>
+    </ul>
+
+    <h3>7.3 判断与状态字段</h3>
+    <ul class="checklist">
+      <li>生命周期阶段、季节属性、备货状态、失败标签目前在系统里已有、人工表格维护，还是完全没有？</li>
+    </ul>
+
+    <h3>7.4 协同与规划</h3>
+    <ul class="checklist">
+      <li>达人寄样进度、月度推品计划、跨部门节点目前沉淀在系统、群消息、在线表格，还是个人经验中？</li>
+    </ul>
+
+    <h3>7.5 取数链路</h3>
+    <ul class="checklist">
+      <li>当前能否从数据库、BI 或中台直接取数，还是主要依赖人工导出 Excel？</li>
+      <li>是否已经做过 BI 报表或数据看板？如果做过，说明底层查询链路可能已具备，后续重点转向补判断字段和历史留存。</li>
+    </ul>
+
+    <h2>八、讨论后输出物</h2>
+    <ul>
+      <li>补齐模块缺口表的“现状”列，标记已有直接可用、有但要改造、没有需新建。</li>
+      <li>将 16 条规则重排为：现有数据即可上线、需补字段后上线、需新建模块后上线。</li>
+      <li>形成开发 / 埋点排期清单，标注优先级、数据来源、依赖模块和责任方。</li>
+      <li>沉淀规则引擎数据结构，例如规则 JSON schema 与触发伪代码骨架。</li>
+    </ul>
+
+    <h2>九、关联资料</h2>
+    <ul>
+      <li><a href="docs/TK打品系统化_数据评估_周一带给IT.md">TK 打品系统化数据评估周一带给 IT</a></li>
+      <li><a href="docs/TK打品系统化_对话记录与交付备份.md">TK 打品系统化对话记录与交付备份</a></li>
+      <li><a href="docs/TK打品规则表_技术需求.xlsx">TK 打品规则表技术需求</a></li>
+      <li><a href="docs/TK运营每日看板_原型 (1).html">TK 运营每日看板原型</a></li>
+    </ul>
+
+    <p class="back"><a href="../index.html">返回首页</a></p>
+  </div>
+</body>
+</html>

@@ -13,7 +13,9 @@
     .page-title { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.25rem; color: #1f2937; }
     .page-subtitle { color: #7b8da6; font-size: 0.86rem; }
     .toolbar { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
-    .query-card, .action-bar, .table-card, .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+    .category-card, .query-card, .action-bar, .table-card, .content-note { background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+    .category-card { padding: 0.85rem 1.25rem; margin-bottom: 0.75rem; }
+    .category-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
     .query-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
     .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
@@ -59,7 +61,7 @@
     .w-person { width: 120px; }
     .w-content { width: 120px; }
     .w-link { width: 112px; }
-    .w-op { width: 96px; text-align: center; }
+    .w-op { width: 126px; text-align: center; }
     .sort { color: #94a3b8; font-size: 12px; margin-left: 2px; }
     .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 40px; padding: 0.12rem 0.45rem; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
     .badge-blue { color: #0284c7; background: #e0f2fe; }
@@ -79,6 +81,9 @@
     .pager { color: var(--muted); font-size: 0.85rem; margin: 0 0 1rem; }
     .content-note { padding: 1rem 1.25rem; color: #475569; margin-bottom: 1rem; }
     .content-note-title { font-weight: 700; color: #334155; margin-bottom: 0.35rem; }
+    .content-note-section { margin-top: 0.75rem; }
+    .content-note-section:first-of-type { margin-top: 0; }
+    .content-note-subtitle { margin: 0 0 0.3rem; color: #334155; font-size: 0.9rem; font-weight: 700; }
     .content-note ol { margin: 0.35rem 0 0 1.25rem; padding: 0; }
     .content-note li { margin: 0.2rem 0; }
     .drawer-mask { position: fixed; inset: 0; background: rgba(15,23,42,.28); display: none; z-index: 60; }
@@ -100,6 +105,22 @@
     .field input, .field select { height: 38px; padding: 0 12px; }
     .field textarea { min-height: 70px; padding: 10px 12px; resize: vertical; }
     .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; padding: 0 18px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .modal-mask { position: fixed; inset: 0; background: rgba(15,23,42,.35); display: none; z-index: 80; padding: 24px; }
+    .modal-mask.open { display: flex; align-items: center; justify-content: center; }
+    .modal { width: min(1120px, 96vw); max-height: min(760px, 92vh); background: #fff; border-radius: 8px; box-shadow: 0 18px 44px rgba(15,23,42,.18); display: flex; flex-direction: column; overflow: hidden; }
+    .modal-head { min-height: 60px; border-bottom: 1px solid var(--border); padding: 0 18px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+    .modal-title { font-size: 1rem; font-weight: 700; color: #1f2937; }
+    .modal-subtitle { color: #64748b; font-size: .82rem; margin-top: 2px; }
+    .modal-body { padding: 16px 18px 72px; overflow: auto; }
+    .modal-actions { height: 64px; border-top: 1px solid var(--border); background: #fff; padding: 0 18px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .maintain-filters { display: flex; align-items: center; flex-wrap: wrap; gap: .75rem; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 12px; background: #f8fafc; }
+    .maintain-filters select,
+    .maintain-filters input[type="date"] { height: 38px; border: 1px solid var(--input-border); border-radius: 4px; padding: .4rem .6rem; color: var(--text); background: #fff; font-size: .9rem; outline: none; }
+    .maintain-summary { margin-left: auto; color: #64748b; font-size: .85rem; font-weight: 600; }
+    .maintain-table-wrap { border: 1px solid var(--border); border-radius: 8px; overflow: auto; }
+    .maintain-table { min-width: 980px; }
+    .maintain-table input[type="text"] { width: 100%; height: 34px; border: 1px solid var(--input-border); border-radius: 4px; padding: 0 10px; font-family: inherit; font-size: .86rem; outline: none; }
+    .empty-product { color: var(--danger); font-weight: 700; }
     .toast { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(18px); opacity: 0; transition: .2s ease; background: #172b46; color: #fff; border-radius: 8px; padding: 9px 16px; box-shadow: 0 12px 32px rgba(15,23,42,.16); z-index: 90; font-weight: 700; }
     .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
     @media (max-width: 960px) { body { padding: 1rem; } .topbar { flex-direction: column; } .query-actions { margin-left: 0; } .info-grid { grid-template-columns: 1fr; } }
@@ -117,17 +138,21 @@
       </div>
     </header>
 
-    <section class="query-card">
-      <div class="query-row">
-        <div class="query-item">
-          <div class="tabs" id="tabs">
-            <button class="tab active" data-tab="all">全部视频 <span class="count" id="countAll">0</span></button>
-            <button class="tab" data-tab="affiliate">联盟视频 <span class="count" id="countAffiliate">0</span></button>
-            <button class="tab" data-tab="self">自制视频 <span class="count" id="countSelf">0</span></button>
-            <button class="tab" data-tab="image">图文视频 <span class="count" id="countImage">0</span></button>
-            <button class="tab" data-tab="ai">AI视频 <span class="count" id="countAi">0</span></button>
-          </div>
+    <section class="category-card" aria-label="视频栏目">
+      <div class="category-row">
+        <div class="tabs" id="tabs">
+          <button class="tab active" data-tab="all">全部视频 <span class="count" id="countAll">0</span></button>
+          <button class="tab" data-tab="affiliate">联盟视频 <span class="count" id="countAffiliate">0</span></button>
+          <button class="tab" data-tab="self">自制视频 <span class="count" id="countSelf">0</span></button>
+          <button class="tab" data-tab="image">图文视频 <span class="count" id="countImage">0</span></button>
+          <button class="tab" data-tab="ai">AI视频 <span class="count" id="countAi">0</span></button>
         </div>
+        <button type="button" class="btn btn-secondary" id="btnMaintainVideos">维护视频数据</button>
+      </div>
+    </section>
+
+    <section class="query-card" aria-label="筛选条件">
+      <div class="query-row">
         <div class="query-item"><span class="label">是否开单</span><select id="orderFilter"><option value="">全部</option><option>是</option><option>否</option></select></div>
         <div class="query-item"><span class="label">是否投放</span><select id="adFilter"><option value="">全部投放</option><option>是</option><option>否</option></select></div>
         <div class="query-item"><span class="label">内容类型</span><select id="contentFilter"><option value="">全部内容</option><option>混剪</option><option>实拍</option><option>AI</option><option>图文</option><option>达人原生</option><option>达人AI</option><option>达人图文</option></select></div>
@@ -175,13 +200,75 @@
 
     <section class="content-note" aria-label="内容说明">
       <div class="content-note-title">内容说明</div>
-      <ol>
-        <li>字段以 <strong>TikTok_IT映射表_视频数据.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为视频数据。</li>
-        <li>联盟视频包含基础信息、商品信息、数据指标、手动维护 4 组字段；自制/图文/AI视频包含基础信息、商品信息、数据指标、手动维护 4 组字段。</li>
-        <li>联盟视频的视频年月根据发布时间生成；自制/图文/AI视频的内容所属月份、所属周根据发布日期生成。</li>
-        <li>互动数=点赞+评论+收藏+转发；互动率=互动数÷播放量；全渠道总单量=自然单量+广告单量；全渠道GMV=自然GMV+广告GMV。</li>
-        <li>默认隐藏字段不在列表默认展示，但应支持编辑维护与导出完整字段。</li>
-      </ol>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">一、说明</h3>
+        <ol>
+          <li>字段以 <strong>TikTok_IT映射表_视频数据.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为视频数据。</li>
+          <li>页面统一汇总视频数据，并按视频栏目展示联盟视频、自制视频、图文视频、AI 视频等。</li>
+          <li>联盟视频包含基础信息、商品信息、数据指标、手动维护 4 组字段；自制 / 图文 / AI 视频包含基础信息、商品信息、数据指标、手动维护 4 组字段。</li>
+          <li>互动数=点赞+评论+收藏+转发；互动率=互动数÷播放量；全渠道总单量=自然单量+广告单量；全渠道GMV=自然GMV+广告GMV。</li>
+          <li>页面顶部“栏目”与“筛选条件”分区展示；后续不同栏目可配置不同筛选条件，不与栏目切换混排。</li>
+          <li>“维护视频数据”用于集中补充缺失的关键数据，当前重点维护商品名称；列表“编辑”用于维护归属人员、日期、授权码、颜色、备注等基础字段。</li>
+          <li>默认隐藏字段不在列表默认展示，但应支持编辑维护与导出完整字段。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">二、重新梳理后的准确逻辑</h3>
+        <ol>
+          <li><strong>数据来源</strong>：数据来源为已绑定账号和联盟账号的 RPA 数据。</li>
+          <li><strong>视频栏目区分</strong>：视频栏目区分为联盟视频、自制视频、图文视频、AI 视频等；具体区分逻辑待定，暂未确定准确逻辑。</li>
+          <li><strong>商品字段与 PID</strong>：<strong>product_name</strong> 为商品名称，系统根据商品名称最后面括号包起来的数字解析商品 ID（PID），例如 <strong>FAIABLE Oversized Acid washed Unisex Sweatshirt Loose Fit Cotton Pullover Vintage Crew Neck Sweatshirts Waffle Fabric(1732020914348724581)</strong> 中的 <strong>1732020914348724581</strong>；若解析失败或商品名称不规范，需在维护视频数据中补充或校正。</li>
+          <li><strong>同达人同 PID 多视频</strong>：一个达人对同一个 PID 可能存在多个视频 ID；用于关联寄样订单时，视频创建时间必须大于订单创建时间。</li>
+          <li><strong>编辑补充商品名称</strong>：在编辑模块中，由于导出的商品名称可能为空，需要支持手动补充填入；补充后用于 PID 解析和后续关联判断。</li>
+          <li><strong>列表数据粒度</strong>：本列表按视频维度展示。如果一个达人针对同一个 PID 出现多个视频，允许展示为多条视频记录；同一个 PID 可对应多条记录，不需要合并去重。</li>
+        </ol>
+      </div>
+      <div class="content-note-section">
+        <h3 class="content-note-subtitle">三、规则补充 / 待确认</h3>
+        <ol>
+          <li><strong>视频栏目识别规则</strong>：联盟视频、自制视频、图文视频、AI 视频的区分依据仍需确认，当前页面只保留栏目展示，不固化识别口径。</li>
+        </ol>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-mask" id="maintainModalMask">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="maintainModalTitle">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title" id="maintainModalTitle">维护视频数据</div>
+          <div class="modal-subtitle">用于补充商品名称等缺失关键数据；基础字段仍通过列表“编辑”维护</div>
+        </div>
+        <button class="close" id="btnMaintainClose" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="maintain-filters">
+          <div class="query-item"><span class="label">商品名称是否为空</span><select id="maintainEmptyFilter"><option value="">全部</option><option value="empty">为空</option><option value="filled">不为空</option></select></div>
+          <div class="query-item"><span class="label">发布时间范围</span><input type="date" id="maintainStartDate" /><input type="date" id="maintainEndDate" /></div>
+          <button type="button" class="btn btn-secondary" id="btnMaintainReset">重置</button>
+          <div class="maintain-summary">共 <strong id="maintainCount">0</strong> 条；缺失 <strong id="maintainMissingCount">0</strong> 条</div>
+        </div>
+        <div class="maintain-table-wrap">
+          <table class="maintain-table">
+            <thead>
+              <tr>
+                <th class="w-content">视频类型</th>
+                <th class="w-id">视频ID / Post ID</th>
+                <th class="w-account">达人账号</th>
+                <th class="w-date">发布时间 / 发布日期</th>
+                <th class="w-title">商品名称</th>
+                <th class="w-product">Product ID</th>
+                <th class="w-sku">款号 / SPU</th>
+              </tr>
+            </thead>
+            <tbody id="maintainRows"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="btnMaintainCancel">取消</button>
+        <button type="button" class="btn btn-query" id="btnMaintainSave">保存</button>
+      </div>
     </section>
   </div>
 
@@ -201,25 +288,28 @@
       { type: 'affiliate', videoId: '7569654647774842142', account: 'chelly_15', userId: 'UID10001', publishTime: '2025/11/06 14:30', videoYearMonth: '2025/11', videoUrl: 'https://www.tiktok.com/@chelly_15/video/7569654647774842142', productTitle: 'Ergonomic Seat Cushion', videoSku: 'AL-W0161-LL-M', productId: '1729773126172578149', shopName: 'Faiable Fashion', vv: 92000, gmv: 2651.03, hasOrder: '是', isRunningAd: '是', bizOwner: 'Alice Chen', firstOrderDate: '2025-11-07', authCode: 'AUTH-001', videoColor: 'Pale Pink', sampleBizOwner: 'Alice Chen', remark: '' },
       { type: 'affiliate', videoId: '7586608447945395470', account: 'faiable.collectio', userId: 'UID10002', publishTime: '2025/12/25 17:28', videoYearMonth: '2025/12', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7586608447945395470', productTitle: 'Ivory Lounge Set', videoSku: 'AL-W0518-WHT-S', productId: '1730674849392267621', shopName: 'Faiable Days', vv: 3083, gmv: 108.29, hasOrder: '是', isRunningAd: '否', bizOwner: 'Alice Chen', firstOrderDate: '2025-12-26', authCode: 'AUTH-002', videoColor: 'Ivory', sampleBizOwner: 'Alice Chen', remark: '' },
       { type: 'affiliate', videoId: '7618146777081892127', account: 'kai.didit', userId: 'UID10003', publishTime: '2026/03/17 13:27', videoYearMonth: '2026/03', videoUrl: 'https://www.tiktok.com/@kai.didit/video/7618146777081892127', productTitle: 'Purple Knit Cardigan', videoSku: 'AL-W5558-PPL-M', productId: '1731902422767866213', shopName: 'Faiable Chic', vv: 87000, gmv: 105.42, hasOrder: '是', isRunningAd: '是', bizOwner: 'Bob Wang', firstOrderDate: '2026-03-18', authCode: 'AUTH-003', videoColor: 'Purple', sampleBizOwner: 'Bob Wang', remark: '' },
-      { type: 'affiliate', videoId: '7538498588440087863', account: 'sosa2wavy', userId: 'UID10004', publishTime: '2026/01/15 10:00', videoYearMonth: '2026/01', videoUrl: 'https://www.tiktok.com/@sosa2wavy/video/7538498588440087863', productTitle: 'Black Crop Top', videoSku: 'AL-W6675-BLK-XS', productId: '1731657241623302501', shopName: 'Faiable Comfywear', vv: 1400, gmv: 0, hasOrder: '否', isRunningAd: '否', bizOwner: '未分配', firstOrderDate: '', authCode: '', videoColor: '', sampleBizOwner: '', remark: '' },
+      { type: 'affiliate', videoId: '7538498588440087863', account: 'sosa2wavy', userId: 'UID10004', publishTime: '2026/01/15 10:00', videoYearMonth: '2026/01', videoUrl: 'https://www.tiktok.com/@sosa2wavy/video/7538498588440087863', productTitle: '', videoSku: 'AL-W6675-BLK-XS', productId: '1731657241623302501', shopName: 'Faiable Comfywear', vv: 1400, gmv: 0, hasOrder: '否', isRunningAd: '否', bizOwner: '未分配', firstOrderDate: '', authCode: '', videoColor: '', sampleBizOwner: '', remark: '商品名称待补充' },
       { type: 'affiliate', videoId: '7603317898312011022', account: '0900.act', userId: 'UID10005', publishTime: '2026/02/05 01:57', videoYearMonth: '2026/02', videoUrl: 'https://www.tiktok.com/@0900.act/video/7603317898312011022', productTitle: 'Red Everyday Dress', videoSku: 'AL-W0161-RED-L', productId: '1731902422767866213', shopName: 'Faiable Fashion', vv: 13000, gmv: 150.82, hasOrder: '是', isRunningAd: '是', bizOwner: 'Alice Chen', firstOrderDate: '2026-02-06', authCode: 'AUTH-006', videoColor: 'Red', sampleBizOwner: 'Alice Chen', remark: '' },
       { type: 'content', contentGroup: 'self', postId: '7618525560897162510', account: '0900.act', publishDate: '2026-03-20 21:58:00', contentMonth: '2026/03', contentWeek: '2026/03/16-2026/03/22', contentType: '混剪', titleDesc: '办公室通勤穿搭混剪', videoUrl: 'https://www.tiktok.com/@0900.act/video/7618525560897162510', productId: '1729773126172578149', spuCode: 'AL-W6675', spuName: 'Black Crop Top', productCategory: '女装上衣', playCount: 992, likes: 88, comments: 9, favorites: 16, shares: 6, naturalOrders: 2, adOrders: 0, naturalGmv: 105.98, adGmv: 0, naturalImpressions: 5200, naturalClicks: 180, firstOrderDate: '2026-03-21', editorName: 'Carol Liu', editorAssistant: 'Mia', director: 'David Zhang', model: 'Nina', modelGender: '女', displayColor: 'Black', scriptType: '穿搭', crossRegion: '否', remark: '' },
       { type: 'content', contentGroup: 'self', postId: '7619208092533787934', account: '0900.act', publishDate: '2026-03-21 17:56:00', contentMonth: '2026/03', contentWeek: '2026/03/16-2026/03/22', contentType: '实拍', titleDesc: '春季新品实拍测评', videoUrl: 'https://www.tiktok.com/@0900.act/video/7619208092533787934', productId: '1731657241623302501', spuCode: 'AL-W0518', spuName: 'Ivory Lounge Set', productCategory: '家居服', playCount: 990, likes: 76, comments: 12, favorites: 20, shares: 4, naturalOrders: 1, adOrders: 0, naturalGmv: 54.42, adGmv: 0, naturalImpressions: 4100, naturalClicks: 130, firstOrderDate: '2026-03-22', editorName: 'Carol Liu', editorAssistant: '', director: 'David Zhang', model: 'Emma', modelGender: '女', displayColor: 'White', scriptType: '测评', crossRegion: '是', remark: '' },
       { type: 'content', contentGroup: 'self', postId: '7615000000000000001', account: 'faiable.collectio', publishDate: '2026-03-10 12:00:00', contentMonth: '2026/03', contentWeek: '2026/03/09-2026/03/15', contentType: '达人原生', titleDesc: '达人原生生活场景视频', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7615000000000000001', productId: '1731902422767866213', spuCode: 'AL-W5558', spuName: 'Purple Knit Cardigan', productCategory: '针织衫', playCount: 45000, likes: 3200, comments: 180, favorites: 720, shares: 95, naturalOrders: 35, adOrders: 15, naturalGmv: 1850.4, adGmv: 808, naturalImpressions: 88000, naturalClicks: 4100, firstOrderDate: '2026-03-11', editorName: 'Alice Chen', editorAssistant: 'Leo', director: 'David Zhang', model: '达人本人', modelGender: '女', displayColor: 'Lavender', scriptType: '生活场景', crossRegion: '否', remark: '' },
-      { type: 'content', contentGroup: 'image', postId: '7620000000000000001', account: 'faiable.collectio', publishDate: '2026-03-25 10:00:00', contentMonth: '2026/03', contentWeek: '2026/03/23-2026/03/29', contentType: '图文', titleDesc: '图文穿搭合集', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7620000000000000001', productId: '1729773126172578149', spuCode: 'AL-W6675', spuName: 'Black Crop Top', productCategory: '女装上衣', playCount: 3200, likes: 260, comments: 22, favorites: 80, shares: 15, naturalOrders: 5, adOrders: 0, naturalGmv: 265.9, adGmv: 0, naturalImpressions: 12000, naturalClicks: 420, firstOrderDate: '2026-03-26', editorName: 'Carol Liu', editorAssistant: '', director: 'David Zhang', model: 'Nina', modelGender: '女', displayColor: 'Black', scriptType: '穿搭', crossRegion: '是', remark: '' },
+      { type: 'content', contentGroup: 'image', postId: '7620000000000000001', account: 'faiable.collectio', publishDate: '2026-03-25 10:00:00', contentMonth: '2026/03', contentWeek: '2026/03/23-2026/03/29', contentType: '图文', titleDesc: '图文穿搭合集', videoUrl: 'https://www.tiktok.com/@faiable.collectio/video/7620000000000000001', productId: '1729773126172578149', spuCode: 'AL-W6675', spuName: '', productCategory: '女装上衣', playCount: 3200, likes: 260, comments: 22, favorites: 80, shares: 15, naturalOrders: 5, adOrders: 0, naturalGmv: 265.9, adGmv: 0, naturalImpressions: 12000, naturalClicks: 420, firstOrderDate: '2026-03-26', editorName: 'Carol Liu', editorAssistant: '', director: 'David Zhang', model: 'Nina', modelGender: '女', displayColor: 'Black', scriptType: '穿搭', crossRegion: '是', remark: '商品名称待补充' },
       { type: 'content', contentGroup: 'ai', postId: '7621000000000000001', account: 'faiable_retrofit', publishDate: '2026-04-01 09:00:00', contentMonth: '2026/04', contentWeek: '2026/03/30-2026/04/05', contentType: 'AI', titleDesc: 'AI模特产品展示', videoUrl: 'https://www.tiktok.com/@faiable_retrofit/video/7621000000000000001', productId: '1730674849392267621', spuCode: 'AL-W0161', spuName: 'Red Everyday Dress', productCategory: '连衣裙', playCount: 8900, likes: 730, comments: 38, favorites: 210, shares: 32, naturalOrders: 8, adOrders: 3, naturalGmv: 424.54, adGmv: 160, naturalImpressions: 26000, naturalClicks: 890, firstOrderDate: '2026-04-02', editorName: 'Alice Chen', editorAssistant: 'Mia', director: 'David Zhang', model: 'AI模特', modelGender: '未知', displayColor: 'Red', scriptType: '教程', crossRegion: '否', remark: '' }
     ];
     var activeTab = 'all';
     var editingVideo = null;
     var affiliateColumns = [
-      { key: 'videoId', label: '视频ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishTime', label: '发布时间', cls: 'w-date', sort: true }, { key: 'videoYearMonth', label: '视频年月', cls: 'w-month', sort: true }, { key: 'videoUrl', label: '视频链接', cls: 'w-link', render: linkRender }, { key: 'productTitle', label: '商品标题', cls: 'w-title' }, { key: 'videoSku', label: '视频款号', cls: 'w-sku' }, { key: 'productId', label: 'Product ID', cls: 'w-product' }, { key: 'shopName', label: '挂车店铺', cls: 'w-shop' }, { key: 'vv', label: '播放量（VV）', cls: 'w-metric', sort: true, render: numberRender }, { key: 'gmv', label: 'GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单', cls: 'w-status', render: yesNoRender }, { key: 'isRunningAd', label: '是否投放', cls: 'w-status', render: yesNoRender }, { key: 'bizOwner', label: '归属商务', cls: 'w-person' }, { key: 'firstOrderDate', label: '开单日期', cls: 'w-date', sort: true }
+      { key: 'videoId', label: '视频ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishTime', label: '发布时间', cls: 'w-date', sort: true }, { key: 'videoYearMonth', label: '视频年月', cls: 'w-month', sort: true }, { key: 'videoUrl', label: '视频链接', cls: 'w-link', render: linkRender }, { key: 'productTitle', label: '商品标题', cls: 'w-title', render: function(value) { return value || '<span class="empty-product">待补充</span>'; } }, { key: 'videoSku', label: '视频款号', cls: 'w-sku' }, { key: 'productId', label: 'Product ID', cls: 'w-product' }, { key: 'shopName', label: '挂车店铺', cls: 'w-shop' }, { key: 'vv', label: '播放量（VV）', cls: 'w-metric', sort: true, render: numberRender }, { key: 'gmv', label: 'GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单', cls: 'w-status', render: yesNoRender }, { key: 'isRunningAd', label: '是否投放', cls: 'w-status', render: yesNoRender }, { key: 'bizOwner', label: '归属商务', cls: 'w-person' }, { key: 'firstOrderDate', label: '开单日期', cls: 'w-date', sort: true }
     ];
     var contentColumns = [
-      { key: 'postId', label: 'Post ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishDate', label: '发布日期', cls: 'w-date', sort: true }, { key: 'contentMonth', label: '内容所属月份', cls: 'w-month', sort: true }, { key: 'contentType', label: '内容类型', cls: 'w-content', render: contentBadge }, { key: 'titleDesc', label: '标题文案', cls: 'w-title' }, { key: 'videoUrl', label: '内容链接', cls: 'w-link', render: linkRender }, { key: 'spuCode', label: '款号SPU', cls: 'w-sku' }, { key: 'spuName', label: 'SPU名称', cls: 'w-title' }, { key: 'playCount', label: '播放量', cls: 'w-metric', sort: true, render: numberRender }, { key: 'likes', label: '点赞', cls: 'w-metric', sort: true, render: numberRender }, { key: 'comments', label: '评论', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionCount', label: '互动数', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionRate', label: '互动率', cls: 'w-metric', sort: true, render: percentRender }, { key: 'naturalOrders', label: '自然单量', cls: 'w-metric', sort: true }, { key: 'adOrders', label: '广告单量', cls: 'w-metric', sort: true }, { key: 'totalOrders', label: '全渠道总单量', cls: 'w-metric', sort: true }, { key: 'totalGmv', label: '全渠道GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单视频', cls: 'w-status', render: yesNoRender }, { key: 'editorName', label: '剪辑专员', cls: 'w-person' }, { key: 'director', label: '负责编导', cls: 'w-person' }
+      { key: 'postId', label: 'Post ID', cls: 'w-id' }, { key: 'account', label: '达人账号', cls: 'w-account' }, { key: 'publishDate', label: '发布日期', cls: 'w-date', sort: true }, { key: 'contentMonth', label: '内容所属月份', cls: 'w-month', sort: true }, { key: 'contentType', label: '内容类型', cls: 'w-content', render: contentBadge }, { key: 'titleDesc', label: '标题文案', cls: 'w-title' }, { key: 'videoUrl', label: '内容链接', cls: 'w-link', render: linkRender }, { key: 'spuCode', label: '款号SPU', cls: 'w-sku' }, { key: 'spuName', label: 'SPU名称', cls: 'w-title', render: function(value) { return value || '<span class="empty-product">待补充</span>'; } }, { key: 'playCount', label: '播放量', cls: 'w-metric', sort: true, render: numberRender }, { key: 'likes', label: '点赞', cls: 'w-metric', sort: true, render: numberRender }, { key: 'comments', label: '评论', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionCount', label: '互动数', cls: 'w-metric', sort: true, render: numberRender }, { key: 'interactionRate', label: '互动率', cls: 'w-metric', sort: true, render: percentRender }, { key: 'naturalOrders', label: '自然单量', cls: 'w-metric', sort: true }, { key: 'adOrders', label: '广告单量', cls: 'w-metric', sort: true }, { key: 'totalOrders', label: '全渠道总单量', cls: 'w-metric', sort: true }, { key: 'totalGmv', label: '全渠道GMV($)', cls: 'w-metric', sort: true, render: moneyRender }, { key: 'hasOrder', label: '是否开单视频', cls: 'w-status', render: yesNoRender }, { key: 'editorName', label: '剪辑专员', cls: 'w-person' }, { key: 'director', label: '负责编导', cls: 'w-person' }
     ];
     function displayType(video) { return video.type === 'affiliate' ? '联盟视频' : (video.contentGroup === 'image' ? '图文视频' : (video.contentGroup === 'ai' ? 'AI视频' : '自制视频')); }
     function monthOf(video) { return video.type === 'affiliate' ? video.videoYearMonth : video.contentMonth; }
     function dateOf(video) { return video.type === 'affiliate' ? video.publishTime : video.publishDate; }
+    function productNameOf(video) { return video.type === 'affiliate' ? (video.productTitle || '') : (video.spuName || ''); }
+    function setProductName(video, value) { if (video.type === 'affiliate') video.productTitle = value; else video.spuName = value; }
+    function skuOf(video) { return video.type === 'affiliate' ? video.videoSku : video.spuCode; }
     function isContent(video) { return video.type === 'content'; }
     function contentBadge(value) { if (!value) return ''; var cls = value.indexOf('达人') >= 0 ? 'badge-pink' : (value === 'AI' ? 'badge-ai' : (value === '混剪' ? 'badge-purple' : 'badge-blue')); return '<span class="badge ' + cls + '">' + value + '</span>'; }
     function yesNoRender(value) { return '<span class="' + (value === '是' ? 'badge-on' : 'badge-off') + '">' + (value || '否') + '</span>'; }
@@ -251,7 +341,7 @@
         { key: 'account', label: '达人账号', cls: 'w-account' },
         { key: '_date', label: '发布时间 / 发布日期', cls: 'w-date', sort: true, render: function(_, video) { return dateOf(video); } },
         { key: '_month', label: '视频年月 / 内容所属月份', cls: 'w-month', sort: true, render: function(_, video) { return monthOf(video); } },
-        { key: '_product', label: '商品标题 / SPU名称', cls: 'w-title', render: function(_, video) { return video.productTitle || video.spuName; } },
+        { key: '_product', label: '商品标题 / SPU名称', cls: 'w-title', render: function(_, video) { return productNameOf(video) || '<span class="empty-product">待补充</span>'; } },
         { key: '_sku', label: '视频款号 / 款号SPU', cls: 'w-sku', render: function(_, video) { return video.videoSku || video.spuCode; } },
         { key: 'productId', label: 'Product ID', cls: 'w-product' },
         { key: '_views', label: '播放量', cls: 'w-metric', sort: true, render: function(_, video) { return numberRender(video.vv || video.playCount); } },
@@ -265,14 +355,14 @@
         videoId: video.videoId || video.postId,
         account: video.account,
         userId: video.userId,
-        productTitle: video.productTitle,
+        productTitle: productNameOf(video),
         videoSku: video.videoSku || video.spuCode,
         productId: video.productId,
         titleDesc: video.titleDesc,
-        spuName: video.spuName
+        spuName: productNameOf(video)
       };
       if (field !== 'all') return map[field] || '';
-      return [video.videoId, video.postId, video.account, video.userId, video.productTitle, video.videoSku, video.productId, video.titleDesc, video.spuCode, video.spuName].join(' ');
+      return [video.videoId, video.postId, video.account, video.userId, productNameOf(video), video.videoSku, video.productId, video.titleDesc, video.spuCode].join(' ');
     }
     function parseDate(value) { if (!value) return null; return new Date(String(value).replace(/\//g, '-').split(' ')[0] + 'T00:00:00'); }
     function matchesTab(video) { if (activeTab === 'all') return true; if (activeTab === 'affiliate') return video.type === 'affiliate'; return video.contentGroup === activeTab; }
@@ -351,7 +441,59 @@
       document.getElementById('editDrawer').classList.add('open');
     }
     function closeDrawer() { document.getElementById('drawerMask').classList.remove('open'); document.getElementById('editDrawer').classList.remove('open'); }
-    function showToast() { var toast = document.getElementById('toast'); toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1400); }
+    function showToast(text) { var toast = document.getElementById('toast'); toast.textContent = text || '已保存当前视频记录'; toast.classList.add('show'); setTimeout(function() { toast.classList.remove('show'); }, 1400); }
+    function getMaintainRows() {
+      var emptyFilter = document.getElementById('maintainEmptyFilter').value;
+      var startDate = parseDate(document.getElementById('maintainStartDate').value);
+      var endDate = parseDate(document.getElementById('maintainEndDate').value);
+      return videos.filter(function(video) {
+        var productName = productNameOf(video).trim();
+        var isEmpty = !productName;
+        var itemDate = parseDate(dateOf(video));
+        if (emptyFilter === 'empty' && !isEmpty) return false;
+        if (emptyFilter === 'filled' && isEmpty) return false;
+        if (startDate && itemDate && itemDate < startDate) return false;
+        if (endDate && itemDate && itemDate > endDate) return false;
+        return true;
+      });
+    }
+    function renderMaintainRows() {
+      var rows = getMaintainRows();
+      document.getElementById('maintainCount').textContent = rows.length;
+      document.getElementById('maintainMissingCount').textContent = rows.filter(function(video) { return !productNameOf(video).trim(); }).length;
+      var body = document.getElementById('maintainRows');
+      if (!rows.length) {
+        body.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的视频数据</td></tr>';
+        return;
+      }
+      body.innerHTML = rows.map(function(video) {
+        var index = videos.indexOf(video);
+        var productName = productNameOf(video);
+        return '<tr>' +
+          '<td><span class="badge badge-blue">' + displayType(video) + '</span></td>' +
+          '<td title="' + (video.videoId || video.postId) + '">' + (video.videoId || video.postId) + '</td>' +
+          '<td title="' + video.account + '">' + video.account + '</td>' +
+          '<td>' + dateOf(video) + '</td>' +
+          '<td><input type="text" data-maintain-product="' + index + '" value="' + productName + '" placeholder="请补充商品名称" /></td>' +
+          '<td title="' + (video.productId || '') + '">' + (video.productId || '') + '</td>' +
+          '<td title="' + (skuOf(video) || '') + '">' + (skuOf(video) || '') + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+    function openMaintainModal() {
+      document.getElementById('maintainModalMask').classList.add('open');
+      renderMaintainRows();
+    }
+    function closeMaintainModal() { document.getElementById('maintainModalMask').classList.remove('open'); }
+    function saveMaintainModal() {
+      document.querySelectorAll('[data-maintain-product]').forEach(function(input) {
+        var video = videos[Number(input.getAttribute('data-maintain-product'))];
+        if (video) setProductName(video, input.value.trim());
+      });
+      renderRows();
+      renderMaintainRows();
+      showToast('视频商品名称已维护');
+    }
     function saveDrawer() {
       if (!editingVideo) return;
       if (editingVideo.type === 'affiliate') {
@@ -377,9 +519,16 @@
     document.getElementById('tabs').addEventListener('click', function(e) { var btn = e.target.closest('.tab'); if (!btn) return; activeTab = btn.getAttribute('data-tab'); document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); }); btn.classList.add('active'); renderRows(); });
     document.getElementById('videoRows').addEventListener('click', function(e) { var btn = e.target.closest('[data-edit]'); if (btn) openDrawer(videos[Number(btn.getAttribute('data-edit'))]); });
     ['searchInput', 'searchField', 'searchMode', 'orderFilter', 'adFilter', 'contentFilter', 'monthFilter', 'shopFilter', 'ownerFilter', 'startDate', 'endDate'].forEach(function(id) { document.getElementById(id).addEventListener(id === 'searchInput' ? 'input' : 'change', renderRows); });
+    ['maintainEmptyFilter', 'maintainStartDate', 'maintainEndDate'].forEach(function(id) { document.getElementById(id).addEventListener('change', renderMaintainRows); });
     document.getElementById('btnQuery').addEventListener('click', renderRows);
     document.getElementById('btnReset').addEventListener('click', function() { ['searchInput','orderFilter','adFilter','contentFilter','monthFilter','shopFilter','ownerFilter','startDate','endDate'].forEach(function(id) { document.getElementById(id).value = ''; }); document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('searchField').value = 'all'; renderRows(); });
     document.getElementById('btnExport').addEventListener('click', function() { showToast(); });
+    document.getElementById('btnMaintainVideos').addEventListener('click', openMaintainModal);
+    document.getElementById('btnMaintainReset').addEventListener('click', function() { ['maintainEmptyFilter','maintainStartDate','maintainEndDate'].forEach(function(id) { document.getElementById(id).value = ''; }); renderMaintainRows(); });
+    document.getElementById('btnMaintainClose').addEventListener('click', closeMaintainModal);
+    document.getElementById('btnMaintainCancel').addEventListener('click', closeMaintainModal);
+    document.getElementById('btnMaintainSave').addEventListener('click', saveMaintainModal);
+    document.getElementById('maintainModalMask').addEventListener('click', function(e) { if (e.target === this) closeMaintainModal(); });
     document.getElementById('btnClose').addEventListener('click', closeDrawer);
     document.getElementById('btnCancel').addEventListener('click', closeDrawer);
     document.getElementById('drawerMask').addEventListener('click', closeDrawer);
