@@ -35,8 +35,8 @@
 <body>
   <div class="doc">
     <h1>管理模块 表结构设计</h1>
-    <p>本文档为 <code>bi/tkDashboard/管理模块</code> 的统一表结构设计，当前覆盖 <code>商品模块/商品档案.html</code>、<code>账号模块/账号维护.html</code> 与 <code>视频数据/视频数据.html</code> 页面。表结构按 Doris 兼容语法与 <code>ms-warehouse-batch-data/AGENTS.md</code> 命名规范设计。</p>
-    <div class="note"><strong>命名依据：</strong>管理模块只是页面归属，不作为数仓业务域入表名；商品档案、账号维护与视频数据均归入商品域，优先使用 <code>dim_product_xxx_config</code> 配置维表命名；如后续需要保留每日快照或历史版本，再新增 <code>_df</code> 快照表或历史流水表。</div>
+    <p>本文档为 <code>bi/tkDashboard/管理模块</code> 的统一表结构设计，当前覆盖 <code>商品模块/商品档案.html</code>、<code>账号模块/账号维护.html</code>、<code>视频数据/视频数据.html</code> 与内部运营人员配置。表结构按 Doris 兼容语法与 <code>ms-warehouse-batch-data/AGENTS.md</code> 命名规范设计。</p>
+    <div class="note"><strong>命名依据：</strong>管理模块只是页面归属，不作为数仓业务域入表名；商品档案、账号维护与视频数据均归入商品域，优先使用 <code>dim_product_xxx_config</code> 配置维表命名；公司内部人员配置归入组织域，使用 <code>dim_organization_xxx_config</code> 当前生效配置维表命名；如后续需要保留每日快照或历史版本，再新增 <code>_df</code> 快照表或历史流水表。</div>
     <hr />
 
     <h2>一、表清单</h2>
@@ -45,6 +45,7 @@
         <thead><tr><th>层级</th><th>表名</th><th>服务页面</th><th>粒度 / 主键</th><th>说明</th></tr></thead>
         <tbody>
           <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-product-archive"><code>dim_product_archive_config</code></a></td><td>商品档案</td><td>平台 + 店铺 + PID + SKU</td><td>商品档案当前生效配置，承接 TK API、积加商品主数据与人工维护字段。</td></tr>
+          <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-internal-staff"><code>dim_organization_internal_staff_config</code></a></td><td>商品档案；后续可复用到账号维护 / 视频数据 / 寄样管理</td><td>内部人员 ID</td><td>公司内部运营、商务、编导、剪辑、直播、投放等人员配置。</td></tr>
           <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-account-archive"><code>dim_platform_tiktok_account_config</code></a></td><td>账号维护</td><td>TikTok UID</td><td>TikTok 账号当前生效档案，手动维护渠道号、达人号、TAP 机构号及运营归属。</td></tr>
           <tr><td><span class="badge dim">DIM</span></td><td><a href="#tbl-video-config"><code>dim_product_tiktok_video_config</code></a></td><td>视频数据</td><td>视频 ID</td><td>TikTok 视频当前生效配置，承接已绑定账号 / 联盟账号源数据与人工维护字段。</td></tr>
         </tbody>
@@ -54,6 +55,7 @@
     <h2>二、设计原则</h2>
     <ul>
       <li><strong>商品档案</strong>：基础数据来源于 TK API 与积加商品主数据；主图取 SKU 主属性图第一张；产品主 SKU 决定价格归属；其他运营字段支持人工维护。</li>
+      <li><strong>内部人员</strong>：商品档案中的 <code>operator_owner</code>、<code>business_owner</code>、<code>guidance_owner</code>、<code>editor_owner</code>、<code>live_owner</code>、<code>ad_owner</code> 当前仍保存展示姓名；后续页面可从内部人员 DIM 表加载下拉选项，避免手输姓名不统一。</li>
       <li><strong>账号维护</strong>：页面说明为手动维护，无第三方 API 数据源；登录凭证类内容正式落库时必须加密或脱敏存储。</li>
       <li><strong>视频数据</strong>：视频基础信息与源数据来源于已绑定账号和联盟账号；列表、编辑抽屉与视频源数据维护中的可保存字段统一沉淀到商品域 DIM 层。</li>
       <li><strong>字段命名</strong>：底表字段使用小写下划线；页面接口字段如后续实现，仍使用 Java DTO / VO 驼峰命名。</li>
@@ -178,7 +180,83 @@ PROPERTIES (
     "replication_num" = "1"
 );</code></pre>
 
-    <h2 id="tbl-account-archive">四、dim_platform_tiktok_account_config</h2>
+    <h2 id="tbl-internal-staff">四、dim_organization_internal_staff_config</h2>
+    <p>公司内部人员当前生效配置表，支撑商品档案运营人员相关字段下拉选择；后续也可复用到账号维护、视频数据、寄样管理等页面的人员归属字段。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>字段名</th><th>类型</th><th>来源 / 维护方式</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>staff_id</code></td><td><code>VARCHAR(100)</code></td><td>人工维护 / 企业微信</td><td>内部人员 ID；暂无企业微信 ID 时先用人工维护编码，后续可映射企业微信 user_id。</td></tr>
+          <tr><td><code>staff_name</code></td><td><code>VARCHAR(100)</code></td><td>组织架构 / 人工维护</td><td>中文姓名。</td></tr>
+          <tr><td><code>english_name</code></td><td><code>VARCHAR(100)</code></td><td>组织架构 / 人工维护</td><td>英文名或常用英文称呼；按截图原文保留大小写。</td></tr>
+          <tr><td><code>display_name</code></td><td><code>VARCHAR(200)</code></td><td>系统拼接 / 人工维护</td><td>页面展示名，如“杨滨羽 Ava”；无英文名时仅展示中文姓名。</td></tr>
+          <tr><td><code>root_department_name</code></td><td><code>VARCHAR(200)</code></td><td>组织架构 / 人工维护</td><td>根部门，如美国 TikTok 运营部。</td></tr>
+          <tr><td><code>department_name</code></td><td><code>VARCHAR(200)</code></td><td>组织架构 / 人工维护</td><td>一级业务组，如海外商务组、运营支持组、短视频剪辑组。</td></tr>
+          <tr><td><code>team_name</code></td><td><code>VARCHAR(100)</code></td><td>组织架构 / 人工维护</td><td>小组名称，如一组、二组；无小组时可为空。</td></tr>
+          <tr><td><code>staff_role_name</code></td><td><code>VARCHAR(200)</code></td><td>人工维护</td><td>可用人员角色，如运营、商务、编导、剪辑、直播、投放；多个角色用逗号分隔。</td></tr>
+          <tr><td><code>is_enabled</code></td><td><code>TINYINT</code></td><td>人工维护</td><td>是否启用，1 启用，0 停用；停用人员不再进入页面可选列表。</td></tr>
+          <tr><td><code>sort_no</code></td><td><code>INT</code></td><td>人工维护</td><td>展示排序，数值越小越靠前。</td></tr>
+          <tr><td><code>remark</code></td><td><code>STRING</code></td><td>人工维护</td><td>备注。</td></tr>
+          <tr><td><code>created_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>创建时间。</td></tr>
+          <tr><td><code>updated_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>更新时间。</td></tr>
+          <tr><td><code>insert_time</code></td><td><code>DATETIME</code></td><td>系统字段</td><td>Doris 入仓时间。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>4.1 DDL 草案</h3>
+    <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_organization_internal_staff_config (
+    staff_id                     VARCHAR(100)   COMMENT '内部人员 ID',
+    staff_name                   VARCHAR(100)   COMMENT '中文姓名',
+    english_name                 VARCHAR(100)   COMMENT '英文名或常用英文称呼',
+    display_name                 VARCHAR(200)   COMMENT '页面展示名',
+    root_department_name         VARCHAR(200)   COMMENT '根部门',
+    department_name              VARCHAR(200)   COMMENT '一级业务组',
+    team_name                    VARCHAR(100)   COMMENT '小组名称',
+    staff_role_name              VARCHAR(200)   COMMENT '人员角色，逗号分隔',
+    is_enabled                   TINYINT        DEFAULT '1' COMMENT '是否启用',
+    sort_no                      INT            DEFAULT '0' COMMENT '展示排序',
+    remark                       STRING         COMMENT '备注',
+    created_time                 DATETIME       COMMENT '创建时间',
+    updated_time                 DATETIME       COMMENT '更新时间',
+    insert_time                  DATETIME       DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP
+UNIQUE KEY(staff_id)
+COMMENT '组织域内部人员当前生效配置表'
+DISTRIBUTED BY HASH(staff_id) BUCKETS 4
+PROPERTIES (
+    "replication_num" = "1"
+);</code></pre>
+
+    <h3>4.2 截图解析人员清单</h3>
+    <p>以下人员来自企业微信组织架构截图，根部门均为“美国 TikTok 运营部”；英文名按截图原文保留，后续如接入企业微信可用真实 user_id 回填 <code>staff_id</code>。</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>根部门</th><th>业务组</th><th>小组</th><th>人员</th><th>英文名</th><th>建议角色</th></tr></thead>
+        <tbody>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>一组</td><td>杨滨羽</td><td>Ava</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>一组</td><td>张筱敏</td><td>Kimmy</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>陈忻</td><td>klay</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>李昕岚</td><td>Pheobe</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>李媛</td><td>Tina</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>魏芷颖</td><td>Rachel</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>吴诗虹</td><td>Kourt</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>海外商务组</td><td>二组</td><td>朱佳文</td><td>Zoe</td><td>商务</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>运营支持组</td><td></td><td>熊诚志</td><td></td><td>运营</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>运营支持组</td><td></td><td>曾亦欣</td><td></td><td>运营</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>运营支持组</td><td></td><td>邱徐夏子</td><td>summer</td><td>运营</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>黄澜</td><td></td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>施建瑛</td><td></td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>双梦亭</td><td></td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>王彦森</td><td></td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>王梓涛</td><td></td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>吴宏璟</td><td>Johnny</td><td>剪辑</td></tr>
+          <tr><td>美国 TikTok 运营部</td><td>短视频剪辑组</td><td></td><td>张安妮</td><td></td><td>剪辑</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="tbl-account-archive">五、dim_platform_tiktok_account_config</h2>
     <p>TikTok 账号当前生效档案表，支撑账号类型、站点、状态、运营人员、账号 / UID 搜索，以及新增 / 编辑账号抽屉。</p>
     <div class="table-wrap">
       <table>
@@ -220,7 +298,7 @@ PROPERTIES (
       </table>
     </div>
 
-    <h3>4.1 DDL 草案</h3>
+    <h3>5.1 DDL 草案</h3>
     <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_platform_tiktok_account_config (
     tiktok_uid                    VARCHAR(100)   COMMENT 'TikTok UID',
     handle_name                   VARCHAR(200)   COMMENT 'Handle Name',
@@ -262,7 +340,7 @@ PROPERTIES (
     "replication_num" = "1"
 );</code></pre>
 
-    <h2 id="tbl-video-config">五、dim_product_tiktok_video_config</h2>
+    <h2 id="tbl-video-config">六、dim_product_tiktok_video_config</h2>
     <p>TikTok 视频当前生效配置表，支撑视频数据列表、视频记录编辑抽屉、视频源数据维护弹窗，以及按视频 / 达人 / 商品维度检索。</p>
     <div class="table-wrap">
       <table>
@@ -300,7 +378,7 @@ PROPERTIES (
       </table>
     </div>
 
-    <h3>5.1 DDL 草案</h3>
+    <h3>6.1 DDL 草案</h3>
     <pre><code>CREATE TABLE IF NOT EXISTS dim.dim_product_tiktok_video_config (
     video_id                      VARCHAR(100)   COMMENT 'TikTok 视频 ID',
     tiktok_uid                    VARCHAR(100)   COMMENT '达人 UID',
@@ -338,7 +416,7 @@ PROPERTIES (
     "replication_num" = "1"
 );</code></pre>
 
-    <h3>5.2 视频源数据维护弹框字段覆盖</h3>
+    <h3>6.2 视频源数据维护弹框字段覆盖</h3>
     <p>“视频源数据维护”列表与“编辑视频源数据”弹框字段同样落入 <code>dim_product_tiktok_video_config</code>。其中仅 <code>product_name</code> 当前支持人工编辑，其余字段来自已绑定账号或联盟账号并只读保存。</p>
     <div class="table-wrap">
       <table>
@@ -355,7 +433,7 @@ PROPERTIES (
       </table>
     </div>
 
-    <h2>六、页面字段映射</h2>
+    <h2>七、页面字段映射</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>页面</th><th>页面字段</th><th>对应表字段</th><th>说明</th></tr></thead>
@@ -363,7 +441,7 @@ PROPERTIES (
           <tr><td>商品档案</td><td>主图 / 主图资源链接</td><td><code>main_image_url</code></td><td>SKU 主属性图第一张；也可承接编辑抽屉维护的主图资源链接。</td></tr>
           <tr><td>商品档案</td><td>产品主 SKU</td><td><code>main_sku</code></td><td>价格归属该 SKU，编辑抽屉可维护。</td></tr>
           <tr><td>商品档案</td><td>颜色 / 尺码 / SKU中文名 / 可售库存</td><td><code>color_name</code>、<code>size_name</code>、<code>sku_name_cn</code>、<code>sellable_stock_qty</code></td><td>PID 看板、SKU 看板与展开 SKU 明细展示字段。</td></tr>
-          <tr><td>商品档案</td><td>负责运营</td><td><code>operator_owner</code></td><td>后续可同步给 PID 数据看板运营责任人。</td></tr>
+          <tr><td>商品档案</td><td>负责运营 / 负责商务 / 负责编导 / 负责剪辑 / 直播运营 / 投放负责人</td><td><code>operator_owner</code>、<code>business_owner</code>、<code>guidance_owner</code>、<code>editor_owner</code>、<code>live_owner</code>、<code>ad_owner</code>；人员选项关联 <code>dim_organization_internal_staff_config.display_name</code></td><td>当前商品档案仍保存展示姓名；后续接口可前端展示 <code>displayName</code>，保存时同步保存 <code>staffId</code> 和展示名。</td></tr>
           <tr><td>商品档案</td><td>商品运营级别 / 商品运营状态 / 商品标签</td><td><code>product_operation_level_name</code>、<code>product_operation_status_name</code>、<code>product_tags</code></td><td>编辑抽屉运营维护字段。</td></tr>
           <tr><td>商品档案</td><td>TK 商品链接 / 独立站商品链接 / 素材文件夹链接</td><td><code>tk_product_url</code>、<code>site_product_url</code>、<code>asset_folder_url</code></td><td>编辑抽屉链接与素材维护字段。</td></tr>
           <tr><td>商品档案</td><td>产品卖点 / 提按商品分析</td><td><code>product_selling_points</code>、<code>product_analysis</code></td><td>内容运营说明字段。</td></tr>
@@ -386,7 +464,7 @@ PROPERTIES (
     </div>
 
     <hr />
-    <p><em>文档版本：已覆盖管理模块商品档案、账号维护、视频数据三个页面；后续寄样管理、联盟订单等管理页可继续补充到同一文档。</em></p>
+    <p><em>文档版本：已覆盖管理模块商品档案、账号维护、视频数据三个页面及内部人员配置；后续寄样管理、联盟订单等管理页可继续补充到同一文档。</em></p>
     <p class="back"><a href="../index.html">← 返回首页</a> &nbsp; <a href="商品模块/商品档案.html">商品档案</a> &nbsp; <a href="账号模块/账号维护.html">账号维护</a> &nbsp; <a href="视频数据/视频数据.html">视频数据</a></p>
   </div>
 </body>

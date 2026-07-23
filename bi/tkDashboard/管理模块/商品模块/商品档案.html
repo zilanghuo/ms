@@ -142,10 +142,6 @@
           </div>
         </div>
         <div class="query-item">
-          <span class="label">平台</span>
-          <select id="platformFilter"><option value="">全部平台</option><option value="tiktok">TikTok</option><option value="site">独立站</option></select>
-        </div>
-        <div class="query-item">
           <span class="label">所属店铺</span>
           <select id="shopFilter">
             <option value="">全部店铺</option>
@@ -155,6 +151,10 @@
         <div class="query-item">
           <span class="label">状态</span>
           <select id="statusFilter"><option value="">全部状态</option><option value="在售">在售</option></select>
+        </div>
+        <div class="query-item" id="auditFilterWrap">
+          <span class="label">TK审核状态</span>
+          <select id="auditFilter"><option value="">全部审核状态</option><option value="已通过">已通过</option><option value="审核中">审核中</option><option value="未通过">未通过</option></select>
         </div>
         <div class="query-item">
           <span class="label">品类</span>
@@ -390,18 +390,18 @@
       } else if (activeTab === 'pid') {
         head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-spu">产品主 SPU</th><th class="w-name">产品中文名</th><th class="w-main-sku">产品主 SKU</th><th class="w-small">SKU数</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-small">PID 作用</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-op">操作</th></tr>';
       } else {
-        head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-spu">产品主 SPU</th><th class="w-main-sku">产品主 SKU</th><th class="w-sku">SKU</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-name">产品中文名</th><th class="w-small">产品品牌</th><th class="w-cat">产品品类</th><th class="w-small">PID 作用</th><th class="w-small">更新日期</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-small">日常折线价</th><th class="w-small">独立站价格</th><th class="w-small">亚马逊定价</th><th class="w-op">操作</th></tr>';
+        head.innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-pid">PID</th><th class="w-shop">所属店铺</th><th class="w-site">站点</th><th class="w-img">主图</th><th class="w-status">商品状态</th><th class="w-status">TK审核状态</th><th class="w-spu">产品主 SPU</th><th class="w-sku">SKU</th><th class="w-small">颜色</th><th class="w-small">尺码</th><th class="w-name">SKU中文名</th><th class="w-small">可售库存</th><th class="w-name">产品中文名</th><th class="w-small">产品品牌</th><th class="w-cat">产品品类</th><th class="w-small">PID 作用</th><th class="w-small">更新日期</th><th class="w-small">负责运营</th><th class="w-small">吊牌价</th><th class="w-small">日常折线价</th><th class="w-small">独立站价格</th><th class="w-small">亚马逊定价</th><th class="w-op">操作</th></tr>';
       }
     }
     function filterProducts() {
       var keyword = document.getElementById('searchInput').value.trim().toLowerCase();
       var searchField = document.getElementById('searchField').value;
       var searchMode = document.getElementById('searchMode').value;
-      var platform = document.getElementById('platformFilter').value;
       var shop = document.getElementById('shopFilter').value;
+      var audit = document.getElementById('auditFilter').value;
       return products.filter(function(item) {
-        if (platform && item.platform !== platform) return false;
         if (shop && item.shop !== shop) return false;
+        if (activeTab !== 'spu' && audit && item.audit !== audit) return false;
         if (!keyword) return true;
         var target = String(searchField === 'pid' ? item.pid : (searchField === 'sku' ? item.sku : item.spu)).toLowerCase();
         return searchMode === 'exact' ? target === keyword : target.indexOf(keyword) >= 0;
@@ -418,7 +418,6 @@
           '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
           '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
           '<td>' + item.spu + '</td>' +
-          '<td>' + (item.mainSku || '-') + '</td>' +
           '<td>' + item.sku + '</td>' +
           '<td>' + skuColor(item) + '</td>' +
           '<td>' + skuSize(item) + '</td>' +
@@ -447,7 +446,6 @@
           '<td><span class="badge badge-on dot">' + item.status + '</span></td>' +
           '<td><span class="badge badge-pass">' + item.audit + '</span></td>' +
           '<td>' + item.spu + '</td>' +
-          '<td>' + (item.mainSku || '-') + '</td>' +
           '<td>' + item.sku + '</td>' +
           '<td>' + skuColor(item) + '</td>' +
           '<td>' + skuSize(item) + '</td>' +
@@ -505,7 +503,7 @@
       if (skuOption) skuOption.hidden = false;
       if (!rows.length) {
         renderPagination(0);
-        var colspan = activeTab === 'sku' ? 25 : (activeTab === 'pid' ? 19 : 7);
+        var colspan = activeTab === 'sku' ? 24 : (activeTab === 'pid' ? 19 : 7);
         body.innerHTML = '<tr><td colspan="' + colspan + '" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的商品档案</td></tr>';
         return;
       }
@@ -565,15 +563,20 @@
       document.querySelectorAll('.tab').forEach(function(tab) { tab.classList.remove('active'); });
       btn.classList.add('active');
       currentPage = 1;
+      updateFilterVisibility();
       renderRows();
     });
+    function updateFilterVisibility() {
+      document.getElementById('auditFilterWrap').style.display = activeTab === 'spu' ? 'none' : '';
+      if (activeTab === 'spu') document.getElementById('auditFilter').value = '';
+    }
     function resetPageAndRender() { currentPage = 1; renderRows(); }
     document.getElementById('searchInput').addEventListener('input', resetPageAndRender);
     document.getElementById('searchField').addEventListener('change', resetPageAndRender);
     document.getElementById('searchMode').addEventListener('change', resetPageAndRender);
-    document.getElementById('platformFilter').addEventListener('change', resetPageAndRender);
     document.getElementById('shopFilter').addEventListener('change', resetPageAndRender);
-    document.getElementById('btnReset').addEventListener('click', function() { document.getElementById('searchInput').value = ''; document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('platformFilter').value = ''; document.getElementById('shopFilter').value = ''; currentPage = 1; renderRows(); });
+    document.getElementById('auditFilter').addEventListener('change', resetPageAndRender);
+    document.getElementById('btnReset').addEventListener('click', function() { document.getElementById('searchInput').value = ''; document.getElementById('searchMode').value = 'fuzzy'; document.getElementById('shopFilter').value = ''; document.getElementById('auditFilter').value = ''; currentPage = 1; renderRows(); });
     document.getElementById('pageSize').addEventListener('change', function() { pageSize = parseInt(this.value, 10) || 10; currentPage = 1; renderRows(); });
     document.getElementById('pagePrev').addEventListener('click', function() { if (currentPage > 1) { currentPage -= 1; renderRows(); } });
     document.getElementById('pageNext').addEventListener('click', function() { currentPage += 1; renderRows(); });
@@ -606,6 +609,7 @@
       closeDrawer();
       showToast();
     });
+    updateFilterVisibility();
     renderRows();
   </script>
 </body>

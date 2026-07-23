@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>前后端调试明细</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#333; --muted:#667085; --accent:#0d9488; --border:#e0e0e0; --soft:#f8fafc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 2rem 3rem 3rem; background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; font-size: 14px; line-height: 1.6; }
+    .doc { max-width: 1280px; min-height: calc(100vh - 4rem); margin: 0 auto; background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 2.5rem 3rem 3rem; }
+    h1 { margin: 0 0 .5rem; padding-bottom: .5rem; border-bottom: 2px solid var(--accent); color: #1f2937; font-size: 1.5rem; }
+    p { margin: .5rem 0 1rem; }
+    .intro { color: var(--muted); }
+    .note { margin: 1rem 0 1.25rem; padding: .75rem .9rem; border-left: 4px solid var(--accent); background: #f0fdfa; color: #475569; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; margin-top: 1rem; }
+    table { width: 100%; min-width: 980px; border-collapse: collapse; font-size: .86rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .7rem; text-align: left; vertical-align: top; }
+    th { background: var(--soft); color: var(--muted); font-weight: 700; white-space: nowrap; }
+    tr:hover td { background: #f9fafb; }
+    .module-col { width: 150px; }
+    .problem-col { width: 28%; }
+    .adjust-col { width: 32%; }
+    .date-col { width: 130px; }
+    .status-col { width: 110px; }
+    .empty { color: #cbd5e1; }
+    .status { display: inline-flex; align-items: center; min-height: 1.45rem; padding: .08rem .5rem; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: .78rem; font-weight: 700; }
+    .screenshot { margin: .5rem 0 0; max-width: 360px; }
+    .screenshot img { display: block; width: 100%; height: auto; border: 1px solid var(--border); border-radius: 6px; background: #fff; }
+    .screenshot figcaption { margin-top: .25rem; color: var(--muted); font-size: .78rem; }
+    .back { margin-top: 2rem; font-size: .9rem; }
+    .back a { color: var(--accent); text-decoration: none; }
+    .back a:hover { text-decoration: underline; }
+    @media (max-width: 900px) { body { padding: 1rem; } .doc { padding: 1.5rem; } }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>前后端调试明细</h1>
+    <p class="intro">用于记录管理模块前后端联调过程中的问题、调整点和对接时间，方便后续复盘接口口径、页面展示和数据链路。</p>
+    <div class="note">建议填写：模块 / 页面、问题、调整点、对接时间、状态、备注。状态可使用：待对接、对接中、已调整、待验证、已完成。</div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="module-col">模块 / 页面</th>
+            <th class="problem-col">问题</th>
+            <th class="adjust-col">调整点</th>
+            <th class="date-col">对接时间</th>
+            <th class="status-col">状态</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>商品档案</td>
+            <td>商品档案模块顶部筛选区需要移除“平台”选项，不再展示全部平台 / TikTok / 独立站下拉。</td>
+            <td>已移除商品档案原型中的平台筛选控件，并同步删除前端过滤、重置和事件绑定中的 platformFilter 相关逻辑。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">已调整</span></td>
+            <td>已同步更新商品档案需求文档，不再描述支持平台筛选。
+              <figure class="screenshot">
+                <a href="img/商品档案-移除平台筛选.png" target="_blank" rel="noopener"><img src="img/商品档案-移除平台筛选.png" alt="商品档案平台选项移除截图" /></a>
+                <figcaption>截图：商品档案顶部平台筛选项需移除</figcaption>
+              </figure>
+            </td>
+          </tr>
+          <tr>
+            <td>通用 / 店铺筛选</td>
+            <td>如果页面存在店铺筛选或店铺选择项，需要默认选择第一个店铺，避免进入页面时处于空店铺或全部店铺状态。</td>
+            <td>待确认涉及页面清单，并统一调整初始化逻辑：有店铺列表时默认取第一个店铺作为当前选中值。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">待对接</span></td>
+            <td class="empty">待补充</td>
+          </tr>
+          <tr>
+            <td>通用 / 所属店铺</td>
+            <td>关于所属店铺，需要增加一个接口，为页面店铺筛选或店铺选择项提供统一店铺列表数据。</td>
+            <td>待后端提供所属店铺列表接口，前端统一从接口加载店铺选项；后续与“默认选择第一个店铺”逻辑联动。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">待对接</span></td>
+            <td class="empty">待补充</td>
+          </tr>
+          <tr>
+            <td>商品档案</td>
+            <td>PID 看板和 SKU 看板需要增加筛选条件：TK审核状态。</td>
+            <td>已新增 TK审核状态下拉筛选，并在 PID / SKU 看板中按 audit 字段过滤；SPU 看板默认隐藏该筛选项。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">已调整</span></td>
+            <td>已同步更新商品档案需求文档。</td>
+          </tr>
+          <tr>
+            <td>商品档案</td>
+            <td>SKU 看板需要移除“产品主 SKU”字段展示。</td>
+            <td>已移除 SKU 看板表头和行数据中的产品主 SKU 列，并同步调整空数据占位列数。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">已调整</span></td>
+            <td>PID 看板及编辑抽屉中的产品主 SKU 暂保持不变。</td>
+          </tr>
+          <tr>
+            <td>商品档案 / PID 看板</td>
+            <td>PID 看板不需要编辑功能，当前行尾展示编辑入口，容易让用户误以为 PID 维度字段支持维护。</td>
+            <td>待确认仅移除 PID 看板主表的编辑入口，还是同步移除 PID 展开明细中的编辑入口；SKU 看板编辑能力暂按现状保留。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">待对接</span></td>
+            <td class="empty">待补充</td>
+          </tr>
+          <tr>
+            <td>账号档案</td>
+            <td>账号档案中的 Shop Code 参数需要保留，前面“移除 Shop Code”的要求作废。</td>
+            <td>如页面或接口已移除 Shop Code，需要还原对应字段、筛选项、编辑表单、导入导出字段和接口参数；未改动的位置保持现状。</td>
+            <td>2026-07-22</td>
+            <td><span class="status">待对接</span></td>
+            <td>以本条为准：Shop Code 参数需要保留。</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="back"><a href="../index.html">返回首页</a></p>
+  </div>
+</body>
+</html>

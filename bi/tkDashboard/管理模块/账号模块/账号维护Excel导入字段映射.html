@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>账号维护 Excel 导入字段映射</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #333;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --accent: #0d9488;
+      --accent-soft: #ccfbf1;
+      --border: #e0e0e0;
+      --header-bg: #f9fafb;
+      --success: #059669;
+      --warning: #b7791f;
+      --danger: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .page { width: 100%; padding: 28px 14px 34px; }
+    .header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+    .title { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.25; }
+    .subtitle { margin-top: 6px; color: #8aa0b8; font-size: 13px; font-weight: 600; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: #0f766e;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .section-title {
+      margin: 0 0 12px;
+      padding-left: 8px;
+      border-left: 3px solid var(--accent);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+    .metric-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .metric-value { margin-top: 4px; color: #334155; font-size: 20px; font-weight: 800; }
+    .note {
+      margin: 0;
+      color: #52657a;
+      font-size: 13px;
+    }
+    .table-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .table-wrap { width: 100%; overflow-x: auto; }
+    table { width: 100%; min-width: 1180px; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+    thead th {
+      height: 44px;
+      background: var(--header-bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      text-align: left;
+      font-weight: 700;
+      padding: 8px 10px;
+      vertical-align: middle;
+    }
+    tbody td {
+      border: 1px solid var(--border);
+      padding: 9px 10px;
+      color: var(--text);
+      vertical-align: top;
+      word-break: break-word;
+    }
+    tbody tr:hover td { background: #f9fafb; }
+    code {
+      color: #0f766e;
+      background: #f0fdfa;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 22px;
+      border-radius: 4px;
+      padding: 0 7px;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .tag-in { color: #0f766e; background: #ccfbf1; }
+    .tag-rule { color: #92400e; background: #fef3c7; }
+    .tag-skip { color: #64748b; background: #f1f5f9; }
+    .tag-required { color: #991b1b; background: #fee2e2; }
+    .w-order { width: 58px; }
+    .w-excel { width: 170px; }
+    .w-count { width: 92px; }
+    .w-field { width: 230px; }
+    .w-status { width: 92px; }
+    .w-rule { width: 410px; }
+    .rules {
+      margin: 0;
+      padding-left: 18px;
+      color: #52657a;
+    }
+    .rules li { margin: 4px 0; }
+    @media (max-width: 900px) {
+      .header { flex-direction: column; }
+      .summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div>
+        <h1 class="title">账号维护 Excel 导入字段映射</h1>
+        <div class="subtitle">来源文件：内容组数据检视-2026_在使用账号归档_所有账号.xlsx / Sheet：在使用账号归档</div>
+      </div>
+      <span class="pill">目标表 dim.dim_platform_tiktok_account_config</span>
+    </header>
+
+    <section class="card">
+      <h2 class="section-title">文件解析概览</h2>
+      <div class="summary-grid">
+        <div class="metric">
+          <div class="metric-label">Excel 数据行</div>
+          <div class="metric-value">116</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Excel 表头列</div>
+          <div class="metric-value">37</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">TIKTOK UID 非空</div>
+          <div class="metric-value">109</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">目标表粒度</div>
+          <div class="metric-value">UID</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">导入总规则</h2>
+      <ul class="rules">
+        <li>导入接口读取第 1 行作为表头，第 2 行起作为数据行；必填列为 <code>Username</code> 和 <code>TIKTOK UID</code>。</li>
+        <li>目标表为 Doris UNIQUE KEY 表，主键 <code>tiktok_uid</code>；同一个 Excel 文件内重复 UID 按行号顺序处理，后者覆盖前者。</li>
+        <li>导入字段为空时，不覆盖目标表已有非空值；新增账号的 <code>platform_name</code> 固定为 <code>TikTok</code>，<code>is_manual_maintained=1</code>，<code>is_deleted=0</code>。</li>
+        <li>Excel 中 GMV、播放量、帖子数、日均单量等月度运营指标不进入当前账号配置表；这些字段属于运营月度表现，不属于账号当前生效档案。</li>
+        <li>当前导入实现不新增密码加密逻辑，按现有字段写入 <code>email_password_cipher_text</code> 与 <code>tk_password_cipher_text</code>。</li>
+      </ul>
+    </section>
+
+    <section class="table-card">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="w-order">序号</th>
+              <th class="w-excel">Excel 字段</th>
+              <th class="w-count">非空行数</th>
+              <th class="w-field">目标表字段</th>
+              <th class="w-status">导入状态</th>
+              <th class="w-rule">处理规则</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>Username</td><td>116</td><td><code>handle_name</code></td><td><span class="tag tag-required">必填</span></td><td>TikTok 账号展示名；为空时整行失败。</td></tr>
+            <tr><td>2</td><td>昵称</td><td>109</td><td><code>nickname</code></td><td><span class="tag tag-in">入库</span></td><td>账号昵称；为空时保留已有值。</td></tr>
+            <tr><td>3</td><td>链接</td><td>116</td><td><code>handle_url</code></td><td><span class="tag tag-in">入库</span></td><td>TikTok 主页地址；为空时保留已有值。</td></tr>
+            <tr><td>4</td><td>查重</td><td>0</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>Excel 辅助列，无目标表字段。</td></tr>
+            <tr><td>5</td><td>TIKTOK UID</td><td>109</td><td><code>tiktok_uid</code></td><td><span class="tag tag-required">必填</span></td><td>账号唯一主键；为空时整行失败，同文件重复时后者覆盖。</td></tr>
+            <tr><td>6</td><td>运营情况</td><td>81</td><td><code>account_status_name</code></td><td><span class="tag tag-rule">规则入库</span></td><td><code>稳定更新</code> 映射 <code>活跃</code>；<code>暂停更新</code> 映射 <code>暂停</code>；<code>banned</code> 映射 <code>停用</code>。</td></tr>
+            <tr><td>7</td><td>备注栏</td><td>70</td><td><code>notes</code></td><td><span class="tag tag-rule">合并入库</span></td><td>与 Excel 的 <code>备注</code> 合并，使用中文分号分隔；重复文本只保留一次。</td></tr>
+            <tr><td>8</td><td>mail</td><td>102</td><td><code>email</code></td><td><span class="tag tag-in">入库</span></td><td>账号注册邮箱；为空时保留已有值。</td></tr>
+            <tr><td>9</td><td>tiktok密码</td><td>92</td><td><code>tk_password_cipher_text</code></td><td><span class="tag tag-in">入库</span></td><td>按现有保存接口字段写入 TK 密码字段；为空时保留已有值。</td></tr>
+            <tr><td>10</td><td>邮箱密码</td><td>28</td><td><code>email_password_cipher_text</code></td><td><span class="tag tag-in">入库</span></td><td>按现有保存接口字段写入邮箱密码字段；为空时保留已有值。</td></tr>
+            <tr><td>11</td><td>账号性质</td><td>90</td><td><code>account_type_name</code></td><td><span class="tag tag-rule">规则入库</span></td><td>归并为页面现有三类：包含 <code>TAP</code> 或 <code>机构</code> 为 <code>TAP 机构号</code>；包含 <code>达人</code> 为 <code>达人号</code>；其余如渠道、官号、矩阵、加白、解绑、商务使用均为 <code>渠道号</code>。</td></tr>
+            <tr><td>12</td><td>人员</td><td>79</td><td><code>operator_owner</code></td><td><span class="tag tag-in">入库</span></td><td>账号运营人员或最新商务归属；为空时保留已有值。</td></tr>
+            <tr><td>13</td><td>当月MAX GMV</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>14</td><td>当月自然订单 GMV</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>15</td><td>当月均播</td><td>43</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>16</td><td>当月播放量</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>17</td><td>当月帖子数量</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>18</td><td>本月单视频最高播放量</td><td>43</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>19</td><td>备注</td><td>74</td><td><code>notes</code></td><td><span class="tag tag-rule">合并入库</span></td><td>与 Excel 的 <code>备注栏</code> 合并，作为账号备注字段。</td></tr>
+            <tr><td>20</td><td>月份</td><td>115</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度数据归属字段，当前配置表只保留账号当前生效档案。</td></tr>
+            <tr><td>21</td><td>网络线路</td><td>81</td><td><code>network_line</code></td><td><span class="tag tag-in">入库</span></td><td>账号网络线路或代理节点；为空时保留已有值。</td></tr>
+            <tr><td>22</td><td>联盟单量（所有帖子）</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>23</td><td>月度单量(当月新帖子)</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>24</td><td>英区加白UID</td><td>23</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>扩展关联信息，当前账号配置表无独立字段；如后续需要追踪加白关系，应新增字段或关系表。</td></tr>
+            <tr><td>25</td><td>互通-邮箱</td><td>3</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>互通账号凭证扩展信息，当前账号配置表无对应字段。</td></tr>
+            <tr><td>26</td><td>互通-密码</td><td>3</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>互通账号凭证扩展信息，当前账号配置表无对应字段。</td></tr>
+            <tr><td>27</td><td>国区</td><td>110</td><td><code>region_name</code> / <code>site_code</code></td><td><span class="tag tag-rule">规则入库</span></td><td>原值写入 <code>region_name</code>；同时映射 <code>site_code</code>：美国跨境店/美国直邮店为 <code>US</code>，英国直邮店为 <code>UK</code>，欧洲直邮店为 <code>EU</code>。</td></tr>
+            <tr><td>28</td><td>常驻出镜人</td><td>19</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>内容生产角色扩展信息，当前账号配置表无对应字段。</td></tr>
+            <tr><td>29</td><td>英区加白User Name</td><td>19</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>扩展关联信息，当前账号配置表无独立字段。</td></tr>
+            <tr><td>30</td><td>高转化场景</td><td>18</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营分析标签，当前账号配置表无对应字段。</td></tr>
+            <tr><td>31</td><td>高转化产品</td><td>18</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营分析标签，当前账号配置表无对应字段。</td></tr>
+            <tr><td>32</td><td>受众性别</td><td>44</td><td><code>position_gender_name</code></td><td><span class="tag tag-in">入库</span></td><td>写入账号定位性别；为空时保留已有值。</td></tr>
+            <tr><td>33</td><td>小蓝词评论维护时间</td><td>5</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营动作时间，当前账号配置表无对应字段。</td></tr>
+            <tr><td>34</td><td>日更频率（现状）</td><td>30</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营频率指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>35</td><td>日均单量</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>月度运营表现指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>36</td><td>日均更新条数</td><td>116</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营频率指标，当前账号配置表无对应字段。</td></tr>
+            <tr><td>37</td><td>30天内违规次数</td><td>20</td><td>-</td><td><span class="tag tag-skip">不入库</span></td><td>运营风控指标，当前账号配置表无对应字段。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="section-title">目标表字段补充说明</h2>
+      <p class="note">
+        当前目标表仍保留 <code>content_sources</code>、<code>custom_tags</code>、<code>creator_source_name</code>、<code>creator_level_name</code>、<code>is_opened</code>、<code>cooperation_mode</code>、<code>cart_store_name</code>、<code>affiliated_shop_name</code>、<code>backend_bind_shop</code>、<code>backend_shop_name</code>、<code>shop_code</code>、<code>email_login_url</code> 等页面人工维护字段。账号归档 Excel 未提供这些列，本次导入不会覆盖已有值。
+      </p>
+    </section>
+  </main>
+</body>
+</html>

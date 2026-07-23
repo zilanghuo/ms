@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>TK 打品规则表 · 技术需求</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#333; --muted:#667085; --accent:#0d9488; --accent-hover:#0f766e; --border:#e0e0e0; --p0:#dc2626; --p1:#d97706; --p2:#2563eb; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:2rem 3rem 3rem; background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif; font-size:14px; line-height:1.6; }
+    .doc { max-width:1440px; margin:0 auto; min-height:calc(100vh - 4rem); background:var(--card); border:1px solid var(--border); border-radius:8px; padding:2.5rem 3rem 3rem; }
+    h1 { margin:0 0 .5rem; padding-bottom:.5rem; border-bottom:2px solid var(--accent); font-size:1.55rem; color:#1f2937; }
+    h2 { margin:2rem 0 .75rem; font-size:1.22rem; color:#1f2937; }
+    h3 { margin:1.4rem 0 .55rem; font-size:1rem; color:#334155; }
+    p { margin:.45rem 0 1rem; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    code { display:inline-block; max-width:100%; white-space:normal; word-break:break-word; background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px; padding:.08rem .28rem; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88em; }
+    blockquote { margin:1rem 0; padding:.6rem 0 .6rem 1rem; border-left:4px solid var(--accent); color:var(--muted); }
+    .meta-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.75rem; margin:1rem 0 1.25rem; }
+    .meta-card { border:1px solid var(--border); border-radius:6px; padding:.8rem .9rem; background:#fbfdff; }
+    .meta-label { color:var(--muted); font-size:.78rem; }
+    .meta-value { margin-top:.15rem; font-size:1.1rem; font-weight:800; color:#1f2937; }
+    .toolbar { position:sticky; top:0; z-index:5; display:flex; align-items:center; gap:.6rem; flex-wrap:wrap; padding:.75rem 0; background:rgba(255,255,255,.96); border-bottom:1px solid var(--border); }
+    .toolbar input,.toolbar select { height:36px; border:1px solid #d1d5db; border-radius:4px; padding:.35rem .6rem; font:inherit; background:#fff; color:#111827; }
+    .toolbar input { width:300px; }
+    .btn-link { display:inline-flex; align-items:center; height:32px; padding:0 .65rem; border:1px solid var(--border); border-radius:4px; background:#fff; font-weight:600; }
+    .it-analysis { background:#f8fafc; }
+    .rule-card { border:1px solid var(--border); border-radius:8px; margin:1rem 0; background:#fff; overflow:hidden; }
+    .rule-head { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding:1rem 1.1rem; background:#f8fafc; border-bottom:1px solid var(--border); }
+    .rule-head h3 { margin:.18rem 0 0; color:#111827; font-size:1.05rem; }
+    .rule-id { color:var(--muted); font-size:.82rem; font-weight:700; }
+    .badge { display:inline-flex; align-items:center; justify-content:center; min-width:42px; height:24px; border-radius:999px; padding:0 .6rem; font-weight:800; font-size:.78rem; color:#fff; }
+    .badge.p0 { background:var(--p0); } .badge.p1 { background:var(--p1); } .badge.p2 { background:var(--p2); } .badge.muted { background:#64748b; }
+    .rule-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0; }
+    .rule-grid div { padding:.85rem 1rem; border-right:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .rule-grid div:nth-child(2n) { border-right:none; }
+    .rule-grid .wide { grid-column:1 / -1; border-right:none; }
+    .rule-grid span { display:block; margin-bottom:.25rem; color:var(--muted); font-size:.78rem; font-weight:700; }
+    .rule-grid p { margin:0; }
+    .table-wrap { overflow-x:auto; margin:.75rem 0 1.25rem; border:1px solid var(--border); border-radius:8px; }
+    table { width:100%; border-collapse:collapse; min-width:900px; font-size:.82rem; }
+    th,td { border:1px solid var(--border); padding:.5rem .65rem; text-align:left; vertical-align:top; }
+    th { background:#f1f5f9; color:var(--muted); white-space:nowrap; font-weight:700; }
+    tr:hover td { background:#f9fafb; }
+    .compact table { min-width:680px; }
+    .back { margin-top:2rem; font-size:.9rem; }
+    .hidden { display:none; }
+    @media (max-width:900px) { body { padding:1rem; } .doc { padding:1.4rem; } .meta-grid,.rule-grid { grid-template-columns:1fr; } .rule-grid div { border-right:none; } .toolbar input { width:100%; } }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <h1>TK 打品规则表 · 技术需求</h1>
+    <blockquote>说明：每一行 = 一条可上线的规则。触发逻辑中的中文字段名对应「字段字典」表；阈值均可配置，见「优先级与配置」表。TO-DO 文案中 {SKU}{N}{X}{D} 为运行时填充变量。<br>来源：<code>docs/TK打品规则表_技术需求.xlsx</code></blockquote>
+    <div class="meta-grid">
+      <div class="meta-card"><div class="meta-label">规则数量</div><div class="meta-value">15</div></div>
+      <div class="meta-card"><div class="meta-label">业务节点</div><div class="meta-value">6</div></div>
+      <div class="meta-card"><div class="meta-label">P0 规则</div><div class="meta-value">6</div></div>
+      <div class="meta-card"><div class="meta-label">字段字典</div><div class="meta-value">27</div></div>
+    </div>
+    <div class="toolbar">
+      <a class="btn-link" href="#rules">规则总表</a>
+      <a class="btn-link" href="#fields">字段字典</a>
+      <a class="btn-link" href="#config">优先级与配置</a>
+      <input id="keyword" type="search" placeholder="搜索规则ID、名称、逻辑、字段、文案" />
+      <select id="nodeFilter"><option value="">全部节点</option><option>到货节点</option><option>备货节点</option><option>放量节点</option><option>日常监控</option><option>月度规划</option><option>跨节点协同</option></select>
+      <select id="priorityFilter"><option value="">全部优先级</option><option>P0</option><option>P1</option><option>P2</option></select>
+    </div>
+
+    <h2 id="rules">一、规则总表</h2>
+    <p>按规则卡片展示，便于直接阅读触发条件、字段级逻辑、责任角色、SLA 和 TO-DO 文案。</p>
+    <div id="ruleList">
+      <article class="rule-card" data-node="到货节点" data-priority="P0" data-keywords="r-a1 到货节点 到货投放断档 到货后≥断档天数阈值，仍无挂车、无投放 到货状态=&#x27;已到货&#x27; and (今日 − 到货日期) ≥ 断档天数阈值 and 累计挂车数=0 and 累计投放金额=0 到货状态；到货日期；累计挂车数；累计投放金额 运营 【{sku}】到货已 {n} 天仍无挂车/投放，24h 内完成挂车并排查断档原因 p0 24h 断档天数阈值（默认 7） 到货后1周内无挂车无投放">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-A1 · 到货节点</div>
+            <h3>到货投放断档</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>到货后≥断档天数阈值，仍无挂车、无投放</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 24h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>到货状态=&#x27;已到货&#x27; AND (今日 − 到货日期) ≥ 断档天数阈值 AND 累计挂车数=0 AND 累计投放金额=0</code></p></div>
+          <div><span>依赖字段</span><p>到货状态；到货日期；累计挂车数；累计投放金额</p></div>
+          <div><span>可配阈值</span><p>断档天数阈值（默认 7）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】到货已 {N} 天仍无挂车/投放，24h 内完成挂车并排查断档原因</p></div>
+          <div class="wide"><span>对应纪要</span><p>到货后1周内无挂车无投放</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要按 SKU 维度同时取得到货日期、累计挂车数和累计投放金额，并以当前日期计算到货后天数。<br>建议保留触发时的数据快照，便于判断是挂车缺失、投放缺失还是到货时间异常导致告警。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="到货节点" data-priority="P1" data-keywords="r-a2 到货节点 老素材流量未恢复 补货到货后，老素材近3日流量未恢复到断货前的 x% 到货状态=&#x27;已到货&#x27; and 断货前均流量&gt;0 and (老素材近3日均流量 ÷ 断货前均流量) &lt; 恢复率阈值 老素材近3日流量；断货前均流量 运营 + 剪辑 【{sku}】老素材流量仅恢复 {x}%，核查素材有效性，研判是否补素材 p1 48h 恢复率阈值（默认 60%） 校验老素材流量恢复">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-A2 · 到货节点</div>
+            <h3>老素材流量未恢复</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>补货到货后，老素材近3日流量未恢复到断货前的 X%</p></div>
+          <div><span>责任 / SLA</span><p>运营 + 剪辑 · 48h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>到货状态=&#x27;已到货&#x27; AND 断货前均流量&gt;0 AND (老素材近3日均流量 ÷ 断货前均流量) &lt; 恢复率阈值</code></p></div>
+          <div><span>依赖字段</span><p>老素材近3日流量；断货前均流量</p></div>
+          <div><span>可配阈值</span><p>恢复率阈值（默认 60%）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】老素材流量仅恢复 {X}%，核查素材有效性，研判是否补素材</p></div>
+          <div class="wide"><span>对应纪要</span><p>校验老素材流量恢复</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>核心依赖断货前基线和到货后近 3 日素材流量，IT 侧需要先确认素材流量是否按天留存。<br>若没有断货前窗口数据，该规则不能靠当前快照补算。<br>待 IT 确认：1、素材数据从哪里来，是否指视频数据；2、流量日均如何计算，计算来源字段和统计口径分别是什么。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="到货节点" data-priority="P1" data-keywords="r-a3 到货节点 到货节奏脱节 实际首次挂车晚于预设推广启动日 首次挂车日期 &gt; 预设推广启动日 + 缓冲天数 首次挂车日期；预设推广启动日 运营 【{sku}】首次挂车晚于计划 {d} 天，排查节奏脱节原因 p1 24h 缓冲天数（默认 1） 节奏匹配校验">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-A3 · 到货节点</div>
+            <h3>到货节奏脱节</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>实际首次挂车晚于预设推广启动日</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 24h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>首次挂车日期 &gt; 预设推广启动日 + 缓冲天数</code></p></div>
+          <div><span>依赖字段</span><p>首次挂车日期；预设推广启动日</p></div>
+          <div><span>可配阈值</span><p>缓冲天数（默认 1）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】首次挂车晚于计划 {D} 天，排查节奏脱节原因</p></div>
+          <div class="wide"><span>对应纪要</span><p>节奏匹配校验</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要将运营计划中的预设推广启动日结构化，并与首次挂车日期做日期差判断。<br>重点是计划日期来源必须可维护，否则无法区分真实延误和计划未录入。<br>待 IT 确认：1、是否需要针对每一个 SKU 维护预设推广启动日；2、视频数据当前到 PID 维度，是否需要先与样品订单关联，再通过样品订单获取对应 SKU，从而完成 SKU 级节奏校验。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="放量节点" data-priority="P1" data-keywords="r-s1 放量节点 放量机会识别 当前渠道 roi 连续 n 天正向且日销未下滑 当前渠道=&#x27;剪辑&#x27; and roi近n日均值 ≥ 目标roi and 近n日日销环比 ≥ 0 roi；日销量；当前渠道 运营 【{sku}】已连续 {n} 天正向 roi，评估放量空间，提交下一级渠道（商务/直播）申请 p1 当日 正向天数（默认 3）；目标roi（按品类） 跑通正向roi启动下一级渠道">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-S1 · 放量节点</div>
+            <h3>放量机会识别</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>当前渠道 ROI 连续 N 天正向且日销未下滑</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 当日</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>当前渠道=&#x27;剪辑&#x27; AND ROI近N日均值 ≥ 目标ROI AND 近N日日销环比 ≥ 0</code></p></div>
+          <div><span>依赖字段</span><p>ROI；日销量；当前渠道</p></div>
+          <div><span>可配阈值</span><p>正向天数（默认 3）；目标ROI（需支持 SKU 级配置）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】已连续 {N} 天正向 ROI，评估放量空间，提交下一级渠道（商务/直播）申请</p></div>
+          <div class="wide"><span>对应纪要</span><p>跑通正向ROI启动下一级渠道</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要按渠道计算连续 N 天 ROI 和日销环比，且 N、目标 ROI 都应配置化。<br>实现时要明确当前渠道的取值来源，避免剪辑、商务、直播等渠道口径混用。<br>待 IT 确认：目标 ROI 需要支持 SKU 维度设置，并在规则计算时按当前 SKU 读取对应目标 ROI。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="放量节点" data-priority="P0" data-keywords="r-s2 放量节点 放量前置校验（拦截） 拟放量品库存 &lt; 1个月 或 已进入衰退期 触发放量申请 and (库存可支撑天数 &lt; 放量周期阈值 or 生命周期阶段=&#x27;衰退&#x27;) 库存可支撑天数；生命周期阶段 运营 + 供应链 【{sku}】放量前库存仅支撑 {d} 天/或已衰退，先补货或暂缓放量 p0 当日 放量周期阈值（默认 30 天） 库存深度≥1个月 / 风险前置校验">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-S2 · 放量节点</div>
+            <h3>放量前置校验（拦截）</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>拟放量品库存 &lt; 1个月 或 已进入衰退期</p></div>
+          <div><span>责任 / SLA</span><p>运营 + 供应链 · 当日</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>触发放量申请 AND (库存可支撑天数 &lt; 放量周期阈值 OR 生命周期阶段=&#x27;衰退&#x27;)</code></p></div>
+          <div><span>依赖字段</span><p>库存可支撑天数；生命周期阶段</p></div>
+          <div><span>可配阈值</span><p>放量周期阈值（默认 30 天）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】放量前库存仅支撑 {D} 天/或已衰退，先补货或暂缓放量</p></div>
+          <div class="wide"><span>对应纪要</span><p>库存深度≥1个月 / 风险前置校验</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>属于放量前置拦截规则，应嵌入放量申请流程，而不是只做离线提醒。<br>IT 侧需要在申请动作发生时实时读取库存可支撑天数和生命周期阶段。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="备货节点" data-priority="P0" data-keywords="r-b1 备货节点 备货触发（防断货） 日销稳定在触发区间，且当前仅浅度测试 近7日日销均值 ∈ [下限,上限] and 生命周期阶段 ∈ {测试, 放量初期} and 备货状态=&#x27;未备货&#x27; 日销量；生命周期阶段；备货状态 运营 【{sku}】日销稳定 {x} 单进入放量前夜，启动备货测算防断货 p0 48h 日销触发区间（默认 15–20） 日销15-20单启动备货">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-B1 · 备货节点</div>
+            <h3>备货触发（防断货）</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>日销稳定在触发区间，且当前仅浅度测试</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 48h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>近7日日销均值 ∈ [下限,上限] AND 生命周期阶段 ∈ {测试, 放量初期} AND 备货状态=&#x27;未备货&#x27;</code></p></div>
+          <div><span>依赖字段</span><p>日销量；生命周期阶段；备货状态</p></div>
+          <div><span>可配阈值</span><p>日销触发区间（默认 15–20）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】日销稳定 {X} 单进入放量前夜，启动备货测算防断货</p></div>
+          <div class="wide"><span>对应纪要</span><p>日销15-20单启动备货</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要稳定产出近 7 日均日销、生命周期阶段和备货状态。<br>备货状态需要支持业务回写，否则同一 SKU 可能反复触发待办。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="备货节点" data-priority="P0" data-keywords="r-b2 备货节点 断货风险预警 库存可支撑天数 &lt; 补货周期 + 安全天数 库存可支撑天数 &lt; (补货 leadtime + 安全库存天数) 库存量；近7日均日销；补货leadtime 运营 + 供应链 【{sku}】库存仅支撑 {d} 天 &lt; 补货周期，立即追单 p0 24h 安全库存天数（默认 7） 断货复盘">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-B2 · 备货节点</div>
+            <h3>断货风险预警</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>库存可支撑天数 &lt; 补货周期 + 安全天数</p></div>
+          <div><span>责任 / SLA</span><p>运营 + 供应链 · 24h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>库存可支撑天数 &lt; (补货 LeadTime + 安全库存天数)</code></p></div>
+          <div><span>依赖字段</span><p>库存量；近7日均日销；补货LeadTime</p></div>
+          <div><span>可配阈值</span><p>安全库存天数（默认 7）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】库存仅支撑 {D} 天 &lt; 补货周期，立即追单</p></div>
+          <div class="wide"><span>对应纪要</span><p>断货复盘</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>依赖库存可支撑天数、补货 LeadTime 和安全库存天数，建议作为高频库存预警任务运行。<br>库存、近 7 日均销、供应商补货周期三类数据需先统一到同一 SKU 粒度。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="备货节点" data-priority="P1" data-keywords="r-b3 备货节点 秋冬款海外仓布局 秋冬款进入放量期，且海外仓占比 &lt; 目标 季节属性=&#x27;秋冬款&#x27; and 生命周期阶段 ∈ {放量,成熟} and 海外仓占比 &lt; 海外仓目标占比 季节属性；生命周期阶段；海外仓占比 运营 【{sku}】秋冬款海外仓占比 {x}% &lt; 90%，测算 fbt 备货量提前入仓 p1 3天 海外仓目标占比（默认 90%） 秋冬款测算fbt，海外仓占比升至90%">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-B3 · 备货节点</div>
+            <h3>秋冬款海外仓布局</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>秋冬款进入放量期，且海外仓占比 &lt; 目标</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 3天</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>季节属性=&#x27;秋冬款&#x27; AND 生命周期阶段 ∈ {放量,成熟} AND 海外仓占比 &lt; 海外仓目标占比</code></p></div>
+          <div><span>依赖字段</span><p>季节属性；生命周期阶段；海外仓占比</p></div>
+          <div><span>可配阈值</span><p>海外仓目标占比（默认 90%）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】秋冬款海外仓占比 {X}% &lt; 90%，测算 FBT 备货量提前入仓</p></div>
+          <div class="wide"><span>对应纪要</span><p>秋冬款测算FBT，海外仓占比升至90%</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要商品季节属性、生命周期阶段和分仓库存。<br>海外仓占比必须基于海外仓库存与总库存计算，若库存只有总量，需要先补分仓维度。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="备货节点" data-priority="P1" data-keywords="r-b4 备货节点 备货方向路由 触发备货时，按季节属性自动分仓 触发备货 → if 季节属性=&#x27;夏季款&#x27; then 方向=本地仓 elif &#x27;秋冬款&#x27; then 方向=fbt海外仓 季节属性 运营 【{sku}】备货方向：{本地仓 / 海外仓} p1 随备货 — 夏季款本地仓，秋冬款海外仓">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-B4 · 备货节点</div>
+            <h3>备货方向路由</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>触发备货时，按季节属性自动分仓</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 随备货</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>触发备货 → IF 季节属性=&#x27;夏季款&#x27; THEN 方向=本地仓 ELIF &#x27;秋冬款&#x27; THEN 方向=FBT海外仓</code></p></div>
+          <div><span>依赖字段</span><p>季节属性</p></div>
+          <div><span>可配阈值</span><p>—</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】备货方向：{本地仓 / 海外仓}</p></div>
+          <div class="wide"><span>对应纪要</span><p>夏季款本地仓，秋冬款海外仓</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>本质是备货方向路由规则，适合做成规则引擎的派生结果字段。<br>季节属性需要可维护，并允许人工修正，否则会直接影响仓型建议。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="跨节点协同" data-priority="P0" data-keywords="r-c1 跨节点协同 协同进度提前校验 跨部门节点距计划日 ≤3天 且 进度 &lt;100% 节点类型=&#x27;跨部门&#x27; and (节点计划日 − 今日) ≤ 提前校验天数 and 节点进度 &lt; 100% 节点类型；节点计划日；节点进度 节点 owner 【{节点}】距计划日 {d} 天进度 {x}%，立即协调资源补位 p0 当日 提前校验天数（默认 3） 提前3天校验 / 达人寄样">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-C1 · 跨节点协同</div>
+            <h3>协同进度提前校验</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>跨部门节点距计划日 ≤3天 且 进度 &lt;100%</p></div>
+          <div><span>责任 / SLA</span><p>节点 owner · 当日</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>节点类型=&#x27;跨部门&#x27; AND (节点计划日 − 今日) ≤ 提前校验天数 AND 节点进度 &lt; 100%</code></p></div>
+          <div><span>依赖字段</span><p>节点类型；节点计划日；节点进度</p></div>
+          <div><span>可配阈值</span><p>提前校验天数（默认 3）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{节点}】距计划日 {D} 天进度 {X}%，立即协调资源补位</p></div>
+          <div class="wide"><span>对应纪要</span><p>提前3天校验 / 达人寄样</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要新建或接入协同节点数据，包括节点类型、计划日、进度和 owner。<br>该规则不只是看板计算，还要求有任务状态流转能力。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="日常监控" data-priority="P1" data-keywords="r-d1 日常监控 异常波动预警 日销 / roi 较近3日出现异常波动 |今日日销 − 近3日均值| ÷ 近3日均值 &gt; 波动阈值（roi 同理） 日销量；roi 运营 【{sku}】日销异常 {±x}%，优先排查库存/断码 与 广告预算 p1 当日 波动阈值（默认 30%） 每日对比，异常先查库存广告">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-D1 · 日常监控</div>
+            <h3>异常波动预警</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>日销 / ROI 较近3日出现异常波动</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 当日</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>|今日日销 − 近3日均值| ÷ 近3日均值 &gt; 波动阈值（ROI 同理）</code></p></div>
+          <div><span>依赖字段</span><p>日销量；ROI</p></div>
+          <div><span>可配阈值</span><p>波动阈值（默认 30%）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】日销异常 {±X}%，优先排查库存/断码 与 广告预算</p></div>
+          <div class="wide"><span>对应纪要</span><p>每日对比，异常先查库存广告</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要日销和 ROI 的连续历史数据，并按近 3 日均值计算波动。<br>实现时要处理近 3 日均值为 0 的边界，避免除零或误报。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="日常监控" data-priority="P0" data-keywords="r-d2 日常监控 爆量低备货 日销骤增，但库存支撑天数低 日销环比 &gt; 骤增阈值 and 库存可支撑天数 &lt; 爆量预警天数 日销量；库存可支撑天数 运营 【{sku}】爆量但库存仅 {d} 天，快速研判追单 + 备货 p0 24h 骤增阈值（默认 +50%）；预警天数（默认 14） 爆量低备货快速研判追单">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-D2 · 日常监控</div>
+            <h3>爆量低备货</h3>
+          </div>
+          <span class="badge p0">P0</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>日销骤增，但库存支撑天数低</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 24h</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>日销环比 &gt; 骤增阈值 AND 库存可支撑天数 &lt; 爆量预警天数</code></p></div>
+          <div><span>依赖字段</span><p>日销量；库存可支撑天数</p></div>
+          <div><span>可配阈值</span><p>骤增阈值（默认 +50%）；预警天数（默认 14）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】爆量但库存仅 {D} 天，快速研判追单 + 备货</p></div>
+          <div class="wide"><span>对应纪要</span><p>爆量低备货快速研判追单</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要日销环比和库存可支撑天数同时成立，适合放在日常监控任务中。<br>骤增阈值和预警天数应配置化，且要保留触发时的日销、库存和支撑天数快照。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="月度规划" data-priority="P1" data-keywords="r-m1 月度规划 月末四模块生成 每月月末定时触发次月规划 定时触发（每月 月末触发日） — 运营主管 生成次月规划：①爆品供素材 ②潜力品放量 ③新品出货进度 ④失败品回溯 p1 月度 月末触发日（默认 26 号） 月末四模块">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-M1 · 月度规划</div>
+            <h3>月末四模块生成</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>每月月末定时触发次月规划</p></div>
+          <div><span>责任 / SLA</span><p>运营主管 · 月度</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>定时触发（每月 月末触发日）</code></p></div>
+          <div><span>依赖字段</span><p>—</p></div>
+          <div><span>可配阈值</span><p>月末触发日（默认 26 号）</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>生成次月规划：①爆品供素材 ②潜力品放量 ③新品出货进度 ④失败品回溯</p></div>
+          <div class="wide"><span>对应纪要</span><p>月末四模块</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>这是定时生成类规则，不依赖单个 SKU 异常触发。<br>IT 侧应支持按月末触发日批量生成规划任务，并区分四类规划模块的任务模板。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="月度规划" data-priority="P2" data-keywords="r-m2 月度规划 失败品回溯 曾推失败品临近适配季节节点且未复盘 失败标签=&#x27;推品失败&#x27; and 存在临近季节节点 and 复盘状态=&#x27;未复盘&#x27; 失败标签；季节节点；复盘状态 运营 【{sku}】从推广资源/素材能力/时间节点 三维度复盘，研判是否重推 p2 月度 — 洗水卫衣返校季复盘">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-M2 · 月度规划</div>
+            <h3>失败品回溯</h3>
+          </div>
+          <span class="badge p2">P2</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>曾推失败品临近适配季节节点且未复盘</p></div>
+          <div><span>责任 / SLA</span><p>运营 · 月度</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>失败标签=&#x27;推品失败&#x27; AND 存在临近季节节点 AND 复盘状态=&#x27;未复盘&#x27;</code></p></div>
+          <div><span>依赖字段</span><p>失败标签；季节节点；复盘状态</p></div>
+          <div><span>可配阈值</span><p>—</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】从推广资源/素材能力/时间节点 三维度复盘，研判是否重推</p></div>
+          <div class="wide"><span>对应纪要</span><p>洗水卫衣返校季复盘</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要维护失败标签、季节节点和复盘状态，偏工作流型规则。<br>重点是失败标签不能只靠文本备注，应有结构化枚举和复盘状态回写。</p></div>
+        </div>
+      </article>
+      <article class="rule-card" data-node="月度规划" data-priority="P1" data-keywords="r-m3 月度规划 新品出货进度校验 待上架新品出货进度滞后 新品状态=&#x27;待上架&#x27; and 出货进度 &lt; 计划进度 新品状态；出货进度；计划进度 运营 + 供应链 【{sku}】出货进度 {x}% 滞后，校验并催进，避免上架延误 p1 月度 — 新增待上架新品出货校验">
+        <div class="rule-head">
+          <div>
+            <div class="rule-id">R-M3 · 月度规划</div>
+            <h3>新品出货进度校验</h3>
+          </div>
+          <span class="badge p1">P1</span>
+        </div>
+        <div class="rule-grid">
+          <div><span>触发条件</span><p>待上架新品出货进度滞后</p></div>
+          <div><span>责任 / SLA</span><p>运营 + 供应链 · 月度</p></div>
+          <div class="wide"><span>字段级逻辑</span><p><code>新品状态=&#x27;待上架&#x27; AND 出货进度 &lt; 计划进度</code></p></div>
+          <div><span>依赖字段</span><p>新品状态；出货进度；计划进度</p></div>
+          <div><span>可配阈值</span><p>—</p></div>
+          <div class="wide"><span>TO-DO 文案模板</span><p>【{SKU}】出货进度 {X}% 滞后，校验并催进，避免上架延误</p></div>
+          <div class="wide"><span>对应纪要</span><p>新增待上架新品出货校验</p></div>
+          <div class="wide it-analysis"><span>IT 分析描述</span><p>需要新品状态、出货进度和计划进度的结构化数据。<br>该规则适合连接供应链进度表，触发后应派给运营和供应链共同跟进。</p></div>
+        </div>
+      </article>
+    </div>
+
+    <h2>二、规则总表 · 原始表格</h2>
+    <div class="table-wrap "><table>
+<thead><tr><th>规则ID</th><th>所属节点</th><th>规则名称</th><th>触发条件（业务）</th><th>触发逻辑（字段级 / 伪代码）</th><th>依赖数据字段</th><th>责任角色</th><th>生成的 TO-DO 文案（模板）</th><th>优先级</th><th>时限/SLA</th><th>可配阈值</th><th>对应纪要</th></tr></thead>
+<tbody>
+<tr><td>R-A1</td><td>到货节点</td><td>到货投放断档</td><td>到货后≥断档天数阈值，仍无挂车、无投放</td><td>到货状态=&#x27;已到货&#x27; AND (今日 − 到货日期) ≥ 断档天数阈值 AND 累计挂车数=0 AND 累计投放金额=0</td><td>到货状态；到货日期；累计挂车数；累计投放金额</td><td>运营</td><td>【{SKU}】到货已 {N} 天仍无挂车/投放，24h 内完成挂车并排查断档原因</td><td>P0</td><td>24h</td><td>断档天数阈值（默认 7）</td><td>到货后1周内无挂车无投放</td></tr>
+<tr><td>R-A2</td><td>到货节点</td><td>老素材流量未恢复</td><td>补货到货后，老素材近3日流量未恢复到断货前的 X%</td><td>到货状态=&#x27;已到货&#x27; AND 断货前均流量&gt;0 AND (老素材近3日均流量 ÷ 断货前均流量) &lt; 恢复率阈值</td><td>老素材近3日流量；断货前均流量</td><td>运营 + 剪辑</td><td>【{SKU}】老素材流量仅恢复 {X}%，核查素材有效性，研判是否补素材</td><td>P1</td><td>48h</td><td>恢复率阈值（默认 60%）</td><td>校验老素材流量恢复</td></tr>
+<tr><td>R-A3</td><td>到货节点</td><td>到货节奏脱节</td><td>实际首次挂车晚于预设推广启动日</td><td>首次挂车日期 &gt; 预设推广启动日 + 缓冲天数</td><td>首次挂车日期；预设推广启动日</td><td>运营</td><td>【{SKU}】首次挂车晚于计划 {D} 天，排查节奏脱节原因</td><td>P1</td><td>24h</td><td>缓冲天数（默认 1）</td><td>节奏匹配校验</td></tr>
+<tr><td>R-S1</td><td>放量节点</td><td>放量机会识别</td><td>当前渠道 ROI 连续 N 天正向且日销未下滑</td><td>当前渠道=&#x27;剪辑&#x27; AND ROI近N日均值 ≥ 目标ROI AND 近N日日销环比 ≥ 0</td><td>ROI；日销量；当前渠道</td><td>运营</td><td>【{SKU}】已连续 {N} 天正向 ROI，评估放量空间，提交下一级渠道（商务/直播）申请</td><td>P1</td><td>当日</td><td>正向天数（默认 3）；目标ROI（按品类）</td><td>跑通正向ROI启动下一级渠道</td></tr>
+<tr><td>R-S2</td><td>放量节点</td><td>放量前置校验（拦截）</td><td>拟放量品库存 &lt; 1个月 或 已进入衰退期</td><td>触发放量申请 AND (库存可支撑天数 &lt; 放量周期阈值 OR 生命周期阶段=&#x27;衰退&#x27;)</td><td>库存可支撑天数；生命周期阶段</td><td>运营 + 供应链</td><td>【{SKU}】放量前库存仅支撑 {D} 天/或已衰退，先补货或暂缓放量</td><td>P0</td><td>当日</td><td>放量周期阈值（默认 30 天）</td><td>库存深度≥1个月 / 风险前置校验</td></tr>
+<tr><td>R-B1</td><td>备货节点</td><td>备货触发（防断货）</td><td>日销稳定在触发区间，且当前仅浅度测试</td><td>近7日日销均值 ∈ [下限,上限] AND 生命周期阶段 ∈ {测试, 放量初期} AND 备货状态=&#x27;未备货&#x27;</td><td>日销量；生命周期阶段；备货状态</td><td>运营</td><td>【{SKU}】日销稳定 {X} 单进入放量前夜，启动备货测算防断货</td><td>P0</td><td>48h</td><td>日销触发区间（默认 15–20）</td><td>日销15-20单启动备货</td></tr>
+<tr><td>R-B2</td><td>备货节点</td><td>断货风险预警</td><td>库存可支撑天数 &lt; 补货周期 + 安全天数</td><td>库存可支撑天数 &lt; (补货 LeadTime + 安全库存天数)</td><td>库存量；近7日均日销；补货LeadTime</td><td>运营 + 供应链</td><td>【{SKU}】库存仅支撑 {D} 天 &lt; 补货周期，立即追单</td><td>P0</td><td>24h</td><td>安全库存天数（默认 7）</td><td>断货复盘</td></tr>
+<tr><td>R-B3</td><td>备货节点</td><td>秋冬款海外仓布局</td><td>秋冬款进入放量期，且海外仓占比 &lt; 目标</td><td>季节属性=&#x27;秋冬款&#x27; AND 生命周期阶段 ∈ {放量,成熟} AND 海外仓占比 &lt; 海外仓目标占比</td><td>季节属性；生命周期阶段；海外仓占比</td><td>运营</td><td>【{SKU}】秋冬款海外仓占比 {X}% &lt; 90%，测算 FBT 备货量提前入仓</td><td>P1</td><td>3天</td><td>海外仓目标占比（默认 90%）</td><td>秋冬款测算FBT，海外仓占比升至90%</td></tr>
+<tr><td>R-B4</td><td>备货节点</td><td>备货方向路由</td><td>触发备货时，按季节属性自动分仓</td><td>触发备货 → IF 季节属性=&#x27;夏季款&#x27; THEN 方向=本地仓 ELIF &#x27;秋冬款&#x27; THEN 方向=FBT海外仓</td><td>季节属性</td><td>运营</td><td>【{SKU}】备货方向：{本地仓 / 海外仓}</td><td>P1</td><td>随备货</td><td>—</td><td>夏季款本地仓，秋冬款海外仓</td></tr>
+<tr><td>R-C1</td><td>跨节点协同</td><td>协同进度提前校验</td><td>跨部门节点距计划日 ≤3天 且 进度 &lt;100%</td><td>节点类型=&#x27;跨部门&#x27; AND (节点计划日 − 今日) ≤ 提前校验天数 AND 节点进度 &lt; 100%</td><td>节点类型；节点计划日；节点进度</td><td>节点 owner</td><td>【{节点}】距计划日 {D} 天进度 {X}%，立即协调资源补位</td><td>P0</td><td>当日</td><td>提前校验天数（默认 3）</td><td>提前3天校验 / 达人寄样</td></tr>
+<tr><td>R-D1</td><td>日常监控</td><td>异常波动预警</td><td>日销 / ROI 较近3日出现异常波动</td><td>|今日日销 − 近3日均值| ÷ 近3日均值 &gt; 波动阈值（ROI 同理）</td><td>日销量；ROI</td><td>运营</td><td>【{SKU}】日销异常 {±X}%，优先排查库存/断码 与 广告预算</td><td>P1</td><td>当日</td><td>波动阈值（默认 30%）</td><td>每日对比，异常先查库存广告</td></tr>
+<tr><td>R-D2</td><td>日常监控</td><td>爆量低备货</td><td>日销骤增，但库存支撑天数低</td><td>日销环比 &gt; 骤增阈值 AND 库存可支撑天数 &lt; 爆量预警天数</td><td>日销量；库存可支撑天数</td><td>运营</td><td>【{SKU}】爆量但库存仅 {D} 天，快速研判追单 + 备货</td><td>P0</td><td>24h</td><td>骤增阈值（默认 +50%）；预警天数（默认 14）</td><td>爆量低备货快速研判追单</td></tr>
+<tr><td>R-M1</td><td>月度规划</td><td>月末四模块生成</td><td>每月月末定时触发次月规划</td><td>定时触发（每月 月末触发日）</td><td>—</td><td>运营主管</td><td>生成次月规划：①爆品供素材 ②潜力品放量 ③新品出货进度 ④失败品回溯</td><td>P1</td><td>月度</td><td>月末触发日（默认 26 号）</td><td>月末四模块</td></tr>
+<tr><td>R-M2</td><td>月度规划</td><td>失败品回溯</td><td>曾推失败品临近适配季节节点且未复盘</td><td>失败标签=&#x27;推品失败&#x27; AND 存在临近季节节点 AND 复盘状态=&#x27;未复盘&#x27;</td><td>失败标签；季节节点；复盘状态</td><td>运营</td><td>【{SKU}】从推广资源/素材能力/时间节点 三维度复盘，研判是否重推</td><td>P2</td><td>月度</td><td>—</td><td>洗水卫衣返校季复盘</td></tr>
+<tr><td>R-M3</td><td>月度规划</td><td>新品出货进度校验</td><td>待上架新品出货进度滞后</td><td>新品状态=&#x27;待上架&#x27; AND 出货进度 &lt; 计划进度</td><td>新品状态；出货进度；计划进度</td><td>运营 + 供应链</td><td>【{SKU}】出货进度 {X}% 滞后，校验并催进，避免上架延误</td><td>P1</td><td>月度</td><td>—</td><td>新增待上架新品出货校验</td></tr>
+</tbody></table></div>
+
+    <h2 id="fields">三、字段字典 · 规则引擎依赖的数据字段</h2>
+    <div class="table-wrap "><table>
+<thead><tr><th>数据字段</th><th>含义</th><th>类型 / 单位</th><th>来源系统 / 计算方式</th><th>枚举值 / 备注</th></tr></thead>
+<tbody>
+<tr><td>SKU / SPU 编号</td><td>商品唯一标识</td><td>文本</td><td>商品主数据</td><td>例：6678、0575</td></tr>
+<tr><td>季节属性</td><td>季节归类，决定备货方向</td><td>枚举</td><td>商品标签</td><td>夏季款 / 秋冬款 / 四季款</td></tr>
+<tr><td>品类</td><td>商品类目</td><td>枚举</td><td>商品主数据</td><td>卫衣、T恤 等</td></tr>
+<tr><td>生命周期阶段</td><td>单品所处阶段</td><td>枚举</td><td>规则派生 + 人工</td><td>新品 / 测试 / 放量 / 成熟 / 衰退</td></tr>
+<tr><td>到货状态</td><td>补货履约状态</td><td>枚举</td><td>履约系统</td><td>未到货 / 在途 / 已到货</td></tr>
+<tr><td>到货日期</td><td>最近一次到货日</td><td>日期</td><td>履约系统</td><td>—</td></tr>
+<tr><td>累计挂车数</td><td>被达人挂车次数</td><td>整数</td><td>达人 / 投放系统</td><td></td></tr>
+<tr><td>累计投放金额</td><td>广告累计花费</td><td>金额</td><td>广告系统</td><td>—</td></tr>
+<tr><td>首次挂车日期</td><td>首个挂车时间</td><td>日期</td><td>投放系统</td><td>用于节奏校验</td></tr>
+<tr><td>预设推广启动日</td><td>计划推广开始日</td><td>日期</td><td>运营规划</td><td>月度计划录入</td></tr>
+<tr><td>日销量</td><td>单日成交件数</td><td>整数</td><td>交易系统</td><td>—</td></tr>
+<tr><td>近N日日销均值</td><td>滚动窗口均值</td><td>计算（派生）</td><td></td><td>N 默认 7</td></tr>
+<tr><td>日销环比</td><td>增速信号</td><td>计算（派生）</td><td></td><td>—</td></tr>
+<tr><td>ROI</td><td>投产比</td><td>计算</td><td></td><td>按渠道 / 近N日</td></tr>
+<tr><td>目标ROI</td><td>盈亏平衡阈值</td><td>配置</td><td>运营配置</td><td>按品类可配</td></tr>
+<tr><td>库存量</td><td>可售库存（分仓）</td><td>整数</td><td>库存系统</td><td>本地仓 / 海外仓 分别记</td></tr>
+<tr><td>库存可支撑天数</td><td>断货预警核心指标</td><td>计算（派生）</td><td></td><td>—</td></tr>
+<tr><td>补货 LeadTime</td><td>补货到仓周期</td><td>天</td><td>供应链</td><td>按供应商可配</td></tr>
+<tr><td>安全库存天数</td><td>缓冲天数</td><td>配置</td><td>供应链</td><td>默认 7</td></tr>
+<tr><td>海外仓占比</td><td>FBT 布局指标</td><td>计算（派生）</td><td></td><td>目标 90%</td></tr>
+<tr><td>备货状态</td><td>备货进度</td><td>枚举</td><td>供应链</td><td>未备货 / 备货中 / 已备货</td></tr>
+<tr><td>老素材近3日流量</td><td>素材恢复判断</td><td>计算</td><td>素材系统</td><td>曝光 / 播放量</td></tr>
+<tr><td>断货前均流量</td><td>恢复基线</td><td>计算</td><td>素材系统</td><td>断货前窗口均值</td></tr>
+<tr><td>当前渠道</td><td>当前放量渠道</td><td>枚举</td><td>运营</td><td>剪辑 / 商务 / 直播</td></tr>
+<tr><td>节点类型 / 计划日 / 进度</td><td>跨部门协同节点信息</td><td>混合</td><td>项目 / 协同系统</td><td>如：达人寄样</td></tr>
+<tr><td>失败标签 / 复盘状态</td><td>推品失败标记</td><td>枚举</td><td>运营</td><td>推品失败；未复盘 / 已复盘</td></tr>
+<tr><td>新品状态 / 出货进度 / 计划进度</td><td>上架进度</td><td>混合</td><td>供应链 + 运营</td><td>待上架 / 已上架</td></tr>
+</tbody></table></div>
+
+    <h2 id="config">四、优先级与配置</h2>
+    <h3>一、优先级定义（决定排序与响应时限）</h3><div class="table-wrap compact"><table>
+<thead><tr><th>优先级</th><th>含义</th><th>响应时限</th><th>排序权重</th></tr></thead>
+<tbody>
+<tr><td>P0</td><td>不可逆损失：断货 / 断档 / 协同卡点。做晚了直接损失营收</td><td>当日 ~ 24h</td><td>最高（置顶）</td></tr>
+<tr><td>P1</td><td>增长机会、可短暂等待：放量、备货方向、异常研判</td><td>48h 内</td><td>中</td></tr>
+<tr><td>P2</td><td>优化类：素材 code 回收、失败品复盘</td><td>按周期</td><td>低</td></tr>
+</tbody></table></div><h3>二、可配阈值清单（上线后由运营主管统一调参）</h3><div class="table-wrap compact"><table>
+<thead><tr><th>阈值项</th><th>默认值</th><th>作用规则</th><th>调参方向</th></tr></thead>
+<tbody>
+<tr><td>断档天数阈值</td><td>7 天</td><td>R-A1</td><td>调小→更早预警，但可能误报</td></tr>
+<tr><td>老素材恢复率</td><td>60%</td><td>R-A2</td><td>调高→对素材更严</td></tr>
+<tr><td>正向天数阈值</td><td>3 天</td><td>R-S1</td><td>调大→放量更保守</td></tr>
+<tr><td>放量周期阈值</td><td>30 天</td><td>R-S2</td><td>库存需支撑的最短推广期</td></tr>
+<tr><td>日销触发区间</td><td>15–20 单</td><td>R-B1</td><td>按品类调，防断货前置</td></tr>
+<tr><td>安全库存天数</td><td>7 天</td><td>R-B2</td><td>调大→更早追单</td></tr>
+<tr><td>海外仓目标占比</td><td>90%</td><td>R-B3</td><td>按季节 / 成本调</td></tr>
+<tr><td>波动阈值</td><td>30%</td><td>R-D1</td><td>调小→更敏感，告警更多</td></tr>
+<tr><td>骤增阈值 / 爆量预警</td><td>+50% / 14 天</td><td>R-D2</td><td>识别爆量断货风险</td></tr>
+<tr><td>提前校验天数</td><td>3 天</td><td>R-C1</td><td>跨部门节点提前量</td></tr>
+<tr><td>月末触发日</td><td>26 号</td><td>R-M1</td><td>次月规划生成日</td></tr>
+</tbody></table></div><h3>三、关键枚举值</h3><div class="table-wrap compact"><table>
+<thead><tr><th>枚举字段</th><th>取值</th><th></th><th></th></tr></thead>
+<tbody>
+<tr><td>生命周期阶段</td><td>新品 / 测试 / 放量 / 成熟 / 衰退</td><td></td><td></td></tr>
+<tr><td>季节属性</td><td>夏季款 / 秋冬款 / 四季款</td><td></td><td></td></tr>
+<tr><td>到货状态</td><td>未到货 / 在途 / 已到货</td><td></td><td></td></tr>
+<tr><td>备货状态</td><td>未备货 / 备货中 / 已备货</td><td></td><td></td></tr>
+<tr><td>当前渠道</td><td>剪辑 / 商务 / 直播</td><td></td><td></td></tr>
+<tr><td>节点类型</td><td>跨部门 / 单部门</td><td></td><td></td></tr>
+</tbody></table></div>
+
+    <p class="back"><a href="./需求文档.html">返回需求文档</a> · <a href="../index.html">返回首页</a></p>
+  </div>
+  <script>
+    const keyword = document.getElementById("keyword");
+    const nodeFilter = document.getElementById("nodeFilter");
+    const priorityFilter = document.getElementById("priorityFilter");
+    const cards = Array.from(document.querySelectorAll(".rule-card"));
+    function applyFilters() {
+      const q = keyword.value.trim().toLowerCase();
+      const node = nodeFilter.value;
+      const priority = priorityFilter.value;
+      cards.forEach(card => {
+        const okKeyword = !q || card.dataset.keywords.includes(q);
+        const okNode = !node || card.dataset.node === node;
+        const okPriority = !priority || card.dataset.priority === priority;
+        card.classList.toggle("hidden", !(okKeyword && okNode && okPriority));
+      });
+    }
+    [keyword, nodeFilter, priorityFilter].forEach(el => el.addEventListener("input", applyFilters));
+  </script>
+</body>
+</html>
