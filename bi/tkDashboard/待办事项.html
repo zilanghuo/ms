@@ -94,6 +94,7 @@
     .module-col { width: 16%; white-space: nowrap; }
     .content-col { width: 34%; }
     .solution-col { width: 28%; }
+    .image-col { width: 180px; }
     .date-col { width: 14%; white-space: nowrap; }
     .status-col { width: 14%; white-space: nowrap; }
     .status {
@@ -107,6 +108,18 @@
       font-size: 0.78rem;
       font-weight: 600;
     }
+    .ref-image {
+      display: block;
+      max-width: 160px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+    }
+    .image-link {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .image-link:hover { text-decoration: underline; }
     .empty { color: #cbd5e1; }
     .back { margin-top: 2rem; font-size: 0.9rem; }
     .back a { color: var(--accent); text-decoration: none; }
@@ -119,7 +132,7 @@
     <p class="intro">用于临时记录尚未展开细节的事项。先把内容沉淀下来，后续再补充需求背景、可行性判断、排期和完成记录。</p>
 
     <div class="note">
-      填写列：序号、模块、内容、解决方案、提出时间、是否可实现、完成时间。是否可实现建议使用：待评估、待排查、可实现、部分可实现、不可实现。
+      填写列：序号、模块、内容、解决方案、提出时间、是否可实现、完成时间；如有截图，可增加参考图片列。是否可实现建议使用：待评估、待排查、可实现、部分可实现、不可实现。
     </div>
 
     <h2>通用 / 入口</h2>
@@ -181,17 +194,19 @@
             <th class="module-col">模块</th>
             <th class="content-col">内容</th>
             <th class="solution-col">解决方案</th>
+            <th class="image-col">参考图片</th>
             <th class="date-col">提出时间</th>
             <th class="status-col">是否可实现</th>
             <th class="date-col">完成时间</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td class="seq-col">1</td><td>库存检查</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
-          <tr><td class="seq-col">2</td><td>发补货</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
-          <tr><td class="seq-col">3</td><td>备货补货</td><td>增加字段：实际销量判断、是否热卖 SKU、热卖码是否断货、推广是否放量、剪辑素材量、商务素材量、投放中剪辑素材占比、剪辑素材产出、投放中商务素材占比、商务素材产出、男模特占比、女模特占比。</td><td>逐项调研字段数据来源、计算口径和展示粒度，确认能否稳定获取；其中热卖、断货、推广放量、素材产出和模特占比相关数据逻辑均待评估。</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
-          <tr><td class="seq-col">4</td><td>备货模型</td><td>关于编辑功能，增加导出 Excel 模型能力，并支持通过批量导入数据进行修改。</td><td>提供 Excel 模型导出入口，导出当前可编辑字段和数据；用户线下批量修改后再导入，系统按主键或唯一标识匹配记录并批量更新。</td><td>2026-07-20</td><td><span class="status">可实现</span></td><td></td></tr>
-          <tr><td class="seq-col">5</td><td>技术文档</td><td class="empty">待补充</td><td class="empty">待补充</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td class="seq-col">1</td><td>库存检查</td><td class="empty">待补充</td><td class="empty">待补充</td><td class="empty">无</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td class="seq-col">2</td><td>发补货</td><td class="empty">待补充</td><td class="empty">待补充</td><td class="empty">无</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td class="seq-col">3</td><td>发补货</td><td>发补货看板新增“预计断货日期”字段；计算逻辑参考：店铺侧被同步的总库存 / 加权日均，用于判断当前库存大约还能支撑多久，并推算预计断货时间。</td><td>在发补货看板中新增预计断货日期展示列；先计算预计可售天数 = 店铺侧被同步的总库存 / 加权日均，再结合数据日期推算预计断货日期。若加权日均为空或为 0，需要展示为空或待评估，避免出现无意义日期。</td><td><a class="image-link" href="assets/todo/发补货看板-预计断货日期.png" target="_blank" rel="noopener"><img class="ref-image" src="assets/todo/发补货看板-预计断货日期.png" alt="发补货看板预计断货日期参考截图" />查看大图</a></td><td>2026-07-24</td><td><span class="status">可实现</span></td><td></td></tr>
+          <tr><td class="seq-col">4</td><td>备货补货</td><td>增加字段：实际销量判断、是否热卖 SKU、热卖码是否断货、推广是否放量、剪辑素材量、商务素材量、投放中剪辑素材占比、剪辑素材产出、投放中商务素材占比、商务素材产出、男模特占比、女模特占比。</td><td>逐项调研字段数据来源、计算口径和展示粒度，确认能否稳定获取；其中热卖、断货、推广放量、素材产出和模特占比相关数据逻辑均待评估。</td><td class="empty">无</td><td>2026-07-20</td><td><span class="status">待评估</span></td><td></td></tr>
+          <tr><td class="seq-col">5</td><td>备货模型</td><td>关于编辑功能，增加导出 Excel 模型能力，并支持通过批量导入数据进行修改。</td><td>提供 Excel 模型导出入口，导出当前可编辑字段和数据；用户线下批量修改后再导入，系统按主键或唯一标识匹配记录并批量更新。</td><td class="empty">无</td><td>2026-07-20</td><td><span class="status">可实现</span></td><td></td></tr>
+          <tr><td class="seq-col">6</td><td>技术文档</td><td class="empty">待补充</td><td class="empty">待补充</td><td class="empty">无</td><td></td><td><span class="status">待评估</span></td><td></td></tr>
         </tbody>
       </table>
     </div>

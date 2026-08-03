@@ -1,12 +1,13 @@
 # Codex 双实例从 0 搭建通用说明
 
-最后更新：2026-07-13
+最后更新：2026-07-24
 
 ## 目标
 
 在同一台 macOS 上同时使用两份 Codex：
 
-- 官方 Codex 或保留的 Codex 兼容入口：`/Applications/Codex.app`
+- 官方 Codex 兼容入口：`/Applications/Codex.app`
+- 新版 ChatGPT desktop 中的 Codex runtime：`/Applications/ChatGPT.app`
 - 第二份 Codex：例如 `/Applications/Codex Max.app`
 
 第二份 Codex 应该有独立的：
@@ -15,9 +16,9 @@
 - Electron `userData`
 - 应用入口
 
-但第二份 Codex 的真正运行体仍然来自官方 `Codex.app` 的克隆，并且必须保留 OpenAI 的 Developer ID 签名。
+但第二份 Codex 的真正运行体仍然来自官方 `Codex.app` 或 `ChatGPT.app` 的克隆，并且必须保留 OpenAI 的 Developer ID 签名。
 
-> 重要：OpenAI 官方说明中，2026-07-09 起 Codex app 已合并进新的 ChatGPT desktop app。部分机器仍可能保留 `/Applications/Codex.app` 兼容入口，部分新装机器可能只有 `/Applications/ChatGPT.app`。本说明后续命令默认适用于 `/Applications/Codex.app` 存在且签名正常的场景；如果只有 ChatGPT app，先不要直接套用本说明，需要重新确认 runtime 路径、可执行文件名、图标路径和签名校验对象。
+> 重要：2026-07 之后部分机器只有 `/Applications/ChatGPT.app`，没有 `/Applications/Codex.app`。这种形态已经验证可用，但 runtime 路径、可执行文件名和 launcher 脚本必须使用 ChatGPT 形态：`/Applications/Codex Max Runtime/ChatGPT.app/Contents/MacOS/ChatGPT`。不要再写成旧的 `Codex Max.app/Contents/MacOS/Codex`。
 
 ## 核心结论
 
@@ -27,8 +28,10 @@
 
 ```text
 /Applications/Codex.app
+/Applications/ChatGPT.app
 /Applications/Codex Max.app
-/Applications/Codex Max Runtime/Codex Max.app
+/Applications/Codex Max Runtime/Codex.app
+/Applications/Codex Max Runtime/ChatGPT.app
 ~/.codex
 ~/.codex-max
 ~/Library/Application Support/Codex Max
@@ -36,15 +39,17 @@
 
 含义：
 
-- `/Applications/Codex.app`：官方 Codex 或保留的 Codex 兼容入口。
+- `/Applications/Codex.app`：旧形态官方 Codex 或保留的 Codex 兼容入口。
+- `/Applications/ChatGPT.app`：新形态官方桌面 app，当前 Codex runtime 也可能在其中。
 - `/Applications/Codex Max.app`：轻量 launcher，只负责设置环境变量并启动 runtime。
-- `/Applications/Codex Max Runtime/Codex Max.app`：从官方 Codex 克隆出来的真正运行体。
+- `/Applications/Codex Max Runtime/Codex.app`：旧 Codex.app 形态下，从官方 Codex 克隆出来的真正运行体。
+- `/Applications/Codex Max Runtime/ChatGPT.app`：新 ChatGPT.app 形态下，从官方 ChatGPT 克隆出来的真正运行体。
 - `~/.codex-max`：第二份 Codex 的独立 home。
 - `~/Library/Application Support/Codex Max`：第二份 Codex 的独立 Electron userData。
 
 ## 前置条件
 
-1. 已安装官方 `/Applications/Codex.app`，或确认机器上仍有可作为 Codex runtime 的兼容 bundle。
+1. 已安装官方 `/Applications/Codex.app` 或 `/Applications/ChatGPT.app`，或有一份可验证签名的官方安装包。
 2. 官方 Codex 或 ChatGPT desktop app 能正常启动。
 3. 如果需要命令行能力，`codex` CLI 已经可用且能成功运行。
 4. 当前用户有权限写入 `/Applications`；没有权限时需要用管理员权限执行相关命令。
@@ -56,12 +61,9 @@
 
 ```bash
 if [ -d "/Applications/Codex.app" ]; then
-  echo "OK: 找到 /Applications/Codex.app，可以继续按本说明检查签名和 runtime。"
+  echo "OK: 找到 /Applications/Codex.app，使用旧 Codex.app 形态。"
 elif [ -d "/Applications/ChatGPT.app" ]; then
-  echo "STOP: 只找到 /Applications/ChatGPT.app，未找到 /Applications/Codex.app。"
-  echo "当前机器可能是 Codex 合并进 ChatGPT desktop app 后的新形态。"
-  echo "不要直接套用后续 MAIN_APP=/Applications/Codex.app 的命令。"
-  exit 1
+  echo "OK: 找到 /Applications/ChatGPT.app，使用新 ChatGPT.app 形态。"
 else
   echo "STOP: 未找到 /Applications/Codex.app 或 /Applications/ChatGPT.app。"
   echo "请先安装并正常启动官方桌面 app。"
@@ -69,7 +71,7 @@ else
 fi
 ```
 
-如果上面命令停在 `ChatGPT.app` 分支，先做只读探测，确认实际 bundle 结构：
+如果走 `ChatGPT.app` 分支，先做只读探测，确认实际 bundle 结构：
 
 ```bash
 APP="/Applications/ChatGPT.app"
@@ -85,7 +87,15 @@ spctl -a -vv "$APP"
 codesign --verify --deep --strict "$APP"
 ```
 
-只有在确认 ChatGPT app 内部仍有可独立启动、可传入独立 `CODEX_HOME` 和 Electron userData 的 Codex runtime 后，才能把后续 `MAIN_APP`、`RUNTIME_APP/Contents/MacOS/Codex`、图标路径和日志检查命令改成新路径。否则本说明不适用。
+期望能看到：
+
+```text
+Identifier=com.openai.codex
+TeamIdentifier=2DC432GLL2
+Authority=Developer ID Application: OpenAI OpCo, LLC (2DC432GLL2)
+```
+
+注意：某些受限沙盒里执行 `codesign --verify` / `spctl` 可能误报 `invalid signature` 或 `internal error in Code Signing subsystem`。如果同一份 app 在非沙盒终端里能通过 `codesign --verify --deep --strict` 和 `spctl -a -vv`，以非沙盒复核结果为准。真正不能通过签名校验时，不要继续克隆 runtime。
 
 再检查 CLI。注意：`which codex` 只能说明入口存在，不能说明 CLI 可用。
 
@@ -104,21 +114,30 @@ fi
 下面用 `Codex Max` 作为第二份 Codex 的名字。要创建别的名字，只改这一段变量，并保证 `SECOND_HOME`、`SECOND_USER_DATA`、`RUNTIME_APP`、`LAUNCHER_APP`、`LAUNCHER_BUNDLE_ID` 互不冲突。
 
 ```bash
-MAIN_APP="/Applications/Codex.app"
-
 SECOND_NAME="Codex Max"
 SECOND_HOME="$HOME/.codex-max"
 SECOND_USER_DATA="$HOME/Library/Application Support/$SECOND_NAME"
 
 RUNTIME_DIR="/Applications/$SECOND_NAME Runtime"
-RUNTIME_APP="$RUNTIME_DIR/$SECOND_NAME.app"
-
 LAUNCHER_APP="/Applications/$SECOND_NAME.app"
 LAUNCHER_EXEC="codex-second-launcher"
 LAUNCHER_BUNDLE_ID="local.codex.max.launcher"
+
+if [ -d "/Applications/Codex.app" ]; then
+  MAIN_APP="/Applications/Codex.app"
+  RUNTIME_APP="$RUNTIME_DIR/Codex.app"
+  RUNTIME_EXEC_REL="Contents/MacOS/Codex"
+elif [ -d "/Applications/ChatGPT.app" ]; then
+  MAIN_APP="/Applications/ChatGPT.app"
+  RUNTIME_APP="$RUNTIME_DIR/ChatGPT.app"
+  RUNTIME_EXEC_REL="Contents/MacOS/ChatGPT"
+else
+  echo "未找到官方 Codex.app 或 ChatGPT.app，停止。"
+  exit 1
+fi
 ```
 
-## 1. 验证官方 Codex
+## 1. 验证官方 runtime 来源
 
 ```bash
 test -d "$MAIN_APP" || { echo "找不到 $MAIN_APP"; exit 1; }
@@ -139,6 +158,24 @@ TeamIdentifier=2DC432GLL2
 ```
 
 如果官方 app 自己签名不通过，先修复官方安装，不要继续创建第二份。
+
+如果 `/Applications/ChatGPT.app` 正在运行且不方便替换，但本地通过 Homebrew 下载到一份签名正常的官方包，可以先解压到 `/tmp`，只把该临时 app 作为 `MAIN_APP` 克隆来源：
+
+```bash
+brew fetch --cask chatgpt
+rm -rf /tmp/chatgpt-codex-source
+mkdir -p /tmp/chatgpt-codex-source
+ditto -x -k "$(brew --cache --cask chatgpt)" /tmp/chatgpt-codex-source
+
+MAIN_APP="/tmp/chatgpt-codex-source/ChatGPT.app"
+RUNTIME_APP="$RUNTIME_DIR/ChatGPT.app"
+RUNTIME_EXEC_REL="Contents/MacOS/ChatGPT"
+
+codesign --verify --deep --strict "$MAIN_APP"
+spctl -a -vv "$MAIN_APP"
+```
+
+这样可以不替换当前正在运行的 `/Applications/ChatGPT.app`，只重建第二份 runtime。
 
 ## 2. 创建独立 home 和 userData
 
@@ -236,7 +273,7 @@ cat > "$LAUNCHER_APP/Contents/MacOS/$LAUNCHER_EXEC" <<EOF
 #!/bin/sh
 export CODEX_HOME="$SECOND_HOME"
 export CODEX_ELECTRON_USER_DATA_PATH="$SECOND_USER_DATA"
-exec "$RUNTIME_APP/Contents/MacOS/Codex" \
+exec "$RUNTIME_APP/$RUNTIME_EXEC_REL" \
   --user-data-dir="$SECOND_USER_DATA"
 EOF
 
@@ -270,7 +307,7 @@ open "$LAUNCHER_APP"
 ```bash
 CODEX_HOME="$SECOND_HOME" \
 CODEX_ELECTRON_USER_DATA_PATH="$SECOND_USER_DATA" \
-  "$RUNTIME_APP/Contents/MacOS/Codex" \
+  "$RUNTIME_APP/$RUNTIME_EXEC_REL" \
   --user-data-dir="$SECOND_USER_DATA"
 ```
 
@@ -331,7 +368,7 @@ CLI 的关键是 `CODEX_HOME`。它不依赖 launcher，也不参与 Electron �
 
 ## 8. 以后升级第二份 Codex
 
-官方 `/Applications/Codex.app` 升级后，第二份 runtime 不会自动升级。按下面流程重建 runtime。
+官方 `/Applications/Codex.app` 或 `/Applications/ChatGPT.app` 升级后，第二份 runtime 不会自动升级。按下面流程重建 runtime。
 
 先退出第二份 Codex，然后检查进程：
 
@@ -393,7 +430,33 @@ browser-use native pipe rejected socket peer reason=missing-code-signing-identit
 untrusted-code-signing-identity
 ```
 
-通常表示 runtime 被修改或重新签名了。删除第二份 runtime，重新从官方 `Codex.app` 克隆，不要修改 `Info.plist`、`app.asar` 或 `ElectronAsarIntegrity`。
+通常表示 runtime 被修改或重新签名了。删除第二份 runtime，重新从官方 `Codex.app` 或 `ChatGPT.app` 克隆，不要修改 `Info.plist`、`app.asar` 或 `ElectronAsarIntegrity`。
+
+### 打开 Codex Max 失败，提示路径不存在
+
+检查 launcher：
+
+```bash
+sed -n '1,80p' "/Applications/Codex Max.app/Contents/MacOS/codex-second-launcher"
+```
+
+如果当前 runtime 实际是：
+
+```text
+/Applications/Codex Max Runtime/ChatGPT.app
+```
+
+launcher 里就必须执行：
+
+```text
+/Applications/Codex Max Runtime/ChatGPT.app/Contents/MacOS/ChatGPT
+```
+
+不要写成：
+
+```text
+/Applications/Codex Max Runtime/Codex Max.app/Contents/MacOS/Codex
+```
 
 ### 打开第二份却使用了官方 Codex 的配置
 
@@ -462,10 +525,29 @@ iTerm
 
 搭建完成后，至少确认：
 
-1. 官方 `/Applications/Codex.app` 仍能打开。
+1. 官方 `/Applications/Codex.app` 或 `/Applications/ChatGPT.app` 仍能打开。
 2. 第二份 launcher 能打开第二份 Codex。
 3. 两份 Codex 可以同时存在。
 4. 第二份 Codex 的 `app-server` 使用的是第二份 `CODEX_HOME`。
 5. 第二份 runtime 仍是 OpenAI Developer ID 签名。
 6. 日志中没有 `missing-code-signing-identity` 或 `untrusted-code-signing-identity`。
 7. CLI 如果需要第二份环境，调用时确实带了第二份 `CODEX_HOME`。
+
+## 10. 当前已验证案例：只有 ChatGPT.app 的机器
+
+2026-07-24 在只有 `/Applications/ChatGPT.app`、没有 `/Applications/Codex.app` 的机器上，已验证可用结构：
+
+```text
+/Applications/ChatGPT.app
+/Applications/Codex Max.app
+/Applications/Codex Max Runtime/ChatGPT.app
+/Users/a1/.codex-max
+/Users/a1/Library/Application Support/Codex Max
+```
+
+关键点：
+
+- launcher 必须执行 `/Applications/Codex Max Runtime/ChatGPT.app/Contents/MacOS/ChatGPT`。
+- 第二份 app-server 会打开 `/Users/a1/.codex-max/state_*.sqlite`、`logs_*.sqlite`、`goals_*.sqlite`、`memories_*.sqlite`。
+- 桌面日志中应看到 Browser Use runtime 选择 `/Applications/Codex Max Runtime/ChatGPT.app/Contents/Resources/codex`。
+- 如需在不替换当前主 app 的情况下重建 runtime，可用 `brew fetch --cask chatgpt` 下载官方包，解压到 `/tmp/chatgpt-codex-source/ChatGPT.app` 后作为 `MAIN_APP` 克隆来源。
