@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BI排期文档</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --accent: #0d9488;
+      --border: #d9dee7;
+      --header: #4472c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .page { width: 100%; min-width: 1680px; margin: 0 auto; }
+    .header-card {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+    }
+    h1 { margin: 0; font-size: 22px; line-height: 1.25; color: #0f172a; }
+    .meta { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(13, 148, 136, .28);
+      border-radius: 999px;
+      color: var(--accent);
+      background: #ecfdf5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .table-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      overflow: hidden;
+    }
+    .table-wrap { overflow: auto; max-height: calc(100vh - 150px); }
+    table {
+      width: max-content;
+      min-width: 2030px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 13px;
+    }
+    col:nth-child(1) { min-width: 360px; }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      vertical-align: middle;
+      background-clip: padding-box;
+    }
+    th { background: var(--header); color: #fff; font-weight: 700; text-align: center; }
+    tbody tr:hover td { box-shadow: inset 0 0 0 9999px rgba(13, 148, 136, .045); }
+    .note { margin-top: 10px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="header-card">
+      <div>
+        <h1>BI排期文档</h1>
+        <div class="meta">来源：BI四期排期.xlsx；Sheet：Sheet1；共 33 条排期行；生成时间：2026-08-05 11:58</div>
+      </div>
+      <span class="pill">宽版表格 / 保留 Excel 合并单元格</span>
+    </section>
+    <section class="table-card">
+      <div class="table-wrap">
+        <table aria-label="BI排期表">
+          <colgroup>
+        <col style="width:530px">
+        <col style="width:232px">
+        <col style="width:582px">
+        <col style="width:195px">
+        <col style="width:137px">
+        <col style="width:228px">
+        <col style="width:136px">
+        <col style="width:130px">
+        <col style="width:195px">
+          </colgroup>
+          <tbody>
+    <tr style="height:25px">
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">--</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">模块</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">子任务</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">工时(天)</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">负责人</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">开始时间</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">实际结束日期</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">是否已交付</th>
+      <th style="background:#4472C4;font-weight:700;text-align:center;vertical-align:middle;position:sticky;top:0;z-index:5">备注</th>
+    </tr>
+    <tr style="height:25px">
+      <td rowspan="6" style="background:#E4EDDB;text-align:center;vertical-align:middle">需求一：账号维护<br>（Tiktok内容中台-1.0）</td>
+      <td rowspan="3" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">表结构设计、逻辑梳理</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-09</td>
+      <td style="vertical-align:middle">2026-07-10</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle">软着：3天</td>
+    </tr>
+    <tr style="height:72px">
+      <td style="text-align:center;vertical-align:middle">数仓逻辑计算（数据入仓、清洗、计算、汇总）</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-13</td>
+      <td style="vertical-align:middle">2026-07-14</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:123px">
+      <td style="text-align:center;vertical-align:middle">后端接口功能开发（15个）<br>1、全部账号：1列表、1导入、1导出、1新增账号、1统计接口<br>1、渠道号：1列表、1导入、1导出、1编辑<br>1、达人账号：1列表、1导入、1导出、1编辑<br>1、tap机构号：1列表、1导入、1导出</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-15</td>
+      <td style="vertical-align:middle">2026-07-16</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:25px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">4个页面</td>
+      <td style="text-align:center;vertical-align:middle">3.5</td>
+      <td style="vertical-align:middle">凯平</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:25px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-07-17</td>
+      <td style="vertical-align:middle">2026-07-17</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:51px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">上线部署 + 数据验证</td>
+      <td style="text-align:center;vertical-align:middle">上线部署 + 数据验证</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="vertical-align:middle"></td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-20</td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-20</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td rowspan="5" style="background:#DFEBF6;text-align:center;vertical-align:middle">需求二：商品档案<br>（（Tiktok内容中台-1.0））</td>
+      <td rowspan="3" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">表结构设计、逻辑梳理</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-21</td>
+      <td style="vertical-align:middle">2026-07-21</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td style="text-align:center;vertical-align:middle">数仓逻辑计算（数据入仓、清洗、计算、汇总）</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-22</td>
+      <td style="vertical-align:middle">2026-07-23</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:98px">
+      <td style="text-align:center;vertical-align:middle">后端接口功能开发（14个）<br>1、spu看板：1列表、1导出、1分页、1下钻<br>2、pid看板：3列表、1分页、1导出、1编辑、1下钻<br>3、sku看板：1列表、1分页、1导出</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-24</td>
+      <td style="vertical-align:middle">2026-07-27</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:54px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">3个页面</td>
+      <td style="text-align:center;vertical-align:middle">3.5</td>
+      <td style="vertical-align:middle">凯平</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="vertical-align:middle"></td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-28</td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-28</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:39px">
+      <td rowspan="3" style="background:#E4EDDB;text-align:center;vertical-align:middle">需求三：商品统计的sku看板<br>（TikTok销售看板-1.3）</td>
+      <td rowspan="2" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">数仓逻辑计算（数据入仓、清洗、计算、汇总）</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td></td>
+      <td style="vertical-align:middle">2026-07-29</td>
+      <td style="vertical-align:middle">2026-07-29</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:64px">
+      <td style="text-align:center;vertical-align:middle">后端接口功能开发<br>（商品统计的sku看板）</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td></td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-30</td>
+      <td style="background:#FCC102;vertical-align:middle">2026-07-31</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:52px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">3个页面</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="vertical-align:middle">凯平</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:39px">
+      <td rowspan="3" style="background:#DFEBF6;text-align:center;vertical-align:middle">需求4：库存模块<br>（TikTok库存看板-1.0.1）</td>
+      <td rowspan="2" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">发补货看板--增加备货模型（spu）</td>
+      <td rowspan="2" style="text-align:center;vertical-align:middle">4</td>
+      <td></td>
+      <td rowspan="3" style="background:#FCC102;vertical-align:middle">2026-08-03</td>
+      <td rowspan="3" style="background:#FCC102;vertical-align:middle">2026-08-06</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:64px">
+      <td style="text-align:center;vertical-align:middle">发补货看板--增加发货模型（spu）</td>
+      <td></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">2个页面</td>
+      <td style="text-align:center;vertical-align:middle">3</td>
+      <td style="vertical-align:middle">凯平</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:39px">
+      <td rowspan="14" style="background:#E4EDDB;text-align:center;vertical-align:middle">需求五：寄样管理+视频数据<br>（Tiktok内容中台-1.1）<br>合计工期：13.5天</td>
+      <td rowspan="4" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">需求细节梳理</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-10</td>
+      <td style="vertical-align:middle">2026-08-10</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:39px">
+      <td style="text-align:center;vertical-align:middle">表结构设计、逻辑梳理</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-11</td>
+      <td style="vertical-align:middle">2026-08-12</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td style="text-align:center;vertical-align:middle">数仓逻辑计算（数据入仓、清洗、计算、汇总）</td>
+      <td style="text-align:center;vertical-align:middle">3</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-13</td>
+      <td style="vertical-align:middle">2026-08-17</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:170px">
+      <td style="text-align:center;vertical-align:middle">后端接口功能开发（18个）<br>1、寄样管理：1列表、1详情、1新增、1编辑、1删除、1导出<br>2、视频数据-全部视频：1列表、1详情<br>3、视频数据-联盟视频：1列表、1详情、1编辑保存<br>4、视频数据-自制视频：1列表、1详情、1编辑保存<br>5、维护视频数据：1列表、1商品信息保存<br>6、视频数据导出：1导出<br>7、筛选条件下拉：1公共下拉接口（可共用）</td>
+      <td style="text-align:center;vertical-align:middle">3</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-18</td>
+      <td style="vertical-align:middle">2026-08-20</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td rowspan="6" style="color:#000000;text-align:center;vertical-align:middle">额外小需求</td>
+      <td style="text-align:center;vertical-align:middle">每个板块的数据更新时间，旁边标记多久更新一次</td>
+      <td style="text-align:center;vertical-align:middle">0.25</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">商品统计增加销售分析按钮，可直接跳转到 PID 页面</td>
+      <td style="text-align:center;vertical-align:middle">0</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">PID 看板增加字段悬浮展示</td>
+      <td style="text-align:center;vertical-align:middle">0.25</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">商品统计两个栏目增加销售额展示</td>
+      <td style="text-align:center;vertical-align:middle">0.5</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="vertical-align:middle">2026-08-21</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">商品统计增加是否广告投入</td>
+      <td style="text-align:center;vertical-align:middle">0.25</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-24</td>
+      <td style="vertical-align:middle">2026-08-24</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">发补货看板增加预计断货日期，= 店铺侧被同步的总库存 / 加权日均</td>
+      <td style="text-align:center;vertical-align:middle">0.25</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-24</td>
+      <td style="vertical-align:middle">2026-08-24</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">3个页面</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">凯平</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-25</td>
+      <td style="vertical-align:middle">2026-08-25</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">上线部署</td>
+      <td style="text-align:center;vertical-align:middle">上线部署</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-26</td>
+      <td style="vertical-align:middle">2026-08-26</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">数据验证</td>
+      <td style="text-align:center;vertical-align:middle">数据验证</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-27</td>
+      <td style="vertical-align:middle">2026-08-27</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:39px">
+      <td rowspan="11" style="background:#DFEBF6;text-align:center;vertical-align:middle">需求六：联盟订单<br>（Tiktok内容中台-1.2）<br>合计工期：9.5天</td>
+      <td rowspan="4" style="color:#000000;text-align:center;vertical-align:middle">后端开发</td>
+      <td style="text-align:center;vertical-align:middle">需求细节梳理</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-08-31</td>
+      <td style="vertical-align:middle">2026-08-31</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle">风险点：涉及到 RPA 的新开发和调整，第三方的控件实现，存在适当风险，上线时间为预期时间</td>
+    </tr>
+    <tr style="height:39px">
+      <td style="text-align:center;vertical-align:middle">表结构设计、逻辑梳理</td>
+      <td style="text-align:center;vertical-align:middle">0.5</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-01</td>
+      <td style="vertical-align:middle">2026-09-01</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td style="text-align:center;vertical-align:middle">数仓逻辑计算（数据入仓、清洗、计算、汇总）</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-01</td>
+      <td style="vertical-align:middle">2026-09-02</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:130px">
+      <td style="text-align:center;vertical-align:middle">后端接口功能开发（13个）<br>1、联盟订单：1列表、1详情、1便捷字段保存、1导出<br>2、机构订单：1列表、1详情、1便捷字段保存、1导出<br>3、商家订单：1列表、1详情、1便捷字段保存、1导出<br>4、筛选条件下拉：1公共下拉接口（可共用）</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-02</td>
+      <td style="vertical-align:middle">2026-09-04</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:72px">
+      <td rowspan="3" style="color:#000000;text-align:center;vertical-align:middle">额外小需求</td>
+      <td style="text-align:center;vertical-align:middle">PID 和广告数据拉取策略调整：当前每天 8 点拉取第二天数据；需调整为每天 8 点拉取前 2 天和当天数据，每天 16:30 单独拉取前一天数据（美区前一天），用于获取当前时刻的数据情况</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle">小鹏</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="text-align:center;vertical-align:middle">联盟订单的 RPA 数据拉取</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle">小鹏</td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:56px">
+      <td style="text-align:center;vertical-align:middle">PID 或 SKU 的退款率重新计算，涉及拉取退款数据并进行数据计算</td>
+      <td style="text-align:center;vertical-align:middle">2</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-07</td>
+      <td style="vertical-align:middle">2026-09-08</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">前端开发</td>
+      <td style="text-align:center;vertical-align:middle">1个页面</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="vertical-align:middle"></td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">联调测试</td>
+      <td style="text-align:center;vertical-align:middle">1.5</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-09</td>
+      <td style="vertical-align:middle">2026-09-10</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">上线部署</td>
+      <td style="text-align:center;vertical-align:middle">上线部署</td>
+      <td style="text-align:center;vertical-align:middle">0.5</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-11</td>
+      <td style="vertical-align:middle">2026-09-11</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+    <tr style="height:40px">
+      <td style="color:#000000;text-align:center;vertical-align:middle">数据验证</td>
+      <td style="text-align:center;vertical-align:middle">数据验证</td>
+      <td style="text-align:center;vertical-align:middle">1</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="vertical-align:middle">2026-09-11</td>
+      <td style="vertical-align:middle">2026-09-14</td>
+      <td style="text-align:center;vertical-align:middle"></td>
+      <td style="font-weight:700;text-align:center;vertical-align:middle"></td>
+    </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <div class="note">说明：已尽量按 Excel 原始表格导入数据、颜色、合并单元格、换行和日期格式；已自动忽略 Excel 尾部仅包含样式的空白行。</div>
+  </main>
+</body>
+</html>

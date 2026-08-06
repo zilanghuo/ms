@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TK 看板 MCP 使用说明</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --accent: #0d9488;
+      --border: #e5e7eb;
+      --header-bg: #f8fafc;
+      --code-bg: #0f172a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .container { max-width: 1180px; margin: 0 auto; }
+    .doc-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px 28px;
+      margin-bottom: 16px;
+    }
+    h1 { margin: 0 0 8px; color: #0f172a; font-size: 24px; line-height: 1.25; }
+    h2 { margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); color: #0f172a; font-size: 18px; }
+    h3 { margin: 20px 0 10px; color: #334155; font-size: 15px; }
+    p { margin: 8px 0; }
+    ul { margin: 8px 0 0; padding-left: 22px; }
+    li { margin: 3px 0; }
+    .subtle { color: var(--muted); }
+    .notice {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      background: #eff6ff;
+      color: #1e3a8a;
+    }
+    .grid-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .mini-card { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: #fff; }
+    .mini-title { margin: 0 0 6px; color: #0f172a; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 18px; font-size: 13px; }
+    th, td { border: 1px solid var(--border); padding: 9px 11px; text-align: left; vertical-align: top; }
+    th { background: var(--header-bg); color: #334155; font-weight: 700; }
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #f1f5f9;
+      color: #0f172a;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+    pre {
+      margin: 10px 0 18px;
+      padding: 14px 16px;
+      overflow: auto;
+      border-radius: 8px;
+      background: var(--code-bg);
+      color: #e2e8f0;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    pre code { padding: 0; background: transparent; color: inherit; }
+    .section-index { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .section-index a {
+      display: inline-flex;
+      align-items: center;
+      height: 30px;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      background: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    @media (max-width: 820px) {
+      body { padding: 16px; }
+      .doc-card { padding: 18px; }
+      .grid-two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="doc-card">
+      <h1>TK 看板 MCP 使用说明</h1>
+      <p class="subtle">用于让 AI 助手通过标准 MCP 协议查询 TK 看板相关数据。当前仅开放只读查询能力。</p>
+      <div class="notice">安全说明：访问 Token 由技术侧单独发放与维护，本 HTML 文档不重复存放明文 Token。</div>
+      <nav class="section-index" aria-label="章节导航">
+        <a href="#scope">功能边界</a>
+        <a href="#endpoint">接入地址</a>
+        <a href="#tools">可用工具</a>
+        <a href="#rpc">调用格式</a>
+        <a href="#examples">查询示例</a>
+        <a href="#params">参数说明</a>
+        <a href="#limit">限流说明</a>
+        <a href="#response">返回说明</a>
+        <a href="#config">启用配置</a>
+      </nav>
+    </section>
+
+    <section class="doc-card" id="scope">
+      <h2>1. 功能说明</h2>
+      <p>TK 看板 MCP 用于让 AI 助手通过标准 MCP 协议查询 TK 看板相关数据。</p>
+      <p>当前仅开放只读查询能力，不支持导出、维护更新、企业微信播报、AI SSE 流式分析、补数任务等会产生文件、外部通知或数据变更的操作。</p>
+      <div class="grid-two">
+        <div class="mini-card">
+          <p class="mini-title">适用场景</p>
+          <ul>
+            <li>查询 PID / SPU 数据看板</li>
+            <li>查询 PID / SPU 趋势明细</li>
+            <li>查询 PID 与主推 SPU 维护列表</li>
+            <li>查询商品统计、SKU 看板、SKU 销量明细、SPU 维度商品统计</li>
+            <li>查询店铺统计</li>
+            <li>查询站点、店铺、货币下拉选项</li>
+            <li>查询各看板最新数据时间</li>
+          </ul>
+        </div>
+        <div class="mini-card">
+          <p class="mini-title">不开放场景</p>
+          <ul>
+            <li>Excel 文件导出</li>
+            <li>企业微信播报</li>
+            <li>AI SSE 流式分析</li>
+            <li>PID 与主推 SPU 更新</li>
+            <li>补数、同步、维护任务</li>
+            <li>批量高频导数</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="doc-card" id="endpoint">
+      <h2>2. 接入地址</h2>
+      <p>服务器地址：</p>
+      <pre><code>http://124.71.39.91:9210</code></pre>
+      <p>完整请求地址：</p>
+      <pre><code>POST http://124.71.39.91:9210/mcp/tk</code></pre>
+      <p>接口路径：</p>
+      <pre><code>POST /mcp/tk</code></pre>
+      <p>请求头：</p>
+      <pre><code>X-MCP-Token: &lt;由技术侧发放的 MCP Token&gt;
+Content-Type: application/json</code></pre>
+      <ul>
+        <li>MCP 默认关闭，需技术侧配置开启。</li>
+        <li>未携带 <code>X-MCP-Token</code> 或 Token 错误、禁用、过期时，会拒绝访问。</li>
+        <li>当前仅支持 JSON-RPC POST 调用，不支持 GET / SSE 流式连接。</li>
+      </ul>
+    </section>
+
+    <section class="doc-card" id="tools">
+      <h2>3. 可用工具</h2>
+      <h3>3.1 PID 数据看板</h3>
+      <table>
+        <thead><tr><th>工具名</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>tk_pid_data_latest_time</code></td><td>查询 PID 数据看板最新数据时间</td></tr>
+          <tr><td><code>tk_pid_dashboard_query</code></td><td>查询 PID 明细看板列表</td></tr>
+          <tr><td><code>tk_spu_dashboard_query</code></td><td>查询 SPU 汇总看板列表</td></tr>
+          <tr><td><code>tk_pid_detail_query</code></td><td>查询 PID 趋势明细</td></tr>
+          <tr><td><code>tk_spu_detail_query</code></td><td>查询 SPU 趋势明细</td></tr>
+          <tr><td><code>tk_pid_main_spu_mapping_list</code></td><td>查询 PID 与主推 SPU 维护列表</td></tr>
+        </tbody>
+      </table>
+      <h3>3.2 商品统计</h3>
+      <table>
+        <thead><tr><th>工具名</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>tk_product_data_latest_time</code></td><td>查询商品统计最新数据时间</td></tr>
+          <tr><td><code>tk_product_stats_query</code></td><td>查询商品统计列表</td></tr>
+          <tr><td><code>tk_product_sku_stats_query</code></td><td>查询 SKU 看板列表</td></tr>
+          <tr><td><code>tk_product_sku_sales_detail_query</code></td><td>查询 SKU 销量明细</td></tr>
+          <tr><td><code>tk_product_spu_stats_query</code></td><td>查询商品统计 SPU 维度汇总</td></tr>
+          <tr><td><code>tk_product_spu_overall_analysis</code></td><td>查询商品统计 SPU 维度整体数据分析</td></tr>
+        </tbody>
+      </table>
+      <h3>3.3 店铺统计</h3>
+      <table>
+        <thead><tr><th>工具名</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>tk_store_data_latest_time</code></td><td>查询店铺统计最新数据时间</td></tr>
+          <tr><td><code>tk_store_stats_query</code></td><td>查询店铺统计列表</td></tr>
+        </tbody>
+      </table>
+      <h3>3.4 下拉选项</h3>
+      <table>
+        <thead><tr><th>工具名</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><code>tk_options_sites_query</code></td><td>查询站点级联选项</td></tr>
+          <tr><td><code>tk_options_stores_query</code></td><td>查询店铺下拉列表，可按站点代码筛选</td></tr>
+          <tr><td><code>tk_options_currencies_query</code></td><td>查询货币下拉选项</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-card" id="rpc">
+      <h2>4. JSON-RPC 调用格式</h2>
+      <p>查询工具列表：</p>
+      <pre><code>{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list",
+  "params": {}
+}</code></pre>
+      <p>调用工具：</p>
+      <pre><code>{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/call",
+  "params": {
+    "name": "tk_product_stats_query",
+    "arguments": {
+      "storeName": "xxx店铺",
+      "startDate": "2026-07-01",
+      "endDate": "2026-07-15",
+      "gran": "day",
+      "searchField": "spu",
+      "exactSearchKeyword": "SPU001,SPU002",
+      "page": 1,
+      "pageSize": 20
+    }
+  }
+}</code></pre>
+    </section>
+
+    <section class="doc-card" id="examples">
+      <h2>5. 常用查询示例</h2>
+      <h3>5.1 查询 PID 看板</h3>
+      <p>工具名：<code>tk_pid_dashboard_query</code></p>
+      <pre><code>{
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-15",
+  "storeName": "xxx店铺",
+  "searchField": "pid",
+  "exactSearchKeyword": "PID001,PID002",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+      <h3>5.2 查询商品统计</h3>
+      <p>工具名：<code>tk_product_stats_query</code></p>
+      <pre><code>{
+  "storeName": "xxx店铺",
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-15",
+  "gran": "day",
+  "searchField": "spu",
+  "searchKeyword": "SPU001",
+  "page": 1,
+  "pageSize": 20
+}</code></pre>
+      <h3>5.3 查询 SKU 销量明细</h3>
+      <p>工具名：<code>tk_product_sku_sales_detail_query</code></p>
+      <pre><code>{
+  "storeName": "xxx店铺",
+  "spu": "SPU001",
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-15"
+}</code></pre>
+      <h3>5.4 查询商品统计 SPU 维度汇总</h3>
+      <p>工具名：<code>tk_product_spu_stats_query</code></p>
+      <pre><code>{
+  "storeName": "xxx店铺",
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-15",
+  "gran": "day",
+  "exactSearchKeyword": "SPU001,SPU002"
+}</code></pre>
+      <h3>5.5 查询店铺统计</h3>
+      <p>工具名：<code>tk_store_stats_query</code></p>
+      <pre><code>{
+  "metric": "amount",
+  "storeName": "xxx店铺",
+  "startDate": "2026-07-01",
+  "endDate": "2026-07-15",
+  "gran": "day",
+  "displayCurrency": "CNY",
+  "minAmount": 1000
+}</code></pre>
+      <h3>5.6 查询店铺下拉列表</h3>
+      <p>工具名：<code>tk_options_stores_query</code></p>
+      <pre><code>{
+  "siteCode": "US"
+}</code></pre>
+      <ul>
+        <li><code>siteCode</code> 不传或为空时返回全部店铺。</li>
+        <li>如需先获取站点代码，可调用 <code>tk_options_sites_query</code>。</li>
+      </ul>
+    </section>
+
+    <section class="doc-card" id="params">
+      <h2>6. 参数说明</h2>
+      <table>
+        <thead><tr><th>参数</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>startDate</code></td><td>开始日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td><code>endDate</code></td><td>结束日期，格式 <code>YYYY-MM-DD</code></td></tr>
+          <tr><td><code>storeName</code></td><td>店铺名称</td></tr>
+          <tr><td><code>storeNames</code></td><td>多店铺名称列表，适用于 SPU 维度商品统计</td></tr>
+          <tr><td><code>siteName</code></td><td>站点名称，可选；用于站点下拉模糊匹配</td></tr>
+          <tr><td><code>siteCode</code></td><td>站点代码，可选；用于店铺下拉筛选</td></tr>
+          <tr><td><code>metric</code></td><td>店铺统计指标，<code>qty</code> = 销量，<code>amount</code> = 销售额</td></tr>
+          <tr><td><code>displayCurrency</code></td><td>销售额展示币种，空或 <code>original</code> 表示原币</td></tr>
+          <tr><td><code>minAmount</code></td><td>销售额最低额过滤</td></tr>
+          <tr><td><code>gran</code></td><td>日期粒度，支持 <code>day</code> / <code>week</code> / <code>month</code> / <code>quarter</code> / <code>year</code></td></tr>
+          <tr><td><code>searchField</code></td><td>搜索字段，商品统计支持 <code>spu</code> / <code>pid</code> / <code>sku</code>，PID 看板支持 <code>pid</code> / <code>spu</code></td></tr>
+          <tr><td><code>searchKeyword</code></td><td>模糊搜索关键词</td></tr>
+          <tr><td><code>exactSearchKeyword</code></td><td>精确搜索关键词，多个值用英文逗号分隔</td></tr>
+          <tr><td><code>pid</code></td><td>PID</td></tr>
+          <tr><td><code>spu</code></td><td>SPU</td></tr>
+          <tr><td><code>mainSpu</code></td><td>主推 SPU</td></tr>
+          <tr><td><code>mainSpuConfigured</code></td><td>主推 SPU 是否已配置，空 = 全部，<code>true</code> = 已配置，<code>false</code> = 未配置</td></tr>
+          <tr><td><code>page</code></td><td>页码，从 1 开始</td></tr>
+          <tr><td><code>pageSize</code></td><td>每页条数</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-card" id="limit">
+      <h2>7. 限流说明</h2>
+      <p>为避免影响 BI 服务和 Doris 查询，MCP 接口启用了单机限流。</p>
+      <table>
+        <thead><tr><th>限制项</th><th>默认值</th></tr></thead>
+        <tbody>
+          <tr><td>全局 QPS</td><td>5</td></tr>
+          <tr><td>单个工具 QPS</td><td>2</td></tr>
+          <tr><td>最大并发查询</td><td>3</td></tr>
+          <tr><td>单次请求体最大值</td><td>64KB</td></tr>
+        </tbody>
+      </table>
+      <p>如果请求过快，会返回 MCP JSON-RPC 错误：</p>
+      <pre><code>{
+  "error": {
+    "code": -32001,
+    "message": "Rate limit exceeded"
+  }
+}</code></pre>
+      <p>业务侧遇到该错误时，稍后重试即可。</p>
+    </section>
+
+    <section class="doc-card" id="response">
+      <h2>8. 返回说明</h2>
+      <p>MCP 返回内容中会包含原 BI 接口响应 JSON。</p>
+      <h3>正常返回重点字段</h3>
+      <table>
+        <thead><tr><th>字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>code</code></td><td>原 BI 接口状态码，<code>200</code> 表示成功</td></tr>
+          <tr><td><code>msg</code></td><td>原 BI 接口提示信息</td></tr>
+          <tr><td><code>data</code></td><td>实际业务数据</td></tr>
+        </tbody>
+      </table>
+      <h3>异常返回重点字段</h3>
+      <table>
+        <thead><tr><th>字段</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>error.code</code></td><td>MCP 错误码</td></tr>
+          <tr><td><code>error.message</code></td><td>MCP 错误说明</td></tr>
+          <tr><td><code>error.data</code></td><td>错误补充信息，可能为空</td></tr>
+        </tbody>
+      </table>
+      <h3>常见错误</h3>
+      <table>
+        <thead><tr><th>错误码</th><th>含义</th></tr></thead>
+        <tbody>
+          <tr><td><code>-32601</code></td><td>MCP 方法不存在</td></tr>
+          <tr><td><code>-32602</code></td><td>参数错误或工具不存在</td></tr>
+          <tr><td><code>-32000</code></td><td>工具执行失败</td></tr>
+          <tr><td><code>-32001</code></td><td>触发限流</td></tr>
+          <tr><td><code>-32002</code></td><td>请求体过大</td></tr>
+          <tr><td><code>-32003</code></td><td>Token 缺失、错误、禁用或过期</td></tr>
+          <tr><td><code>-32004</code></td><td>MCP 未开启</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-card">
+      <h2>9. 使用边界</h2>
+      <p>这套 MCP 是给 AI 助手代查 TK 看板数据用的，不是替代前端页面，也不是批量导数接口。</p>
+      <ul>
+        <li>只用于查询分析，不用于更新业务数据。</li>
+        <li>不建议大范围、长周期、高频率拉取数据。</li>
+        <li>如需正式下载 Excel，请继续使用原系统导出功能。</li>
+        <li>如需开放更新、导出、播报、AI 分析等能力，需要单独评估权限和风控。</li>
+      </ul>
+    </section>
+
+    <section class="doc-card" id="config">
+      <h2>10. 技术侧启用配置</h2>
+      <p>技术侧可按需开启 MCP：</p>
+      <pre><code>mcp:
+  tk:
+    enabled: true
+    tokens:
+      - name: bi-assistant
+        token: your-token
+        enabled: true
+        expire-at: "2026-12-31 23:59:59"
+        remark: "BI 助手查询 TK 看板使用"
+    max-request-bytes: 65536
+    rate-limit:
+      enabled: true
+      global-qps: 5
+      tool-qps: 2
+      max-concurrent: 3
+      window-seconds: 1</code></pre>
+      <table>
+        <thead><tr><th>配置</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>mcp.tk.enabled</code></td><td>是否开启 TK MCP，默认关闭</td></tr>
+          <tr><td><code>mcp.tk.tokens[].name</code></td><td>Token 名称</td></tr>
+          <tr><td><code>mcp.tk.tokens[].token</code></td><td>MCP 访问 Token</td></tr>
+          <tr><td><code>mcp.tk.tokens[].enabled</code></td><td>当前 Token 是否启用</td></tr>
+          <tr><td><code>mcp.tk.tokens[].expire-at</code></td><td>当前 Token 过期时间，格式 <code>yyyy-MM-dd HH:mm:ss</code>，为空表示不过期</td></tr>
+          <tr><td><code>mcp.tk.tokens[].remark</code></td><td>Token 备注</td></tr>
+          <tr><td><code>mcp.tk.max-request-bytes</code></td><td>单次请求体大小限制</td></tr>
+          <tr><td><code>mcp.tk.rate-limit.enabled</code></td><td>是否开启单机限流</td></tr>
+          <tr><td><code>mcp.tk.rate-limit.global-qps</code></td><td>全局 QPS 限制</td></tr>
+          <tr><td><code>mcp.tk.rate-limit.tool-qps</code></td><td>单个工具 QPS 限制</td></tr>
+          <tr><td><code>mcp.tk.rate-limit.max-concurrent</code></td><td>最大并发工具调用数</td></tr>
+          <tr><td><code>mcp.tk.rate-limit.window-seconds</code></td><td>限流统计窗口，单位秒</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

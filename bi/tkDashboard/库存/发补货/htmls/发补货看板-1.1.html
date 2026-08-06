@@ -62,6 +62,7 @@
     .query-card { padding: 1rem 1.25rem; margin-bottom: 1rem; }
     .query-row { display: flex; flex-wrap: wrap; gap: 0.75rem 1.25rem; align-items: center; }
     .query-item { display: flex; align-items: center; gap: 0.35rem; }
+    .query-item.hidden { display: none; }
     .query-item .label { color: var(--text); font-size: 0.9rem; white-space: nowrap; }
     .query-item input[type="date"], .query-item input[type="text"], .query-item select {
       border: 1px solid var(--input-border);
@@ -1200,7 +1201,7 @@
             <option>下降期</option>
           </select>
         </div>
-        <div class="query-item">
+        <div class="query-item" data-sku-filter="true">
           <span class="label">SKU分层</span>
           <select>
             <option>全部分层</option>
@@ -1228,7 +1229,7 @@
         </div>
         <div class="query-item search-query-item">
           <span class="label">搜索</span>
-          <select class="search-field-select"><option>SPU</option><option>库存SKU</option><option>PID</option><option>MSKU</option></select>
+          <select class="search-field-select"><option data-level="spu">SPU</option><option data-level="sku">库存SKU</option><option data-level="product">PID</option><option data-level="sku">MSKU</option></select>
           <select class="search-mode-select"><option>模糊搜索</option><option>精确搜索</option></select>
           <input type="text" class="search-fuzzy-input" placeholder="请输入" />
         </div>
@@ -2257,8 +2258,15 @@
     </section>
 
     <div class="mini-note">
-      <strong>说明：</strong><br />
-      本版栏目拆分为：库存看板、备货模型（SKU）、备货模型（SPU）、发货模型（SKU）、发货模型（SPU）。SKU 栏目保留明细粒度与行级操作；SPU 栏目用于汇总展示同一 SPU 下的 SKU 数量、建议数量、风险和优先级。
+      <strong>说明：</strong>
+      <ol>
+        <li>本版栏目拆分为：库存看板、备货模型（SKU）、备货模型（SPU）、发货模型（SKU）、发货模型（SPU）。</li>
+        <li>备货模型（SKU）、发货模型（SKU）已经存在，为原来的栏目。</li>
+        <li>备货模型（SPU）、发货模型（SPU）为本次新增功能。</li>
+        <li>SKU 栏目保留明细粒度与行级操作。</li>
+        <li>SPU 栏目用于汇总展示同一 SPU 下的 SKU 数量、建议数量、风险和优先级。</li>
+        <li>SPU 栏目筛选条件仅保留 SPU 聚合层级可用条件，不展示 SKU 分层、库存 SKU、MSKU 等 SKU 层级筛选。</li>
+      </ol>
     </div>
 
     <p class="back"><a href="../需求文档.html">查看需求文档</a></p>
@@ -2652,13 +2660,34 @@
     (function() {
       var tabs = Array.prototype.slice.call(document.querySelectorAll('#moduleTabs .tab'));
       var panels = Array.prototype.slice.call(document.querySelectorAll('.view-panel'));
+      var skuLevelFilters = Array.prototype.slice.call(document.querySelectorAll('[data-sku-filter="true"]'));
+      var mainSearchFieldSelect = document.querySelector('.query-card .search-field-select');
+
+      function updateFiltersForModule(target) {
+        var isSpuModule = target === 'view-module-3' || target === 'view-module-5';
+        skuLevelFilters.forEach(function(item) {
+          item.classList.toggle('hidden', isSpuModule);
+        });
+        if (mainSearchFieldSelect) {
+          Array.prototype.slice.call(mainSearchFieldSelect.options).forEach(function(option) {
+            option.hidden = isSpuModule && option.getAttribute('data-level') !== 'spu';
+          });
+          if (isSpuModule) {
+            mainSearchFieldSelect.value = 'SPU';
+          }
+        }
+      }
+
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
           var target = tab.getAttribute('data-target');
           tabs.forEach(function(item) { item.classList.toggle('active', item === tab); });
           panels.forEach(function(panel) { panel.classList.toggle('active', panel.id === target); });
+          updateFiltersForModule(target);
         });
       });
+      var activeTab = document.querySelector('#moduleTabs .tab.active');
+      if (activeTab) updateFiltersForModule(activeTab.getAttribute('data-target'));
       var tooltip = document.getElementById('fieldTooltip');
       Array.prototype.slice.call(document.querySelectorAll('.field-help')).forEach(function(el) {
         el.addEventListener('mouseenter', function() {

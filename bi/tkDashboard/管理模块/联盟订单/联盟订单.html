@@ -10,7 +10,8 @@
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; margin: 0; padding: 1.5rem; font-size: 14px; }
     .container { max-width: 100%; margin: 0 auto; }
     .tabs { display: inline-flex; border: 1px solid var(--accent); border-radius: 4px; overflow: hidden; margin-bottom: 1rem; }
-    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: default; background: #fff; color: var(--accent); border: none; }
+    .tab { padding: 0.45rem 0.85rem; font-size: 0.88rem; cursor: pointer; background: #fff; color: var(--accent); border: none; border-right: 1px solid var(--accent); font-family: inherit; }
+    .tab:last-child { border-right: none; }
     .tab.active { background: var(--accent); color: #fff; }
     .metric-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
     .metric-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; display: flex; align-items: center; gap: 0.85rem; min-height: 78px; }
@@ -44,7 +45,7 @@
     .right-tools { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2180px; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2240px; table-layout: fixed; }
     th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
     tbody tr:hover td { background: #f9fafb; }
@@ -61,7 +62,7 @@
     .w-shop { width: 130px; }
     .w-small { width: 92px; }
     .w-status { width: 105px; }
-    .w-owner { width: 120px; }
+    .w-owner { width: 132px; }
     .w-code { width: 130px; }
     .w-color { width: 120px; }
     .w-op { width: 74px; text-align: center; }
@@ -69,7 +70,7 @@
     .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 52px; height: 22px; padding: 0 8px; border-radius: 6px; font-size: 12px; font-weight: 700; }
     .badge-open { color: var(--success); background: #dcfce7; border: 1px solid #bbf7d0; }
     .muted { color: #a0aec0; }
-    .select-pill { width: 82px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: #94a3b8; padding: 0 8px; }
+    .select-pill { width: 106px; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: #334155; padding: 0 8px; }
     .editable { color: #a0aec0; cursor: pointer; }
     .editable:hover { color: var(--accent); }
     .video-url { color: var(--accent); text-decoration: none; }
@@ -113,8 +114,9 @@
 </head>
 <body>
   <div class="container">
-    <div class="tabs" aria-label="视频类型导航">
-      <button class="tab active" type="button">联盟视频</button>
+    <div class="tabs" id="orderTabs" aria-label="订单栏目导航">
+      <button class="tab active" type="button" data-order-type="affiliate">联盟订单</button>
+      <button class="tab" type="button" data-order-type="agency">机构订单</button>
     </div>
 
     <section class="query-card">
@@ -125,9 +127,10 @@
         <div class="query-item"><select id="ownerFilter"><option value="">全部商务</option><option value="Alice Chen">Alice Chen</option><option value="Bob Wang">Bob Wang</option><option value="未分配">未分配</option></select></div>
         <div class="query-item search-query-item">
           <select class="search-field-select" id="searchField">
-            <option value="all">视频/达人/款号</option>
+            <option value="all">视频/达人/机构/款号</option>
             <option value="videoId">视频ID</option>
             <option value="account">达人账号</option>
+            <option value="agencyName">机构名称</option>
             <option value="style">视频款号</option>
             <option value="productId">Product ID</option>
           </select>
@@ -162,30 +165,7 @@
     <section class="table-card">
       <div class="table-wrap">
         <table>
-          <thead>
-            <tr>
-              <th class="w-check"><input type="checkbox" /></th>
-              <th class="w-index">#</th>
-              <th class="w-video">视频ID</th>
-              <th class="w-account">达人账号</th>
-              <th class="w-date">最早下单时间</th>
-              <th class="w-month">视频年月</th>
-              <th class="w-link">视频链接</th>
-              <th class="w-title">商品标题</th>
-              <th class="w-style">视频款号</th>
-              <th class="w-product">Product ID</th>
-              <th class="w-shop">挂车店铺</th>
-              <th class="w-small">播放量</th>
-              <th class="w-small">GMV($)</th>
-              <th class="w-small">订单数</th>
-              <th class="w-status">是否开单</th>
-              <th class="w-status">是否投放</th>
-              <th class="w-owner">归属商务</th>
-              <th class="w-code">授权码</th>
-              <th class="w-color">视频颜色</th>
-              <th class="w-op">操作</th>
-            </tr>
-          </thead>
+          <thead id="orderHead"></thead>
           <tbody id="orderRows"></tbody>
         </table>
       </div>
@@ -202,14 +182,16 @@
       <div class="content-note-section">
         <h3 class="content-note-subtitle">一、说明</h3>
         <ol>
-          <li>联盟订单页面用于汇总联盟视频维度的开单、订单、GMV、归属商务与授权码维护情况。</li>
+          <li>联盟订单页面用于汇总联盟订单、机构订单两个订单栏目下的开单、订单、GMV、归属商务与授权码维护情况。</li>
+          <li>列表需直接展示便捷维护字段：视频链接、归属商务、授权码、视频颜色；其中归属商务支持下拉调整，视频链接、授权码、视频颜色支持点击单元格快捷编辑。</li>
+          <li>机构订单列表参考联盟订单样式，但保留独立字段配置能力；后续如机构维度字段口径不同，可在对应栏目单独扩展列。</li>
           <li>页面风格、筛选区、表格和按钮体系保持与商品档案页面一致。</li>
         </ol>
       </div>
       <div class="content-note-section">
         <h3 class="content-note-subtitle">二、重新梳理后的准确逻辑</h3>
         <ol>
-          <li><strong>订单数据来源</strong>：订单来源为联盟订单的 RPA 导出数据。</li>
+          <li><strong>订单数据来源</strong>：联盟订单来源为联盟订单的 RPA 导出数据；机构订单可接入对应订单来源，页面先按同一列表样式承载。</li>
           <li><strong>与寄样 / 视频的关联逻辑</strong>：联盟订单与视频数据的关联逻辑，和寄样订单与视频数据的逻辑一致；通过达人信息与 PID 进行关联判断。</li>
           <li><strong>订单明细拆分</strong>：订单也可能按 SKU 维度拆分；如果一个订单包含多个 SKU，且对应多个 PID，则需要拆成多条明细记录，每条记录保留当前 SKU 对应的 PID。</li>
         </ol>
@@ -267,7 +249,13 @@
   <div class="toast" id="toast">操作成功</div>
 
   <script>
-    var orders = [
+    var activeOrderType = 'affiliate';
+    var orderTypeMeta = {
+      affiliate: { label: '联盟订单', emptyText: '暂无符合条件的联盟订单', exportText: '已生成联盟订单导出任务' },
+      agency: { label: '机构订单', emptyText: '暂无符合条件的机构订单', exportText: '已生成机构订单导出任务' }
+    };
+    var orderGroups = {
+      affiliate: [
       { videoId: '7587973237045349662', account: 'kai.didit', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Acid Washed Tee', style: 'AL-W0161-LHH-M', productId: '1730674849392267621', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
       { videoId: '7593295159740140813', account: 'kai.didit', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Oversized Acid washed Hoodie', style: 'AL-W5558-ZGH-M', productId: '1732020914348724581', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
       { videoId: '7628883233232424222', account: 'shealift', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-NYS-XS, AL-W0169-NYS-S', productId: '1729439482671567205', shop: '-', play: '-', gmv: '-', orderCount: 3, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
@@ -280,7 +268,13 @@
       { videoId: '7568240553389788446', account: 'legendarylavv', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Sweatshirt', style: 'AL-W0161-QF-S', productId: '1731077240963502437', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
       { videoId: '7562313546797780238', account: 'aalanuhhh', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-LL-L', productId: '1729439482671567205', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' },
       { videoId: '7589149938131520781', account: 'faiable.collectio', firstOrder: '2026/5/15', month: '2026年5月', link: '填写链接', title: 'FAIABLE Unisex Oversized Acid Washed Tee', style: 'AL-W0161-HS-L', productId: '1730674849392267621', shop: '-', play: '-', gmv: '-', orderCount: 1, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: '点击编辑' }
-    ];
+      ],
+      agency: [
+        { videoId: 'AG762500000000001', account: 'fashion.creatorhub', agencyName: 'Creator Hub US', firstOrder: '2026/5/16', month: '2026年5月', link: '填写链接', title: 'FAIABLE Oversized Acid Washed Sweatshirt', style: 'AL-W5558-LAV-M', productId: '1732020914348724581', shop: 'Faiable Fashion', play: '18,230', gmv: '$1,284.20', orderCount: 18, opened: '已开单', launch: '已投放', owner: 'Alice Chen', code: 'AG-AUTH-001', color: 'Lavender' },
+        { videoId: 'AG762500000000002', account: 'dailyfit.media', agencyName: 'DailyFit Agency', firstOrder: '2026/5/17', month: '2026年5月', link: '填写链接', title: 'FAIABLE FADE CRAFT Unisex Casual Tee', style: 'AL-W0169-BLK-L', productId: '1729439482671567205', shop: 'Faiable Days', play: '9,840', gmv: '$642.39', orderCount: 9, opened: '已开单', launch: '未投放', owner: 'Bob Wang', code: '点击编辑', color: 'Black' },
+        { videoId: 'AG762500000000003', account: 'campuslookbook', agencyName: 'Campus Lookbook MCN', firstOrder: '2026/5/20', month: '2026年5月', link: '填写链接', title: 'FAIABLE Quarter Zip Sweatshirt', style: 'AL-W0181-GRY-S', productId: '1732358886692000101', shop: 'Faiable Chic', play: '-', gmv: '$328.10', orderCount: 5, opened: '已开单', launch: '-', owner: '未分配', code: '点击编辑', color: 'Grey' }
+      ]
+    };
     function byId(id) { return document.getElementById(id); }
     function short(text, length) { return String(text || '').length > length ? String(text).slice(0, length) + '...' : text; }
     function showToast(text) {
@@ -294,10 +288,53 @@
       if (link === '填写链接') return '<span class="editable" data-edit-field="link" data-edit-index="' + index + '">填写链接</span>';
       return '<a class="video-url" href="' + link + '" target="_blank" rel="noopener">' + short(link, 12) + '</a><span class="editable" data-edit-field="link" data-edit-index="' + index + '" style="margin-left:8px;">编辑</span>';
     }
+    function renderOwnerSelect(item, index) {
+      var options = ['未分配', 'Alice Chen', 'Bob Wang'];
+      if (options.indexOf(item.owner) < 0) options.unshift(item.owner);
+      return '<select class="select-pill" data-owner-index="' + index + '">' + options.map(function(option) {
+        return '<option value="' + option + '"' + (option === item.owner ? ' selected' : '') + '>' + option + '</option>';
+      }).join('') + '</select>';
+    }
     function normalizeUrl(value) {
       value = String(value || '').trim();
       if (!value) return '填写链接';
       return /^https?:\/\//i.test(value) ? value : 'https://' + value;
+    }
+    var commonColumns = [
+      { key: 'videoId', label: '视频ID', cls: 'w-video' },
+      { key: 'account', label: '达人账号', cls: 'w-account' },
+      { key: 'firstOrder', label: '最早下单时间', cls: 'w-date' },
+      { key: 'month', label: '视频年月', cls: 'w-month' },
+      { key: 'link', label: '视频链接', cls: 'w-link', render: function(item, index) { return renderVideoLink(item, index); } },
+      { key: 'title', label: '商品标题', cls: 'w-title', render: function(item) { return short(item.title, 28); } },
+      { key: 'style', label: '视频款号', cls: 'w-style', render: function(item) { return short(item.style, 22); } },
+      { key: 'productId', label: 'Product ID', cls: 'w-product' },
+      { key: 'shop', label: '挂车店铺', cls: 'w-shop' },
+      { key: 'play', label: '播放量', cls: 'w-small', muted: true },
+      { key: 'gmv', label: 'GMV($)', cls: 'w-small', muted: true },
+      { key: 'orderCount', label: '订单数', cls: 'w-small' },
+      { key: 'opened', label: '是否开单', cls: 'w-status', render: function(item) { return '<span class="badge badge-open">' + item.opened + '</span>'; } },
+      { key: 'launch', label: '是否投放', cls: 'w-status' },
+      { key: 'owner', label: '归属商务', cls: 'w-owner', render: function(item, index) { return renderOwnerSelect(item, index); } },
+      { key: 'code', label: '授权码', cls: 'w-code', render: function(item, index) { return '<span class="editable" data-edit-field="code" data-edit-index="' + index + '">' + item.code + '</span>'; } },
+      { key: 'color', label: '视频颜色', cls: 'w-color', render: function(item, index) { return '<span class="editable" data-edit-field="color" data-edit-index="' + index + '">' + item.color + '</span>'; } }
+    ];
+    var orderColumns = {
+      affiliate: commonColumns,
+      agency: commonColumns.slice(0, 2).concat([{ key: 'agencyName', label: '机构名称', cls: 'w-account' }], commonColumns.slice(2))
+    };
+    function getActiveOrders() { return orderGroups[activeOrderType] || []; }
+    function getActiveColumns() { return orderColumns[activeOrderType] || commonColumns; }
+    function renderHead() {
+      var columns = getActiveColumns();
+      byId('orderHead').innerHTML = '<tr><th class="w-check"><input type="checkbox" /></th><th class="w-index">#</th>' +
+        columns.map(function(column) { return '<th class="' + column.cls + '">' + column.label + '</th>'; }).join('') +
+        '<th class="w-op">操作</th></tr>';
+    }
+    function renderCell(item, sourceIndex, column) {
+      var value = column.render ? column.render(item, sourceIndex) : (item[column.key] || '-');
+      var title = column.render ? '' : ' title="' + value + '"';
+      return '<td class="' + (column.muted ? 'muted' : '') + '"' + title + '>' + value + '</td>';
     }
     function renderRows() {
       var keyword = byId('searchInput').value.trim().toLowerCase();
@@ -307,47 +344,38 @@
       var launch = byId('launchFilter').value;
       var month = byId('monthFilter').value;
       var owner = byId('ownerFilter').value;
-      var rows = orders.filter(function(item) {
+      var columns = getActiveColumns();
+      var rows = getActiveOrders().map(function(item, index) {
+        return { item: item, sourceIndex: index };
+      }).filter(function(row) {
+        var item = row.item;
         if (open && item.opened !== open) return false;
         if (launch && item.launch !== launch) return false;
         if (month && item.month !== month) return false;
         if (owner && item.owner !== owner) return false;
         if (!keyword) return true;
-        var targets = searchField === 'all' ? [item.videoId, item.account, item.style, item.productId, item.title] : [item[searchField]];
+        var targets = searchField === 'all' ? [item.videoId, item.account, item.agencyName, item.style, item.productId, item.title] : [item[searchField]];
         return targets.some(function(value) {
           value = String(value || '').toLowerCase();
           return searchMode === 'exact' ? value === keyword : value.indexOf(keyword) >= 0;
         });
       });
+      renderHead();
       byId('totalCount').textContent = rows.length;
       byId('metricVideo').textContent = rows.length || 0;
-      byId('metricOpen').textContent = rows.filter(function(item) { return item.opened === '已开单'; }).length;
-      byId('metricRate').textContent = rows.length ? ((rows.filter(function(item) { return item.opened === '已开单'; }).length / rows.length) * 100).toFixed(1) + '%' : '0.0%';
-      byId('metricOrder').textContent = rows.reduce(function(sum, item) { return sum + Number(item.orderCount || 0); }, 0).toLocaleString();
-      byId('orderRows').innerHTML = rows.map(function(item, index) {
+      byId('metricOpen').textContent = rows.filter(function(row) { return row.item.opened === '已开单'; }).length;
+      byId('metricRate').textContent = rows.length ? ((rows.filter(function(row) { return row.item.opened === '已开单'; }).length / rows.length) * 100).toFixed(1) + '%' : '0.0%';
+      byId('metricOrder').textContent = rows.reduce(function(sum, row) { return sum + Number(row.item.orderCount || 0); }, 0).toLocaleString();
+      byId('orderRows').innerHTML = rows.map(function(row, index) {
+        var item = row.item;
+        var sourceIndex = row.sourceIndex;
         return '<tr>' +
           '<td class="w-check"><input type="checkbox" /></td>' +
           '<td class="w-index">' + (index + 1) + '</td>' +
-          '<td title="' + item.videoId + '">' + item.videoId + '</td>' +
-          '<td title="' + item.account + '">' + item.account + '</td>' +
-          '<td>' + item.firstOrder + '</td>' +
-          '<td>' + item.month + '</td>' +
-          '<td>' + renderVideoLink(item, index) + '</td>' +
-          '<td title="' + item.title + '">' + short(item.title, 28) + '</td>' +
-          '<td title="' + item.style + '">' + short(item.style, 22) + '</td>' +
-          '<td title="' + item.productId + '">' + item.productId + '</td>' +
-          '<td>' + item.shop + '</td>' +
-          '<td class="muted">' + item.play + '</td>' +
-          '<td class="muted">' + item.gmv + '</td>' +
-          '<td>' + item.orderCount + '</td>' +
-          '<td><span class="badge badge-open">' + item.opened + '</span></td>' +
-          '<td>' + item.launch + '</td>' +
-          '<td><select class="select-pill"><option>' + item.owner + '</option><option>Alice Chen</option><option>Bob Wang</option></select></td>' +
-          '<td><span class="editable" data-edit-field="code" data-edit-index="' + index + '">' + item.code + '</span></td>' +
-          '<td><span class="editable" data-edit-field="color" data-edit-index="' + index + '">' + item.color + '</span></td>' +
-          '<td class="w-op"><button class="detail-link" data-detail="' + index + '">查看订单明细</button></td>' +
+          columns.map(function(column) { return renderCell(item, sourceIndex, column); }).join('') +
+          '<td class="w-op"><button class="detail-link" data-detail="' + sourceIndex + '">查看订单明细</button></td>' +
         '</tr>';
-      }).join('') || '<tr><td colspan="20" style="text-align:center;color:#94a3b8;padding:28px;">暂无符合条件的联盟订单</td></tr>';
+      }).join('') || '<tr><td colspan="' + (columns.length + 3) + '" style="text-align:center;color:#94a3b8;padding:28px;">' + orderTypeMeta[activeOrderType].emptyText + '</td></tr>';
     }
     var currentDetailItem = null;
     var currentDetailPage = 1;
@@ -403,6 +431,14 @@
       byId('detailModalMask').classList.add('open');
     }
     function closeDetailModal() { byId('detailModalMask').classList.remove('open'); }
+    byId('orderTabs').addEventListener('click', function(event) {
+      var tab = event.target.closest('[data-order-type]');
+      if (!tab) return;
+      activeOrderType = tab.getAttribute('data-order-type');
+      Array.prototype.forEach.call(byId('orderTabs').querySelectorAll('.tab'), function(item) { item.classList.remove('active'); });
+      tab.classList.add('active');
+      renderRows();
+    });
     ['searchInput', 'searchField', 'searchMode', 'openFilter', 'launchFilter', 'monthFilter', 'ownerFilter'].forEach(function(id) { byId(id).addEventListener(id === 'searchInput' ? 'input' : 'change', renderRows); });
     byId('btnQuery').addEventListener('click', renderRows);
     byId('btnReset').addEventListener('click', function() {
@@ -415,30 +451,39 @@
       byId('ownerFilter').value = '';
       renderRows();
     });
-    byId('btnExport').addEventListener('click', function() { showToast('已生成联盟订单导出任务'); });
-    byId('btnHelp').addEventListener('click', function() { showToast('联盟订单说明待完善'); });
+    byId('btnExport').addEventListener('click', function() { showToast(orderTypeMeta[activeOrderType].exportText); });
+    byId('btnHelp').addEventListener('click', function() { showToast(orderTypeMeta[activeOrderType].label + '说明待完善'); });
     byId('orderRows').addEventListener('click', function(event) {
       var detail = event.target.closest('[data-detail]');
       if (detail) {
-        openDetailModal(orders[Number(detail.getAttribute('data-detail'))]);
+        openDetailModal(getActiveOrders()[Number(detail.getAttribute('data-detail'))]);
         return;
       }
       var editable = event.target.closest('[data-edit-field]');
       if (editable) startInlineEdit(editable);
+    });
+    byId('orderRows').addEventListener('change', function(event) {
+      var ownerSelect = event.target.closest('[data-owner-index]');
+      if (!ownerSelect) return;
+      var index = Number(ownerSelect.getAttribute('data-owner-index'));
+      getActiveOrders()[index].owner = ownerSelect.value;
+      showToast('已保存归属商务');
+      renderRows();
     });
     function startInlineEdit(target) {
       if (target.querySelector('input')) return;
       var index = Number(target.getAttribute('data-edit-index'));
       var field = target.getAttribute('data-edit-field');
       var emptyText = field === 'link' ? '填写链接' : '点击编辑';
-      var oldValue = orders[index][field] === emptyText ? '' : orders[index][field];
+      var activeOrders = getActiveOrders();
+      var oldValue = activeOrders[index][field] === emptyText ? '' : activeOrders[index][field];
       target.innerHTML = '<input class="inline-edit" value="' + oldValue + '" />';
       var input = target.querySelector('input');
       input.focus();
       input.select();
       function save() {
         var value = field === 'link' ? normalizeUrl(input.value) : (input.value.trim() || '点击编辑');
-        orders[index][field] = value;
+        activeOrders[index][field] = value;
         if (field === 'link' && value !== '填写链接') {
           target.outerHTML = '<a class="video-url" href="' + value + '" target="_blank" rel="noopener">' + short(value, 12) + '</a><span class="editable" data-edit-field="link" data-edit-index="' + index + '" style="margin-left:8px;">编辑</span>';
         } else {
@@ -451,7 +496,7 @@
         if (event.key === 'Enter') input.blur();
         if (event.key === 'Escape') {
           input.removeEventListener('blur', save);
-          target.textContent = orders[index][field];
+          target.textContent = activeOrders[index][field];
         }
       });
     }

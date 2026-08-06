@@ -75,7 +75,7 @@
     .summary .abnormal { color: var(--danger); }
     .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 1rem; }
     .table-wrap { overflow-x: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 2300px; table-layout: fixed; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.78rem; min-width: 3440px; table-layout: fixed; }
     th, td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     th { background: var(--header-bg); color: var(--muted); font-weight: 600; }
     tbody tr:hover td { background: #f9fafb; }
@@ -91,9 +91,19 @@
     .w-main { width: 135px; }
     .w-product { width: 170px; }
     .w-product-id { width: 150px; }
+    .w-color { width: 100px; }
+    .w-size { width: 100px; }
+    .w-qty { width: 90px; }
     .w-order { width: 160px; }
+    .w-shop { width: 145px; }
+    .w-site { width: 90px; }
+    .w-channel { width: 100px; }
+    .w-logistics { width: 210px; }
+    .w-resend { width: 145px; }
     .w-status { width: 120px; }
     .w-stage { width: 110px; }
+    .w-commission { width: 110px; }
+    .w-remark { width: 240px; }
     .w-level { width: 95px; }
     .w-gender { width: 90px; }
     .w-yesno { width: 118px; }
@@ -139,6 +149,29 @@
     .field input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, .16); }
     .inline-two { display: grid; grid-template-columns: 1fr 74px; gap: 10px; }
     .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; padding: 0 18px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+    .import-mask { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 80; }
+    .import-mask.open { display: flex; }
+    .import-dialog { width: min(820px, calc(100vw - 48px)); background: #fff; border-radius: 4px; box-shadow: 0 20px 60px rgba(15, 23, 42, .22); }
+    .import-head { height: 56px; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+    .import-title { margin: 0; color: #1f2937; font-size: 18px; font-weight: 700; }
+    .import-close { width: 30px; height: 30px; border: none; border-radius: 4px; background: transparent; color: #9ca3af; font-size: 22px; line-height: 1; cursor: pointer; }
+    .import-close:hover { background: #f3f4f6; color: #4b5563; }
+    .import-body { padding: 14px 24px 22px; }
+    .import-template { margin-bottom: 18px; }
+    .import-tips { margin: 0 0 20px; padding-left: 0; color: #4b5563; list-style: none; font-size: 13px; line-height: 1.9; }
+    .import-tips li::before { content: "•"; margin-right: 12px; color: var(--blue); font-weight: 800; }
+    .upload-zone { height: 168px; border: 1px dashed #d1d5db; border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #1f2937; background: #fff; cursor: pointer; transition: .16s ease; }
+    .upload-zone:hover,
+    .upload-zone.dragover { border-color: #7da2ff; background: #f8fbff; }
+    .upload-icon { width: 44px; height: 44px; border-radius: 50%; background: #4f7df3; color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+    .upload-icon svg { width: 30px; height: 30px; }
+    .upload-text { font-size: 15px; }
+    .upload-link { color: #2563eb; font-weight: 700; text-decoration: underline; }
+    .upload-file-name { min-height: 20px; margin-top: 10px; color: #64748b; font-size: 13px; }
+    .import-format { margin-top: 8px; color: #8b95a1; font-size: 12px; }
+    .import-actions { height: 64px; padding: 0 24px; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: flex-end; gap: 12px; }
+    .btn-upload { min-width: 62px; color: #fff; border-color: #6f8ff4; background: #7898f5; }
+    .btn-upload:hover { border-color: #5e7fe8; background: #6689ee; }
     .ai-float { position: fixed; right: -10px; bottom: 58px; width: 52px; height: 44px; border: none; border-radius: 22px 0 0 22px; background: #fff; box-shadow: 0 10px 30px rgba(20, 40, 70, .14); display: flex; align-items: center; justify-content: center; z-index: 70; }
     .ai-float::before { content: ""; width: 27px; height: 27px; border-radius: 50%; background: conic-gradient(from 45deg, #4ade80, #22c55e, #93c5fd, #fef08a, #4ade80); clip-path: polygon(50% 0,72% 31%,100% 36%,78% 58%,84% 90%,50% 75%,16% 90%,22% 58%,0 36%,28% 31%); }
     .toast { position: fixed; left: 50%; bottom: 34px; transform: translateX(-50%) translateY(18px); opacity: 0; transition: .2s ease; background: #172b46; color: #fff; border-radius: 8px; padding: 9px 16px; box-shadow: var(--shadow); z-index: 90; font-weight: 700; }
@@ -163,6 +196,7 @@
         </div>
       </div>
       <div class="toolbar">
+        <button class="btn btn-secondary" id="btnImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>导入</button>
         <button class="btn btn-secondary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>导出</button>
         <button class="btn btn-query" id="btnAdd">＋ 新增寄样</button>
       </div>
@@ -217,6 +251,11 @@
           <thead>
             <tr>
               <th class="w-check"><input type="checkbox" /></th>
+              <th class="w-site">合作站点</th>
+              <th class="w-shop">合作店铺</th>
+              <th class="w-owner">寄样商务<span class="sort">↕</span></th>
+              <th class="w-status">寄样状态<span class="sort">↕</span></th>
+              <th class="w-stage">合作阶段<span class="sort">↕</span></th>
               <th class="w-time">寄样时间<span class="sort">↕</span></th>
               <th class="w-month">寄样月份<span class="sort">↕</span></th>
               <th class="w-id">达人ID（TIKTOK ID）</th>
@@ -224,14 +263,19 @@
               <th class="w-level">达人等级<span class="sort">↕</span></th>
               <th class="w-gender">达人性别</th>
               <th class="w-yesno">是否开单达人</th>
+              <th class="w-commission">达人佣金</th>
               <th class="w-sku">寄样SKU</th>
               <th class="w-main">寄样主SKU</th>
               <th class="w-product">商品名称</th>
               <th class="w-product-id">定向Product ID</th>
+              <th class="w-color">寄样颜色</th>
+              <th class="w-size">寄样尺码</th>
+              <th class="w-qty">寄样数量</th>
               <th class="w-order">积加订单编号</th>
-              <th class="w-owner">寄样商务<span class="sort">↕</span></th>
-              <th class="w-status">寄样状态<span class="sort">↕</span></th>
-              <th class="w-stage">合作阶段<span class="sort">↕</span></th>
+              <th class="w-channel">寄样渠道</th>
+              <th class="w-logistics">物流状态</th>
+              <th class="w-resend">补寄情况</th>
+              <th class="w-remark">备注</th>
               <th class="w-op">操作</th>
             </tr>
           </thead>
@@ -247,7 +291,7 @@
         <ol>
           <li>看板字段以 <strong>TikTok_IT映射表_寄样管理.xlsx</strong> 的 <strong>映射表</strong> sheet 为准，一级模块为寄样管理，二级模块对应表单分区。</li>
           <li>寄样订单指样品订单，可通过 TK 订单详情中的样品订单标识 <strong>is_sample_order</strong> 识别。</li>
-          <li>列表默认展示寄样核心字段；寄样颜色、寄样尺码、寄样数量、合作店铺、合作站点、寄样渠道、物流状态、补寄情况、达人佣金、备注等字段默认隐藏，可在编辑弹窗维护。</li>
+          <li>列表字段按 <strong>站点 / 店铺 - 运营信息 - 达人信息 - 产品信息 - 订单物流补充</strong> 的顺序展示，便于先确认业务归属，再查看达人、SKU、PID 和履约状态。</li>
         </ol>
       </div>
       <div class="content-note-section">
@@ -268,6 +312,36 @@
           <li><strong>物流签收示例</strong>：订单 <strong>order01</strong>，寄样商务 X，达人 A，产品 B，2026-07-10 寄样。系统通过订单 API 的 <strong>delivery_time</strong> 获取签收时间；若 delivery_time 为空，则通过跟踪号码查询物流签收结果。本例 2026-07-17 签收，未超过 7 个自然日，物流侧不算逾期。</li>
           <li><strong>视频履约示例</strong>：订单 <strong>order01</strong> 对应达人 A、PID 为产品 B；达人在 2026-07-24 发布并关联到对应视频 <strong>VID</strong>，则计入履约。如果 2026-07-24 仍未通过 PID + 达人信息关联到视频，则签收后已达到 7 天，标记为“履约逾期”，进入逾期提醒筛选。</li>
         </ol>
+      </div>
+    </section>
+  </div>
+
+  <div class="import-mask" id="importMask">
+    <section class="import-dialog" role="dialog" aria-modal="true" aria-labelledby="importTitle">
+      <div class="import-head">
+        <h2 class="import-title" id="importTitle">导入寄样</h2>
+        <button class="import-close" id="btnImportClose" aria-label="关闭">×</button>
+      </div>
+      <div class="import-body">
+        <div class="import-template">
+          <button type="button" class="btn btn-secondary" id="btnDownloadTemplate">下载模板</button>
+        </div>
+        <ul class="import-tips">
+          <li>支持导入格式为 xls、xlsx、pdf</li>
+          <li>模板中的表头不可更改，位置不能调换，不能删除</li>
+          <li>模板中带 * 的列为必填列</li>
+        </ul>
+        <label class="upload-zone" id="uploadZone" for="importFile">
+          <span class="upload-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 16V6"/><path d="m7 11 5-5 5 5"/><path d="M20 16.5A4.5 4.5 0 0 1 15.5 21h-7A5.5 5.5 0 0 1 7 10.2 6 6 0 0 1 18.7 12"/></svg></span>
+          <span class="upload-text">将文件拖拽到此处，或<span class="upload-link">点击上传</span></span>
+        </label>
+        <input type="file" id="importFile" accept=".xls,.xlsx,.pdf" hidden />
+        <div class="upload-file-name" id="uploadFileName"></div>
+        <div class="import-format">仅支持 xls / xlsx / pdf 格式，最大100MB</div>
+      </div>
+      <div class="import-actions">
+        <button type="button" class="btn btn-light" id="btnImportCancel">取消</button>
+        <button type="button" class="btn btn-upload" id="btnUpload">上传</button>
       </div>
     </section>
   </div>
@@ -370,6 +444,11 @@
       byId('sampleRows').innerHTML = rows.map(function(item) {
         return '<tr class="' + (item.overdue || item.status === '签收异常' ? 'warn' : '') + '">' +
           '<td class="w-check"><input type="checkbox" /></td>' +
+          '<td>' + item.site + '</td>' +
+          '<td title="' + item.shop + '">' + item.shop + '</td>' +
+          '<td>' + item.owner + '</td>' +
+          '<td><span class="status-main">' + item.status + '</span>' + (item.overdue ? '<span class="overdue">ⓘ ' + item.overdue + '</span>' : '') + '</td>' +
+          '<td>' + item.stage + '</td>' +
           '<td title="' + item.time + '">' + item.time + '</td>' +
           '<td>' + item.month + '</td>' +
           '<td title="' + item.id + '">' + item.id + '</td>' +
@@ -377,17 +456,22 @@
           '<td>' + item.level + '</td>' +
           '<td>' + item.gender + '</td>' +
           '<td><span class="tag ' + (item.opened === '是' ? 'tag-yes' : 'tag-no') + '">' + item.opened + '</span></td>' +
+          '<td>' + item.commission + '</td>' +
           '<td title="' + item.sku + '">' + item.sku + '</td>' +
           '<td>' + item.mainSku + '</td>' +
           '<td title="' + item.productName + '">' + item.productName + '</td>' +
           '<td>' + item.productId + '</td>' +
+          '<td title="' + item.color + '">' + item.color + '</td>' +
+          '<td>' + item.size + '</td>' +
+          '<td>' + item.qty + '</td>' +
           '<td>' + item.order + '</td>' +
-          '<td>' + item.owner + '</td>' +
-          '<td><span class="status-main">' + item.status + '</span>' + (item.overdue ? '<span class="overdue">ⓘ ' + item.overdue + '</span>' : '') + '</td>' +
-          '<td>' + item.stage + '</td>' +
+          '<td>' + item.channel + '</td>' +
+          '<td title="' + item.logistics + '">' + item.logistics + '</td>' +
+          '<td title="' + item.resend + '">' + item.resend + '</td>' +
+          '<td title="' + item.remark + '">' + item.remark + '</td>' +
           '<td><button class="link-op" data-edit="' + samples.indexOf(item) + '">编辑</button><button class="link-op" data-delete="' + samples.indexOf(item) + '">删除</button></td>' +
         '</tr>';
-      }).join('') || '<tr><td colspan="17" style="text-align:center;color:#94a3b8;padding:32px;">暂无符合条件的寄样记录</td></tr>';
+      }).join('') || '<tr><td colspan="27" style="text-align:center;color:#94a3b8;padding:32px;">暂无符合条件的寄样记录</td></tr>';
       byId('topTotal').textContent = rows.length;
       byId('totalCount').textContent = rows.length;
       byId('doneCount').textContent = rows.filter(function(item) { return item.status === '已履约'; }).length;
@@ -428,6 +512,18 @@
       byId('drawerMask').classList.remove('open');
       byId('editDrawer').classList.remove('open');
     }
+    function openImportModal() {
+      byId('importMask').classList.add('open');
+    }
+    function closeImportModal() {
+      byId('importMask').classList.remove('open');
+      byId('importFile').value = '';
+      byId('uploadFileName').textContent = '';
+      byId('uploadZone').classList.remove('dragover');
+    }
+    function setImportFile(file) {
+      byId('uploadFileName').textContent = file ? '已选择：' + file.name : '';
+    }
     function showToast(text) {
       var toast = byId('toast');
       toast.textContent = text || '操作成功';
@@ -457,6 +553,30 @@
       renderRows();
     });
     byId('btnAdd').addEventListener('click', function() { openDrawer(samples[0]); });
+    byId('btnImport').addEventListener('click', openImportModal);
+    byId('btnImportClose').addEventListener('click', closeImportModal);
+    byId('btnImportCancel').addEventListener('click', closeImportModal);
+    byId('importMask').addEventListener('click', function(event) {
+      if (event.target === byId('importMask')) closeImportModal();
+    });
+    byId('btnDownloadTemplate').addEventListener('click', function() { showToast('已生成寄样导入模板'); });
+    byId('importFile').addEventListener('change', function(event) { setImportFile(event.target.files[0]); });
+    byId('uploadZone').addEventListener('dragover', function(event) {
+      event.preventDefault();
+      byId('uploadZone').classList.add('dragover');
+    });
+    byId('uploadZone').addEventListener('dragleave', function() {
+      byId('uploadZone').classList.remove('dragover');
+    });
+    byId('uploadZone').addEventListener('drop', function(event) {
+      event.preventDefault();
+      byId('uploadZone').classList.remove('dragover');
+      setImportFile(event.dataTransfer.files[0]);
+    });
+    byId('btnUpload').addEventListener('click', function() {
+      closeImportModal();
+      showToast('寄样导入任务已提交');
+    });
     byId('btnOverdue').addEventListener('click', function() {
       overdueOnly = !overdueOnly;
       byId('btnOverdue').classList.toggle('active', overdueOnly);
