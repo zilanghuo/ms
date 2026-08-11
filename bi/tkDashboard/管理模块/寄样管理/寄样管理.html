@@ -60,7 +60,7 @@
     .query-item input[type="text"],
     .query-item input[type="date"] { height: 38px; border: 1px solid var(--input-border); border-radius: 4px; padding: .4rem .6rem; color: var(--text); background: #fff; font-size: .9rem; outline: none; }
     .query-item select { min-width: 150px; cursor: pointer; }
-    .date-range-item input[type="date"] { width: 142px; }
+    .date-range-item input { width: 152px; }
     .date-separator { color: var(--muted-2); font-size: .85rem; }
     .search-query-item { position: relative; gap: 0; }
     .search-query-item select { min-width: 0; }
@@ -207,12 +207,19 @@
         <div class="query-item"><select id="statusFilter"><option value="">全部寄样状态</option><option>待发货</option><option>已发货</option><option>运输中</option><option>已签收</option><option>签收异常</option><option>签收待履约</option><option>已履约</option></select></div>
         <div class="query-item"><select id="levelFilter"><option value="">全部达人等级</option><option>L3以下</option><option>L3</option><option>L4</option><option>L5</option><option>L6</option><option>L6+</option></select></div>
         <div class="query-item"><select id="stageFilter"><option value="">全部合作阶段</option><option>首次合作</option><option>二次合作</option><option>多次合作</option></select></div>
-        <div class="query-item"><select id="ownerFilter"><option value="">全部寄样商务</option><option>Alice Chen</option><option>Bob Wang</option><option>Carol Liu</option><option>David Zhang</option><option>Emma Li</option><option>Frank Wu</option><option>Grace Zhao</option><option>Henry Sun</option></select></div>
+        <div class="query-item"><select id="ownerFilter"><option value="">全部寄样商务</option><option value="商务X">商务X</option><option value="Alice Chen">张安妮 &amp; Alice Chen</option><option value="Bob Wang">王博 &amp; Bob Wang</option><option value="Carol Liu">刘佳 &amp; Carol Liu</option><option value="David Zhang">张大卫 &amp; David Zhang</option><option value="Emma Li">李艾玛 &amp; Emma Li</option><option value="Frank Wu">吴方 &amp; Frank Wu</option><option value="Grace Zhao">赵格蕾 &amp; Grace Zhao</option><option value="Henry Sun">孙亨利 &amp; Henry Sun</option></select></div>
         <div class="query-item date-range-item">
           <span class="query-label">寄样时间</span>
-          <input type="date" id="startDate" aria-label="寄样开始时间" title="寄样开始时间" />
+          <input type="text" id="startDate" list="sampleDateOptions" aria-label="寄样开始时间" title="寄样开始时间" placeholder="YYYY-MM-DD" />
           <span class="date-separator">至</span>
-          <input type="date" id="endDate" aria-label="寄样结束时间" title="寄样结束时间" />
+          <input type="text" id="endDate" list="sampleDateOptions" aria-label="寄样结束时间" title="寄样结束时间" placeholder="YYYY-MM-DD" />
+          <datalist id="sampleDateOptions">
+            <option value="2025-07-20"></option>
+            <option value="2025-08-05"></option>
+            <option value="2025-09-01"></option>
+            <option value="2025-10-01"></option>
+            <option value="2026-07-10"></option>
+          </datalist>
         </div>
         <button type="button" class="btn btn-light btn-overdue" id="btnOverdue">ⓘ 逾期提醒</button>
         <div class="query-item search-query-item">
@@ -413,7 +420,8 @@
     function parseDate(value) {
       if (!value) return null;
       var normalized = String(value).replace(/\//g, '-').split(' ')[0];
-      return new Date(normalized + 'T00:00:00');
+      var date = new Date(normalized + 'T00:00:00');
+      return Number.isNaN(date.getTime()) ? null : date;
     }
     function renderRows() {
       var keyword = byId('keyword').value.trim().toLowerCase();

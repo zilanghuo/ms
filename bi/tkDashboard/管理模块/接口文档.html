@@ -36,12 +36,14 @@
     pre { background: #f8fafc; border: 1px solid var(--border); border-radius: 4px; padding: 0.75rem 1rem; overflow-x: auto; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
     pre code { background: none; padding: 0; }
     .note { background: #f8fafc; border: 1px solid var(--border); border-radius: 6px; padding: 0.9rem 1rem; margin: 1rem 0; }
+    .new-tag { display: inline-block; margin-right: 0.35rem; padding: 0.08rem 0.35rem; border-radius: 3px; background: #dcfce7; color: #15803d; font-size: 0.72rem; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="doc">
     <h1 id="top">管理模块 接口文档</h1>
     <p>本文档基于 <code>管理模块/商品模块/商品档案.html</code>、<code>管理模块/商品模块/需求文档.html</code>、<code>管理模块/账号模块/账号维护.html</code> 与账号维护开发需求整理，主要用于将页面结构拆解为后端接口结构。当前仅覆盖商品模块与账号模块；站点、店铺、用户视图等通用接口不单独罗列。</p>
+    <div class="note"><strong>接口来源：</strong>本次接口明细已对齐 <code>TkContentProductArchiveController.java</code>（<code>/tk/content/product/archive</code>）与 <code>TkContentAccountController.java</code>（<code>/tk/content/account</code>）两个入口类；文档中的接口方法、路径优先以 Controller 为准。</div>
     <div class="toc">
       <h2>目录导航</h2>
       <div class="toc-grid">
@@ -66,9 +68,10 @@
           <li><a href="#account-detail">2.4 账号详情</a></li>
           <li><a href="#account-save">2.5 新增/编辑账号</a></li>
           <li><a href="#account-import-export">2.6 导入导出</a></li>
-          <li><a href="#account-recycle-audit">2.7 删除、回收站与操作日志</a></li>
+          <li><a href="#account-delete-fields">2.7 删除与字段说明</a></li>
           <li><a href="#account-fields">2.8 账号字段说明</a></li>
-          <li><a href="#api-overview">三、接口总览</a></li>
+          <li><a href="#new-api-detail">三、新增接口明细</a></li>
+          <li><a href="#api-overview">四、接口总览</a></li>
         </ul>
       </div>
     </div>
@@ -125,26 +128,24 @@
     </div>
 
     <h3 id="product-options">1.2 商品档案下拉选项接口</h3>
-    <p>商品档案筛选区中的状态、品类、品牌、负责人由后端接口返回。四个接口响应结构一致，<code>data</code> 直接返回选项数组，业务字段固定为 <code>label</code> 和 <code>value</code>。</p>
+    <p>商品档案筛选区中的状态、TK 审核状态、品类、品牌由后端接口返回。四个接口响应结构一致，<code>data</code> 直接返回选项数组，业务字段固定为 <code>label</code> 和 <code>value</code>。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>选项</th><th>接口</th><th>方法</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td>状态</td><td><code>/tk/manage/product-archive/options/status</code></td><td>GET</td><td>返回商品状态筛选项，对应请求参数 <code>productStatus</code></td></tr>
-          <tr><td>品类</td><td><code>/tk/manage/product-archive/options/category</code></td><td>GET</td><td>返回产品品类筛选项，对应请求参数 <code>productCategory</code></td></tr>
-          <tr><td>品牌</td><td><code>/tk/manage/product-archive/options/brand</code></td><td>GET</td><td>返回产品品牌筛选项，对应请求参数 <code>productBrand</code></td></tr>
-          <tr><td>负责人</td><td><code>/tk/manage/product-archive/options/operator-owner</code></td><td>GET</td><td>返回负责运营 / 负责人筛选项，对应请求参数 <code>operatorOwner</code></td></tr>
+          <tr><td>状态</td><td><code>/tk/content/product/archive/options/status</code></td><td>GET</td><td>返回商品状态筛选项，对应请求参数 <code>productStatus</code></td></tr>
+          <tr><td>TK 审核状态</td><td><code>/tk/content/product/archive/options/tk/audit/status</code></td><td>GET</td><td>返回 TK 审核状态筛选项，对应请求参数 <code>tkAuditStatus</code></td></tr>
+          <tr><td>品类</td><td><code>/tk/content/product/archive/options/category</code></td><td>GET</td><td>返回产品品类筛选项，对应请求参数 <code>productCategory</code></td></tr>
+          <tr><td>品牌</td><td><code>/tk/content/product/archive/options/brand</code></td><td>GET</td><td>返回产品品牌筛选项，对应请求参数 <code>productBrand</code></td></tr>
         </tbody>
       </table>
     </div>
-    <p><strong>请求参数</strong></p>
+    <p><strong>请求参数</strong>：当前 Controller 入口不接收请求参数；如后续需要按看板、店铺或站点裁剪选项，可在对应接口补充 query 参数。</p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>参数</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
         <tbody>
-          <tr><td><code>viewType</code></td><td>string</td><td>否</td><td>看板类型：<code>spu</code>、<code>pid</code>、<code>sku</code>；用于按当前看板粒度裁剪可选项</td></tr>
-          <tr><td><code>platformCode</code></td><td>string</td><td>否</td><td>平台代码；为空返回全部平台可选项</td></tr>
-          <tr><td><code>storeNames</code></td><td>array&lt;string&gt;</td><td>否</td><td>所属店铺列表；为空返回全部店铺可选项</td></tr>
+          <tr><td>-</td><td>-</td><td>-</td><td>无</td></tr>
         </tbody>
       </table>
     </div>
@@ -169,7 +170,7 @@
 }</code></pre>
 
     <h3 id="product-latest-time">1.3 数据最新时间接口</h3>
-    <pre><code>GET /tk/manage/product-archive/dataLatestTime</code></pre>
+    <pre><code>GET /tk/content/product/archive/dataLatestTime</code></pre>
     <p>返回商品档案页面操作区展示的数据更新时间。</p>
     <pre><code>{
   "code": 200,
@@ -181,8 +182,10 @@
 }</code></pre>
 
     <h3 id="product-page">1.4 商品档案分页列表接口</h3>
-    <pre><code>POST /tk/manage/product-archive/page</code></pre>
-    <p>按当前看板返回列表数据。SPU/PID 看板返回聚合行，SKU 看板返回 SKU 明细行；分页在当前看板粒度下生效。</p>
+    <pre><code>POST /tk/content/product/archive/spu/page
+POST /tk/content/product/archive/pid/page
+POST /tk/content/product/archive/sku/page</code></pre>
+    <p>按当前看板调用对应分页接口。SPU/PID 看板返回聚合行，SKU 看板返回 SKU 明细行；分页在当前看板粒度下生效。</p>
     <pre><code>{
   "viewType": "pid",
   "platformCode": "tiktok",
@@ -280,7 +283,7 @@
     </div>
 
     <h3 id="product-detail">1.5 商品档案详情接口</h3>
-    <pre><code>GET /tk/manage/product-archive/detail?platformCode=tiktok&amp;storeName=xxx&amp;pid=1732388385375162725&amp;sku=AL-W6675-BLK-XS</code></pre>
+    <pre><code>POST /tk/content/product/archive/detail</code></pre>
     <p>用于点击编辑按钮后打开抽屉。PID/SPU 聚合行点击编辑时，前端应传入当前主 SKU 或后端按主 SKU 规则返回可编辑档案。</p>
     <p><strong>响应 data 字段</strong></p>
     <div class="table-wrap">
@@ -327,7 +330,7 @@
     </div>
 
     <h3 id="product-save">1.6 商品档案保存接口</h3>
-    <pre><code>POST /tk/manage/product-archive/save</code></pre>
+    <pre><code>POST /tk/content/product/archive/save</code></pre>
     <p>保存编辑抽屉中的人工维护字段；平台同步字段只读，不允许覆盖 TK API 原始状态、审核状态等字段。</p>
     <pre><code>{
   "platformCode": "tiktok",
@@ -364,7 +367,7 @@
     </div>
 
     <h3 id="product-sku-detail">1.7 SPU/PID 展开 SKU 明细接口</h3>
-    <pre><code>POST /tk/manage/product-archive/sku-detail</code></pre>
+    <pre><code>POST /tk/content/product/archive/sku/detail</code></pre>
     <p>SPU 看板和 PID 看板展开时调用，返回对应 SKU 明细表格，字段结构与 SKU 看板列表一致。</p>
     <pre><code>{
   "viewType": "spu",
@@ -385,7 +388,7 @@
     </div>
 
     <h3 id="product-fields">1.8 商品档案字段说明接口</h3>
-    <pre><code>GET /tk/manage/product-archive/fields?viewType=sku</code></pre>
+    <pre><code>GET /tk/content/product/archive/fields?viewType=sku</code></pre>
     <p>返回当前看板可展示、可导出、可编辑的字段说明，支撑字段问号说明、自定义列配置和导出字段口径。</p>
     <div class="table-wrap">
       <table>
@@ -409,12 +412,16 @@
     </div>
 
     <h3 id="product-export">1.9 商品档案导出接口</h3>
-    <pre><code>POST /tk/manage/product-archive/export</code></pre>
-    <p>按当前筛选条件、当前看板和自定义列配置导出。默认文件名：<code>商品档案_yyyyMMddHHmmss.xlsx</code>。</p>
+    <pre><code>POST /tk/content/product/archive/spu/export
+POST /tk/content/product/archive/pid/export
+POST /tk/content/product/archive/sku/export
+GET /tk/content/product/archive/import/template
+POST /tk/content/product/archive/import</code></pre>
+    <p>按当前筛选条件、当前看板和自定义列配置调用对应导出接口。导入模板下载返回 Excel 模板文件流；导入接口使用 <code>multipart/form-data</code> 上传文件。</p>
     <p><strong>响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
 
     <h2 id="account-module">二、账号模块：账号维护</h2>
-    <p>页面结构包含 <strong>全部账号 / 渠道号 / 达人号 / TAP 机构号</strong> 四个 Tab，筛选区、统计栏、列表区、新增/编辑抽屉、导入导出、自定义列、删除/回收站、操作日志等能力。账号维护为手动维护数据源，不依赖第三方 API。</p>
+    <p>页面结构包含 <strong>全部账号 / 渠道号 / 达人号 / TAP 机构号</strong> 四个 Tab，筛选区、统计栏、列表区、新增/编辑抽屉、导入导出、自定义列、软删除等能力。账号维护为手动维护数据源，不依赖第三方 API。</p>
     <div class="note"><strong>安全约定：</strong>邮箱密码、TK 密码等敏感字段必须加密或脱敏存储；列表和导出默认不返回明文。若后续需要查看明文，应增加二次确认与权限校验接口。</div>
 
     <h3 id="account-common-params">2.1 共用请求参数</h3>
@@ -486,10 +493,11 @@
     </div>
 
     <h3 id="account-page">2.3 账号分页列表接口</h3>
-    <pre><code>POST /tk/content/account/channel/page
+    <pre><code>POST /tk/content/account/all/page
+POST /tk/content/account/channel/page
 POST /tk/content/account/creator/page
 POST /tk/content/account/tap/agency/page</code></pre>
-    <p>列表查询按账号类型拆分为三个接口，每个接口使用独立 request 和 response，不再通过 accountType 参数区分。渠道号栏目展示自营账号字段；达人号和 TAP 机构号栏目展示达人业务字段。</p>
+    <p>列表查询按账号类型拆分为四个接口，每个接口使用独立 request 和 response，不再通过 accountType 参数区分。全部账号展示综合字段；渠道号栏目展示自营账号字段；达人号和 TAP 机构号栏目展示达人业务字段。</p>
     <pre><code>{
   "accountType": "达人号",
   "siteCode": "UK",
@@ -652,16 +660,21 @@ POST /tk/content/account/tap/agency/page</code></pre>
     </div>
 
     <h3 id="account-import-export">2.6 导入导出接口</h3>
-    <pre><code>POST /tk/content/account/export</code></pre>
-    <p>导出按当前筛选结果生成 Excel，不包含邮箱密码、TK 密码等敏感凭证明文。导入模板与导入接口不在本期实现范围。</p>
+    <pre><code>POST /tk/content/account/import
+POST /tk/content/account/creator/field/import
+POST /tk/content/account/tap/agency/import
+POST /tk/content/account/export
+POST /tk/content/account/all/export
+POST /tk/content/account/channel/export
+POST /tk/content/account/creator/export
+POST /tk/content/account/tap/agency/export</code></pre>
+    <p>导出按当前筛选结果生成 Excel，不包含邮箱密码、TK 密码等敏感凭证明文。导入接口使用 <code>multipart/form-data</code> 上传文件；当前入口类包含账号档案导入、达人号字段导入、TAP 机构号导入。</p>
     <p><strong>导出响应</strong>：返回文件流；响应头建议包含 <code>Content-Disposition</code> 文件名。异步导出时可返回 <code>taskId</code>、<code>fileName</code>、<code>downloadUrl</code>。</p>
 
-    <h3 id="account-recycle-audit">2.7 删除、回收站与操作日志接口</h3>
-    <pre><code>POST /tk/content/account/delete
-POST /tk/content/account/restore
-POST /tk/content/account/recycle/page</code></pre>
-    <p>删除为软删除，恢复清除删除标记；当前表结构仅支持单表软删与恢复，不实现彻底删除、删除人和操作日志分页。</p>
-    <p><strong>删除 / 恢复响应 data 字段</strong></p>
+    <h3 id="account-delete-fields">2.7 删除接口</h3>
+    <pre><code>POST /tk/content/account/delete</code></pre>
+    <p>当前入口类仅提供软删除接口，未提供回收站恢复和回收站分页接口；如后续页面需要恢复能力，需要另行补充 Controller 入口。</p>
+    <p><strong>删除响应 data 字段</strong></p>
     <div class="table-wrap">
       <table>
         <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
@@ -673,24 +686,6 @@ POST /tk/content/account/recycle/page</code></pre>
         </tbody>
       </table>
     </div>
-    <p><strong>回收站分页响应 data 字段</strong></p>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
-        <tbody>
-          <tr><td><code>total</code></td><td>integer</td><td>回收站总条数</td></tr>
-          <tr><td><code>page</code></td><td>integer</td><td>当前页</td></tr>
-          <tr><td><code>pageSize</code></td><td>integer</td><td>每页条数</td></tr>
-          <tr><td><code>list[].tiktokUid</code></td><td>string</td><td>TikTok UID</td></tr>
-          <tr><td><code>list[].handleName</code></td><td>string</td><td>Handle Name</td></tr>
-          <tr><td><code>list[].accountType</code></td><td>string</td><td>账号类型</td></tr>
-          <tr><td><code>list[].accountStatus</code></td><td>string</td><td>删除前账号状态</td></tr>
-          <tr><td><code>list[].deletedTime</code></td><td>string</td><td>删除时间</td></tr>
-        </tbody>
-      </table>
-    </div>
-    
-
     <h3 id="account-fields">2.8 账号字段说明接口</h3>
     <pre><code>GET /tk/content/account/fields?viewType=creator</code></pre>
     <div class="table-wrap">
@@ -713,34 +708,167 @@ POST /tk/content/account/recycle/page</code></pre>
       </table>
     </div>
 
-    <h2 id="api-overview">三、接口总览</h2>
+    <h2 id="new-api-detail">三、新增接口明细</h2>
+    <p>本章节基于 <code>寄样管理.html</code>、<code>联盟订单.html</code>、<code>视频数据.html</code>、<code>商品档案-1.1.html</code> 与 <code>发补货看板-1.2.html</code> 梳理。以下均为新增接口建议，路径按 <code>/tk/content</code> 与 <code>/tk/inventory/replenishment</code> 口径暂定，实际开发时可按 Controller 命名统一调整。</p>
+
+    <h3 id="sample-api-detail">3.1 寄样管理接口明细</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口</th><th>方法</th><th>用途</th><th>关键参数 / 说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>/tk/content/sample/order/page</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样列表分页</td><td>筛选寄样状态、达人等级、合作阶段、寄样商务、寄样时间、逾期提醒；搜索达人 ID、达人名字、寄样 SKU、商品名称、Product ID、积加订单编号。</td></tr>
+          <tr><td><code>/tk/content/sample/order/summary</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样统计汇总</td><td>返回总记录数、已履约、待处理、异常数量；筛选参数与列表保持一致。</td></tr>
+          <tr><td><code>/tk/content/sample/order/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样详情</td><td>按寄样记录 ID 或订单明细 ID 回显编辑抽屉；订单按 SKU 维度拆分后查询。</td></tr>
+          <tr><td><code>/tk/content/sample/order/save</code></td><td>POST</td><td><span class="new-tag">新增</span>新增 / 编辑寄样</td><td>保存达人信息、寄样 SKU、商品信息、物流状态、补寄情况、寄样商务、寄样时间、寄样状态、佣金、备注；若达人不存在，保存后同步写入账号维护达人列表。</td></tr>
+          <tr><td><code>/tk/content/sample/order/delete</code></td><td>POST</td><td><span class="new-tag">新增</span>删除寄样</td><td>按寄样记录 ID 批量软删除。</td></tr>
+          <tr><td><code>/tk/content/sample/order/export</code></td><td>POST</td><td><span class="new-tag">新增</span>导出寄样</td><td>按当前筛选与自定义列导出 Excel。</td></tr>
+          <tr><td><code>/tk/content/sample/order/import/template</code></td><td>GET</td><td><span class="new-tag">新增</span>下载导入模板</td><td>返回寄样导入模板文件流。</td></tr>
+          <tr><td><code>/tk/content/sample/order/import</code></td><td>POST</td><td><span class="new-tag">新增</span>导入寄样</td><td><code>multipart/form-data</code> 上传 xls / xlsx / pdf，用于批量导入或更新寄样记录。</td></tr>
+          <tr><td><code>/tk/content/sample/order/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td><td>返回寄样状态、达人等级、合作阶段、寄样商务（展示中文 &amp; 英文名）、店铺、站点等选项。</td></tr>
+          <tr><td><code>/tk/content/sample/order/fulfillment/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>履约状态重算</td><td>根据订单签收时间、PID、达人信息与视频数据重新计算待履约 / 已履约 / 履约逾期状态。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="affiliate-order-api-detail">3.2 联盟订单接口明细</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口</th><th>方法</th><th>用途</th><th>关键参数 / 说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>/tk/content/affiliate/order/affiliate/page</code></td><td>POST</td><td><span class="new-tag">新增</span>联盟订单分页</td><td>筛选是否开单、是否投放、年月、归属商务；搜索视频 ID、达人账号、视频款号、Product ID、商品标题。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/agency/page</code></td><td>POST</td><td><span class="new-tag">新增</span>机构订单分页</td><td>字段与联盟订单基本一致，额外支持机构名称。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/summary</code></td><td>POST</td><td><span class="new-tag">新增</span>订单统计汇总</td><td>按当前栏目与筛选返回视频总数、开单视频数、开单率、总订单数。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>订单明细分页</td><td>点击“查看订单明细”后按视频 ID / Post ID 查询订单明细，订单可按 SKU / PID 拆分。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/field/save</code></td><td>POST</td><td><span class="new-tag">新增</span>便捷字段保存</td><td>保存视频链接、归属商务、授权码、视频颜色等列表内可编辑字段。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/export</code></td><td>POST</td><td><span class="new-tag">新增</span>订单导出</td><td>按当前栏目和筛选条件导出联盟订单或机构订单。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td><td>返回年月、归属商务、开单状态、投放状态、机构名称等选项。</td></tr>
+          <tr><td><code>/tk/content/affiliate/order/rpa/import</code></td><td>POST</td><td><span class="new-tag">新增</span>RPA 数据接入</td><td>承接联盟订单 RPA 导出数据，落入订单明细层；涉及第三方控件时需要预留失败重试与错误日志。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="video-api-detail">3.3 视频数据接口明细</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口</th><th>方法</th><th>用途</th><th>关键参数 / 说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>/tk/content/video/all/page</code></td><td>POST</td><td><span class="new-tag">新增</span>全部视频分页</td><td>汇总联盟视频、自制视频，筛选是否开单、是否投放、店铺归属、寄样归因标签、关系归属标签、年月、店铺、人员、日期。</td></tr>
+          <tr><td><code>/tk/content/video/affiliate/page</code></td><td>POST</td><td><span class="new-tag">新增</span>联盟视频分页</td><td>返回联盟视频基础信息、商品信息、数据指标和手动维护字段。</td></tr>
+          <tr><td><code>/tk/content/video/self/page</code></td><td>POST</td><td><span class="new-tag">新增</span>自制视频分页</td><td>返回自制视频基础信息、商品信息、寄样归属、内容标记、数据指标和手动维护字段。</td></tr>
+          <tr><td><code>/tk/content/video/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>视频详情</td><td>按视频 ID / Post ID 与视频类型回显编辑抽屉。</td></tr>
+          <tr><td><code>/tk/content/video/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存视频维护字段</td><td>联盟视频保存归属商务、开单日期、授权码、颜色、寄样商务、备注；自制视频保存剪辑、编导、模特、颜色、脚本、内容标记、备注等。</td></tr>
+          <tr><td><code>/tk/content/video/maintain/page</code></td><td>POST</td><td><span class="new-tag">新增</span>维护视频数据分页</td><td>用于集中查看商品名称或 Product ID 缺失的视频；支持按发布时间范围、商品信息是否缺失筛选。</td></tr>
+          <tr><td><code>/tk/content/video/maintain/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存维护商品信息</td><td>批量保存 Product ID 和商品名称；商品名称允许为空，Product ID 可单独维护。</td></tr>
+          <tr><td><code>/tk/content/video/import/template</code></td><td>GET</td><td><span class="new-tag">新增</span>下载导入更新模板</td><td>返回视频数据导入更新模板。</td></tr>
+          <tr><td><code>/tk/content/video/import/update</code></td><td>POST</td><td><span class="new-tag">新增</span>导入更新视频数据</td><td><code>multipart/form-data</code> 上传 xls / xlsx / pdf，用于批量补充 Product ID、商品名称、归属人员、内容标记、寄样归因等维护字段。</td></tr>
+          <tr><td><code>/tk/content/video/export</code></td><td>POST</td><td><span class="new-tag">新增</span>导出视频数据</td><td>按当前栏目、筛选条件和展示字段导出。</td></tr>
+          <tr><td><code>/tk/content/video/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td><td>返回年月、店铺、人员、店铺归属、寄样归因标签、关系归属标签、内容标记枚举等选项。</td></tr>
+          <tr><td><code>/tk/content/video/tag/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>内容标签重算</td><td>按“视频标签判定规则_给IT_6.xlsx”重新识别实拍、AI、IP、口播等内容标记。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="spu-factor-api-detail">3.4 SPU 月均系数与加权日均接口明细</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>接口</th><th>方法</th><th>用途</th><th>关键参数 / 说明</th></tr></thead>
+        <tbody>
+          <tr><td><code>/tk/content/product/archive/spu/monthly-factor/page</code></td><td>POST</td><td><span class="new-tag">新增</span>商品档案 SPU 月均系数分页</td><td>商品档案 SPU 看板展示上一年 1～12 月系数；按店铺、SPU、年份查询。</td></tr>
+          <tr><td><code>/tk/content/product/archive/spu/monthly-factor/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>商品档案月均系数详情</td><td>打开“编辑月均系数”抽屉时返回店铺、SPU、SPU 名称、年份与 12 个月系数。</td></tr>
+          <tr><td><code>/tk/content/product/archive/spu/monthly-factor/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存商品档案月均系数</td><td>按店铺 + SPU + 年份保存 1～12 月系数；系数需大于等于 0。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/spu/monthly-factor/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>发补货查看月均系数</td><td>发补货 SPU 模型中点击“查看月均系数”时查询，与商品档案口径一致。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/spu/monthly-factor/save</code></td><td>POST</td><td><span class="new-tag">新增</span>发补货保存月均系数</td><td>支持在发补货页面编辑 SPU 月均系数，保存后写入同一配置口径。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/spu/weighted-average/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>重新核算 SPU 加权日均</td><td>根据最新 1～12 月系数、SPU 当前销量基础值手动重算该条 SPU 加权日均，并返回刷新后的加权日均。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/restock/spu/page</code></td><td>POST</td><td><span class="new-tag">新增</span>备货模型 SPU 分页</td><td>发补货 1.2 新增 SPU 维度备货模型列表，支持按 SPU 搜索并查看 SKU 明细。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/ship/spu/page</code></td><td>POST</td><td><span class="new-tag">新增</span>发货模型 SPU 分页</td><td>发补货 1.2 新增 SPU 维度发货模型列表，支持按 SPU 搜索并查看 SKU 明细。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/restock/spu/sku-detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>备货 SPU 下钻 SKU 明细</td><td>点击备货模型（SPU）中的 SPU 编码后，按 SPU 查询对应 SKU 明细。</td></tr>
+          <tr><td><code>/tk/inventory/replenishment/ship/spu/sku-detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>发货 SPU 下钻 SKU 明细</td><td>点击发货模型（SPU）中的 SPU 编码后，按 SPU 查询对应 SKU 明细。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="api-overview">四、接口总览</h2>
     <div class="table-wrap">
       <table>
         <thead><tr><th>模块</th><th>接口</th><th>方法</th><th>用途</th></tr></thead>
         <tbody>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/status</code></td><td>GET</td><td>商品状态下拉选项</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/category</code></td><td>GET</td><td>产品品类下拉选项</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/brand</code></td><td>GET</td><td>产品品牌下拉选项</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/options/operator-owner</code></td><td>GET</td><td>负责人下拉选项</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/dataLatestTime</code></td><td>GET</td><td>数据最新时间</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/page</code></td><td>POST</td><td>SPU/PID/SKU 看板分页列表</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/detail</code></td><td>GET</td><td>编辑抽屉详情</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/save</code></td><td>POST</td><td>保存商品档案维护字段</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/sku-detail</code></td><td>POST</td><td>SPU/PID 展开 SKU 明细</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/fields</code></td><td>GET</td><td>字段说明与自定义列配置基础字段</td></tr>
-          <tr><td>商品档案</td><td><code>/tk/manage/product-archive/export</code></td><td>POST</td><td>导出商品档案</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/dataLatestTime</code></td><td>GET</td><td>数据最新时间</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/spu/page</code></td><td>POST</td><td>SPU 看板分页列表</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/pid/page</code></td><td>POST</td><td>PID 看板分页列表</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/sku/page</code></td><td>POST</td><td>SKU 看板分页列表</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/spu/export</code></td><td>POST</td><td>SPU 看板导出</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/pid/export</code></td><td>POST</td><td>PID 看板导出</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/sku/export</code></td><td>POST</td><td>SKU 看板导出</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/detail</code></td><td>POST</td><td>编辑抽屉详情</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/save</code></td><td>POST</td><td>保存商品档案维护字段</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/import/template</code></td><td>GET</td><td>导入模板下载</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/import</code></td><td>POST</td><td>导入商品档案</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/sku/detail</code></td><td>POST</td><td>SPU/PID 展开 SKU 明细</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/fields</code></td><td>GET</td><td>字段说明与自定义列配置基础字段</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/options/status</code></td><td>GET</td><td>商品状态下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/options/tk/audit/status</code></td><td>GET</td><td>TK 审核状态下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/options/category</code></td><td>GET</td><td>产品品类下拉选项</td></tr>
+          <tr><td>商品档案</td><td><code>/tk/content/product/archive/options/brand</code></td><td>GET</td><td>产品品牌下拉选项</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/all/page</code></td><td>POST</td><td>全部账号分页列表</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/summary</code></td><td>POST</td><td>Tab 计数与状态统计</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/creator/options</code></td><td>POST</td><td>达人号下拉列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/shop/options</code></td><td>GET</td><td>店铺下拉列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/operator/owner/options</code></td><td>GET</td><td>内部运营人员下拉列表</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/channel/page</code></td><td>POST</td><td>渠道号分页列表</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/creator/page</code></td><td>POST</td><td>达人号分页列表</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/tap/agency/page</code></td><td>POST</td><td>TAP 机构号分页列表</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/detail</code></td><td>GET</td><td>账号详情</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/detail</code></td><td>POST</td><td>账号详情</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/save</code></td><td>POST</td><td>新增 / 编辑账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/import/template</code></td><td>GET</td><td>下载导入模板</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/import</code></td><td>POST</td><td>导入账号档案</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/export</code></td><td>POST</td><td>导出账号列表</td></tr>
           <tr><td>账号维护</td><td><code>/tk/content/account/delete</code></td><td>POST</td><td>软删除账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/restore</code></td><td>POST</td><td>回收站恢复账号</td></tr>
-          <tr><td>账号维护</td><td><code>/tk/content/account/recycle/page</code></td><td>POST</td><td>回收站分页列表</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/fields</code></td><td>GET</td><td>账号字段说明</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/import</code></td><td>POST</td><td>导入账号档案</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/creator/field/import</code></td><td>POST</td><td>导入达人号字段</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/tap/agency/import</code></td><td>POST</td><td>导入 TAP 机构号</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/export</code></td><td>POST</td><td>账号维护通用导出</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/all/export</code></td><td>POST</td><td>全部账号导出</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/channel/export</code></td><td>POST</td><td>渠道号导出</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/creator/export</code></td><td>POST</td><td>达人号导出</td></tr>
+          <tr><td>账号维护</td><td><code>/tk/content/account/tap/agency/export</code></td><td>POST</td><td>TAP 机构号导出</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/page</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样列表分页</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/summary</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样统计汇总</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>寄样详情</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/save</code></td><td>POST</td><td><span class="new-tag">新增</span>新增 / 编辑寄样</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/delete</code></td><td>POST</td><td><span class="new-tag">新增</span>删除寄样</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/export</code></td><td>POST</td><td><span class="new-tag">新增</span>导出寄样</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/import/template</code></td><td>GET</td><td><span class="new-tag">新增</span>下载导入模板</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/import</code></td><td>POST</td><td><span class="new-tag">新增</span>导入寄样</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td></tr>
+          <tr><td>寄样管理</td><td><code>/tk/content/sample/order/fulfillment/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>履约状态重算</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/affiliate/page</code></td><td>POST</td><td><span class="new-tag">新增</span>联盟订单分页</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/agency/page</code></td><td>POST</td><td><span class="new-tag">新增</span>机构订单分页</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/summary</code></td><td>POST</td><td><span class="new-tag">新增</span>订单统计汇总</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>订单明细分页</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/field/save</code></td><td>POST</td><td><span class="new-tag">新增</span>便捷字段保存</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/export</code></td><td>POST</td><td><span class="new-tag">新增</span>订单导出</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td></tr>
+          <tr><td>联盟订单</td><td><code>/tk/content/affiliate/order/rpa/import</code></td><td>POST</td><td><span class="new-tag">新增</span>RPA 数据接入</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/all/page</code></td><td>POST</td><td><span class="new-tag">新增</span>全部视频分页</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/affiliate/page</code></td><td>POST</td><td><span class="new-tag">新增</span>联盟视频分页</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/self/page</code></td><td>POST</td><td><span class="new-tag">新增</span>自制视频分页</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>视频详情</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存视频维护字段</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/maintain/page</code></td><td>POST</td><td><span class="new-tag">新增</span>维护视频数据分页</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/maintain/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存维护商品信息</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/import/template</code></td><td>GET</td><td><span class="new-tag">新增</span>下载导入更新模板</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/import/update</code></td><td>POST</td><td><span class="new-tag">新增</span>导入更新视频数据</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/export</code></td><td>POST</td><td><span class="new-tag">新增</span>导出视频数据</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/options</code></td><td>GET</td><td><span class="new-tag">新增</span>筛选下拉选项</td></tr>
+          <tr><td>视频数据</td><td><code>/tk/content/video/tag/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>内容标签重算</td></tr>
+          <tr><td>SPU 月均系数</td><td><code>/tk/content/product/archive/spu/monthly-factor/page</code></td><td>POST</td><td><span class="new-tag">新增</span>商品档案 SPU 月均系数分页</td></tr>
+          <tr><td>SPU 月均系数</td><td><code>/tk/content/product/archive/spu/monthly-factor/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>商品档案月均系数详情</td></tr>
+          <tr><td>SPU 月均系数</td><td><code>/tk/content/product/archive/spu/monthly-factor/save</code></td><td>POST</td><td><span class="new-tag">新增</span>保存商品档案月均系数</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/spu/monthly-factor/detail</code></td><td>POST</td><td><span class="new-tag">新增</span>发补货查看月均系数</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/spu/monthly-factor/save</code></td><td>POST</td><td><span class="new-tag">新增</span>发补货保存月均系数</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/spu/weighted-average/recalculate</code></td><td>POST</td><td><span class="new-tag">新增</span>重新核算 SPU 加权日均</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/restock/spu/page</code></td><td>POST</td><td><span class="new-tag">新增</span>备货模型 SPU 分页</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/ship/spu/page</code></td><td>POST</td><td><span class="new-tag">新增</span>发货模型 SPU 分页</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/restock/spu/sku-detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>备货 SPU 下钻 SKU 明细</td></tr>
+          <tr><td>发补货 SPU 模型</td><td><code>/tk/inventory/replenishment/ship/spu/sku-detail/page</code></td><td>POST</td><td><span class="new-tag">新增</span>发货 SPU 下钻 SKU 明细</td></tr>
         </tbody>
       </table>
     </div>
