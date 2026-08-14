@@ -112,6 +112,7 @@
     .sort { color: var(--muted-2); font-size: 12px; margin-left: 2px; }
     .status-main { display: block; color: #374151; font-weight: 600; }
     .overdue { display: block; margin-top: 2px; color: var(--danger); font-size: 11px; font-weight: 700; }
+    .commission-reminder { display: block; margin-top: 2px; color: var(--warning); font-size: 11px; font-weight: 700; }
     .tag { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 22px; padding: 0 8px; border-radius: 999px; font-weight: 700; font-size: 12px; }
     .tag-yes { color: var(--success); background: #dcfce7; }
     .tag-no { color: #94a3b8; background: #f1f5f9; }
@@ -147,6 +148,7 @@
     .field select { height: 38px; padding: 0 12px; }
     .field textarea { min-height: 70px; padding: 10px 12px; resize: vertical; }
     .field input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, .16); }
+    .field-hint { grid-column: 2; margin-top: -6px; color: var(--warning); font-size: 12px; font-weight: 700; }
     .inline-two { display: grid; grid-template-columns: 1fr 74px; gap: 10px; }
     .drawer-actions { position: absolute; left: 0; right: 0; bottom: 0; height: 64px; padding: 0 18px; border-top: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
     .import-mask { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 80; }
@@ -307,6 +309,7 @@
           <li><strong>订单数据来源</strong>：订单数据来源于 TikTok API 的订单明细，仅取订单类型为 <strong>is_sample_order</strong> 的样品订单。</li>
           <li><strong>列表数据粒度</strong>：本页面按 <strong>SKU 维度</strong> 拆分展示。若一个订单包含 3 个不同 SKU，则拆成 3 行记录；每行可分别对应不同 PID / Product ID。</li>
           <li><strong>达人信息维护</strong>：达人 ID、达人名字、达人等级、达人性别、是否开单达人、合作阶段、达人佣金、备注等达人相关信息通过手动编辑维护。</li>
+          <li><strong>达人佣金默认值</strong>：新增或导入达人信息时，达人佣金默认按 <strong>10%</strong> 带出；当页面展示或编辑值为 <strong>10%</strong> 时，需要提醒寄样商务进行核对，确认该达人是否确实适用默认佣金。</li>
           <li><strong>寄样状态关联逻辑</strong>：寄样状态需要与视频数据关联判断，寄样订单与视频数据通过 <strong>PID + 达人信息</strong> 进行匹配。</li>
           <li><strong>履约逾期判断</strong>：以订单签收日期为起点，签收后 0-6 天内若未关联到对应视频，不算逾期，订单仍处于正常待履约状态；签收后达到或超过 7 天（&gt;= 7 天）仍未关联到视频时，判定为逾期。</li>
           <li><strong>编辑补充达人</strong>：编辑寄样记录时，如果达人列表中未出现对应达人，支持手动填入达人相关信息；保存后默认同步写入账户维护（达人）列表，后续可在账户维护中继续维护。</li>
@@ -390,7 +393,7 @@
         <div class="field"><label>寄样月份</label><input id="formMonth" placeholder="由寄样时间自动计算" /></div>
         <div class="field"><label class="required">寄样状态</label><select id="formStatus"><option>已履约</option><option>运输中</option><option>签收待履约</option><option>待发货</option><option>已发货</option><option>已签收</option><option>签收异常</option></select></div>
         <div class="field"><label>合作阶段</label><select id="formStage"><option>首次合作</option><option>二次合作</option><option>多次合作</option></select></div>
-        <div class="field"><label class="required">达人佣金</label><input id="formCommission" /></div>
+        <div class="field"><label class="required">达人佣金</label><input id="formCommission" placeholder="默认10%，需商务核对" /><div class="field-hint" id="commissionHint">默认 10% 时需提醒商务核对</div></div>
         <div class="field"><label>备注</label><textarea id="formRemark"></textarea></div>
       </section>
     </div>
@@ -417,6 +420,12 @@
     ];
     var overdueOnly = false;
     function byId(id) { return document.getElementById(id); }
+    function isDefaultCommission(value) {
+      return String(value || '').trim() === '10%';
+    }
+    function renderCommission(value) {
+      return String(value || '') + (isDefaultCommission(value) ? '<span class="commission-reminder">需商务核对</span>' : '');
+    }
     function parseDate(value) {
       if (!value) return null;
       var normalized = String(value).replace(/\//g, '-').split(' ')[0];
@@ -464,7 +473,7 @@
           '<td>' + item.level + '</td>' +
           '<td>' + item.gender + '</td>' +
           '<td><span class="tag ' + (item.opened === '是' ? 'tag-yes' : 'tag-no') + '">' + item.opened + '</span></td>' +
-          '<td>' + item.commission + '</td>' +
+          '<td title="' + (isDefaultCommission(item.commission) ? '默认10%，需商务核对' : item.commission) + '">' + renderCommission(item.commission) + '</td>' +
           '<td title="' + item.sku + '">' + item.sku + '</td>' +
           '<td>' + item.mainSku + '</td>' +
           '<td title="' + item.productName + '">' + item.productName + '</td>' +
@@ -512,6 +521,7 @@
       byId('formStatus').value = item.status;
       byId('formStage').value = item.stage;
       byId('formCommission').value = item.commission;
+      byId('commissionHint').style.display = isDefaultCommission(item.commission) ? 'block' : 'none';
       byId('formRemark').value = item.remark;
       byId('drawerMask').classList.add('open');
       byId('editDrawer').classList.add('open');
@@ -560,7 +570,7 @@
       byId('btnOverdue').classList.remove('active');
       renderRows();
     });
-    byId('btnAdd').addEventListener('click', function() { openDrawer(samples[0]); });
+    byId('btnAdd').addEventListener('click', function() { openDrawer(Object.assign({}, samples[0], { commission: '10%' })); });
     byId('btnImport').addEventListener('click', openImportModal);
     byId('btnImportClose').addEventListener('click', closeImportModal);
     byId('btnImportCancel').addEventListener('click', closeImportModal);
@@ -593,6 +603,9 @@
     byId('btnClose').addEventListener('click', closeDrawer);
     byId('btnCancel').addEventListener('click', closeDrawer);
     byId('drawerMask').addEventListener('click', closeDrawer);
+    byId('formCommission').addEventListener('input', function(event) {
+      byId('commissionHint').style.display = isDefaultCommission(event.target.value) ? 'block' : 'none';
+    });
     byId('btnSave').addEventListener('click', function() { closeDrawer(); showToast('寄样记录已保存'); });
     renderRows();
   </script>

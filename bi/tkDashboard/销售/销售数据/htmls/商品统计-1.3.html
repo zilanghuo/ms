@@ -107,15 +107,15 @@
     table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
     th, td { padding: 0.5rem 0.65rem; text-align: left; border: 1px solid var(--border); white-space: nowrap; }
     th { background: #f9fafb; color: var(--muted); font-weight: 500; }
-    /* 冻结前 8 列：店铺名、SPU(公式)、PID、热卖码是否断码、分析、小计、平均值、环比 */
+    /* 冻结前 8 列：店铺名、SPU(公式)、PID、热卖码是否断码、分析、小计、平均值、环比（小计/平均值为 销量 / 销售额） */
     #resultTable th.sticky-col-1, #resultTable td.sticky-col-1 { position: sticky; left: 0; width: 240px; min-width: 240px; max-width: 240px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
     #resultTable th.sticky-col-2, #resultTable td.sticky-col-2 { position: sticky; left: 240px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
     #resultTable th.sticky-col-3, #resultTable td.sticky-col-3 { position: sticky; left: 380px; width: 200px; min-width: 200px; max-width: 200px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 580px; width: 112px; min-width: 112px; max-width: 112px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 692px; width: 56px; min-width: 56px; max-width: 56px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-6, #resultTable td.sticky-col-6 { position: sticky; left: 748px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-7, #resultTable td.sticky-col-7 { position: sticky; left: 816px; width: 68px; min-width: 68px; max-width: 68px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
-    #resultTable th.sticky-col-8, #resultTable td.sticky-col-8 { position: sticky; left: 884px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-4, #resultTable td.sticky-col-4 { position: sticky; left: 580px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-5, #resultTable td.sticky-col-5 { position: sticky; left: 720px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-6, #resultTable td.sticky-col-6 { position: sticky; left: 860px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-7, #resultTable td.sticky-col-7 { position: sticky; left: 1000px; width: 140px; min-width: 140px; max-width: 140px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
+    #resultTable th.sticky-col-8, #resultTable td.sticky-col-8 { position: sticky; left: 1140px; width: 72px; min-width: 72px; max-width: 72px; z-index: 1; background: var(--card); box-shadow: 2px 0 4px -2px rgba(0,0,0,0.08); }
     #resultTable th.sticky-col-1, #resultTable th.sticky-col-2, #resultTable th.sticky-col-3, #resultTable th.sticky-col-4, #resultTable th.sticky-col-5, #resultTable th.sticky-col-6, #resultTable th.sticky-col-7, #resultTable th.sticky-col-8 { z-index: 2; background: #f9fafb !important; }
     #resultTable .spu-row td.sticky-col-1, #resultTable .spu-row td.sticky-col-2, #resultTable .spu-row td.sticky-col-3, #resultTable .spu-row td.sticky-col-4, #resultTable .spu-row td.sticky-col-5, #resultTable .spu-row td.sticky-col-6, #resultTable .spu-row td.sticky-col-7, #resultTable .spu-row td.sticky-col-8 { background: #fef9c3 !important; }
     #resultTable .spu-row:hover td.sticky-col-1, #resultTable .spu-row:hover td.sticky-col-2, #resultTable .spu-row:hover td.sticky-col-3, #resultTable .spu-row:hover td.sticky-col-4, #resultTable .spu-row:hover td.sticky-col-5, #resultTable .spu-row:hover td.sticky-col-6, #resultTable .spu-row:hover td.sticky-col-7, #resultTable .spu-row:hover td.sticky-col-8 { background: #fef08a !important; }
@@ -137,9 +137,11 @@
     #resultTable th.sku-sticky-8, #resultTable td.sku-sticky-8 { left: 1024px; width: 170px; min-width: 170px; max-width: 170px; }
     #resultTable th.sku-sticky-9, #resultTable td.sku-sticky-9 { left: 1194px; width: 96px; min-width: 96px; max-width: 96px; }
     #resultTable th.sku-sticky-10, #resultTable td.sku-sticky-10 { left: 1290px; width: 96px; min-width: 96px; max-width: 96px; }
-    #resultTable th.sku-sticky-11, #resultTable td.sku-sticky-11 { left: 1386px; width: 68px; min-width: 68px; max-width: 68px; }
-    #resultTable th.sku-sticky-12, #resultTable td.sku-sticky-12 { left: 1454px; width: 68px; min-width: 68px; max-width: 68px; }
-    #resultTable th.sku-sticky-13, #resultTable td.sku-sticky-13 { left: 1522px; width: 72px; min-width: 72px; max-width: 72px; }
+    #resultTable th.sku-sticky-11, #resultTable td.sku-sticky-11 { left: 1386px; width: 148px; min-width: 148px; max-width: 148px; }
+    #resultTable th.sku-sticky-12, #resultTable td.sku-sticky-12 { left: 1534px; width: 148px; min-width: 148px; max-width: 148px; }
+    #resultTable th.sku-sticky-13, #resultTable td.sku-sticky-13 { left: 1682px; width: 72px; min-width: 72px; max-width: 72px; }
+    #resultTable td.metric-pair, #resultTable th.metric-pair { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #resultTable td.metric-pair .amt { color: #0f766e; }
     .btn-detail-analysis { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: none; border-radius: 6px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; cursor: pointer; }
     .btn-detail-analysis:hover { background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); }
     tr:hover td { background: #f9fafb; }
@@ -370,7 +372,7 @@
         <li>1、调整 <code>SKU看板</code>、<code>SPU汇总</code>、<code>PID明细</code> 部分展示字段，补充热卖色码与断货相关信息（0618）。</li>
         <li>2、热卖码是否断码取当前库存情况判断；是否热卖色取近 30 天订单统计结果判断。</li>
         <li>3、<code>SPU汇总</code> 支持点击 SPU 下钻查看 SKU 销量明细，弹框支持日期筛选与导出，按颜色、尺码展示总计、颜色占比，以及单个尺码在当前颜色销量中的占比（0618）。</li>
-        <li>4、SKU看板字段：店铺名、SPU、PID、SKU编码、SKU产品中文名、颜色、尺码、积加SPU中文名称、小计、平均值、环比、每日销量；SPU 不合并、不展示 SPU 合计行。</li>
+        <li>4、SKU看板字段：店铺名、SPU、PID、SKU编码、SKU产品中文名、颜色、尺码、积加SPU中文名称、小计、平均值、环比、每日销量 / 每日销售额；SPU 不合并、不展示 SPU 合计行。</li>
         <li>5、筛选区新增 <code>SKU</code> 搜索项，其他筛选功能沿用原商品统计。</li>
         <li>6、店铺内容不再做单元格合并，店铺名平铺到每一行，便于复制、导出和逐行核对。</li>
         <li>7、PID明细中的 SPU 不再做单元格合并，SPU 平铺到每一行，和店铺名展示方式保持一致。</li>
@@ -378,6 +380,7 @@
         <li>9、增加导出图片功能，用于保存当前查询结果截图。</li>
         <li>10、不需要每天播报。</li>
         <li>11、颜色、尺码由 SKU 名称拆分展示；“积加SPU中文名称”即原父产品中文名。</li>
+        <li>12、小计、平均值、每日指标同步展示<strong>销量 / 销售额</strong>；销售额按店铺市场货币展示（如 USD <code>$</code>、EUR <code>€</code>）。</li>
       </ul>
     </div>
 
@@ -594,11 +597,46 @@
         for (var i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
         return Math.abs(h);
       }
+      var currencyMap = {
+        '美国 TK・艾斯特尼 - 欧洲直邮店 DE': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 ES': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 FR': '€',
+        '美国 TK・艾斯特尼 - 欧洲直邮店 IT': '€',
+        '美国 TK・艾斯特尼 - 美区特 1 店 US': '$',
+        '美国 TK・艾斯特尼 - 美区特 2 店 US': '$',
+        '美国 TK・艾斯特尼 - 美区特 3 店 US': '$',
+        '美国TK独立站-shopify:Global': '$'
+      };
+      function storeCurrency(storeName) {
+        return currencyMap[storeName] || '$';
+      }
       function mockPidQty(pid, dateStr) {
         var h = hash(pid + dateStr);
         if (pid.endsWith('556') || pid.endsWith('443')) return 1 + (h % 5);
         if (pid.endsWith('502')) return 10 + (h % 20);
         return 15 + (h % 60);
+      }
+      function mockUnitPrice(key, dateStr) {
+        var h = hash(key + dateStr + 'amt');
+        return +(15 + (h % 40) + (h % 100) / 100).toFixed(2);
+      }
+      function mockPidAmount(pid, dateStr) {
+        return +(mockPidQty(pid, dateStr) * mockUnitPrice(pid, dateStr)).toFixed(2);
+      }
+      function mockSkuQty(sku, dateStr) {
+        return 2 + (hash(sku + dateStr) % 28);
+      }
+      function mockSkuAmount(sku, dateStr) {
+        return +(mockSkuQty(sku, dateStr) * mockUnitPrice(sku, dateStr)).toFixed(2);
+      }
+      function fmtAmount(amount, currency) {
+        return (currency || '$') + Number(amount || 0).toFixed(2);
+      }
+      function fmtMetricPair(qty, amount, currency) {
+        return qty + ' / <span class="amt">' + fmtAmount(amount, currency) + '</span>';
+      }
+      function fmtMetricPairText(qty, amount, currency) {
+        return qty + ' / ' + fmtAmount(amount, currency);
       }
 
       function fmtDate(d) {
@@ -658,13 +696,22 @@
         return s;
       }
 
+      function pidBucketAmt(pid, bucket) {
+        var s = 0;
+        bucket.days.forEach(function(d) { s += mockPidAmount(pid, d); });
+        return +s.toFixed(2);
+      }
+
       function skuBucketQty(sku, bucket) {
         var s = 0;
-        bucket.days.forEach(function(d) {
-          var h = hash(sku + d);
-          s += 2 + (h % 28);
-        });
+        bucket.days.forEach(function(d) { s += mockSkuQty(sku, d); });
         return s;
+      }
+
+      function skuBucketAmt(sku, bucket) {
+        var s = 0;
+        bucket.days.forEach(function(d) { s += mockSkuAmount(sku, d); });
+        return +s.toFixed(2);
       }
 
       function getHotCodeBrokenBySpu(spu) {
@@ -886,11 +933,13 @@
 
         var bLen = buckets.length;
         var thead = document.getElementById('resultHead');
+        var dayMetricLabel = '每日销量 / 每日销售额';
+        var cur = storeCurrency(data.name);
         if (curView === 'spu') {
           thead.innerHTML =
             '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">热卖码是否断码</th>' +
             '<th class="sticky-col-4">小计</th><th class="sticky-col-5">平均值</th><th class="sticky-col-6">' + diffLabel + '</th>' +
-            '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
+            '<th colspan="' + bLen + '">' + dayMetricLabel + '</th>' +
             '</tr>' +
             '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th>' +
             buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
@@ -899,7 +948,7 @@
           thead.innerHTML =
             '<tr><th class="sku-sticky sku-sticky-1">店铺名</th><th class="sku-sticky sku-sticky-2">SPU</th><th class="sku-sticky sku-sticky-3">PID</th><th class="sku-sticky sku-sticky-4">SKU编码</th><th class="sku-sticky sku-sticky-5">SKU产品中文名</th><th class="sku-sticky sku-sticky-6">颜色</th><th class="sku-sticky sku-sticky-7">尺码</th><th class="sku-sticky sku-sticky-8">积加SPU中文名称</th>' +
             '<th class="sku-sticky sku-sticky-9">是否热卖色码</th><th class="sku-sticky sku-sticky-10">是否断货</th><th class="sku-sticky sku-sticky-11">小计</th><th class="sku-sticky sku-sticky-12">平均值</th><th class="sku-sticky sku-sticky-13">' + diffLabel + '</th>' +
-            '<th colspan="' + bLen + '">每日销量</th>' +
+            '<th colspan="' + bLen + '">' + dayMetricLabel + '</th>' +
             '</tr>' +
             '<tr><th class="sku-sticky sku-sticky-1"></th><th class="sku-sticky sku-sticky-2"></th><th class="sku-sticky sku-sticky-3"></th><th class="sku-sticky sku-sticky-4"></th><th class="sku-sticky sku-sticky-5"></th><th class="sku-sticky sku-sticky-6"></th><th class="sku-sticky sku-sticky-7"></th><th class="sku-sticky sku-sticky-8"></th><th class="sku-sticky sku-sticky-9"></th><th class="sku-sticky sku-sticky-10"></th><th class="sku-sticky sku-sticky-11"></th><th class="sku-sticky sku-sticky-12"></th><th class="sku-sticky sku-sticky-13"></th>' +
             buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
@@ -908,7 +957,7 @@
           thead.innerHTML =
             '<tr><th class="sticky-col-1">店铺名</th><th class="sticky-col-2">SPU(公式)</th><th class="sticky-col-3">PID</th><th class="sticky-col-4">热卖码是否断码</th><th class="sticky-col-5">分析</th>' +
             '<th class="sticky-col-6">小计</th><th class="sticky-col-7">平均值</th><th class="sticky-col-8">' + diffLabel + '</th>' +
-            '<th colspan="' + bLen + '">计数项: SKU sold quantity in the order.</th>' +
+            '<th colspan="' + bLen + '">' + dayMetricLabel + '</th>' +
             '</tr>' +
             '<tr><th class="sticky-col-1"></th><th class="sticky-col-2"></th><th class="sticky-col-3"></th><th class="sticky-col-4"></th><th class="sticky-col-5"></th><th class="sticky-col-6"></th><th class="sticky-col-7"></th><th class="sticky-col-8"></th>' +
             buckets.map(function(b) { return '<th>' + b.label + '</th>'; }).join('') +
@@ -917,22 +966,30 @@
 
         function sumArr(arr) { return arr.reduce(function(a, b) { return a + b; }, 0); }
         function avgArr(arr) { return arr.length ? Math.round(sumArr(arr) / arr.length) : 0; }
+        function avgAmtArr(arr) { return arr.length ? +(sumArr(arr) / arr.length).toFixed(2) : 0; }
+        function roundAmt(v) { return +Number(v || 0).toFixed(2); }
 
         var groups = [];
         data.spus.forEach(function(spu) {
           var pids = pidsBySpu[spu] || [];
           var pidRows = pids.map(function(pid) {
             var vals = buckets.map(function(b) { return pidBucketQty(pid, b); });
+            var amts = buckets.map(function(b) { return pidBucketAmt(pid, b); });
             var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
             var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
             var diffNum = s1 - s2;
             var diffStr = fmtChainRatio(s1, s2);
             var sub = sumArr(vals);
             var avg = avgArr(vals);
-            return { pid: pid, hotCodeBroken: getHotCodeBrokenByPid(pid), vals: vals, diffNum: diffNum, diffStr: diffStr, sub: sub, avg: avg };
+            var subAmt = roundAmt(sumArr(amts));
+            var avgAmt = avgAmtArr(amts);
+            return { pid: pid, hotCodeBroken: getHotCodeBrokenByPid(pid), vals: vals, amts: amts, diffNum: diffNum, diffStr: diffStr, sub: sub, avg: avg, subAmt: subAmt, avgAmt: avgAmt };
           });
           var totals = buckets.map(function(_, i) {
             var s = 0; pidRows.forEach(function(pr) { s += pr.vals[i]; }); return s;
+          });
+          var totalAmts = buckets.map(function(_, i) {
+            var s = 0; pidRows.forEach(function(pr) { s += pr.amts[i]; }); return roundAmt(s);
           });
           var t1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
           var t2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
@@ -940,7 +997,9 @@
           var totalDiffStr = fmtChainRatio(t1, t2);
           var totalSub = sumArr(totals);
           var totalAvg = avgArr(totals);
-          groups.push({ spu: spu, hotCodeBroken: getHotCodeBrokenBySpu(spu), totals: totals, totalDiffNum: totalDiffNum, totalDiffStr: totalDiffStr, totalSub: totalSub, totalAvg: totalAvg, pidRows: pidRows });
+          var totalSubAmt = roundAmt(sumArr(totalAmts));
+          var totalAvgAmt = avgAmtArr(totalAmts);
+          groups.push({ spu: spu, hotCodeBroken: getHotCodeBrokenBySpu(spu), totals: totals, totalAmts: totalAmts, totalDiffNum: totalDiffNum, totalDiffStr: totalDiffStr, totalSub: totalSub, totalAvg: totalAvg, totalSubAmt: totalSubAmt, totalAvgAmt: totalAvgAmt, pidRows: pidRows });
         });
 
         groups.sort(function(a, b) { return (b.totalSub || 0) - (a.totalSub || 0); });
@@ -950,8 +1009,15 @@
           groups.forEach(function(g) { s += g.totals[i] || 0; });
           return s;
         });
+        var storeTotalAmts = buckets.map(function(_, i) {
+          var s = 0;
+          groups.forEach(function(g) { s += g.totalAmts[i] || 0; });
+          return roundAmt(s);
+        });
         var storeTotalSub = sumArr(storeTotals);
         var storeTotalAvg = avgArr(storeTotals);
+        var storeTotalSubAmt = roundAmt(sumArr(storeTotalAmts));
+        var storeTotalAvgAmt = avgAmtArr(storeTotalAmts);
         var storeT1 = storeTotals.length >= 1 ? storeTotals[storeTotals.length - 1] : 0;
         var storeT2 = storeTotals.length >= 2 ? storeTotals[storeTotals.length - 2] : 0;
         var storeDiffStr = fmtChainRatio(storeT1, storeT2);
@@ -963,10 +1029,10 @@
             html += '<td class="sticky-col-1">' + data.name + '</td>';
             html += '<td class="sticky-col-2"><span class="spu-cell"><button type="button" class="spu-detail-link" data-spu="' + encodeURIComponent(group.spu || '') + '" data-store="' + encodeURIComponent(data.name || '') + '" title="查看 SKU 销量明细">' + group.spu + '</button></span></td>';
             html += '<td class="sticky-col-3">' + group.hotCodeBroken + '</td>';
-            html += '<td class="sticky-col-4" style="font-weight:600;">' + group.totalSub + '</td>';
-            html += '<td class="sticky-col-5" style="font-weight:600;">' + group.totalAvg + '</td>';
+            html += '<td class="sticky-col-4 metric-pair" style="font-weight:600;">' + fmtMetricPair(group.totalSub, group.totalSubAmt, cur) + '</td>';
+            html += '<td class="sticky-col-5 metric-pair" style="font-weight:600;">' + fmtMetricPair(group.totalAvg, group.totalAvgAmt, cur) + '</td>';
             html += '<td class="sticky-col-6 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
-            group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+            group.totals.forEach(function(v, i) { html += '<td class="metric-pair">' + fmtMetricPair(v, group.totalAmts[i], cur) + '</td>'; });
             html += '</tr>';
           });
         } else if (curView === 'sku') {
@@ -975,6 +1041,7 @@
           groups.forEach(function(group) {
             var rows = (skuRowsBySpu[group.spu] || []).map(function(row, idx) {
               var vals = buckets.map(function(b) { return skuBucketQty(row.sku, b); });
+              var amts = buckets.map(function(b) { return skuBucketAmt(row.sku, b); });
               var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
               var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
               return {
@@ -988,8 +1055,11 @@
                 isHotColorSize: row.isHotColorSize || '否',
                 isOutOfStock: row.isOutOfStock || '否',
                 vals: vals,
+                amts: amts,
                 sub: sumArr(vals),
                 avg: avgArr(vals),
+                subAmt: roundAmt(sumArr(amts)),
+                avgAmt: avgAmtArr(amts),
                 diffNum: s1 - s2,
                 diffStr: fmtChainRatio(s1, s2)
               };
@@ -1001,14 +1071,22 @@
                 rows.forEach(function(row) { s += row.vals[i] || 0; });
                 return s;
               });
+              var totalAmts = buckets.map(function(_, i) {
+                var s = 0;
+                rows.forEach(function(row) { s += row.amts[i] || 0; });
+                return roundAmt(s);
+              });
               var g1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
               var g2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
               skuGroups.push({
                 spu: group.spu,
                 rows: rows,
                 totals: totals,
+                totalAmts: totalAmts,
                 totalSub: sumArr(totals),
                 totalAvg: avgArr(totals),
+                totalSubAmt: roundAmt(sumArr(totalAmts)),
+                totalAvgAmt: avgAmtArr(totalAmts),
                 totalDiffNum: g1 - g2,
                 totalDiffStr: fmtChainRatio(g1, g2)
               });
@@ -1021,8 +1099,15 @@
             skuRows.forEach(function(row) { s += row.vals[i] || 0; });
             return s;
           });
+          storeTotalAmts = buckets.map(function(_, i) {
+            var s = 0;
+            skuRows.forEach(function(row) { s += row.amts[i] || 0; });
+            return roundAmt(s);
+          });
           storeTotalSub = sumArr(storeTotals);
           storeTotalAvg = avgArr(storeTotals);
+          storeTotalSubAmt = roundAmt(sumArr(storeTotalAmts));
+          storeTotalAvgAmt = avgAmtArr(storeTotalAmts);
           storeT1 = storeTotals.length >= 1 ? storeTotals[storeTotals.length - 1] : 0;
           storeT2 = storeTotals.length >= 2 ? storeTotals[storeTotals.length - 2] : 0;
           storeDiffStr = fmtChainRatio(storeT1, storeT2);
@@ -1040,10 +1125,10 @@
               html += '<td class="sku-sticky sku-sticky-8">' + row.parentName + '</td>';
               html += '<td class="sku-sticky sku-sticky-9">' + row.isHotColorSize + '</td>';
               html += '<td class="sku-sticky sku-sticky-10">' + row.isOutOfStock + '</td>';
-              html += '<td class="sku-sticky sku-sticky-11" style="font-weight:600;">' + row.sub + '</td>';
-              html += '<td class="sku-sticky sku-sticky-12">' + row.avg + '</td>';
+              html += '<td class="sku-sticky sku-sticky-11 metric-pair" style="font-weight:600;">' + fmtMetricPair(row.sub, row.subAmt, cur) + '</td>';
+              html += '<td class="sku-sticky sku-sticky-12 metric-pair">' + fmtMetricPair(row.avg, row.avgAmt, cur) + '</td>';
               html += '<td class="sku-sticky sku-sticky-13 ' + (row.diffNum < 0 ? 'diff-neg' : '') + '">' + row.diffStr + '</td>';
-              row.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+              row.vals.forEach(function(v, i) { html += '<td class="metric-pair">' + fmtMetricPair(v, row.amts[i], cur) + '</td>'; });
               html += '</tr>';
             });
           });
@@ -1055,10 +1140,10 @@
             html += '<td class="sticky-col-3">合计</td>';
             html += '<td class="sticky-col-4">' + group.hotCodeBroken + '</td>';
             html += '<td class="sticky-col-5">—</td>';
-            html += '<td class="sticky-col-6" style="font-weight:600;">' + group.totalSub + '</td>';
-            html += '<td class="sticky-col-7" style="font-weight:600;">' + group.totalAvg + '</td>';
+            html += '<td class="sticky-col-6 metric-pair" style="font-weight:600;">' + fmtMetricPair(group.totalSub, group.totalSubAmt, cur) + '</td>';
+            html += '<td class="sticky-col-7 metric-pair" style="font-weight:600;">' + fmtMetricPair(group.totalAvg, group.totalAvgAmt, cur) + '</td>';
             html += '<td class="sticky-col-8 ' + (group.totalDiffNum < 0 ? 'diff-neg' : '') + '">' + group.totalDiffStr + '</td>';
-            group.totals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+            group.totals.forEach(function(v, i) { html += '<td class="metric-pair">' + fmtMetricPair(v, group.totalAmts[i], cur) + '</td>'; });
             html += '</tr>';
 
             var spuEnc = encodeURIComponent(group.spu || '');
@@ -1070,10 +1155,10 @@
               html += '<td class="sticky-col-3">' + pr.pid + '</td>';
               html += '<td class="sticky-col-4">' + pr.hotCodeBroken + '</td>';
               html += '<td class="sticky-col-5"><button type="button" class="btn-detail-analysis" title="PID 明细" data-spu="' + spuEnc + '" data-store="' + storeEnc + '"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M3.5 18.49l6-6.01 4 4L20 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></button></td>';
-              html += '<td class="sticky-col-6">' + pr.sub + '</td>';
-              html += '<td class="sticky-col-7">' + pr.avg + '</td>';
+              html += '<td class="sticky-col-6 metric-pair">' + fmtMetricPair(pr.sub, pr.subAmt, cur) + '</td>';
+              html += '<td class="sticky-col-7 metric-pair">' + fmtMetricPair(pr.avg, pr.avgAmt, cur) + '</td>';
               html += '<td class="sticky-col-8 ' + (pr.diffNum < 0 ? 'diff-neg' : '') + '">' + pr.diffStr + '</td>';
-              pr.vals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+              pr.vals.forEach(function(v, i) { html += '<td class="metric-pair">' + fmtMetricPair(v, pr.amts[i], cur) + '</td>'; });
               html += '</tr>';
             });
           });
@@ -1083,8 +1168,8 @@
         if (curView !== 'sku') html += '<td class="sticky-col-1">' + data.name + '</td><td class="sticky-col-2">店铺小计合计</td>';
         if (curView === 'spu') {
           html += '<td class="sticky-col-3">—</td>';
-          html += '<td class="sticky-col-4">' + storeTotalSub + '</td>';
-          html += '<td class="sticky-col-5">' + storeTotalAvg + '</td>';
+          html += '<td class="sticky-col-4 metric-pair">' + fmtMetricPair(storeTotalSub, storeTotalSubAmt, cur) + '</td>';
+          html += '<td class="sticky-col-5 metric-pair">' + fmtMetricPair(storeTotalAvg, storeTotalAvgAmt, cur) + '</td>';
           html += '<td class="sticky-col-6">' + storeDiffStr + '</td>';
         } else if (curView === 'sku') {
           html += '<td class="sku-sticky sku-sticky-1">' + data.name + '</td>';
@@ -1097,18 +1182,18 @@
           html += '<td class="sku-sticky sku-sticky-8">—</td>';
           html += '<td class="sku-sticky sku-sticky-9">—</td>';
           html += '<td class="sku-sticky sku-sticky-10">—</td>';
-          html += '<td class="sku-sticky sku-sticky-11">' + storeTotalSub + '</td>';
-          html += '<td class="sku-sticky sku-sticky-12">' + storeTotalAvg + '</td>';
+          html += '<td class="sku-sticky sku-sticky-11 metric-pair">' + fmtMetricPair(storeTotalSub, storeTotalSubAmt, cur) + '</td>';
+          html += '<td class="sku-sticky sku-sticky-12 metric-pair">' + fmtMetricPair(storeTotalAvg, storeTotalAvgAmt, cur) + '</td>';
           html += '<td class="sku-sticky sku-sticky-13">' + storeDiffStr + '</td>';
         } else {
           html += '<td class="sticky-col-3">—</td>';
           html += '<td class="sticky-col-4">—</td>';
           html += '<td class="sticky-col-5">—</td>';
-          html += '<td class="sticky-col-6">' + storeTotalSub + '</td>';
-          html += '<td class="sticky-col-7">' + storeTotalAvg + '</td>';
+          html += '<td class="sticky-col-6 metric-pair">' + fmtMetricPair(storeTotalSub, storeTotalSubAmt, cur) + '</td>';
+          html += '<td class="sticky-col-7 metric-pair">' + fmtMetricPair(storeTotalAvg, storeTotalAvgAmt, cur) + '</td>';
           html += '<td class="sticky-col-8">' + storeDiffStr + '</td>';
         }
-        storeTotals.forEach(function(v) { html += '<td>' + v + '</td>'; });
+        storeTotals.forEach(function(v, i) { html += '<td class="metric-pair">' + fmtMetricPair(v, storeTotalAmts[i], cur) + '</td>'; });
         html += '</tr>';
 
         tbody.innerHTML = html;
@@ -1270,47 +1355,60 @@
         }
         var days = enumDays(range.start, range.end);
         var buckets = buildBuckets(days, curGran);
+        var cur = storeCurrency(data.name);
         var csvHeaders = curView === 'spu'
-          ? ['店铺名', 'SPU(公式)', '热卖码是否断码', '小计', '平均值', '环比'].concat(buckets.map(function(b) { return b.label; }))
+          ? ['店铺名', 'SPU(公式)', '热卖码是否断码', '小计(销量/销售额)', '平均值(销量/销售额)', '环比'].concat(buckets.map(function(b) { return b.label + '(销量/销售额)'; }))
           : curView === 'sku'
-            ? ['店铺名', 'SPU', 'PID', 'SKU编码', 'SKU产品中文名', '颜色', '尺码', '积加SPU中文名称', '是否热卖色码', '是否断货', '小计', '平均值', '环比'].concat(buckets.map(function(b) { return b.label; }))
-            : ['店铺名', 'SPU(公式)', 'PID', '热卖码是否断码'].concat(buckets.map(function(b) { return b.label; })).concat(['环比']);
+            ? ['店铺名', 'SPU', 'PID', 'SKU编码', 'SKU产品中文名', '颜色', '尺码', '积加SPU中文名称', '是否热卖色码', '是否断货', '小计(销量/销售额)', '平均值(销量/销售额)', '环比'].concat(buckets.map(function(b) { return b.label + '(销量/销售额)'; }))
+            : ['店铺名', 'SPU(公式)', 'PID', '热卖码是否断码'].concat(buckets.map(function(b) { return b.label + '(销量/销售额)'; })).concat(['环比']);
         var lines = [csvHeaders.map(escapeCell).join(',')];
         function sumExportArr(arr) { return arr.reduce(function(a, b) { return a + b; }, 0); }
         function avgExportArr(arr) { return arr.length ? Math.round(sumExportArr(arr) / arr.length) : 0; }
+        function avgExportAmtArr(arr) { return arr.length ? +(sumExportArr(arr) / arr.length).toFixed(2) : 0; }
+        function roundExportAmt(v) { return +Number(v || 0).toFixed(2); }
 
         data.spus.forEach(function(spu) {
           var pids = pidsBySpu[spu] || [];
           var pidRows = pids.map(function(pid) {
             var vals = buckets.map(function(b) { return pidBucketQty(pid, b); });
+            var amts = buckets.map(function(b) { return pidBucketAmt(pid, b); });
             var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
             var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
             var diffStr = fmtChainRatio(s1, s2);
-            return { pid: pid, hotCodeBroken: getHotCodeBrokenByPid(pid), vals: vals, diffStr: diffStr };
+            return { pid: pid, hotCodeBroken: getHotCodeBrokenByPid(pid), vals: vals, amts: amts, diffStr: diffStr };
           });
           var totals = buckets.map(function(_, i) {
             var s = 0; pidRows.forEach(function(pr) { s += pr.vals[i]; }); return s;
+          });
+          var totalAmts = buckets.map(function(_, i) {
+            var s = 0; pidRows.forEach(function(pr) { s += pr.amts[i]; }); return roundExportAmt(s);
           });
           var t1 = totals.length >= 1 ? totals[totals.length - 1] : 0;
           var t2 = totals.length >= 2 ? totals[totals.length - 2] : 0;
           var totalDiffStr = fmtChainRatio(t1, t2);
           var totalAvg = avgExportArr(totals);
+          var totalAvgAmt = avgExportAmtArr(totalAmts);
           if (curView === 'spu') {
             var totalSub = sumExportArr(totals);
-            lines.push([data.name, spu, getHotCodeBrokenBySpu(spu), totalSub, totalAvg, totalDiffStr].concat(totals).map(escapeCell).join(','));
+            var totalSubAmt = roundExportAmt(sumExportArr(totalAmts));
+            var dayCells = totals.map(function(v, i) { return fmtMetricPairText(v, totalAmts[i], cur); });
+            lines.push([data.name, spu, getHotCodeBrokenBySpu(spu), fmtMetricPairText(totalSub, totalSubAmt, cur), fmtMetricPairText(totalAvg, totalAvgAmt, cur), totalDiffStr].concat(dayCells).map(escapeCell).join(','));
           } else if (curView === 'sku') {
             (skuRowsBySpu[spu] || []).forEach(function(row, idx) {
               var vals = buckets.map(function(b) { return skuBucketQty(row.sku, b); });
+              var amts = buckets.map(function(b) { return skuBucketAmt(row.sku, b); });
               var s1 = vals.length >= 1 ? vals[vals.length - 1] : 0;
               var s2 = vals.length >= 2 ? vals[vals.length - 2] : 0;
               var diffStr = fmtChainRatio(s1, s2);
               var skuPids = pidsBySpu[spu] || [];
               var pid = skuPids[idx % (skuPids.length || 1)] || '—';
-              lines.push([data.name, spu, pid, row.sku, row.name, row.color, row.size, row.parentName, row.isHotColorSize || '否', row.isOutOfStock || '否', sumExportArr(vals), avgExportArr(vals), diffStr].concat(vals).map(escapeCell).join(','));
+              var dayCells = vals.map(function(v, i) { return fmtMetricPairText(v, amts[i], cur); });
+              lines.push([data.name, spu, pid, row.sku, row.name, row.color, row.size, row.parentName, row.isHotColorSize || '否', row.isOutOfStock || '否', fmtMetricPairText(sumExportArr(vals), roundExportAmt(sumExportArr(amts)), cur), fmtMetricPairText(avgExportArr(vals), avgExportAmtArr(amts), cur), diffStr].concat(dayCells).map(escapeCell).join(','));
             });
           } else {
             pidRows.forEach(function(pr) {
-              lines.push([data.name, spu, pr.pid, getHotCodeBrokenByPid(pr.pid)].concat(pr.vals).concat([pr.diffStr]).map(escapeCell).join(','));
+              var dayCells = pr.vals.map(function(v, i) { return fmtMetricPairText(v, pr.amts[i], cur); });
+              lines.push([data.name, spu, pr.pid, getHotCodeBrokenByPid(pr.pid)].concat(dayCells).concat([pr.diffStr]).map(escapeCell).join(','));
             });
           }
         });
@@ -1405,7 +1503,7 @@
           '2. 查询支持店铺单选，也支持先按站点筛选后联动收敛可选店铺列表。',
           '3. 统计时间按店铺所属市场本地时间归集，仅纳入订单金额不为 0 且非取消状态的订单明细。',
           '4. 顶部支持 SPU汇总 / PID明细 / SKU看板 三种维度切换，默认展示 SPU汇总；SPU 汇总中可点击 SPU 查看 SKU 销量明细。',
-          '5. 小计、平均值与环比均基于当前时间粒度区间计算。'
+          '5. 小计、平均值与每日指标均展示「销量 / 销售额」，销售额带店铺市场货币单位（如 $、€）；环比仍按销量计算。'
         ].join('\n'));
       };
       document.getElementById('btnExport').onclick = doExport;
