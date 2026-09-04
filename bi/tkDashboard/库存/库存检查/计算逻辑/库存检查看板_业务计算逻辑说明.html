@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>库存检查看板业务计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+      --danger-bg: #fef2f2;
+      --danger-line: #fecaca;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-line);
+      border-left: 5px solid #dc2626;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--soft);
+    }
+
+    .w-no {
+      width: 5%;
+      white-space: nowrap;
+    }
+
+    .w-name {
+      width: 14%;
+    }
+
+    .w-scope {
+      width: 14%;
+    }
+
+    .w-logic {
+      width: 26%;
+    }
+
+    .w-action {
+      width: 13%;
+    }
+
+    .w-business-logic {
+      width: 28%;
+    }
+
+    .source-table .w-no { width: 6%; white-space: nowrap; }
+    .source-table .w-name { width: 14%; }
+    .source-table .w-table { width: 24%; }
+    .source-table .w-scope { width: 14%; }
+    .source-table .w-logic { width: 28%; }
+    .source-table .w-action { width: 14%; }
+
+    .source-shot {
+      display: block;
+      width: 100%;
+      max-width: 680px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    ol,
+    ul {
+      margin: 8px 0 14px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main {
+        padding: 22px 14px 42px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        table-layout: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>库存检查看板业务计算逻辑说明</h1>
+  <p class="meta">适用对象：业务、运营、库存排障同学。本文解释库存检查看板中 SKU 列表、SPU 列表和统计卡片的业务含义。</p>
+
+  <section class="summary">
+    <strong>一句话理解：</strong>
+    库存检查看板用于核对“店铺侧已经挂出去的库存”与“系统判断应该同步到店铺的库存”是否一致。差异为正时代表店铺挂得比应该挂的多，可能有超卖风险；<br>差异为负时代表店铺挂得偏少，属于少同步。
+  </section>
+
+  <h2>一、卡片展示字段计算逻辑</h2>
+  <p>页面顶部统计卡片会随站点、店铺、日期、异常状态等筛选条件变化。SKU 看板展示 SKU 口径卡片，SPU 看板展示 SPU 口径卡片。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">卡片名称</th>
+      <th class="w-scope">适用列表</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>SKU 总数 / SPU 总数</td><td>SKU / SPU</td><td>当前筛选范围内的对象数。SKU 看库存 SKU 数，SPU 看款式数。</td><td>每天按当前筛选范围统计对象数量：SKU 视角按店铺 + 库存 SKU 去重；<br>SPU 视角按店铺 + SPU 汇总。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>total_object_cnt</code>；<br>按页面列表类型过滤 <code>view_grain = sku/spu</code>，再按站点/店铺筛选。SKU 店铺行按店铺 + SKU 去重，SPU 店铺行按店铺 + SPU 汇总。</td></tr>
+    <tr><td>2</td><td>海外在库总库存</td><td>SKU / SPU</td><td>海外仓当前可用或在库库存合计。</td><td>每天按当前筛选范围汇总海外仓已经在库或可用的库存；<br>SKU 与 SPU 视角分别按对应列表层级汇总。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>overseas_on_hand_total_qty</code>；<br>按 <code>view_grain = sku/spu</code> 与站点/店铺过滤。</td></tr>
+    <tr><td>3</td><td>海外在途总库存</td><td>SKU / SPU</td><td>海外方向还在运输或调拨中的库存合计。</td><td>每天按当前筛选范围汇总海外方向还未入可售仓的库存；<br>包括三方海外仓在途、FBT 在途和英国退货仓在途。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>overseas_in_transit_total_qty</code>；<br>按 <code>view_grain = sku/spu</code> 与站点/店铺过滤。</td></tr>
+    <tr><td>4</td><td>国内总库存</td><td>SKU / SPU</td><td>国内侧未交、在途、在库库存合计。</td><td>工厂采购未交量 + 国内交货在途库存 + 国内在库库存；<br>按当前列表视角汇总展示。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>domestic_total_qty</code>；<br>业务公式为 <code>factory_unfulfilled_qty + domestic_delivery_in_transit_qty + domestic_on_hand_qty</code>。</td></tr>
+    <tr><td>5</td><td>FBT 库存</td><td>SKU / SPU</td><td>FBT 可用库存 + FBT 在途库存，用来看 FBT 库存占比。</td><td>积加 FBT 可用库存 + FBT 在途库存；<br>用于观察 FBT 库存水位和库存占比。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>fbt_inventory_qty</code>；<br>SKU 店铺行来自去重后 <code>jijia_fbt_available_qty + fbt_in_transit_qty</code>；<br>SPU 店铺行来自 <code>dws_inventory_stock_check_spu_1d</code> 汇总。</td></tr>
+    <tr><td>6</td><td>阈值同步异常数</td><td>SKU / SPU</td><td>页面卡片名称沿用“阈值同步异常数”。当前实现中，SKU 统计卡片按“库存阀值未配置”计数；<br>SPU 店铺卡片按异常类型为“阀值问题”计数。</td><td>沿用页面当前异常口径：SKU 侧统计库存阀值未配置的对象；<br>SPU 侧统计异常类型为阀值问题的对象。</td><td>页面卡片名称沿用“阈值同步异常数”。当前实现中，SKU 统计卡片按“库存阀值未配置”计数；<br>SPU 店铺卡片按异常类型为“阀值问题”计数。</td></tr>
+    <tr><td>7</td><td>少同步异常数</td><td>SKU / SPU</td><td>店铺侧挂得比系统应该挂出的少的异常对象数。</td><td>当系统应该同步的库存大于店铺侧实际同步库存时，计入少同步异常；<br>按当前列表视角去重统计。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>less_sync_abnormal_cnt</code>；<br>来自 <code>sku_abnormal_summary</code>，按 <code>abnormal_type = less_sync</code> 的店铺 + PID + SKU 去重后统计。</td></tr>
+    <tr><td>8</td><td>超卖风险异常数</td><td>SKU / SPU</td><td>店铺侧挂得比系统应该挂出的多且超过阀值的异常对象数。</td><td>当店铺侧实际同步库存大于系统应该同步库存，并且超过库存阀值时，计入超卖风险异常；<br>按当前列表视角去重统计。</td><td>表 <code>dws.dws_inventory_stock_check_summary_1d</code> 字段 <code>oversold_risk_abnormal_cnt</code>；<br>来自 <code>sku_abnormal_summary</code>，按 <code>abnormal_type = oversold_risk</code> 的店铺 + PID + SKU 去重后统计。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、SKU 列表字段计算逻辑</h2>
+  <p class="note">本节按页面 SKU 列表字段顺序说明。表来源：<code>dws.dws_inventory_stock_check_sku_1d</code>；<br>默认分区过滤：<code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>产品基本信息</td><td>店铺</td><td>识别这行库存属于哪个店铺，页面筛选和排障的第一层入口。</td><td>（数据源1）取 TikTok 在线商品的店铺名称，用于页面筛选和定位具体店铺。</td><td>输出字段：<code>storeName</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_name</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>2</td><td>产品基本信息</td><td>SPU</td><td>商品款式层级，用于把多个 PID / SKU 汇总到同一个款式看库存。</td><td>（数据源1）优先取商品档案维护的 SPU，其次取在线商品 / PID 主 SPU 映射，用于把多个 PID / SKU 归到同一款式查看。</td><td>输出字段：<code>spu</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>spu</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>3</td><td>产品基本信息</td><td>SPU名称</td><td>SPU 的中文名称，帮助业务快速识别款式。</td><td>（数据源1）优先取商品档案维护的 SPU 名称，其次取在线商品名称，用于识别款式，不参与库存计算。</td><td>输出字段：<code>spuName</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>spu_name</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>4</td><td>产品基本信息</td><td>PID</td><td>TikTok 商品 ID，用于定位店铺后台的具体商品。</td><td>（数据源1）取 TikTok 在线商品 ID，用于定位店铺后台商品，不参与库存加减。</td><td>输出字段：<code>pid</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>pid</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>5</td><td>产品基本信息</td><td>MSKU</td><td>积加侧维护的商品 SKU 编码，通常与官方 seller_sku / skuCode 保持一致。</td><td>（数据源1）取在线商品 SKU 编码，作为积加库存和店铺 SKU 对齐的识别信息。</td><td>输出字段：<code>msku</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>msku</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>6</td><td>产品基本信息</td><td>SKU ID</td><td>TikTok 官方 SKU ID，用于和官方商品 API 明细对齐。</td><td>（数据源1）取 TikTok 官方 SKU ID，用于和官方商品 SKU 明细对齐。</td><td>输出字段：<code>skuId</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>sku_id</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>7</td><td>产品基本信息</td><td>库存SKU</td><td>库存 SKU，库存共享与同步判断主要按这个 SKU 收敛。</td><td>（数据源1）取在线商品库存 SKU，是库存共享、仓库库存和同步差异判断的主要识别字段。</td><td>输出字段：<code>inventorySku</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>inventory_sku</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>8</td><td>产品基本信息</td><td>库存SKU名称</td><td>库存 SKU 对应的中文商品名称。</td><td>（数据源1）取在线商品名称 / 标题，用于识别商品，不参与库存计算。</td><td>输出字段：<code>inventorySkuName</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>inventory_sku_name</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>9</td><td>总库存</td><td>总库存</td><td>当前可看作这行商品的全部库存水位。</td><td>总国内库存（序号16） + 海外在途总量（序号23） + 海外在库总库存（序号31）。</td><td>输出字段：<code>totalInventoryQty</code>。<br>DWS 字段 <code>total_inventory_qty</code>，由 DWD 当日 SKU 快照透传；<br>业务公式为总库存 = 国内总库存（序号16）+ 海外在途总量（序号23）+ 海外在库总库存（序号31）。</td></tr>
+    <tr><td>10</td><td>总库存</td><td>总在途库存</td><td>还在路上或未交付、暂不能立即售卖的库存。</td><td>总国内库存（序号16） - 国内在库库存（序号20） + 海外在途总量（序号23）。</td><td>输出字段：<code>totalInTransitQty</code>。<br>DWS 字段 <code>total_in_transit_qty</code>，由 DWD 当日 SKU 快照透传；<br>业务公式为在途类库存合计，可由总国内库存（序号16）扣国内在库（序号20）后加海外在途总量（序号23）理解。</td></tr>
+    <tr><td>11</td><td>总库存</td><td>总可用库存</td><td>当前已经在仓、理论上可用于销售或同步的库存。</td><td>国内在库库存（序号20） + 海外在库总库存（序号31）。</td><td>输出字段：<code>totalAvailableQty</code>。<br>DWS 字段 <code>total_available_qty</code>，由 DWD 当日 SKU 快照透传；<br>业务公式为国内在库库存（序号20）+ 海外在库总库存（序号31）。</td></tr>
+    <tr><td>12</td><td>总库存</td><td>积加FBT可用库存占比</td><td>看 FBT 可用库存占全部可用库存的比例。</td><td>积加 FBT 可用库存（序号37）/ 总可用库存（序号11）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>fbtAvailableQtyRatio</code>。<br>DWS 字段 <code>fbt_available_qty_ratio</code> = <code>jijia_fbt_available_qty</code> / <code>total_available_qty</code>；<br>引用序号37、11；<br>分母为 0 时返回 0。</td></tr>
+    <tr><td>13</td><td>总库存</td><td>积加FBT总库存占比</td><td>看 FBT 可用 + 在途占全部库存的比例。</td><td> （ 积加 FBT 可用库存（序号37）+ FBT 在途量（序号29））/  总库存（序号9）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>fbtTotalInventoryQtyRatio</code>。<br>DWS 字段 <code>fbt_total_inventory_qty_ratio</code> = (<code>jijia_fbt_available_qty</code> + <code>fbt_in_transit_qty</code>) / <code>total_inventory_qty</code>；<br>引用序号37、29、9；<br>分母为 0 时返回 0。</td></tr>
+    <tr><td>14</td><td>总库存</td><td>店铺FBT可用库存占比</td><td>看店铺侧 FBT 挂出的库存占可用库存比例。</td><td>店铺侧 FBT 可用库存（序号48）/ 总可用库存（序号11）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>storeFbtAvailableQtyRatio</code>。<br>DWS 字段 <code>store_fbt_available_qty_ratio</code> = <code>store_synced_fbt_qty</code> / <code>total_available_qty</code>；<br>引用序号48、11；<br>分母为 0 时返回 0。</td></tr>
+    <tr><td>15</td><td>总库存</td><td>店铺FBT总库存占比</td><td>看店铺侧 FBT 挂出 + FBT 在途占全部库存比例。</td><td>（店铺侧 FBT 可用库存（序号48）+ FBT 在途量（序号29）） /  总库存（序号9）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>storeFbtTotalInventoryQtyRatio</code>。<br>DWS 字段 <code>store_fbt_total_inventory_qty_ratio</code> = (<code>store_synced_fbt_qty</code> + <code>fbt_in_transit_qty</code>) / <code>total_inventory_qty</code>；<br>引用序号48、29、9；<br>分母为 0 时返回 0。</td></tr>
+    <tr><td>16</td><td>国内库存</td><td>总国内库存</td><td>国内侧库存总量，包括未交、在途和已在库。</td><td>工厂采购未交量（序号18） + 国内交货在途库存（序号19） + 国内在库库存（序号20）。</td><td>输出字段：<code>totalDomesticInventoryQty</code>。<br>DWS 字段 <code>domestic_total_qty</code>，由 DWD 快照透传；<br>业务公式为工厂采购未交量（序号18）+ 国内交货在途库存（序号19）+ 国内在库库存（序号20）。</td></tr>
+    <tr><td>17</td><td>国内库存</td><td>采购在途库存</td><td>采购和国内在途补给量。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的采购未交量 + 国内交货在途库存。</td><td>输出字段：<code>purchaseInTransitQty</code>。<br>DWS 字段 <code>purchase_in_transit_qty</code>，由 DWD 快照透传；<br>可理解为采购在途相关库存。</td></tr>
+    <tr><td>18</td><td>国内库存</td><td>工厂采购未交量</td><td>供应端已经采购但工厂还未交的数量。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的采购未交量汇总，参与总国内库存（序号16）。</td><td>输出字段：<code>factoryPurchaseUnshippedQty</code>。<br>DWS 字段 <code>factory_unfulfilled_qty</code>，由 DWD 快照透传。</td></tr>
+    <tr><td>19</td><td>国内库存</td><td>国内交货在途库存</td><td>国内交货或调拨过程中的在途库存。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的国内交货在途库存汇总，参与总国内库存（序号16）和总在途库存（序号10）。</td><td>输出字段：<code>domesticDeliveryInTransitQty</code>。<br>DWS 字段 <code>domestic_delivery_in_transit_qty</code>，由 DWD 快照透传。</td></tr>
+    <tr><td>20</td><td>国内库存</td><td>国内在库库存</td><td>国内仓当前可用库存。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的可用库存汇总，参与总国内库存（序号16）和总可用库存（序号11）。</td><td>输出字段：<code>domesticOnHandQty</code>。<br>DWS 字段 <code>domestic_on_hand_qty</code>，由 DWD 快照透传。</td></tr>
+    <tr><td>21</td><td>国内库存</td><td>国内-厦门仓库存</td><td>厦门相关国内仓当前可用库存。</td><td>（数据源2）美国TK-厦门直邮仓 + 美国TK-国内厦门仓的可用库存，参与美国TK厦门直邮仓同步差异（序号51）。</td><td>输出字段：<code>jijiaXiamenAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_xiamen_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>22</td><td>国内库存</td><td>国内-英国仓库存</td><td>英国直邮相关国内仓当前可用库存。</td><td>（数据源2）美国TK-英区直邮仓的可用库存，用于识别英国直邮库存水位。</td><td>输出字段：<code>jijiaUkDirectAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_uk_direct_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>23</td><td>海外在途库存</td><td>海外在途总量</td><td>海外方向还在运输、调拨或 FBT 在途中的库存总量。</td><td>三方仓在途量（序号24） + FBT在途量（序号29） + 英国退货仓在途量（序号30）。</td><td>输出字段：<code>overseaInTransitTotalQty</code>。<br>DWS 字段 <code>overseas_in_transit_total_qty</code>，由 DWD 快照透传；<br>业务公式为三方仓在途（序号24）+ USKY3（序号25）+ USWC2（序号26）+ USWC（序号27）+ 谷仓美西（序号28）+ FBT 在途（序号29）+ 英国退货仓在途（序号30）。</td></tr>
+    <tr><td>24</td><td>海外在途库存</td><td>三方仓在途量</td><td>三方海外仓在途合计。</td><td>万邑通USKY3在途（序号25） + 万邑通USWC2在途（序号26） + 万邑通USWC在途（序号27） + 美国谷仓:美西仓库在途（序号28）。</td><td>输出字段：<code>thirdWarehouseInTransitQty</code>。<br>DWS 字段 <code>third_warehouse_in_transit_qty</code>，由 DWD 快照透传；<br>业务公式为万邑通和谷仓类三方仓在途合计，引用序号25-28。</td></tr>
+    <tr><td>25</td><td>海外在途库存</td><td>万邑通USKY3在途</td><td>万邑通 USKY3 仓在途数量。</td><td>（数据源2）万邑通 USKY3 仓的出库待处理、发货待处理和在途库存合计，参与三方仓在途量（序号24）和海外在途总量（序号23）。</td><td>输出字段：<code>winitUsky3InTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>winit_usky3_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>26</td><td>海外在途库存</td><td>万邑通USWC2在途</td><td>万邑通 USWC2 仓在途数量。</td><td>（数据源2）万邑通 USWC2 仓的出库待处理、发货待处理和在途库存合计，参与三方仓在途量（序号24）和海外在途总量（序号23）。</td><td>输出字段：<code>winitUswc2InTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>winit_uswc2_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>27</td><td>海外在途库存</td><td>万邑通USWC在途</td><td>万邑通 USWC 仓在途数量。</td><td>（数据源2）万邑通 USWC 仓的出库待处理、发货待处理和在途库存合计，参与三方仓在途量（序号24）和海外在途总量（序号23）。</td><td>输出字段：<code>winitUswcInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>winit_uswc_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>28</td><td>海外在途库存</td><td>美国谷仓:美西仓库在途</td><td>谷仓美西仓在途数量。</td><td>（数据源2）谷仓美西仓的出库待处理、发货待处理和在途库存合计，参与三方仓在途量（序号24）和海外在途总量（序号23）。</td><td>输出字段：<code>goodcangUsWestInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>goodcang_us_west_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>29</td><td>海外在途库存</td><td>FBT在途量</td><td>TikTok FBT 平台仓在途数量。</td><td>（数据源3）TikTok FBT 平台仓状态正常的在途库存，参与海外在途总量（序号23）和 FBT 总库存占比（序号13、15）。</td><td>输出字段：<code>fbtInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>fbt_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>30</td><td>海外在途库存</td><td>英国退货仓在途量</td><td>英国退货仓相关在途数量。</td><td>（数据源2）万邑通 UKTW 仓、英国退件仓的出库待处理、发货待处理和在途库存合计，参与海外在途总量（序号23）。</td><td>输出字段：<code>ukReturnWarehouseInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>uk_return_in_transit_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>31</td><td>海外在库库存</td><td>海外在库总库存</td><td>海外仓当前在库 / 可用库存总量。</td><td>积加-万邑通USKY3（序号32） + 积加-万邑通USWC2（序号33） + 积加-万邑通USWC（序号34） + 积加-谷仓美西仓库（序号35） + 积加-FBA仓库（序号36） + 积加-FBT可用（序号37） + 积加-英国退货仓（序号39）。</td><td>输出字段：<code>overseaOnHandTotalQty</code>。<br>DWS 字段 <code>overseas_on_hand_total_qty</code>，由 DWD 快照透传；<br>业务公式为万邑通/谷仓/FBA/FBT/英国退货仓等海外在库可用汇总，引用序号32-37、39。</td></tr>
+    <tr><td>32</td><td>海外在库库存</td><td>积加-万邑通USKY3</td><td>积加侧万邑通 USKY3 可用库存。</td><td>（数据源2）积加侧万邑通 USKY3 仓可用库存，参与海外在库总库存（序号31）、三方仓可用量（序号38）和 USKY3 同步差异（序号52）。</td><td>输出字段：<code>jijiaWinitUsky3AvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_winit_usky3_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>33</td><td>海外在库库存</td><td>积加-万邑通USWC2</td><td>积加侧万邑通 USWC2 可用库存。</td><td>（数据源2）积加侧万邑通 USWC2 仓可用库存，参与海外在库总库存（序号31）、三方仓可用量（序号38）和 USWC2 同步差异（序号53）。</td><td>输出字段：<code>jijiaWinitUswc2AvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_winit_uswc2_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>34</td><td>海外在库库存</td><td>积加-万邑通USWC</td><td>积加侧万邑通 USWC 可用库存。</td><td>（数据源2）积加侧万邑通 USWC 仓可用库存，参与海外在库总库存（序号31）、三方仓可用量（序号38）和 USWC 同步差异（序号54）。</td><td>输出字段：<code>jijiaWinitUswcAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_winit_uswc_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>35</td><td>海外在库库存</td><td>积加-谷仓美西仓库</td><td>积加侧谷仓美西仓可用库存。</td><td>（数据源2）积加侧谷仓美西仓可用库存，参与海外在库总库存（序号31）、三方仓可用量（序号38）和谷仓美西同步差异（序号55）。</td><td>输出字段：<code>jijiaGoodcangUsWestAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_goodcang_us_west_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>36</td><td>海外在库库存</td><td>积加-FBA仓库</td><td>积加侧 FBA 仓可用库存。</td><td>（数据源2）积加侧 FBA 仓可用库存，参与海外在库总库存（序号31）和 FBA 仓同步差异（序号56）。</td><td>输出字段：<code>jijiaFbaAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_fba_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>37</td><td>海外在库库存</td><td>积加-FBT可用</td><td>积加侧 TikTok FBT 可用库存。</td><td>（数据源3）TikTok FBT 平台仓状态正常的可用库存，参与海外在库总库存（序号31）、FBT 占比（序号12、13）和 FBT 同步差异（序号57）。</td><td>输出字段：<code>jijiaFbtAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_fbt_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>38</td><td>海外在库库存</td><td>三方仓可用量</td><td>三方海外仓可用库存合计。</td><td>积加-万邑通USKY3（序号32） + 积加-万邑通USWC2（序号33） + 积加-万邑通USWC（序号34） + 积加-谷仓美西仓库（序号35）。</td><td>输出字段：<code>thirdWarehouseAvailableQty</code>。<br>DWS 字段 <code>third_warehouse_available_qty</code>，由 DWD 快照透传；<br>业务公式为万邑通和谷仓类三方仓可用合计，引用序号32-35。</td></tr>
+    <tr><td>39</td><td>海外在库库存</td><td>积加-英国退货仓</td><td>积加侧英国退货仓可用库存。</td><td>（数据源2）积加侧万邑通 UKTW 仓、英国退件仓可用库存汇总，参与海外在库总库存（序号31）和英国退货仓差异（序号58）。</td><td>输出字段：<code>jijiaUkReturnAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>jijia_uk_return_available_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>40</td><td>店铺应该被同步的库存</td><td>店铺应该被同步的库存</td><td>系统判断店铺理论上应该挂出的库存。</td><td>国内在库库存（序号20） + 海外在库总库存（序号31）；<br>不包含工厂采购未交量（序号18）、国内交货在途库存（序号19）和海外在途总量（序号23）。</td><td>输出字段：<code>storeShouldSyncQty</code>。<br>DWD 字段 <code>should_sync_inventory_qty</code> 来自 <code>CAST(total_inventory_1_qty AS DECIMAL(18,2))</code>；<br>SQL 注释口径：<code>total_inventory_1_qty / should_sync_inventory_qty = 国内在库库存 + 海外在库总库存</code>，不含工厂采购未交量、国内交货在途库存、海外在途；<br>DWS SKU 表透传该字段。</td></tr>
+    <tr><td>41</td><td>店铺实际被同步库存的情况</td><td>店铺侧被同步的总库存</td><td>店铺侧当前已经挂出的总库存。</td><td>店铺侧-美国TK厦门直邮仓（序号42） + 店铺侧-万邑通USKY3（序号43） + 店铺侧-万邑通USWC2（序号44） + 店铺侧-万邑通USWC（序号45） + 店铺侧-谷仓美西仓库（序号46） + 店铺侧-FBA仓库（序号47） + 店铺侧-FBT可用（序号48） + 店铺侧-英国退货仓（序号49）。</td><td>输出字段：<code>storeSyncedTotalQty</code>。<br>DWS 字段 <code>store_synced_total_qty</code>，由 DWD 快照透传；<br>业务公式为店铺侧各仓已同步库存合计，引用序号42-49。</td></tr>
+    <tr><td>42</td><td>店铺实际被同步库存的情况</td><td>店铺侧-美国TK厦门直邮仓</td><td>店铺侧美国 TK 厦门直邮仓挂出的库存。</td><td>（数据源4）店铺侧美国 TK 国内厦门仓可用库存 + 美国 TK 厦门直邮仓可用库存，参与店铺侧被同步总库存（序号41）和厦门直邮仓同步差异（序号51）。</td><td>输出字段：<code>storeTkXiamenDomesticSyncedQty</code>。<br>DWD 字段 <code>store_synced_tk_xiamen_direct_qty</code> 来自 <code>CAST(warehouse_domestic_2_qty AS DECIMAL(18,2))</code>；<br><code>warehouse_domestic_2_qty = SUM(available_qty_us_tk_xiamen_domestic + available_qty_us_tk_xiamen_direct)</code>，来源表 <code>ods.ods_inventory_jijia_pid_warehouse_stock_df</code>；<br>DWS SKU 表透传该字段。</td></tr>
+    <tr><td>43</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USKY3</td><td>店铺侧万邑通 USKY3 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USKY3 仓可用库存，参与店铺侧被同步总库存（序号41）和 USKY3 同步差异（序号52）。</td><td>输出字段：<code>storeWinitUsky3SyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_winit_usky3_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>44</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USWC2</td><td>店铺侧万邑通 USWC2 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USWC2 仓可用库存，参与店铺侧被同步总库存（序号41）和 USWC2 同步差异（序号53）。</td><td>输出字段：<code>storeWinitUswc2SyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_winit_uswc2_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>45</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USWC</td><td>店铺侧万邑通 USWC 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USWC 仓可用库存，参与店铺侧被同步总库存（序号41）和 USWC 同步差异（序号54）。</td><td>输出字段：<code>storeWinitUswcSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_winit_uswc_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>46</td><td>店铺实际被同步库存的情况</td><td>店铺侧-谷仓美西仓库</td><td>店铺侧谷仓美西仓挂出的库存。</td><td>（数据源4）店铺侧谷仓美西仓可用库存，参与店铺侧被同步总库存（序号41）和谷仓美西同步差异（序号55）。</td><td>输出字段：<code>storeGoodcangUsWestSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_goodcang_us_west_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>47</td><td>店铺实际被同步库存的情况</td><td>店铺侧-FBA仓库</td><td>店铺侧 FBA 仓挂出的库存。</td><td>（数据源4）店铺侧 FBA 仓可用库存，参与店铺侧被同步总库存（序号41）和 FBA 仓同步差异（序号56）。</td><td>输出字段：<code>storeFbaSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_fba_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>48</td><td>店铺实际被同步库存的情况</td><td>店铺侧-FBT可用</td><td>店铺侧 FBT 可用库存。</td><td>（数据源4）店铺侧 FBT 可用库存，参与店铺侧被同步总库存（序号41）、店铺 FBT 占比（序号14、15）和 FBT 同步差异（序号57）。</td><td>输出字段：<code>storeFbtSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_fbt_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>49</td><td>店铺实际被同步库存的情况</td><td>店铺侧-英国退货仓</td><td>店铺侧英国退货仓挂出的库存。</td><td>（数据源4）店铺侧英国退货仓 + 万邑通 UKTW 仓可用库存，参与店铺侧被同步总库存（序号41）和英国退货仓差异（序号58）。</td><td>输出字段：<code>storeUkReturnSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_sku_1d</code> 字段 <code>store_synced_uk_return_qty</code>；<br>取数过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>DWS 从 <code>sku_source</code> 读取 DWD 当日 SKU 快照后输出。</td></tr>
+    <tr><td>50</td><td>库存差异</td><td>库存总差异</td><td>用来判断店铺侧到底挂多了还是挂少了。正数是店铺挂多，负数是店铺挂少。</td><td>每天用店铺侧被同步总库存（序号41）- 店铺应该被同步库存（序号40）。</td><td>输出字段：<code>inventoryTotalDiffQty</code>。<br>DWS 字段 <code>store_backend_should_sync_total_diff_qty</code>；<br>业务公式为店铺侧被同步总库存（序号41）- 店铺应该被同步库存（序号40）；<br>英国退货仓差异不纳入。</td></tr>
+    <tr><td>51</td><td>库存差异</td><td>美国TK厦门直邮仓同步差异</td><td>定位厦门直邮仓同步是否有差异。</td><td>店铺侧美国TK厦门直邮仓（序号42） - 积加厦门仓可用（序号21）。</td><td>输出字段：<code>domesticWarehouseDiffQty</code>。<br>DWS 字段 <code>tk_xiamen_direct_sync_diff_qty</code>；<br>业务公式为店铺侧美国TK厦门直邮仓（序号42）- 积加厦门仓可用（序号21）。</td></tr>
+    <tr><td>52</td><td>库存差异</td><td>万邑通USKY3同步差异</td><td>定位万邑通 USKY3 同步是否有差异。</td><td>店铺侧万邑通USKY3（序号43） - 积加万邑通USKY3（序号32）。</td><td>输出字段：<code>winitUsky3DiffQty</code>。<br>DWS 字段 <code>winit_usky3_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USKY3（序号43）- 积加万邑通USKY3（序号32）。</td></tr>
+    <tr><td>53</td><td>库存差异</td><td>万邑通USWC2同步差异</td><td>定位万邑通 USWC2 同步是否有差异。</td><td>店铺侧万邑通USWC2（序号44） - 积加万邑通USWC2（序号33）。</td><td>输出字段：<code>winitUswc2DiffQty</code>。<br>DWS 字段 <code>winit_uswc2_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USWC2（序号44）- 积加万邑通USWC2（序号33）。</td></tr>
+    <tr><td>54</td><td>库存差异</td><td>万邑通USWC同步差异</td><td>定位万邑通 USWC 同步是否有差异。</td><td>店铺侧万邑通USWC（序号45） - 积加万邑通USWC（序号34）。</td><td>输出字段：<code>winitUswcDiffQty</code>。<br>DWS 字段 <code>winit_uswc_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USWC（序号45）- 积加万邑通USWC（序号34）。</td></tr>
+    <tr><td>55</td><td>库存差异</td><td>谷仓美西仓同步差异</td><td>定位谷仓美西仓同步是否有差异。</td><td>店铺侧谷仓美西仓库（序号46） - 积加谷仓美西仓库（序号35）。</td><td>输出字段：<code>goodcangDiffQty</code>。<br>DWS 字段 <code>goodcang_us_west_sync_diff_qty</code>；<br>业务公式为店铺侧谷仓美西仓库（序号46）- 积加谷仓美西仓库（序号35）。</td></tr>
+    <tr><td>56</td><td>库存差异</td><td>FBA仓同步差异</td><td>定位 FBA 仓同步是否有差异。</td><td>店铺侧FBA仓库（序号47） - 积加FBA仓库（序号36）。</td><td>输出字段：<code>fbaDiffQty</code>。<br>DWS 字段 <code>fba_sync_diff_qty</code>；<br>业务公式为店铺侧FBA仓库（序号47）- 积加FBA仓库（序号36）。</td></tr>
+    <tr><td>57</td><td>库存差异</td><td>FBT同步差异</td><td>定位 FBT 同步是否有差异。</td><td>店铺侧FBT可用（序号48） - 积加FBT可用（序号37）。</td><td>输出字段：<code>fbtDiffQty</code>。<br>DWS 字段 <code>fbt_sync_diff_qty</code>；<br>业务公式为店铺侧FBT可用（序号48）- 积加FBT可用（序号37）。</td></tr>
+    <tr><td>58</td><td>库存差异</td><td>英国退货仓差异</td><td>定位英国退货仓展示差异；<br>它不参与库存总差异。</td><td>店铺侧英国退货仓（序号49） - 积加英国退货仓（序号39）；<br>不扣 FBT，也不纳入库存总差异（序号50）。</td><td>输出字段：<code>ukReturnDiffQty</code>。<br>DWS 字段 <code>uk_return_sync_diff_qty</code>；<br>业务公式为店铺侧英国退货仓（序号49）- 积加英国退货仓（序号39）；<br>不扣 FBT，也不纳入库存总差异（序号50）。</td></tr>
+    <tr><td>59</td><td>异常判断</td><td>异常仓库</td><td>告诉业务具体是哪几个仓库存在同步差异。</td><td>每天根据各仓同步差异是否不为 0 拼接异常仓库名称；<br>英国退货仓按修正后的退货仓差异参与判断。</td><td>输出字段：<code>abnormalWarehouseNames</code>。<br>DWS 字段 <code>abnormal_warehouse_names</code>；<br>DWD 已按各仓差异是否不为 0 拼接仓库名，英国退货仓只按修正后的差异参与。</td></tr>
+    <tr><td>60</td><td>异常判断</td><td>库存总差异</td><td>用于异常规则判断的库存总差异。</td><td>每天沿用库存总差异口径，作为异常判断专用差异；<br>引用库存总差异（序号50）。</td><td>输出字段：<code>exceptionInventoryTotalDiffQty</code>。<br>DWS 字段 <code>exception_store_backend_should_sync_total_diff_qty</code>；<br>用于异常 CASE，口径同库存总差异（序号50）。</td></tr>
+    <tr><td>61</td><td>异常判断</td><td>库存阀值设置</td><td>允许店铺侧多挂库存的安全阀值。</td><td>每天按店铺 + 库存 SKU 取库存阀值配置，作为异常类型判断的阀值依据，参与异常类型（序号63）。</td><td>输出字段：<code>inventoryThresholdQty</code>。<br>DWS 字段 <code>inventory_threshold_qty</code>；<br>来自库存阀值配置，按同店铺 + 库存 SKU 收敛，跨 PID 展示保持一致。</td></tr>
+    <tr><td>62</td><td>异常判断</td><td>库存是否异常</td><td>用于列表筛选是否异常。</td><td>每天根据异常用库存总差异（序号60）判断是否异常；<br>差异不为 0 时标记异常。</td><td>输出字段：<code>isInventoryAbnormal</code>。<br>DWS 字段 <code>is_inventory_abnormal</code>；<br>DWD 口径透传，库存异常时为 1，否则为 0；<br>判断依赖异常差异（序号60）。</td></tr>
+    <tr><td>63</td><td>异常判断</td><td>异常类型</td><td>最终展示给业务看的异常类型。</td><td>每天根据应同步库存（序号40）、店铺已同步库存（序号41）、异常用库存总差异（序号60）和库存阀值（序号61）判定异常类型。</td><td>输出字段：<code>inventoryStatusName</code>。<br>DWS 字段 <code>abnormal_type_name</code>；<br>根据 <code>abnormal_type</code> 输出中文名：店铺有库存积加无库存、超卖风险、阀值问题、少同步、正常；<br>依赖序号40、41、60、61。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、SPU 列表字段计算逻辑</h2>
+  <p>SPU 列表按前端 <code>SPU_TABLE_GROUPS</code> 展示。除产品基本信息和异常判断字段外，其余库存、同步、差异字段均先按同一店铺 + SPU + 库存 SKU 去重，再汇总到 SPU，避免同一库存 SKU 因多个 PID 展示被重复计算。输出字段已合并到“表计算逻辑说明”中。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>产品基本信息</td><td>店铺</td><td>识别这行库存属于哪个店铺，页面筛选和排障的第一层入口。</td><td>（数据源1）取 TikTok 在线商品的店铺名称；<br>SPU 层按店铺 + SPU 汇总展示。</td><td>输出字段：<code>storeName</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_name</code>；<br>过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>按 <code>site_code + store_name + spu + spu_name</code> 分组输出。</td></tr>
+    <tr><td>2</td><td>产品基本信息</td><td>SPU</td><td>商品款式层级，用于把多个 PID / SKU 汇总到同一个款式看库存。</td><td>（数据源1）优先取商品档案维护的 SPU，其次取在线商品 / PID 主 SPU 映射；<br>SPU 层按店铺 + SPU 汇总展示。</td><td>输出字段：<code>spu</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>spu</code>；<br>过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>按 <code>site_code + store_name + spu + spu_name</code> 分组输出。</td></tr>
+    <tr><td>3</td><td>产品基本信息</td><td>SPU名称</td><td>SPU 的中文名称，帮助业务快速识别款式。</td><td>（数据源1）优先取商品档案维护的 SPU 名称，其次取在线商品名称；<br>SPU 层按店铺 + SPU 汇总展示。</td><td>输出字段：<code>spuName</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>spu_name</code>；<br>过滤 <code>smt = ${currentMonthPre}</code>、<code>sdt = ${currentDatePrev}</code>；<br>按 <code>site_code + store_name + spu + spu_name</code> 分组输出。</td></tr>
+    <tr><td>4</td><td>总库存</td><td>总库存</td><td>当前可看作这个 SPU的全部库存水位。</td><td>总国内库存（序号11） + 海外在途总量（序号18） + 海外在库总库存（序号26）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>totalInventoryQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>total_inventory_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>5</td><td>总库存</td><td>总在途库存</td><td>还在路上或未交付、暂不能立即售卖的库存。</td><td>总国内库存（序号11） - 国内在库库存（序号15） + 海外在途总量（序号18）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>totalInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>total_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>6</td><td>总库存</td><td>总可用库存</td><td>当前已经在仓、理论上可用于销售或同步的库存。</td><td>国内在库库存（序号15） + 海外在库总库存（序号26）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>totalAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>total_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>7</td><td>总库存</td><td>积加FBT可用库存占比</td><td>看 FBT 可用库存占全部可用库存的比例。</td><td>积加-FBT可用（序号32） / 总可用库存（序号6）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>fbtAvailableQtyRatio</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>fbt_available_qty_ratio</code>；<br>SPU 层公式：SUM(<code>jijia_fbt_available_qty</code>) / SUM(<code>total_available_qty</code>)；<br>引用序号32、6；<br>分母为 0 时返回 0；<br>先在 <code>sku_dedup</code> 按同店铺 + SPU + 库存 SKU 去重。</td></tr>
+    <tr><td>8</td><td>总库存</td><td>积加FBT总库存占比</td><td>看 FBT 可用 + 在途占全部库存的比例。</td><td>（积加-FBT可用（序号32） + FBT在途量（序号24））/ 总库存（序号4）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>fbtTotalInventoryQtyRatio</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>fbt_total_inventory_qty_ratio</code>；<br>SPU 层公式：(SUM(<code>jijia_fbt_available_qty</code>) + SUM(<code>fbt_in_transit_qty</code>)) / SUM(<code>total_inventory_qty</code>)；<br>引用序号32、24、4；<br>分母为 0 时返回 0；<br>先在 <code>sku_dedup</code> 按同店铺 + SPU + 库存 SKU 去重。</td></tr>
+    <tr><td>9</td><td>总库存</td><td>店铺FBT可用库存占比</td><td>看店铺侧 FBT 挂出的库存占可用库存比例。</td><td>店铺侧-FBT可用（序号43） / 总可用库存（序号6）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>storeFbtAvailableQtyRatio</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_fbt_available_qty_ratio</code>；<br>SPU 层公式：SUM(<code>store_synced_fbt_qty</code>) / SUM(<code>total_available_qty</code>)；<br>引用序号43、6；<br>分母为 0 时返回 0；<br>先在 <code>sku_dedup</code> 按同店铺 + SPU + 库存 SKU 去重。</td></tr>
+    <tr><td>10</td><td>总库存</td><td>店铺FBT总库存占比</td><td>看店铺侧 FBT 挂出 + FBT 在途占全部库存比例。</td><td>（店铺侧-FBT可用（序号43） + FBT在途量（序号24））/ 总库存（序号4）；<br>分母为 0 时展示 0。</td><td>输出字段：<code>storeFbtTotalInventoryQtyRatio</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_fbt_total_inventory_qty_ratio</code>；<br>SPU 层公式：(SUM(<code>store_synced_fbt_qty</code>) + SUM(<code>fbt_in_transit_qty</code>)) / SUM(<code>total_inventory_qty</code>)；<br>引用序号43、24、4；<br>分母为 0 时返回 0；<br>先在 <code>sku_dedup</code> 按同店铺 + SPU + 库存 SKU 去重。</td></tr>
+    <tr><td>11</td><td>国内库存</td><td>总国内库存</td><td>国内侧库存总量，包括未交、在途和已在库。</td><td>工厂采购未交量（序号13） + 国内交货在途库存（序号14） + 国内在库库存（序号15）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>totalDomesticInventoryQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>domestic_total_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>12</td><td>国内库存</td><td>采购在途库存</td><td>采购和国内在途补给量。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的采购未交量 + 国内交货在途库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>purchaseInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>purchase_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>13</td><td>国内库存</td><td>工厂采购未交量</td><td>供应端已经采购但工厂还未交的数量。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的采购未交量汇总；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与总国内库存（序号11）。</td><td>输出字段：<code>factoryPurchaseUnshippedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>factory_unfulfilled_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>14</td><td>国内库存</td><td>国内交货在途库存</td><td>国内交货或调拨过程中的在途库存。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的国内交货在途库存汇总；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与总国内库存（序号11）和总在途库存（序号5）。</td><td>输出字段：<code>domesticDeliveryInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>domestic_delivery_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>15</td><td>国内库存</td><td>国内在库库存</td><td>国内仓当前可用库存。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的可用库存汇总；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与总国内库存（序号11）和总可用库存（序号6）。</td><td>输出字段：<code>domesticOnHandQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>domestic_on_hand_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>16</td><td>国内库存</td><td>国内-厦门仓库存</td><td>厦门相关国内仓当前可用库存。</td><td>（数据源2）美国TK-厦门直邮仓 + 美国TK-国内厦门仓的可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与美国TK厦门直邮仓同步差异（序号46）。</td><td>输出字段：<code>jijiaXiamenAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_xiamen_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>17</td><td>国内库存</td><td>国内-英国仓库存</td><td>英国直邮相关国内仓当前可用库存。</td><td>（数据源2）美国TK-英区直邮仓的可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，用于识别英国直邮库存水位。</td><td>输出字段：<code>jijiaUkDirectAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_uk_direct_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>18</td><td>海外在途库存</td><td>海外在途总量</td><td>海外方向还在运输、调拨或 FBT 在途中的库存总量。</td><td>三方仓在途量（序号19） + FBT在途量（序号24） + 英国退货仓在途量（序号25）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>overseaInTransitTotalQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>overseas_in_transit_total_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>19</td><td>海外在途库存</td><td>三方仓在途量</td><td>三方海外仓在途合计。</td><td>万邑通USKY3在途（序号20） + 万邑通USWC2在途（序号21） + 万邑通USWC在途（序号22） + 美国谷仓:美西仓库在途（序号23）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>thirdWarehouseInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>third_warehouse_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>20</td><td>海外在途库存</td><td>万邑通USKY3在途</td><td>万邑通 USKY3 仓在途数量。</td><td>（数据源2）万邑通 USKY3 仓的出库待处理、发货待处理和在途库存合计；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与三方仓在途量（序号19）和海外在途总量（序号18）。</td><td>输出字段：<code>winitUsky3InTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_usky3_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>21</td><td>海外在途库存</td><td>万邑通USWC2在途</td><td>万邑通 USWC2 仓在途数量。</td><td>（数据源2）万邑通 USWC2 仓的出库待处理、发货待处理和在途库存合计；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与三方仓在途量（序号19）和海外在途总量（序号18）。</td><td>输出字段：<code>winitUswc2InTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_uswc2_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>22</td><td>海外在途库存</td><td>万邑通USWC在途</td><td>万邑通 USWC 仓在途数量。</td><td>（数据源2）万邑通 USWC 仓的出库待处理、发货待处理和在途库存合计；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与三方仓在途量（序号19）和海外在途总量（序号18）。</td><td>输出字段：<code>winitUswcInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_uswc_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>23</td><td>海外在途库存</td><td>美国谷仓:美西仓库在途</td><td>谷仓美西仓在途数量。</td><td>（数据源2）谷仓美西仓的出库待处理、发货待处理和在途库存合计；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与三方仓在途量（序号19）和海外在途总量（序号18）。</td><td>输出字段：<code>goodcangUsWestInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>goodcang_us_west_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>24</td><td>海外在途库存</td><td>FBT在途量</td><td>TikTok FBT 平台仓在途数量。</td><td>（数据源3）TikTok FBT 平台仓状态正常的在途库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在途总量（序号18）和 FBT 总库存占比（序号8、10）。</td><td>输出字段：<code>fbtInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>fbt_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>25</td><td>海外在途库存</td><td>英国退货仓在途量</td><td>英国退货仓相关在途数量。</td><td>（数据源2）万邑通 UKTW 仓、英国退件仓的出库待处理、发货待处理和在途库存合计；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在途总量（序号18）。</td><td>输出字段：<code>ukReturnWarehouseInTransitQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>uk_return_in_transit_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>26</td><td>海外在库库存</td><td>海外在库总库存</td><td>海外仓当前在库 / 可用库存总量。</td><td>积加-万邑通USKY3（序号27） + 积加-万邑通USWC2（序号28） + 积加-万邑通USWC（序号29） + 积加-谷仓美西仓库（序号30） + 积加-FBA仓库（序号31） + 积加-FBT可用（序号32） + 积加-英国退货仓（序号34）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>overseaOnHandTotalQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>overseas_on_hand_total_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>27</td><td>海外在库库存</td><td>积加-万邑通USKY3</td><td>积加侧万邑通 USKY3 可用库存。</td><td>（数据源2）积加侧万邑通 USKY3 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）、三方仓可用量（序号33）和 USKY3 同步差异（序号47）。</td><td>输出字段：<code>jijiaWinitUsky3AvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_winit_usky3_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>28</td><td>海外在库库存</td><td>积加-万邑通USWC2</td><td>积加侧万邑通 USWC2 可用库存。</td><td>（数据源2）积加侧万邑通 USWC2 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）、三方仓可用量（序号33）和 USWC2 同步差异（序号48）。</td><td>输出字段：<code>jijiaWinitUswc2AvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_winit_uswc2_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>29</td><td>海外在库库存</td><td>积加-万邑通USWC</td><td>积加侧万邑通 USWC 可用库存。</td><td>（数据源2）积加侧万邑通 USWC 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）、三方仓可用量（序号33）和 USWC 同步差异（序号49）。</td><td>输出字段：<code>jijiaWinitUswcAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_winit_uswc_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>30</td><td>海外在库库存</td><td>积加-谷仓美西仓库</td><td>积加侧谷仓美西仓可用库存。</td><td>（数据源2）积加侧谷仓美西仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）、三方仓可用量（序号33）和谷仓美西同步差异（序号50）。</td><td>输出字段：<code>jijiaGoodcangUsWestAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_goodcang_us_west_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>31</td><td>海外在库库存</td><td>积加-FBA仓库</td><td>积加侧 FBA 仓可用库存。</td><td>（数据源2）积加侧 FBA 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）和 FBA 仓同步差异（序号51）。</td><td>输出字段：<code>jijiaFbaAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_fba_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>32</td><td>海外在库库存</td><td>积加-FBT可用</td><td>积加侧 TikTok FBT 可用库存。</td><td>（数据源3）TikTok FBT 平台仓状态正常的可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）、FBT 占比（序号7、8）和 FBT 同步差异（序号52）。</td><td>输出字段：<code>jijiaFbtAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_fbt_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>33</td><td>海外在库库存</td><td>三方仓可用量</td><td>三方海外仓可用库存合计。</td><td>积加-万邑通USKY3（序号27） + 积加-万邑通USWC2（序号28） + 积加-万邑通USWC（序号29） + 积加-谷仓美西仓库（序号30）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>thirdWarehouseAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>third_warehouse_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>34</td><td>海外在库库存</td><td>积加-英国退货仓</td><td>积加侧英国退货仓可用库存。</td><td>（数据源2）积加侧万邑通 UKTW 仓、英国退件仓可用库存汇总；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与海外在库总库存（序号26）和英国退货仓差异（序号53）。</td><td>输出字段：<code>jijiaUkReturnAvailableQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>jijia_uk_return_available_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>35</td><td>店铺应该被同步的库存</td><td>店铺应该被同步的库存</td><td>系统判断店铺理论上应该挂出的库存。</td><td>国内在库库存（序号15） + 海外在库总库存（序号26）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，不包含工厂采购未交、国内在途和海外在途。</td><td>输出字段：<code>storeShouldSyncQty</code>。<br>SPU 表 <code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 对 <code>should_sync_inventory_qty</code> 取 <code>MIN</code> 去重，最终按 <code>site_code + store_name + spu</code> 执行 <code>SUM(COALESCE(should_sync_inventory_qty, 0))</code>；<br>底层 SKU 口径来自 DWD <code>total_inventory_1_qty</code>，即国内在库库存 + 海外在库总库存。</td></tr>
+    <tr><td>36</td><td>店铺实际被同步库存的情况</td><td>店铺侧被同步的总库存</td><td>店铺侧当前已经挂出的总库存。</td><td>店铺侧-美国TK厦门直邮仓（序号37） + 店铺侧-万邑通USKY3（序号38） + 店铺侧-万邑通USWC2（序号39） + 店铺侧-万邑通USWC（序号40） + 店铺侧-谷仓美西仓库（序号41） + 店铺侧-FBA仓库（序号42） + 店铺侧-FBT可用（序号43） + 店铺侧-英国退货仓（序号44）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>storeSyncedTotalQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_total_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>37</td><td>店铺实际被同步库存的情况</td><td>店铺侧-美国TK厦门直邮仓</td><td>店铺侧美国 TK 厦门直邮仓挂出的库存。</td><td>（数据源4）店铺侧美国 TK 国内厦门仓可用库存 + 美国 TK 厦门直邮仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和厦门直邮仓同步差异（序号46）。</td><td>输出字段：<code>storeTkXiamenDomesticSyncedQty</code>。<br>SPU 表 <code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 对 <code>store_synced_tk_xiamen_direct_qty</code> 取 <code>MIN</code> 去重，最终按 <code>site_code + store_name + spu</code> 执行 <code>SUM(COALESCE(store_synced_tk_xiamen_direct_qty, 0))</code>；<br>底层 SKU 口径来自 DWD <code>warehouse_domestic_2_qty = SUM(available_qty_us_tk_xiamen_domestic + available_qty_us_tk_xiamen_direct)</code>，来源表 <code>ods.ods_inventory_jijia_pid_warehouse_stock_df</code>。</td></tr>
+    <tr><td>38</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USKY3</td><td>店铺侧万邑通 USKY3 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USKY3 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和 USKY3 同步差异（序号47）。</td><td>输出字段：<code>storeWinitUsky3SyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_winit_usky3_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>39</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USWC2</td><td>店铺侧万邑通 USWC2 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USWC2 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和 USWC2 同步差异（序号48）。</td><td>输出字段：<code>storeWinitUswc2SyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_winit_uswc2_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>40</td><td>店铺实际被同步库存的情况</td><td>店铺侧-万邑通USWC</td><td>店铺侧万邑通 USWC 挂出的库存。</td><td>（数据源4）店铺侧万邑通 USWC 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和 USWC 同步差异（序号49）。</td><td>输出字段：<code>storeWinitUswcSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_winit_uswc_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>41</td><td>店铺实际被同步库存的情况</td><td>店铺侧-谷仓美西仓库</td><td>店铺侧谷仓美西仓挂出的库存。</td><td>（数据源4）店铺侧谷仓美西仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和谷仓美西同步差异（序号50）。</td><td>输出字段：<code>storeGoodcangUsWestSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_goodcang_us_west_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>42</td><td>店铺实际被同步库存的情况</td><td>店铺侧-FBA仓库</td><td>店铺侧 FBA 仓挂出的库存。</td><td>（数据源4）店铺侧 FBA 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和 FBA 仓同步差异（序号51）。</td><td>输出字段：<code>storeFbaSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_fba_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>43</td><td>店铺实际被同步库存的情况</td><td>店铺侧-FBT可用</td><td>店铺侧 FBT 可用库存。</td><td>（数据源4）店铺侧 FBT 可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）、店铺 FBT 占比（序号9、10）和 FBT 同步差异（序号52）。</td><td>输出字段：<code>storeFbtSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_fbt_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>44</td><td>店铺实际被同步库存的情况</td><td>店铺侧-英国退货仓</td><td>店铺侧英国退货仓挂出的库存。</td><td>（数据源4）店铺侧英国退货仓 + 万邑通 UKTW 仓可用库存；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总，参与店铺侧被同步总库存（序号36）和英国退货仓差异（序号53）。</td><td>输出字段：<code>storeUkReturnSyncedQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_synced_uk_return_qty</code>；<br><code>sku_dedup</code> 先按 <code>site_code + store_name + spu + sku_key</code> 去重并对库存字段取 MIN，最终按 <code>site_code + store_name + spu</code> 对该字段 SUM。</td></tr>
+    <tr><td>45</td><td>库存差异</td><td>库存总差异</td><td>用来判断店铺侧到底挂多了还是挂少了。正数是店铺挂多，负数是店铺挂少。</td><td>店铺侧被同步总库存（序号36） - 店铺应该被同步库存（序号35）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>inventoryTotalDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>store_backend_should_sync_total_diff_qty</code>；<br>先按同店铺 + SPU + 库存 SKU 去重取 MIN，再在 SPU 层 SUM；<br>业务公式为店铺侧被同步总库存（序号36）- 店铺应该被同步库存（序号35）。</td></tr>
+    <tr><td>46</td><td>库存差异</td><td>美国TK厦门直邮仓同步差异</td><td>定位厦门直邮仓同步是否有差异。</td><td>店铺侧美国TK厦门直邮仓（序号37） - 积加厦门仓可用（序号16）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>domesticWarehouseDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>tk_xiamen_direct_sync_diff_qty</code>；<br>业务公式为店铺侧美国TK厦门直邮仓（序号37）- 积加厦门仓可用（序号16）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>47</td><td>库存差异</td><td>万邑通USKY3同步差异</td><td>定位万邑通 USKY3 同步是否有差异。</td><td>店铺侧万邑通USKY3（序号38） - 积加万邑通USKY3（序号27）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>winitUsky3DiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_usky3_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USKY3（序号38）- 积加万邑通USKY3（序号27）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>48</td><td>库存差异</td><td>万邑通USWC2同步差异</td><td>定位万邑通 USWC2 同步是否有差异。</td><td>店铺侧万邑通USWC2（序号39） - 积加万邑通USWC2（序号28）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>winitUswc2DiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_uswc2_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USWC2（序号39）- 积加万邑通USWC2（序号28）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>49</td><td>库存差异</td><td>万邑通USWC同步差异</td><td>定位万邑通 USWC 同步是否有差异。</td><td>店铺侧万邑通USWC（序号40） - 积加万邑通USWC（序号29）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>winitUswcDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>winit_uswc_sync_diff_qty</code>；<br>业务公式为店铺侧万邑通USWC（序号40）- 积加万邑通USWC（序号29）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>50</td><td>库存差异</td><td>谷仓美西仓同步差异</td><td>定位谷仓美西仓同步是否有差异。</td><td>店铺侧谷仓美西仓库（序号41） - 积加谷仓美西仓库（序号30）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>goodcangDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>goodcang_us_west_sync_diff_qty</code>；<br>业务公式为店铺侧谷仓美西仓库（序号41）- 积加谷仓美西仓库（序号30）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>51</td><td>库存差异</td><td>FBA仓同步差异</td><td>定位 FBA 仓同步是否有差异。</td><td>店铺侧FBA仓库（序号42） - 积加FBA仓库（序号31）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>fbaDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>fba_sync_diff_qty</code>；<br>业务公式为店铺侧FBA仓库（序号42）- 积加FBA仓库（序号31）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>52</td><td>库存差异</td><td>FBT同步差异</td><td>定位 FBT 同步是否有差异。</td><td>店铺侧FBT可用（序号43） - 积加FBT可用（序号32）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>fbtDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>fbt_sync_diff_qty</code>；<br>业务公式为店铺侧FBT可用（序号43）- 积加FBT可用（序号32）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>53</td><td>库存差异</td><td>英国退货仓差异</td><td>定位英国退货仓展示差异；<br>它不参与库存总差异。</td><td>店铺侧英国退货仓（序号44） - 积加英国退货仓（序号34）；<br>不扣 FBT，也不纳入库存总差异（序号45）；<br>SPU 层按同店铺、SPU、库存 SKU 去重后汇总。</td><td>输出字段：<code>ukReturnDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>uk_return_sync_diff_qty</code>；<br>业务公式为店铺侧英国退货仓（序号44）- 积加英国退货仓（序号34）；<br>不扣 FBT，也不纳入库存总差异（序号45）；<br>SPU 层先按同店铺 + SPU + 库存 SKU 去重取 MIN，再 SUM。</td></tr>
+    <tr><td>54</td><td>异常判断</td><td>库存总差异</td><td>用于异常规则判断的库存总差异。</td><td>库存总差异（序号45）；<br>作为异常判断专用差异。</td><td>输出字段：<code>exceptionInventoryTotalDiffQty</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>exception_store_backend_should_sync_total_diff_qty</code>；<br>先按同店铺 + SPU + 库存 SKU 去重取 MIN，再在 SPU 层 SUM；<br>口径同库存总差异（序号45）。</td></tr>
+    <tr><td>55</td><td>异常判断</td><td>库存是否异常</td><td>用于列表筛选是否异常。</td><td>库存总差异（序号54）不为 0 时标记异常。</td><td>输出字段：<code>isInventoryAbnormal</code>。<br>表 <code>dws.dws_inventory_stock_check_spu_1d</code> 字段 <code>is_inventory_abnormal</code>；<br>SPU 层公式：SUM(<code>exception_store_backend_should_sync_total_diff_qty</code>) != 0 时为 1，否则为 0；<br>引用序号54。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>四、异常状态计算逻辑</h2>
+  <p>核心指标是 <code>库存总差异 = 店铺侧被同步库存 - 店铺应该被同步库存</code>。这个方向很重要：差异越大，说明店铺侧挂出的库存越多。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">页面状态</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+      <th class="w-action">建议处理</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>同步正确 / 正常</td><td>店铺侧挂出的库存和系统应同步库存一致。</td><td>系统应该同步的库存与店铺侧实际同步库存处于正常范围；<br>未命中其他异常规则时展示为正常。</td><td>SKU 表取 <code>dws_inventory_stock_check_sku_1d.abnormal_type_name</code>；<br>SPU 表取 <code>dws_inventory_stock_check_spu_1d.abnormal_type_name</code>。当不命中其他异常 CASE 时输出 <code>normal / 正常</code>。</td><td>无需处理。</td></tr>
+    <tr><td>2</td><td>店铺有库存，积加无库存</td><td>系统判断没有库存可同步，但店铺侧仍挂着库存。通常需要检查是否有人在店铺后台手动填了库存。</td><td>系统应该同步库存为 0，但店铺侧仍有已同步库存；<br>SKU 按单行判断，SPU 按汇总后的库存重新判断。</td><td>DWS CASE：<code>should_sync_inventory_qty = 0 AND store_synced_total_qty &gt; 0</code> 时输出 <code>store_stock_jijia_no_stock / 店铺有库存，积加无库存</code>；<br>SPU 层使用 SUM 后的两个字段重新判断。</td><td>优先核查店铺后台手动库存、商品同步配置和仓库映射。</td></tr>
+    <tr><td>3</td><td>超卖风险</td><td>店铺侧挂得比系统应该挂的多，而且超过阀值。实际库存可能支撑不了店铺展示量。</td><td>店铺侧已同步库存高于系统应该同步库存，且超出的数量超过库存阀值；<br>SKU 按单行判断，SPU 按汇总后的差异和阀值重新判断。</td><td>DWS CASE：<code>exception_store_backend_should_sync_total_diff_qty &gt; inventory_threshold_qty</code> 时输出 <code>oversold_risk / 超卖风险</code>；<br>SPU 层使用 SUM 后的差异和阀值重新判断。</td><td>高优先级处理，检查库存同步、店铺库存和仓库库存。</td></tr>
+    <tr><td>4</td><td>阀值问题</td><td>店铺侧挂得偏多，但还在阀值内。通常是安全缓冲或阀值设置需要复核。</td><td>店铺侧已同步库存高于系统应该同步库存，但超出的数量仍在库存阀值范围内；<br>通常需要复核阀值设置是否合理。</td><td>DWS CASE：<code>exception_store_backend_should_sync_total_diff_qty &gt; 0 AND exception_store_backend_should_sync_total_diff_qty &lt;= inventory_threshold_qty</code> 时输出 <code>threshold / 阀值问题</code>；<br>SPU 层使用汇总后字段。</td><td>检查阀值是否合理，必要时调整阀值或安排备货。</td></tr>
+    <tr><td>5</td><td>少同步</td><td>系统判断应该挂出的库存比店铺侧实际挂出的多，店铺可能少展示了可售库存。</td><td>系统应该同步库存大于 0，但店铺侧实际同步库存偏少；<br>SKU 按单行判断，SPU 按汇总后的差异重新判断。</td><td>DWS CASE：<code>should_sync_inventory_qty &gt; 0 AND exception_store_backend_should_sync_total_diff_qty &lt; 0</code> 时输出 <code>less_sync / 少同步</code>；<br>SPU 层使用汇总后字段。</td><td>检查同步任务、店铺库存更新和商品状态。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="danger">
+    <strong>风险优先级提醒：</strong>
+    “超卖风险”代表店铺侧挂得比系统应挂库存多，是最需要优先排查的风险；<br>“少同步”通常影响销售机会，但不等同于超卖。
+  </div>
+
+  <h2>五、前端列表字段完整清单</h2>
+  <table>
+    <thead>
+    <tr>
+      
+      <th class="w-no">序号</th><th class="w-name">列表</th>
+      <th class="w-scope">字段分组</th>
+      <th class="w-logic">页面字段</th>
+      <th class="w-action">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>SKU</td>
+      <td>产品基本信息</td>
+      <td>店铺、SPU、SPU名称、PID、MSKU、SKU ID、库存SKU、库存SKU名称</td>
+      <td>用于定位最细商品和库存 SKU。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>SPU</td>
+      <td>产品基本信息</td>
+      <td>店铺、SPU、SPU名称</td>
+      <td>用于定位 SPU 聚合对象。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>SKU / SPU</td>
+      <td>总库存</td>
+      <td>总库存、总在途库存、总可用库存、积加FBT可用库存占比、积加FBT总库存占比、店铺FBT可用库存占比、店铺FBT总库存占比</td>
+      <td>用于查看整体库存结构和 FBT 占比。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>SKU / SPU</td>
+      <td>国内库存</td>
+      <td>总国内库存、采购在途库存、工厂采购未交量、国内交货在途库存、国内在库库存、国内-厦门仓库存、国内-英国仓库存</td>
+      <td>用于查看国内侧库存与直邮仓库存。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>SKU / SPU</td>
+      <td>海外在途库存</td>
+      <td>海外在途总量、三方仓在途量、万邑通USKY3在途、万邑通USWC2在途、万邑通USWC在途、美国谷仓:美西仓库在途、FBT在途量、英国退货仓在途量</td>
+      <td>用于查看海外在途和仓间流转库存。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>SKU / SPU</td>
+      <td>海外在库库存</td>
+      <td>海外在库总库存、积加-万邑通USKY3、积加-万邑通USWC2、积加-万邑通USWC、积加-谷仓美西仓库、积加-FBA仓库、积加-FBT可用、三方仓可用量、积加-英国退货仓</td>
+      <td>用于查看海外已在库或可用库存。</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>SKU / SPU</td>
+      <td>店铺应该被同步的库存</td>
+      <td>店铺应该被同步的库存</td>
+      <td>用于和店铺侧实际同步库存比较。</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>SKU / SPU</td>
+      <td>店铺实际被同步库存的情况</td>
+      <td>店铺侧被同步的总库存、店铺侧-美国TK厦门直邮仓、店铺侧-万邑通USKY3、店铺侧-万邑通USWC2、店铺侧-万邑通USWC、店铺侧-谷仓美西仓库、店铺侧-FBA仓库、店铺侧-FBT可用、店铺侧-英国退货仓</td>
+      <td>用于查看店铺后台实际挂出的各仓库存。</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>SKU / SPU</td>
+      <td>库存差异</td>
+      <td>库存总差异、美国TK厦门直邮仓同步差异、万邑通USKY3同步差异、万邑通USWC2同步差异、万邑通USWC同步差异、谷仓美西仓同步差异、FBA仓同步差异、FBT同步差异、英国退货仓差异</td>
+      <td>用于定位总差异和具体异常仓。</td>
+    </tr>
+    <tr>
+      <td>10</td>
+      <td>SKU</td>
+      <td>异常判断</td>
+      <td>异常仓库、库存总差异、库存阀值设置、库存是否异常、异常类型</td>
+      <td>SKU 列表展示完整异常判断。</td>
+    </tr>
+    <tr>
+      <td>11</td>
+      <td>SPU</td>
+      <td>异常判断</td>
+      <td>库存总差异、库存是否异常</td>
+      <td>SPU 列表展示聚合后的核心异常判断。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>六、通用计算逻辑说明</h2>
+  <table>
+    <thead>
+    <tr>
+      
+      <th class="w-no">序号</th><th class="w-name">通用逻辑</th>
+      <th class="w-scope">适用模块</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-action">业务理解</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>页面数据流转</td>
+      <td>SKU、SPU、统计卡片</td>
+      <td>底层库存与店铺同步数据 → SKU 明细检查 → SKU / SPU 汇总 → 库存检查看板列表与统计卡片。</td>
+      <td>三类页面数据来自同一条库存检查链路，只是展示粒度不同。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>库存总差异方向</td>
+      <td>异常判断、库存差异</td>
+      <td><code>库存总差异 = 店铺侧被同步库存 - 店铺应该被同步库存</code>。</td>
+      <td>正数代表店铺挂多，负数代表店铺挂少。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>店铺侧 SKU 收敛</td>
+      <td>SKU 列表、SPU 列表</td>
+      <td>店铺侧各仓同步库存按同店铺 + 同库存 SKU 收敛，PID 只是页面展示层级。</td>
+      <td>同店铺同库存 SKU 跨 PID 应保持一致。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>SPU 去重</td>
+      <td>SPU 列表、SPU 统计</td>
+      <td>同一店铺 + SPU 下，先按库存 SKU 去重，再汇总库存、差异和异常。</td>
+      <td>避免同一共享库存 SKU 因多个 PID 展示被重复累计。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>英国退货仓差异</td>
+      <td>SKU 列表、异常仓库</td>
+      <td>英国退货仓差异 = 店铺侧英国退货仓 - 积加英国退货仓；<br>不扣 FBT，也不纳入库存总差异。</td>
+      <td>只用于定位异常仓库，不改变库存总差异。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>卡片与列表差异</td>
+      <td>统计卡片、异常列表</td>
+      <td>列表里的“阀值问题”按库存总差异判断；<br>统计卡片里的“阈值同步异常数”当前存在 SKU / SPU 口径差异。</td>
+      <td>排障时以列表异常类型为准。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>七、常见排查路径</h2>
+  <ol>
+    <li>先看统计卡片，判断异常规模和主要风险类型。</li>
+    <li>点击或筛选异常状态，进入 SKU 列表查看明细。</li>
+    <li>看“库存总差异”判断方向：正数是店铺挂多，负数是店铺挂少。</li>
+    <li>看“异常仓库”定位具体仓库，再对比店铺侧库存和积加侧库存。</li>
+    <li>如果同一个店铺同一个库存 SKU 跨 PID 数值不一致，优先按 SKU 维度排查，不按 PID 单独判断。</li>
+  </ol>
+
+  <h2>八、来源数据方式</h2>
+  <table class="source-table">
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">数据来源</th>
+      <th class="w-table">对应底层表名</th>
+      <th class="w-scope">对应页面</th>
+      <th class="w-logic">来源说明</th>
+      <th class="w-action">截图说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>商品数据</td>
+      <td>
+        <code>ods.ods_inventory_tiktok_product_online_product_df</code>
+        <br><code>dim.dim_product_archive_config</code>
+      </td>
+      <td>SKU 列表、SPU 列表、统计卡片</td>
+      <td>
+        基于 TK 的 API，商品管理的数据，定时拉取。
+        <br>
+        链接为：
+        <a href="https://partner.tiktokshop.com/docv2/page/search-products-202502" target="_blank" rel="noopener">TikTok Shop Search Products API</a>
+      </td>
+      <td>
+        如图：
+        <img class="source-shot" src="imag/tiktok_shop_search_products_api.png" alt="TikTok Shop Search Products API 来源截图">
+      </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>站点库存数据来源</td>
+      <td><code>ods.ods_inventory_tiktok_site_product_stock_df</code></td>
+      <td>SKU 列表、SPU 列表、库存差异、异常仓库</td>
+      <td>
+        积加 -&gt; 仓库 -&gt; 产品库存 -&gt; 站点产品库存 -&gt; 筛选仓库 -&gt; 筛选共享。
+        <br>获取每一个 SKU 在每一个仓库的 2 个库存指标：在途量、可用量。
+        <br><br>
+        美区仓库：
+        <br>美国TK-国内厦门仓
+        <br>万邑通:USKY3_Warehouse
+        <br>万邑通:USWC2_Warehouse
+        <br>万邑通:USWC_Warehouse
+        <br>美国TK-艾斯特尼-美国谷仓:美西仓库
+        <br>美国TK-厦门直邮仓
+        <br><br>
+        英区仓库：
+        <br>美国TK-国内厦门仓
+        <br>美国TK-厦门直邮仓
+        <br>美国TK-艾斯特尼-英国退件仓:英国仓
+        <br>万邑通:UKTW Warehouse
+      </td>
+      <td>
+        路径筛选如图：
+        <img class="source-shot" src="imag/jijia_site_product_inventory_source.png" alt="积加站点产品库存来源截图">
+        导出字段如图：
+        <img class="source-shot" src="imag/jijia_site_inventory_export_fields.png" alt="积加站点库存导出字段截图">
+      </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>TikTok.FBT库存数据</td>
+      <td><code>ods.ods_inventory_tiktok_fbt_stock_df</code></td>
+      <td>SKU 列表、SPU 列表、统计卡片、FBT 库存差异</td>
+      <td>
+        积加 -&gt; 仓库 -&gt; 平台仓库存 -&gt; TikTok自运营 -&gt; 筛选仓库为“美国TK-艾斯特尼-美区跨境1店:US_FBT” -&gt; 筛选同步状态为“正常”。
+        <br>获取 SKU 的 3 个库存指标：在库量、在途量、可用量。
+      </td>
+      <td>
+        路径筛选如图：
+        <img class="source-shot" src="imag/jijia_tiktok_fbt_inventory_source.png" alt="积加 TikTok FBT 库存来源截图">
+        导出字段如图：
+        <img class="source-shot" src="imag/jijia_tiktok_fbt_inventory_export_fields.png" alt="积加 TikTok FBT 库存导出字段截图">
+      </td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>店铺后台同步库存（TK自运营）</td>
+      <td>
+        <code>ods.ods_inventory_jijia_pid_warehouse_stock_df</code>
+        <br><code>dim.dim_product_archive_config</code>
+      </td>
+      <td>SKU 列表、SPU 列表、店铺侧可用库存拆分</td>
+      <td>
+        店铺后台 PID 仓库库存数据，按店铺、PID、SKU、仓库维度拉取。
+        <br>用于计算店铺侧已同步库存，包括国内厦门仓、厦门直邮仓、万邑通、谷仓、FBA、FBT、英国退货仓等店铺侧可用库存。
+
+      </td>
+      <td>
+        如图：
+        <img class="source-shot" src="imag/jijia_tiktok_self_operated_product_available_inventory.png" alt="积加商品管理 TK 自运营可用库存截图">
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>九、计算逻辑变动记录</h2>
+  <table>
+    <thead>
+    <tr>
+      
+      <th class="w-no">序号</th><th class="w-name">变动日期</th>
+      <th class="w-scope">提出人</th>
+      <th class="w-scope">影响模块</th>
+      <th class="w-logic">原先逻辑</th>
+      <th class="w-logic">调整逻辑</th>
+      <th class="w-action">业务影响</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>异常标签</td>
+      <td>库存总差异方向容易被理解反，差异为正和差异为负的异常标签存在混淆风险。</td>
+      <td>明确 <code>库存总差异 = 店铺侧被同步 - 应该被同步</code>；<br>差异大于阀值为超卖风险，差异小于 0 为少同步。</td>
+      <td>避免把最危险的店铺挂多库存误判为少同步。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>英国退货仓差异</td>
+      <td>英国退货仓差异曾扣减 FBT 可用量，容易污染异常仓库展示。</td>
+      <td>英国退货仓差异只等于店铺侧英国退货仓 - 积加英国退货仓，且不纳入库存总差异。</td>
+      <td>异常仓库展示更贴近真实英国退货仓差异。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>库存阀值设置</td>
+      <td>同店铺同库存 SKU 跨 PID 展示时，阀值可能不一致。</td>
+      <td>库存阀值按同店铺 + 同库存 SKU 取最大值。</td>
+      <td>同一库存 SKU 跨 PID 展示保持一致，便于排障。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>业务说明文档</td>
+      <td>文档按页面流转、异常、卡片等主题组织，和发补货业务版格式不一致。</td>
+      <td>调整为先卡片，再 SKU 列表、SPU 列表、异常状态、字段清单、通用逻辑、排查路径和变动记录。</td>
+      <td>业务同学可以按页面展示顺序快速查字段说明。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    生成说明：本文为库存检查看板业务口径说明，依据库存检查 ADS SQL 与前端库存看板字段配置整理。更新时间：2026-08-21。
+  </footer>
+</main>
+</body>
+</html>

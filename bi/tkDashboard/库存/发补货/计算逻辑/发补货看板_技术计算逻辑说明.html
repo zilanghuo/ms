@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发补货看板技术计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p { margin: 8px 0; }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) { background: var(--soft); }
+
+    .w-field { width: 18%; }
+    .w-source { width: 26%; }
+    .w-logic { width: 40%; }
+    .w-note { width: 16%; }
+
+    ol, ul {
+      margin: 8px 0 14px 22px;
+      padding: 0;
+    }
+
+    li { margin: 4px 0; }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main { padding: 22px 14px 42px; }
+      .grid { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>发补货看板技术计算逻辑说明</h1>
+  <p class="meta">适用对象：数仓、后端、数据排障同学。本文说明发补货 ADS 六张表的来源、粒度、核心计算和页面字段映射。</p>
+
+  <section class="summary">
+    <strong>链路定位：</strong>
+    发补货 ADS 层主要承接 DWS 结果，面向页面查询。库存看板、备货 SKU、备货 SPU、发货 SKU、发货 SPU、Summary 六类结果分别由对应 DWS 表维护核心业务计算。
+  </section>
+
+  <h2>一、目标表与上游关系</h2>
+  <div class="flow">DWD 库存检查 SKU 快照 → DWS 发补货库存 SKU → ADS 库存看板</div>
+  <div class="flow">DWD 商品/SKU/销量/订单 + 库存底座 + 规则/人工配置 → DWS 备货 SKU → ADS 备货 SKU</div>
+  <div class="flow">DWS 备货 SKU → 去重库存 SKU → DWS 备货 SPU → ADS 备货 SPU</div>
+  <div class="flow">DWD 库存 + DWD 销量 + 规则/仓库配置 → DWS 发货 SKU → ADS 发货 SKU</div>
+  <div class="flow">DWS 发货 SKU → 去重库存 SKU → DWS 发货 SPU → ADS 发货 SPU</div>
+  <div class="flow">库存 Summary + 库存底座 + 备货 SKU + 发货 SKU → DWS Summary → ADS Summary</div>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">ADS 表</th>
+      <th class="w-source">主要上游</th>
+      <th class="w-logic">职责</th>
+      <th class="w-note">页面模块</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_inventory_sku_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_inventory_sku_1d</code></td>
+      <td>透传发补货库存底座，字段来自库存检查 SKU 快照。</td>
+      <td>库存看板。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_restock_sku_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_restock_sku_1d</code></td>
+      <td>透传 SKU 级备货模型结果，包括销量趋势、SKU 分层、目标库存和采购建议。</td>
+      <td>备货模型（SKU）。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_restock_spu_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_restock_spu_1d</code></td>
+      <td>透传 SPU 级备货聚合结果，SPU 层已完成库存 SKU 去重和日均重算。</td>
+      <td>备货模型（SPU）。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_ship_sku_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_ship_sku_1d</code></td>
+      <td>透传 SKU 级发货模型结果，包括发货触发、建议数量、目的仓、运输方式和告警。</td>
+      <td>发货模型（SKU）。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_ship_spu_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_ship_spu_1d</code></td>
+      <td>透传 SPU 级发货聚合结果，SPU 层已完成库存 SKU 去重和主目的仓选择。</td>
+      <td>发货模型（SPU）。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_replenishment_summary_1d</code></td>
+      <td><code>dws.dws_inventory_replenishment_summary_1d</code></td>
+      <td>透传全局统计卡片与告警条字段。</td>
+      <td>顶部统计。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>二、分区和页面模块映射</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">项目</th>
+      <th class="w-source">实现</th>
+      <th class="w-logic">说明</th>
+      <th class="w-note">注意事项</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>分区参数</td>
+      <td><code>${currentMonthPre}</code>、<code>${currentDatePrev}</code></td>
+      <td>六张 ADS 表均按前一业务日删除并重刷当天 <code>smt/sdt</code> 分区。</td>
+      <td>T-1 日表，跨月时 <code>smt</code> 使用前一业务日所属月份。</td>
+    </tr>
+    <tr>
+      <td>前端模块</td>
+      <td><code>inventory</code>、<code>restock</code>、<code>restockSpu</code>、<code>ship</code>、<code>shipSpu</code></td>
+      <td>SPU 模块请求后端时会映射到同族 API module：备货 SPU → <code>restock</code>，发货 SPU → <code>ship</code>。</td>
+      <td>页面模块和接口 module 不是一一同名。</td>
+    </tr>
+    <tr>
+      <td>搜索字段</td>
+      <td><code>spu</code>、<code>inventorySku</code>、<code>pid</code>、<code>msku</code></td>
+      <td>SKU 模块支持多字段搜索；SPU 模块仅支持 SPU 搜索。</td>
+      <td>精确搜索会把多行关键字转成逗号分隔。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>三、库存看板 ADS 口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">字段组</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-note">页面字段</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>库存底座</td>
+      <td><code>dwd.dwd_inventory_stock_check_sku_snapshot_1d</code> → <code>dws_inventory_replenishment_inventory_sku_1d</code></td>
+      <td>DWS 库存表承接库存检查 SKU 日快照，不做跨行聚合；<code>fbt_available_qty</code> 来源于上游 <code>jijia_fbt_available_qty</code>。</td>
+      <td>库存看板全部库存列。</td>
+    </tr>
+    <tr>
+      <td>粒度</td>
+      <td><code>smt + sdt + site_code + store_name + inventory_sku + sku_id</code></td>
+      <td>保留 PID、MSKU、SPU 等展示字段，用于页面定位。</td>
+      <td>商品基础信息。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>四、备货 SKU 模型计算口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">指标</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">计算逻辑</th>
+      <th class="w-note">输出字段</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>销量基础</td>
+      <td><code>dwd_inventory_replenishment_sales_sku_1d</code>、订单明细、SKU 映射</td>
+      <td>取 S7、S30 和近 30 天销量；订单 SKU 通过商品 SKU 映射到库存 SKU。</td>
+      <td><code>daily_sales_qty_7d</code>、<code>daily_sales_qty_30d</code></td>
+    </tr>
+    <tr>
+      <td>S7 过滤</td>
+      <td>S7、S30</td>
+      <td>S30 小于等于 0 时取 S7；S7 大于 S30 两倍时取 S30；其他取 S7，避免短期异常峰值放大备货。</td>
+      <td><code>daily_sales_qty_7d_filtered</code></td>
+    </tr>
+    <tr>
+      <td>动态权重</td>
+      <td>过滤后 S7、S30</td>
+      <td><code>s7_s30_ratio = daily_sales_qty_7d_filtered / S30</code>；大于等于 1.3 为上涨档，小于 0.8 为下滑档，其余为平稳档，S30 为 0 为无销量档。</td>
+      <td><code>s7_s30_ratio</code>、<code>dynamic_weight_level</code></td>
+    </tr>
+    <tr>
+      <td>加权日均</td>
+      <td>过滤后 S7、S30、动态档位</td>
+      <td>上涨档：S7×0.75 + S30×0.25；平稳档：S7×0.60 + S30×0.40；下滑档：S7×0.40 + S30×0.60；S30 为 0 时取过滤后 S7。</td>
+      <td><code>weighted_daily_sales_qty</code></td>
+    </tr>
+    <tr>
+      <td>SKU 分层</td>
+      <td>30 天销量贡献、VOC、趋势</td>
+      <td>VOC 大于等于 2 为 D；非 D 且累计贡献小于等于 60%、趋势为上涨或平稳为 A；非 D 且累计贡献小于等于 90%、有销量为 B；其他为 C。</td>
+      <td><code>sku_tier</code>、<code>is_hot_color_size</code></td>
+    </tr>
+    <tr>
+      <td>目标库存与采购</td>
+      <td>加权日均、规则参数、库存底座</td>
+      <td>目标库存按加权日均、运输周期和安全库存天数向上取整；建议采购数量为目标直邮库存与当前总库存的缺口，结果不小于 0。</td>
+      <td><code>target_overseas_stock_qty</code>、<code>target_direct_mail_stock_qty</code>、<code>suggest_purchase_qty</code></td>
+    </tr>
+    <tr>
+      <td>预计断货日期</td>
+      <td>业务日期、店铺侧被同步库存、加权日均</td>
+      <td>业务日期 + <code>FLOOR(店铺侧被同步总库存 / 加权日均)</code>；加权日均小于等于 0 时为空。</td>
+      <td><code>estimated_out_of_stock_date</code></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>五、备货 SPU 聚合口径</h2>
+  <div class="note">
+    <strong>关键原则：</strong>
+    备货 SPU 聚合前先按 <code>smt + sdt + site_code + store_name + spu + inventory_sku</code> 去重，同一库存 SKU 只保留一条模型结果。日均类字段必须在 SPU 层重算。
+  </div>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">指标</th>
+      <th class="w-source">输入</th>
+      <th class="w-logic">SPU 计算</th>
+      <th class="w-note">输出</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>S7 / S30</td>
+      <td>去重 SKU 的 <code>daily_sales_qty_7d</code>、<code>daily_sales_qty_30d</code></td>
+      <td>先分别求和，得到 SPU 级 S7、S30。</td>
+      <td><code>daily_sales_qty_7d</code>、<code>daily_sales_qty_30d</code></td>
+    </tr>
+    <tr>
+      <td>S7/S30 与档位</td>
+      <td>SPU 汇总后的 S7、S30</td>
+      <td>使用 SPU 级 S7/S30 重新计算比值和上涨/平稳/下滑/无销量档。</td>
+      <td><code>s7_s30_ratio</code>、<code>dynamic_weight_level</code></td>
+    </tr>
+    <tr>
+      <td>加权日均</td>
+      <td>SPU 级 S7、S30、档位</td>
+      <td>按 SPU 档位重新计算，不汇总 SKU 的加权日均。</td>
+      <td><code>weighted_daily_sales_qty</code></td>
+    </tr>
+    <tr>
+      <td>SKU 结构</td>
+      <td>去重 SKU 的分层、采购标记、热卖标记</td>
+      <td>统计 A/B/C/D 层 SKU 数、热卖色码 SKU 数、需采购 SKU 数。</td>
+      <td>SKU 结构字段。</td>
+    </tr>
+    <tr>
+      <td>补货优先级</td>
+      <td>需采购数量、需采购 SKU 数、A/B 层 SKU 数</td>
+      <td>有采购且有 A 层为 P1；有采购且有 B 层为 P2；有采购为 P3；其他为 P4。</td>
+      <td><code>restock_priority_level</code></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>六、发货 SKU 模型计算口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">指标</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">计算逻辑</th>
+      <th class="w-note">输出字段</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>海外有效库存</td>
+      <td>海外在库 + 海外在途</td>
+      <td>发货模型使用海外在库总库存与海外在途总库存作为海外有效库存基础。</td>
+      <td><code>overseas_effective_stock_qty</code></td>
+    </tr>
+    <tr>
+      <td>海外可售天数</td>
+      <td>海外有效库存、加权日均</td>
+      <td><code>FLOOR(海外有效库存 / 加权日均)</code>；销量为 0 时返回 0。</td>
+      <td><code>overseas_sellable_days</code></td>
+    </tr>
+    <tr>
+      <td>紧急标记</td>
+      <td>可售天数、国内可发、VOC</td>
+      <td>优先标记断货风险，其次国内无货，再次 VOC 风险；否则为空。</td>
+      <td><code>urgent_flag</code></td>
+    </tr>
+    <tr>
+      <td>直邮预留量</td>
+      <td>加权日均、直邮安全库存天数</td>
+      <td><code>CEIL(加权日均 × 直邮安全库存天数)</code>，默认直邮安全库存天数为 25 天。</td>
+      <td><code>direct_mail_reserved_qty</code></td>
+    </tr>
+    <tr>
+      <td>国内可发库存</td>
+      <td>国内在库、直邮预留量</td>
+      <td><code>CEIL(MAX(国内在库 - 直邮预留量, 0))</code>。</td>
+      <td><code>domestic_shippable_qty</code></td>
+    </tr>
+    <tr>
+      <td>库存缺口与建议发货</td>
+      <td>海外有效库存、目标海外库存、国内可发库存</td>
+      <td>库存缺口保留正负号；建议发货数量取国内可发库存和缺口绝对值的较小值，并向上取整且不小于 0。</td>
+      <td><code>stock_gap_qty</code>、<code>suggest_ship_qty</code></td>
+    </tr>
+    <tr>
+      <td>截单与到仓</td>
+      <td>规则参数、运输 ETA</td>
+      <td>最近截单日来自规则配置；预计到仓可售日基于截单和发货 ETA 计算；页面合并展示截单/到仓。</td>
+      <td><code>nearest_cutoff_date</code>、<code>ship_eta_sellable_date</code>、<code>cutoff_eta_display</code></td>
+    </tr>
+    <tr>
+      <td>是否发货</td>
+      <td>海外可售天数、发货阈值、建议数量</td>
+      <td>海外可售天数低于发货触发阈值且建议发货数量大于 0 时标记为发货。</td>
+      <td><code>is_ship_this_week</code></td>
+    </tr>
+    <tr>
+      <td>告警筛选</td>
+      <td>采购标记、国内可发、可售天数、直邮衔接</td>
+      <td>输出严重缺货、正常缺货、分布不均、直邮撑不住等筛选标签。</td>
+      <td><code>alert_filter_code</code></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>七、发货 SPU 聚合口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">指标</th>
+      <th class="w-source">输入</th>
+      <th class="w-logic">SPU 计算</th>
+      <th class="w-note">输出</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>去重粒度</td>
+      <td>DWS 发货 SKU</td>
+      <td>按 <code>smt + sdt + site_code + store_name + spu + inventory_sku</code> 去重，同一库存 SKU 只保留最新模型结果。</td>
+      <td>避免同 SKU 多 PID 重复累计。</td>
+    </tr>
+    <tr>
+      <td>数量类字段</td>
+      <td>去重 SKU</td>
+      <td>海外有效库存、直邮预留量、国内可发库存、建议发货数量、库存缺口按去重 SKU 求和。</td>
+      <td>数量汇总。</td>
+    </tr>
+    <tr>
+      <td>风险类字段</td>
+      <td>去重 SKU</td>
+      <td>海外可售天数取最小；预计断货日取最早；紧急标记按断货风险、国内无货、VOC 风险顺序归并。</td>
+      <td>风险汇总。</td>
+    </tr>
+    <tr>
+      <td>主目的仓与运输方式</td>
+      <td>去重 SKU</td>
+      <td>取建议发货数量最大的库存 SKU 对应目的仓和运输方式。</td>
+      <td><code>main_ship_destination_warehouse</code>、<code>main_suggest_ship_transport_mode</code></td>
+    </tr>
+    <tr>
+      <td>发货优先级</td>
+      <td>紧急等级、建议发货数量、最低可售天数、需发货 SKU 数</td>
+      <td>最高紧急为 P1；有发货且可售天数低于 15 为 P1；有发货为 P2；有需发货 SKU 为 P3；其他为 P4。</td>
+      <td><code>ship_priority_level</code></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>八、Summary 汇总口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">字段</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-note">页面字段</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>summary_scope</code></td>
+      <td>DWS Summary</td>
+      <td>固定为 <code>all</code>，只产出全局汇总行。</td>
+      <td>全局统计。</td>
+    </tr>
+    <tr>
+      <td><code>on_sale_sku_count</code></td>
+      <td>库存底座</td>
+      <td>按 SKU 去重键计数，去重键优先 <code>msku</code>，其次 <code>inventory_sku</code>，最后 <code>sku_id</code>。</td>
+      <td>在售 SKU 总数。</td>
+    </tr>
+    <tr>
+      <td><code>need_ship_sku_count</code></td>
+      <td>DWS 发货 SKU</td>
+      <td>按 SKU 去重后统计 <code>is_ship_this_week = 1</code> 的 SKU 数，仅统计库存底座存在的 SKU。</td>
+      <td>需发货 SKU 数。</td>
+    </tr>
+    <tr>
+      <td><code>need_purchase_sku_count</code></td>
+      <td>DWS 备货 SKU</td>
+      <td>按 SKU 去重后统计 <code>is_purchase = 1</code> 的 SKU 数，仅统计库存底座存在的 SKU。</td>
+      <td>需采购 SKU 数。</td>
+    </tr>
+    <tr>
+      <td><code>overseas_stock_qty</code>、<code>domestic_stock_qty</code></td>
+      <td>库存检查 Summary</td>
+      <td>复用库存检查 Summary 中 SKU + 全部汇总行的海外在库和国内在库数据。</td>
+      <td>海外在库总量、国内在库总量。</td>
+    </tr>
+    <tr>
+      <td><code>next_cutoff_date</code></td>
+      <td>DWS 发货 SKU、规则配置</td>
+      <td>优先取发货 SKU 中最近截单日；缺失时取默认规则配置。</td>
+      <td>下次截单日。</td>
+    </tr>
+    <tr>
+      <td>告警 SKU 数</td>
+      <td>DWS 发货 SKU</td>
+      <td>海外低可售天数统计严重缺货、正常缺货、分布不均、直邮撑不住；国内缺货统计严重缺货。</td>
+      <td>告警条。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>九、页面字段映射概览</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">页面字段</th>
+      <th class="w-source">接口字段</th>
+      <th class="w-logic">ADS 字段</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>库存 SKU</td>
+      <td><code>inventorySku</code></td>
+      <td><code>inventory_sku</code></td>
+      <td>发补货核心库存对象。</td>
+    </tr>
+    <tr>
+      <td>7天日均（S7）</td>
+      <td><code>dailySalesQty7d</code></td>
+      <td><code>daily_sales_qty_7d</code></td>
+      <td>备货和发货模型基础销量字段。</td>
+    </tr>
+    <tr>
+      <td>30天日均（S30）</td>
+      <td><code>dailySalesQty30d</code></td>
+      <td><code>daily_sales_qty_30d</code></td>
+      <td>趋势判断和加权日均基础字段。</td>
+    </tr>
+    <tr>
+      <td>加权日均</td>
+      <td><code>weightedDailySalesQty</code></td>
+      <td><code>weighted_daily_sales_qty</code></td>
+      <td>目标库存、断货日期、发货建议的核心销量字段。</td>
+    </tr>
+    <tr>
+      <td>建议采购数量</td>
+      <td><code>suggestPurchaseQty</code></td>
+      <td><code>suggest_purchase_qty</code></td>
+      <td>备货 SKU / SPU 主要动作字段。</td>
+    </tr>
+    <tr>
+      <td>建议发货数量</td>
+      <td><code>suggestShipQty</code></td>
+      <td><code>suggest_ship_qty</code></td>
+      <td>发货 SKU / SPU 主要动作字段。</td>
+    </tr>
+    <tr>
+      <td>补货优先级 / 发货优先级</td>
+      <td><code>restockPriority</code>、<code>shipPriority</code></td>
+      <td><code>restock_priority_level</code>、<code>ship_priority_level</code></td>
+      <td>SPU 级排序字段，SKU 发货中 <code>ship_priority</code> 为海外可售天数数值。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    生成说明：本文依据发补货 ADS/DWS SQL 与前端 restock-board 字段配置整理。更新时间：2026-08-21。
+  </footer>
+</main>
+</body>
+</html>

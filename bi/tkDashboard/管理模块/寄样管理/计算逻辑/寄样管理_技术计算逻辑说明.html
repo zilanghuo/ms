@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>寄样管理技术计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+      --danger-bg: #fef2f2;
+      --danger-line: #fecaca;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p { margin: 8px 0; }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-line);
+      border-left: 5px solid #dc2626;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) { background: var(--soft); }
+
+    .w-no { width: 5%; white-space: nowrap; }
+    .w-name { width: 14%; }
+    .w-field { width: 15%; }
+    .w-source { width: 22%; }
+    .w-logic { width: 32%; }
+    .w-note { width: 12%; }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main { padding: 22px 14px 42px; }
+      .grid { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>寄样管理技术计算逻辑说明</h1>
+  <p class="meta">适用对象：研发、数仓、测试同学。本文基于当前前端、后端和数仓 SQL 反推寄样管理真实查询链路与字段口径。</p>
+
+  <section class="summary">
+    <strong>核心链路：</strong>
+    样品订单来自官方 API 订单状态增强 DWD，人工维护字段来自寄样配置 DIM，视频履约来自寄样订单视频关系 DWS，最终由 ADS 透传给 Java 接口和前端页面。
+  </section>
+
+  <h2>一、数据链路</h2>
+  <div class="flow">dwd.dwd_sales_order_item_market_wide_api_status_realtime -> dws.dws_sales_sample_order_video_relation_realtime -> dws.dws_sales_sample_order_realtime -> ads.ads_sales_sample_order_realtime -> /tk/content/sample/order/* -> sample-ship 页面</div>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">层级/模块</th>
+      <th class="w-field">表或类</th>
+      <th class="w-source">职责</th>
+      <th class="w-logic">关键逻辑</th>
+      <th class="w-note">备注</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>DWD</td>
+      <td><code>dwd_sales_order_item_market_wide_api_status_realtime</code></td>
+      <td>订单明细状态增强灰度表。</td>
+      <td>承接官方 API 订单和明细，按订单市场业务日期写入；补充 <code>file_buyer_username</code> 作为样品单达人昵称。</td>
+      <td>寄样链路当前读取灰度表。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>DIM</td>
+      <td><code>dim_sales_sample_order_manual_config</code></td>
+      <td>人工维护寄样字段。</td>
+      <td>保存、导入、删除均写入该表；DWS 刷新时按订单 ID、订单明细 ID、SKU ID 关联。</td>
+      <td>UNIQUE 覆盖写入。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>DWS 关系</td>
+      <td><code>dws_sales_sample_order_video_relation_realtime</code></td>
+      <td>样品订单与视频最优履约关系。</td>
+      <td>订单达人 <code>file_buyer_username</code> 非空后，按 <code>pid + creator_name</code> 匹配全量有效视频，取签收后最早发布的视频。</td>
+      <td>关系类型为 fulfillment。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>DWS 列表</td>
+      <td><code>dws_sales_sample_order_realtime</code></td>
+      <td>寄样管理列表逻辑层。</td>
+      <td>合并订单、人工维护、账号配置、商品档案、履约关系，计算物流状态、履约状态和逾期天数。</td>
+      <td>ADS 直接透传。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>ADS</td>
+      <td><code>ads_sales_sample_order_realtime</code></td>
+      <td>页面查询表。</td>
+      <td>不重算口径，透传 DWS 全字段，限制 <code>smt >= 202501</code>。</td>
+      <td>Java 列表、统计、详情、导出均查询该表。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>Java</td>
+      <td><code>TkContentSampleOrderController</code> / <code>TkContentSampleOrderServiceImpl</code></td>
+      <td>提供页面接口、筛选、导入导出和人工维护写入。</td>
+      <td>接口根路径为 <code>/tk/content/sample/order</code>；查询读 ADS，写入读写人工配置 DIM。</td>
+      <td>URL 不使用中划线。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>二、接口与底表</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">接口</th>
+      <th class="w-field">方法</th>
+      <th class="w-source">读写表</th>
+      <th class="w-logic">逻辑说明</th>
+      <th class="w-note">返回/影响</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td><code>/dataLatestTime</code></td><td>GET</td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>查询最大 <code>sdt</code> 和该分区最大 <code>insert_time</code>。</td><td>返回刷新频率文案。</td></tr>
+    <tr><td>2</td><td><code>/page</code></td><td>POST</td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>按筛选条件分页查询列表。</td><td>返回 <code>SampleOrderPageResponse</code>。</td></tr>
+    <tr><td>3</td><td><code>/summary</code></td><td>POST</td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>按相同筛选条件聚合总数、已履约、待跟进、异常和逾期数量。</td><td>前端当前展示前四项。</td></tr>
+    <tr><td>4</td><td><code>/detail</code></td><td>POST</td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>按 <code>orderId + orderItemId + skuId</code> 查询单条详情。</td><td>用于编辑弹窗回填。</td></tr>
+    <tr><td>5</td><td><code>/save</code></td><td>POST</td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>覆盖写入人工维护字段；空值不覆盖已有值。</td><td>达人佣金默认 10%。</td></tr>
+    <tr><td>6</td><td><code>/import/template</code></td><td>GET</td><td>无查询表</td><td>输出导入更新模板表头。</td><td>模板含订单主键和可编辑字段。</td></tr>
+    <tr><td>7</td><td><code>/import/update</code></td><td>POST</td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>解析 xls/xlsx，按主键或订单编号 + 寄样 SKU 定位记录后批量写入人工维护字段。</td><td>支持导出文件回导。</td></tr>
+    <tr><td>8</td><td><code>/delete</code></td><td>POST</td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>按主键写入 <code>is_deleted = 1</code>。</td><td>软删除人工配置。</td></tr>
+    <tr><td>9</td><td><code>/export</code></td><td>POST</td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>按当前筛选和排序导出列表字段。</td><td>文件名为寄样管理导出.xlsx。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、字段来源与计算</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">展示字段</th>
+      <th class="w-field">ADS 字段</th>
+      <th class="w-source">主要来源</th>
+      <th class="w-logic">计算规则</th>
+      <th class="w-note">空值/默认</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>合作站点</td><td><code>site_code</code></td><td>DWD 订单</td><td>取订单站点编码。</td><td>空值透传。</td></tr>
+    <tr><td>2</td><td>合作店铺</td><td><code>store_name</code></td><td>DWD 订单</td><td>取订单市场店铺名称。</td><td>页面未传店铺时默认四店范围。</td></tr>
+    <tr><td>3</td><td>订单编号</td><td><code>jijia_order_no</code></td><td>DWS</td><td>当前取 <code>order_id</code> 作为展示订单编号。</td><td>可用于导出回导匹配。</td></tr>
+    <tr><td>4</td><td>PID</td><td><code>pid</code></td><td>DWD 订单</td><td>取订单商品 PID。</td><td>样品订单和视频关系按 PID 匹配。</td></tr>
+    <tr><td>5</td><td>商品名称</td><td><code>product_name</code></td><td>DWD + 商品档案</td><td>优先 DWD 商品名称，其次商品档案中文名称或 SPU 名称。</td><td>用于业务识别。</td></tr>
+    <tr><td>6</td><td>寄样 SKU</td><td><code>sample_sku</code></td><td>DWD 订单</td><td>优先 <code>msku</code>，否则取 TikTok SKU ID。</td><td>导入可用该字段辅助定位。</td></tr>
+    <tr><td>7</td><td>寄样主 SKU</td><td><code>sample_main_sku</code></td><td>商品档案 + DWD</td><td>优先商品档案 <code>main_sku</code>，其次 DWD <code>spu</code>。</td><td>不在默认前端列中展示。</td></tr>
+    <tr><td>8</td><td>寄样商务</td><td><code>sample_owner</code></td><td>人工配置 DIM</td><td>只从人工配置读取。</td><td>未配置为空。</td></tr>
+    <tr><td>9</td><td>合作阶段</td><td><code>cooperation_stage_name</code></td><td>人工配置 DIM</td><td>从人工配置读取。</td><td>空值透传。</td></tr>
+    <tr><td>10</td><td>寄样时间</td><td><code>sample_time</code>、<code>sample_time_market</code></td><td>DWD 订单</td><td>北京时间取 <code>order_time_beijing</code>，市场时间取 <code>order_time</code>。</td><td>页面优先展示市场时间。</td></tr>
+    <tr><td>11</td><td>寄样月份</td><td><code>sample_month_name</code></td><td>DWS 计算</td><td>按市场时间拼接年份和月份。</td><td>格式如 2026年8月。</td></tr>
+    <tr><td>12</td><td>寄样渠道</td><td><code>sample_channel_name</code></td><td>人工配置 DIM</td><td>人工维护优先。</td><td>默认线上。</td></tr>
+    <tr><td>13</td><td>颜色/尺码</td><td><code>sample_color</code>、<code>sample_size</code></td><td>商品档案 DIM</td><td>按店铺 + PID + 订单 MSKU 关联商品档案 SKU，取颜色和尺码。</td><td>未匹配为空。</td></tr>
+    <tr><td>14</td><td>寄样数量</td><td><code>sample_qty</code></td><td>DWD 订单</td><td>取订单明细数量 <code>sale_qty</code>。</td><td>空值按 0 处理。</td></tr>
+    <tr><td>15</td><td>达人 ID</td><td><code>creator_id</code></td><td>账号配置 DIM</td><td>用 DWD <code>file_buyer_username</code> 匹配账号配置 <code>handle_name</code>，取唯一 TikTok UID。</td><td>未命中为空。</td></tr>
+    <tr><td>16</td><td>达人名字</td><td><code>creator_name</code></td><td>DWD 订单</td><td>取 <code>file_buyer_username</code>。</td><td>关系表要求该字段非空。</td></tr>
+    <tr><td>17</td><td>达人等级/性别</td><td><code>creator_level_name</code>、<code>creator_gender_name</code></td><td>账号配置 + 人工配置</td><td>账号配置优先，其次人工维护。</td><td>默认未知。</td></tr>
+    <tr><td>18</td><td>是否开单达人</td><td><code>is_opened_creator</code>、<code>is_opened_creator_name</code></td><td>账号配置 + 人工配置</td><td>命中账号配置时为 1，否则使用人工配置值。</td><td>展示为是/否。</td></tr>
+    <tr><td>19</td><td>达人佣金</td><td><code>creator_commission</code></td><td>人工配置 DIM</td><td>人工维护值。</td><td>为空时默认 10%。</td></tr>
+    <tr><td>20</td><td>物流状态说明</td><td><code>logistics_status_desc</code></td><td>人工配置 + DWD 订单</td><td>人工物流说明优先，否则拼接物流商、单号、包裹状态和展示状态。</td><td>用于详情和导出。</td></tr>
+    <tr><td>21</td><td>寄样状态</td><td><code>sample_status_name</code></td><td>DWS 计算</td><td>按人工异常、签收时间、运输状态、物流单号依次判断。</td><td>只表示物流状态。</td></tr>
+    <tr><td>22</td><td>匹配视频</td><td><code>matched_video_id</code>、<code>matched_video_publish_time</code></td><td>关系 DWS</td><td>取 fulfillment 最优关系的视频 ID 和发布时间。</td><td>无关系为空。</td></tr>
+    <tr><td>23</td><td>履约字段</td><td><code>is_fulfilled</code>、<code>is_fulfillment_overdue</code>、<code>overdue_days</code></td><td>DWS 计算</td><td>当前是否履约取是否有匹配视频；逾期按签收到视频或当前日期的间隔判断。</td><td>间隔达到 7 天及以上逾期。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>四、视频履约关系算法</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">步骤</th>
+      <th class="w-field">关键字段</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">逻辑说明</th>
+      <th class="w-note">结果</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>筛样品订单</td>
+      <td><code>is_sample_order</code>、<code>file_buyer_username</code></td>
+      <td>DWD 灰度订单表</td>
+      <td>仅处理样品订单、主键非空、PID 非空、达人昵称非空的数据。</td>
+      <td>达人信息补齐后才生成关系。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>确定日调范围</td>
+      <td><code>sdt</code>、<code>insert_time</code></td>
+      <td>DWD 灰度订单表</td>
+      <td>纳入近 3 天订单，以及近 3 天被 DWD 覆盖写入的历史样品订单。</td>
+      <td>适配 30 分钟订单刷新和达人晚到。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>筛视频</td>
+      <td><code>pid</code>、<code>creator_account_name</code>、<code>video_id</code>、<code>publish_time</code></td>
+      <td>视频配置 DIM</td>
+      <td>全量有效视频参与匹配，不限制视频日期；要求未删除且关键字段非空。</td>
+      <td>视频可在寄样很久后发布。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>匹配关系</td>
+      <td><code>pid</code>、<code>creator_name</code>、<code>delivery_time</code></td>
+      <td>订单 + 视频 DIM</td>
+      <td>同 PID、同达人，且视频发布时间晚于签收时间。</td>
+      <td>关系方向为签收后发布视频。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>取最优视频</td>
+      <td><code>relation_rank</code></td>
+      <td>DWS 窗口函数</td>
+      <td>按视频发布时间升序、视频 ID 降序排序，保留第 1 条。</td>
+      <td>写入 <code>is_best_match = 1</code>。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>五、履约和逾期计算</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段</th>
+      <th class="w-field">类型</th>
+      <th class="w-source">依赖字段</th>
+      <th class="w-logic">计算逻辑</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td><code>is_fulfilled</code></td>
+      <td>TINYINT</td>
+      <td><code>matched_video_id</code></td>
+      <td>匹配到 fulfillment 最优视频时为 1，否则为 0。</td>
+      <td>不限制 7 天。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>fulfillment_elapsed_days</code></td>
+      <td>过程字段</td>
+      <td><code>delivery_time</code>、<code>matched_video_publish_time</code>、<code>${currentDate}</code></td>
+      <td>已履约时取视频发布时间日期减签收日期；未履约时取当前业务日期减签收日期。</td>
+      <td>最小为 0。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>is_fulfillment_overdue</code></td>
+      <td>TINYINT</td>
+      <td><code>fulfillment_elapsed_days</code></td>
+      <td>有签收时间且履约判断间隔达到 7 天及以上时为 1。</td>
+      <td>超过 7 天后履约仍记录逾期。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>overdue_days</code></td>
+      <td>INT</td>
+      <td><code>fulfillment_elapsed_days</code></td>
+      <td>逾期时为 <code>fulfillment_elapsed_days - 7</code>，否则为 0。</td>
+      <td>页面仅逾期展示数值。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>六、导入更新技术规则</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">规则</th>
+      <th class="w-field">字段</th>
+      <th class="w-source">实现位置</th>
+      <th class="w-logic">说明</th>
+      <th class="w-note">异常处理</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>表头识别</td><td>中文或驼峰字段名</td><td><code>IMPORT_HEADER_FIELD_MAP</code></td><td>扫描前 10 行识别表头。</td><td>无法识别时报错。</td></tr>
+    <tr><td>2</td><td>主键定位</td><td><code>orderId</code>、<code>orderItemId</code>、<code>skuId</code></td><td>导入 Service</td><td>模板模式可直接使用三字段主键。</td><td>缺少主键时走业务键匹配。</td></tr>
+    <tr><td>3</td><td>导出回导定位</td><td><code>jijiaOrderNo</code>、<code>sampleSku</code>、<code>storeName</code></td><td>ADS 查询</td><td>按订单编号和寄样 SKU 匹配 ADS 记录；店铺存在时一并过滤。</td><td>匹配多条时要求改用模板主键。</td></tr>
+    <tr><td>4</td><td>可编辑字段</td><td>达人、合作阶段、佣金、寄样商务、渠道、补寄、备注、物流说明、物流异常</td><td>人工配置 DIM</td><td>只有存在可编辑值的行才写入。</td><td>空白行和样例行跳过。</td></tr>
+    <tr><td>5</td><td>布尔解析</td><td>是否开单达人、物流是否异常</td><td>导入 Service</td><td>支持 是/否、YES/NO、true/false、1/0。</td><td>非法值返回行级错误。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>七、调度与补数</h2>
+  <div class="grid">
+    <div class="panel">
+      <strong>实时订单增强</strong>
+      灰度 DWD 按 ODS 本次拉取到的订单明细识别变更订单，再写回订单市场业务日期分区。
+    </div>
+    <div class="panel">
+      <strong>关系表日调</strong>
+      30 分钟级订单刷新后，关系表按近 3 天订单和近 3 天 DWD 写入历史订单重算，视频 DIM 全量参与。
+    </div>
+    <div class="panel">
+      <strong>历史 debug</strong>
+      历史脚本按 <code>smt >= 202501</code> 全量重算，不使用近 3 天窗口。
+    </div>
+  </div>
+  <p class="note">推荐顺序：灰度 DWD -> 视频 DIM -> 寄样订单视频关系 DWS -> 寄样订单 DWS -> 寄样订单 ADS。</p>
+
+  <footer>
+    口径来源：realtime/sales/dwd、realtime/sales/dws、realtime/sales/ads、TkContentSampleOrderController、TkContentSampleOrderServiceImpl、前端 sample-ship 页面。本文不引用截图和 doc/docx 文件。
+  </footer>
+</main>
+</body>
+</html>

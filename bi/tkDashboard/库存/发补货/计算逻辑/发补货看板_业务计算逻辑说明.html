@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发补货看板业务计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+      --danger-bg: #fef2f2;
+      --danger-line: #fecaca;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p { margin: 8px 0; }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-line);
+      border-left: 5px solid #dc2626;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) { background: var(--soft); }
+
+    .w-no { width: 5%; white-space: nowrap; }
+    .w-name { width: 14%; }
+    .w-scope { width: 14%; }
+    .w-logic { width: 26%; }
+    .w-action { width: 13%; }
+    .w-business-logic { width: 28%; }
+
+    .source-table .w-no { width: 6%; }
+    .source-table .w-name { width: 14%; }
+    .source-table .w-table { width: 22%; }
+    .source-table .w-scope { width: 14%; }
+    .source-table .w-logic { width: 26%; }
+    .source-table .w-action { width: 18%; }
+
+    ol, ul {
+      margin: 8px 0 14px 22px;
+      padding: 0;
+    }
+
+    li { margin: 4px 0; }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    .source-shot {
+      display: block;
+      width: 100%;
+      max-width: 680px;
+      margin-top: 8px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main { padding: 22px 14px 42px; }
+      .grid { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>发补货看板业务计算逻辑说明</h1>
+  <p class="meta">适用对象：业务、运营、库存与供应链同学。本文重点解释发补货页面中各列表字段和统计卡片的业务含义。</p>
+
+  <section class="summary">
+    <strong>一句话理解：</strong>
+    发补货看板把库存、销量、生命周期、SKU 分层、阈值规则和人工配置放在一起，判断哪些 SKU / SPU 需要采购、哪些需要发货，以及预计什么时候断货、建议发多少、优先级如何。
+  </section>
+
+  <h2>一、卡片展示字段计算逻辑</h2>
+  <p class="note">本节按页面统计卡片顺序说明。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">卡片名称</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>在售 SKU 总数</td><td>当前可纳入发补货看板的 SKU 规模。</td><td>从库存底座中取在售 SKU，按 SKU 去重键计数；<br>去重键优先 MSKU，其次库存 SKU，最后 SKU ID。</td><td>输出字段：<code>onSaleSkuCount</code>。<br>表计算口径：从库存底座中取在售 SKU，按 SKU 去重键计数；<br>去重键优先 MSKU，其次库存 SKU，最后 SKU ID。</td></tr>
+    <tr><td>2</td><td>需发货 SKU 数</td><td>本次需要进入发货动作的 SKU 数。</td><td>从发货模型中取“是否发货 = 是”的 SKU，按同一 SKU 去重键计数，并且只统计库存底座存在的 SKU。</td><td>输出字段：<code>needShipSkuCount</code>。<br>表计算口径：从发货模型中取“是否发货 = 是”的 SKU，按同一 SKU 去重键计数，并且只统计库存底座存在的 SKU。</td></tr>
+    <tr><td>3</td><td>需采购 SKU 数</td><td>本次需要进入采购动作的 SKU 数。</td><td>从备货模型中取“是否采购 = 是”的 SKU，按同一 SKU 去重键计数，并且只统计库存底座存在的 SKU。</td><td>输出字段：<code>needPurchaseSkuCount</code>。<br>表计算口径：从备货模型中取“是否采购 = 是”的 SKU，按同一 SKU 去重键计数，并且只统计库存底座存在的 SKU。</td></tr>
+    <tr><td>4</td><td>海外在库总量</td><td>当前海外侧可售或在库库存水位。</td><td>复用库存检查汇总中的“SKU + 全部”海外在库总库存。</td><td>输出字段：<code>overseasStockQty</code>。<br>表计算口径：复用库存检查汇总中的“SKU + 全部”海外在库总库存。</td></tr>
+    <tr><td>5</td><td>国内在库总量</td><td>后续可发货的国内库存基础。</td><td>复用库存检查汇总中的“SKU + 全部”国内在库库存。</td><td>输出字段：<code>domesticStockQty</code>。<br>表计算口径：复用库存检查汇总中的“SKU + 全部”国内在库库存。</td></tr>
+    <tr><td>6</td><td>下次截单日</td><td>用于判断是否赶本次发货截单。</td><td>优先取发货模型中所有 SKU 的最近截单日最小值；<br>如果没有，则取规则配置中的默认最近截单日。</td><td>输出字段：<code>nextCutoffDate</code>。<br>表计算口径：优先取发货模型中所有 SKU 的最近截单日最小值；<br>如果没有，则取规则配置中的默认最近截单日。</td></tr>
+    <tr><td>7</td><td>海外低可售天数 SKU 数</td><td>用于定位海外库存低水位风险。</td><td>按 SKU 去重后，统计告警类型为严重缺货、正常缺货、分布不均、直邮撑不住的 SKU 数。</td><td>输出字段：<code>overseasLowDaysSkuCount</code>。<br>表计算口径：按 SKU 去重后，统计告警类型为严重缺货、正常缺货、分布不均、直邮撑不住的 SKU 数。</td></tr>
+    <tr><td>8</td><td>国内缺货 SKU 数</td><td>国内也没有可发库存，需要优先处理。</td><td>按 SKU 去重后，统计告警类型为严重缺货的 SKU 数。</td><td>输出字段：<code>domesticShortageSkuCount</code>。<br>表计算口径：按 SKU 去重后，统计告警类型为严重缺货的 SKU 数。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、SKU 列表字段计算逻辑</h2>
+  <p class="note">本节按库存看板 SKU 列表字段顺序说明。表来源：<code>ads.ads_inventory_replenishment_inventory_sku_1d</code>；<br>默认按业务日期、站点、店铺等页面筛选条件取数。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>商品基础信息</td><td>站点</td><td>用于站点筛选和分组。</td><td>根据店铺归属识别站点，作为页面筛选、汇总和后续库存口径区分的第一层条件。</td><td>输出字段：<code>siteCode</code>。<br>表计算口径：ADS 字段 <code>site_code</code>，来自发补货库存 SKU 查询表。</td></tr>
+    <tr><td>2</td><td>商品基础信息</td><td>店铺</td><td>用于店铺筛选和分组。</td><td>取商品或店铺配置中的店铺名称，用于区分同一 SKU 在不同店铺下的库存与发补货判断。</td><td>输出字段：<code>storeName</code>。<br>表计算口径：ADS 字段 <code>store_name</code>，来自发补货库存 SKU 查询表。</td></tr>
+    <tr><td>3</td><td>商品基础信息</td><td>SPU编码</td><td>用于 SPU 维度聚合和搜索。</td><td>优先取商品档案维护的 SPU，其次按库存 SKU / 商品信息匹配到款式编码。</td><td>输出字段：<code>spu</code>。<br>表计算口径：ADS 字段 <code>spu</code>，底层由商品基础信息与商品档案映射后输出。</td></tr>
+    <tr><td>4</td><td>商品基础信息</td><td>SPU名称</td><td>辅助识别商品。</td><td>取 SPU 对应的中文名称，帮助业务按款式识别商品，不参与库存加减。</td><td>输出字段：<code>spuName</code>。<br>表计算口径：ADS 字段 <code>spu_name</code>，底层由商品基础信息与商品档案映射后输出。</td></tr>
+    <tr><td>5</td><td>商品基础信息</td><td>PID</td><td>用于定位具体 TikTok 商品。</td><td>取 TikTok 商品 ID，用于定位店铺后台的具体商品。同一库存 SKU 可能挂载多个 PID。</td><td>输出字段：<code>pid</code>。<br>表计算口径：ADS 字段 <code>pid</code>，来自发补货商品 SKU 底座。</td></tr>
+    <tr><td>6</td><td>商品基础信息</td><td>MSKU</td><td>用于和库存 SKU / ERP SKU 对齐。</td><td>取积加或商品侧维护的 MSKU，通常用于和平台 SKU 编码、ERP SKU 做识别对齐。</td><td>输出字段：<code>msku</code>。<br>表计算口径：ADS 字段 <code>msku</code>，来自发补货商品 SKU 底座。</td></tr>
+    <tr><td>7</td><td>商品基础信息</td><td>SKU ID</td><td>用于平台 SKU 定位。</td><td>取 TikTok 官方 SKU ID，用于和官方商品 SKU 明细对齐。</td><td>输出字段：<code>skuId</code>。<br>表计算口径：ADS 字段 <code>sku_id</code>，来自发补货商品 SKU 底座。</td></tr>
+    <tr><td>8</td><td>商品基础信息</td><td>库存SKU</td><td>同一库存 SKU 可能挂多个 PID。</td><td>库存共享与发补货计算的主要识别对象，后续 SPU 汇总需要先按库存 SKU 去重。</td><td>输出字段：<code>inventorySku</code>。<br>表计算口径：ADS 字段 <code>inventory_sku</code>，作为库存 SKU 粒度查询表的核心键。</td></tr>
+    <tr><td>9</td><td>商品基础信息</td><td>SKU名称</td><td>辅助识别库存 SKU。</td><td>取库存 SKU 对应的商品名称或中文名称，用于业务识别商品，不参与库存计算。</td><td>输出字段：<code>inventorySkuName</code>。<br>表计算口径：ADS 字段 <code>inventory_sku_name</code>，来自发补货商品 SKU 底座。</td></tr>
+    <tr><td>10</td><td>汇总库存</td><td>总库存</td><td>SKU 当前总库存水位。</td><td>总国内库存（序号13） + 海外在途总量（序号18） + 海外在库总库存（序号26）。</td><td>输出字段：<code>totalInventoryQty</code>。<br>表计算口径：ADS 字段 <code>total_inventory_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>11</td><td>汇总库存</td><td>总在途库存</td><td>尚未成为可用库存的补给量。</td><td>总国内库存（序号13） - 国内在库（序号17） + 海外在途总量（序号18）。</td><td>输出字段：<code>totalInTransitQty</code>。<br>表计算口径：ADS 字段 <code>total_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>12</td><td>汇总库存</td><td>总可用库存</td><td>当前可用于销售或调拨的库存。</td><td>国内在库（序号17） + 海外在库总库存（序号26）。</td><td>输出字段：<code>totalAvailableQty</code>。<br>表计算口径：ADS 字段 <code>total_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>13</td><td>汇总库存</td><td>总国内库存</td><td>发货模型判断国内是否能补海外的基础。</td><td>工厂采购未交量（序号15） + 国内交货在途库存（序号16） + 国内在库（序号17）。</td><td>输出字段：<code>domesticTotalQty</code>。<br>表计算口径：ADS 字段 <code>domestic_total_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>14</td><td>A.国内库存</td><td>采购在途库存</td><td>未来国内侧补充量。</td><td>（数据源2）工厂采购未交量（序号15） + 国内交货在途库存（序号16）；<br>表示已经在采购 / 交付流程中、但还没有成为国内在库的补给量。</td><td>输出字段：<code>purchaseInTransitQty</code>。<br>表计算口径：ADS 字段 <code>purchase_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>15</td><td>A.国内库存</td><td>工厂采购未交量</td><td>采购未履约风险。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的采购未交量汇总；<br>表示供应端已采购但工厂还未交付的数量。</td><td>输出字段：<code>factoryUnfulfilledQty</code>。<br>表计算口径：ADS 字段 <code>factory_unfulfilled_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>16</td><td>A.国内库存</td><td>国内交货在途库存</td><td>即将变成国内在库的数量。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的国内交货在途库存汇总；<br>表示国内交付或调拨过程中、还未完成入库的库存。</td><td>输出字段：<code>domesticDeliveryInTransitQty</code>。<br>表计算口径：ADS 字段 <code>domestic_delivery_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>17</td><td>A.国内库存</td><td>国内在库</td><td>发货模型计算国内可发库存的核心字段。</td><td>（数据源2）美国TK-厦门直邮仓、美国TK-国内厦门仓、美国TK-英区直邮仓的可用库存汇总；<br>表示国内仓当前已经在库、可用于直邮预留或发往海外的库存。</td><td>输出字段：<code>domesticOnHandQty</code>。<br>表计算口径：ADS 字段 <code>domestic_on_hand_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>18</td><td>B.海外在途库存</td><td>海外在途总量</td><td>即将补充海外库存的数量。</td><td>三方仓在途量（序号19） + FBT在途量（序号24） + 英国退货仓在途量（序号25）；<br>表示海外方向还没有入可售仓的全部补给量。</td><td>输出字段：<code>overseasInTransitTotalQty</code>。<br>表计算口径：ADS 字段 <code>overseas_in_transit_total_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>19</td><td>B.海外在途库存</td><td>三方仓在途量</td><td>三方仓补给。</td><td>万邑通USKY3在途（序号20） + 万邑通USWC2在途（序号21） + 万邑通USWC在途（序号22） + 美国谷仓:美西仓库在途（序号23）；<br>表示三方海外仓路上的补给量，不包含 FBT 在途和英国退货仓在途。</td><td>输出字段：<code>thirdWarehouseInTransitQty</code>。<br>表计算口径：ADS 字段 <code>third_warehouse_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>20</td><td>B.海外在途库存</td><td>万邑通USKY3在途</td><td>USKY3 仓补给。</td><td>（数据源2）万邑通 USKY3 仓的出库待处理、发货待处理和在途库存合计。</td><td>输出字段：<code>winitUsky3InTransitQty</code>。<br>表计算口径：ADS 字段 <code>winit_usky3_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>21</td><td>B.海外在途库存</td><td>万邑通USWC2在途</td><td>USWC2 仓补给。</td><td>（数据源2）万邑通 USWC2 仓的出库待处理、发货待处理和在途库存合计。</td><td>输出字段：<code>winitUswc2InTransitQty</code>。<br>表计算口径：ADS 字段 <code>winit_uswc2_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>22</td><td>B.海外在途库存</td><td>万邑通USWC在途</td><td>USWC 仓补给。</td><td>（数据源2）万邑通 USWC 仓的出库待处理、发货待处理和在途库存合计。</td><td>输出字段：<code>winitUswcInTransitQty</code>。<br>表计算口径：ADS 字段 <code>winit_uswc_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>23</td><td>B.海外在途库存</td><td>美国谷仓:美西仓库在途</td><td>谷仓美西补给。</td><td>（数据源2）美国谷仓:美西仓库的出库待处理、发货待处理和在途库存合计。</td><td>输出字段：<code>goodcangUsWestInTransitQty</code>。<br>表计算口径：ADS 字段 <code>goodcang_us_west_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>24</td><td>B.海外在途库存</td><td>FBT在途量</td><td>FBT 补给。</td><td>（数据源3）TikTok FBT 平台仓同步状态正常的在途库存。</td><td>输出字段：<code>fbtInTransitQty</code>。<br>表计算口径：ADS 字段 <code>fbt_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>25</td><td>B.海外在途库存</td><td>英国退货仓在途量</td><td>英国退货仓补给。</td><td>（数据源2）万邑通 UKTW 仓、英国退件仓的出库待处理、发货待处理和在途库存合计。</td><td>输出字段：<code>ukReturnInTransitQty</code>。<br>表计算口径：ADS 字段 <code>uk_return_in_transit_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>26</td><td>C.海外在库库存</td><td>海外在库总库存</td><td>海外当前库存水位。</td><td>积加-万邑通USKY3（序号27） + 积加-万邑通USWC2（序号28） + 积加-万邑通USWC（序号29） + 积加-谷仓美西仓库（序号30） + FBT可用（序号31） + 积加-FBA仓库（序号32） + 积加-英国退货仓（序号33）；<br>表示海外仓当前已经在库或可用于销售的库存水位。</td><td>输出字段：<code>overseasOnHandTotalQty</code>。<br>表计算口径：ADS 字段 <code>overseas_on_hand_total_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>27</td><td>C.海外在库库存</td><td>积加-万邑通USKY3</td><td>USKY3 当前可用库存。</td><td>（数据源2）积加侧万邑通 USKY3 仓可用库存。</td><td>输出字段：<code>jijiaWinitUsky3AvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_winit_usky3_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>28</td><td>C.海外在库库存</td><td>积加-万邑通USWC2</td><td>USWC2 当前可用库存。</td><td>（数据源2）积加侧万邑通 USWC2 仓可用库存。</td><td>输出字段：<code>jijiaWinitUswc2AvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_winit_uswc2_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>29</td><td>C.海外在库库存</td><td>积加-万邑通USWC</td><td>USWC 当前可用库存。</td><td>（数据源2）积加侧万邑通 USWC 仓可用库存。</td><td>输出字段：<code>jijiaWinitUswcAvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_winit_uswc_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>30</td><td>C.海外在库库存</td><td>积加-谷仓美西仓库</td><td>谷仓美西当前可用库存。</td><td>（数据源2）积加侧谷仓美西仓可用库存。</td><td>输出字段：<code>jijiaGoodcangUsWestAvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_goodcang_us_west_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>31</td><td>C.海外在库库存</td><td>FBT可用</td><td>FBT 当前可用库存。</td><td>（数据源3）TikTok FBT 平台仓同步状态正常的可用库存。</td><td>输出字段：<code>fbtAvailableQty</code>。<br>表计算口径：ADS 字段 <code>fbt_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>32</td><td>C.海外在库库存</td><td>积加-FBA仓库</td><td>FBA 当前可用库存。</td><td>（数据源2）积加侧 FBA 仓可用库存。</td><td>输出字段：<code>jijiaFbaAvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_fba_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>33</td><td>C.海外在库库存</td><td>积加-英国退货仓</td><td>英国退货仓当前库存。</td><td>（数据源2）积加侧万邑通 UKTW 仓、英国退件仓可用库存汇总。</td><td>输出字段：<code>jijiaUkReturnAvailableQty</code>。<br>表计算口径：ADS 字段 <code>jijia_uk_return_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    <tr><td>34</td><td>C.海外在库库存</td><td>三方仓可用量</td><td>三方仓当前可用库存。</td><td>积加-万邑通USKY3（序号27） + 积加-万邑通USWC2（序号28） + 积加-万邑通USWC（序号29） + 积加-谷仓美西仓库（序号30）；<br>表示三方海外仓当前可用库存，不包含 FBT、FBA 和英国退货仓。</td><td>输出字段：<code>thirdWarehouseAvailableQty</code>。<br>表计算口径：ADS 字段 <code>third_warehouse_available_qty</code>，由 DWS 库存看板 SKU 宽表透传。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、备货模型（SKU）列表字段计算逻辑</h2>
+  <p class="note">本节按页面列表字段顺序说明。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>商品基础信息</td><td>站点、店铺、SPU编码、SPU名称、PID、MSKU、SKU ID、库存SKU、SKU名称</td><td>用于定位采购对象。</td><td>直接透传商品基础信息和库存 SKU 信息。</td><td>输出字段：<code>siteCode/storeName/spu/spuName/pid/msku/skuId/inventorySku/inventorySkuName</code>。<br>表计算口径：直接透传商品基础信息和库存 SKU 信息。</td></tr>
+    <tr><td>2</td><td>动态加权日均</td><td>7天日均（S7）</td><td>反映最近短期销量。</td><td>取近 7 天日均销量。</td><td>输出字段：<code>dailySalesQty7d</code>。<br>表计算口径：取近 7 天日均销量。</td></tr>
+    <tr><td>3</td><td>动态加权日均</td><td>30天日均（S30）</td><td>反映相对稳定销量。</td><td>取近 30 天日均销量。</td><td>输出字段：<code>dailySalesQty30d</code>。<br>表计算口径：取近 30 天日均销量。</td></tr>
+    <tr><td>4</td><td>动态加权日均</td><td>S7/S30比值</td><td>判断近期销量相对 30 天均值的趋势。</td><td>先过滤 S7：S30 小于等于 0 时取 S7；<br>S7 大于 S30 两倍时取 S30；<br>其他取 S7。再用过滤后 S7 / S30，S30 为 0 时为 0。</td><td>输出字段：<code>s7S30Ratio</code>。<br>表计算口径：先过滤 S7：S30 小于等于 0 时取 S7；<br>S7 大于 S30 两倍时取 S30；<br>其他取 S7。再用过滤后 S7 / S30，S30 为 0 时为 0。</td></tr>
+    <tr><td>5</td><td>动态加权日均</td><td>动态权重档位</td><td>决定加权日均更偏近期还是长期。</td><td>S30 小于等于 0 为无销量档；<br>S7/S30 大于等于 1.3 为上涨档；<br>小于 0.8 为下滑档；<br>其他为平稳档。</td><td>输出字段：<code>dynamicWeightLevel</code>。<br>表计算口径：S30 小于等于 0 为无销量档；<br>S7/S30 大于等于 1.3 为上涨档；<br>小于 0.8 为下滑档；<br>其他为平稳档。</td></tr>
+    <tr><td>6</td><td>动态加权日均</td><td>加权日均</td><td>采购和发货模型最核心的销量预测值。</td><td>无销量档取过滤后 S7；<br>上涨档 = 过滤后 S7×0.75 + S30×0.25；<br>平稳档 = 过滤后 S7×0.60 + S30×0.40；<br>下滑档 = 过滤后 S7×0.40 + S30×0.60。</td><td>输出字段：<code>weightedDailySalesQty</code>。<br>表计算口径：无销量档取过滤后 S7；<br>上涨档 = 过滤后 S7×0.75 + S30×0.25；<br>平稳档 = 过滤后 S7×0.60 + S30×0.40；<br>下滑档 = 过滤后 S7×0.40 + S30×0.60。</td></tr>
+    <tr><td>7</td><td>动态加权日均</td><td>预计断货日期</td><td>预计当前店铺同步库存还能撑到哪天。</td><td>业务日期 + FLOOR(店铺侧被同步总库存 / 加权日均)；<br>加权日均小于等于 0 时为空。</td><td>输出字段：<code>estimatedOutOfStockDate</code>。<br>表计算口径：业务日期 + FLOOR(店铺侧被同步总库存 / 加权日均)；<br>加权日均小于等于 0 时为空。</td></tr>
+    <tr><td>8</td><td>生命周期判断</td><td>生命周期</td><td>用于调整备货策略。</td><td>优先取人工配置；<br>未配置时按 S7/S30 档位兜底为上升期、平稳期或下降期。</td><td>输出字段：<code>lifeCycle</code>。<br>表计算口径：优先取人工配置；<br>未配置时按 S7/S30 档位兜底为上升期、平稳期或下降期。</td></tr>
+    <tr><td>9</td><td>生命周期判断</td><td>是否内容爆发</td><td>内容爆发商品通常需要关注备货。</td><td>取人工维护配置中的内容爆发标记。</td><td>输出字段：<code>isContentBurst</code>。<br>表计算口径：取人工维护配置中的内容爆发标记。</td></tr>
+    <tr><td>10</td><td>生命周期判断</td><td>商务出单占比</td><td>辅助判断订单来源结构。</td><td>取人工维护配置中的商务出单占比。</td><td>输出字段：<code>businessOrderRatio</code>。<br>表计算口径：取人工维护配置中的商务出单占比。</td></tr>
+    <tr><td>11</td><td>生命周期判断</td><td>剪辑出单占比</td><td>辅助判断订单来源结构。</td><td>取人工维护配置中的剪辑出单占比。</td><td>输出字段：<code>editorOrderRatio</code>。<br>表计算口径：取人工维护配置中的剪辑出单占比。</td></tr>
+    <tr><td>12</td><td>生命周期判断</td><td>安全库存调整天数（海外仓）</td><td>影响海外目标库存。</td><td>基础海外安全库存天数 + 生命周期对应调整天数，按向下取整输出。</td><td>输出字段：<code>overseasSafetyStockAdjustDays</code>。<br>表计算口径：基础海外安全库存天数 + 生命周期对应调整天数，按向下取整输出。</td></tr>
+    <tr><td>13</td><td>生命周期判断</td><td>安全库存调整天数（直邮仓）</td><td>影响直邮目标库存。</td><td>基础直邮安全库存天数 + 生命周期对应调整天数，按向下取整输出。</td><td>输出字段：<code>directMailSafetyStockAdjustDays</code>。<br>表计算口径：基础直邮安全库存天数 + 生命周期对应调整天数，按向下取整输出。</td></tr>
+    <tr><td>14</td><td>SKU四层分层</td><td>SKU分层</td><td>A 层为重点热卖 SKU，D 层为风险 SKU。</td><td>VOC 大于等于 2 为 D；<br>非 D 且累计销售贡献小于等于 60% 且趋势为上涨/平稳为 A；<br>非 D 且累计贡献小于等于 90% 且有销量为 B；<br>其他为 C。</td><td>输出字段：<code>skuTier</code>。<br>表计算口径：VOC 大于等于 2 为 D；<br>非 D 且累计销售贡献小于等于 60% 且趋势为上涨/平稳为 A；<br>非 D 且累计贡献小于等于 90% 且有销量为 B；<br>其他为 C。</td></tr>
+    <tr><td>15</td><td>SKU四层分层</td><td>是否热卖色码</td><td>用于识别重点色码。</td><td>SKU 分层为 A 时为是，否则为否。</td><td>输出字段：<code>isHotColorSize</code>。<br>表计算口径：SKU 分层为 A 时为是，否则为否。</td></tr>
+    <tr><td>16</td><td>SKU四层分层</td><td>VOC值</td><td>VOC 风险会影响 SKU 分层。</td><td>取人工维护配置中的 VOC 值，缺失按 0。</td><td>输出字段：<code>vocScore</code>。<br>表计算口径：取人工维护配置中的 VOC 值，缺失按 0。</td></tr>
+    <tr><td>17</td><td>SKU四层分层</td><td>退货率（近14天）</td><td>用于识别近期售后风险。</td><td>近 14 天已取消订单件数 / 近 14 天总销售件数；<br>分母为 0 时为 0。</td><td>输出字段：<code>returnRate14d</code>。<br>表计算口径：近 14 天已取消订单件数 / 近 14 天总销售件数；<br>分母为 0 时为 0。</td></tr>
+    <tr><td>18</td><td>SKU四层分层</td><td>建议运输方式（补货）</td><td>辅助选择补货方式。</td><td>按规则参数和生命周期 / 安全库存策略输出补货运输建议。</td><td>输出字段：<code>suggestRestockTransportMode</code>。<br>表计算口径：按规则参数和生命周期 / 安全库存策略输出补货运输建议。</td></tr>
+    <tr><td>19</td><td>目标库存计算</td><td>目标库存（海外仓）</td><td>海外仓建议保持的目标库存。</td><td>CEIL(加权日均 × (海运总天数 + 海外安全库存天数))。</td><td>输出字段：<code>targetOverseasStockQty</code>。<br>表计算口径：CEIL(加权日均 × (海运总天数 + 海外安全库存天数))。</td></tr>
+    <tr><td>20</td><td>目标库存计算</td><td>目标库存（直邮仓）</td><td>直邮仓建议保持的目标库存。</td><td>CEIL(加权日均 × (直邮总天数 + 直邮安全库存天数))。</td><td>输出字段：<code>targetDirectMailStockQty</code>。<br>表计算口径：CEIL(加权日均 × (直邮总天数 + 直邮安全库存天数))。</td></tr>
+    <tr><td>21</td><td>目标库存计算</td><td>安全库存天数（最终）</td><td>解释目标库存高低的核心天数。</td><td>根据生命周期、内容爆发、规则参数等得到最终安全库存天数，并向上取整。</td><td>输出字段：<code>finalSafetyStockDays</code>。<br>表计算口径：根据生命周期、内容爆发、规则参数等得到最终安全库存天数，并向上取整。</td></tr>
+    <tr><td>22</td><td>补货决策输出</td><td>是否采购</td><td>采购动作判断。</td><td>当前总库存低于目标库存，且生命周期不是下降期、SKU 分层不是 D 时为是；<br>否则为否。</td><td>输出字段：<code>isPurchase</code>。<br>表计算口径：当前总库存低于目标库存，且生命周期不是下降期、SKU 分层不是 D 时为是；<br>否则为否。</td></tr>
+    <tr><td>23</td><td>补货决策输出</td><td>建议采购数量</td><td>建议采购执行数量。</td><td>CEIL(MAX(目标直邮库存 - 当前总库存, 0))。</td><td>输出字段：<code>suggestPurchaseQty</code>。<br>表计算口径：CEIL(MAX(目标直邮库存 - 当前总库存, 0))。</td></tr>
+    <tr><td>24</td><td>补货决策输出</td><td>采购后SKU预计总库存</td><td>采购后预计库存水位。</td><td>当前总库存 + 建议采购数量。</td><td>输出字段：<code>postPurchaseTotalInventoryQty</code>。<br>表计算口径：当前总库存 + 建议采购数量。</td></tr>
+    <tr><td>25</td><td>补货决策输出</td><td>建议运输方式（采购）</td><td>采购物流建议。</td><td>若库存可售天数低于最终安全库存天数的一半，倾向空派加急；<br>否则按规则输出常规采购运输方式。</td><td>输出字段：<code>suggestPurchaseTransportMode</code>。<br>表计算口径：若库存可售天数低于最终安全库存天数的一半，倾向空派加急；<br>否则按规则输出常规采购运输方式。</td></tr>
+    <tr><td>26</td><td>补货决策输出</td><td>预计到仓日（采购）</td><td>预计采购补货可用日期。</td><td>基于业务日期和采购运输方式对应 ETA 推算。</td><td>输出字段：<code>purchaseEtaDate</code>。<br>表计算口径：基于业务日期和采购运输方式对应 ETA 推算。</td></tr>
+    <tr><td>27</td><td>操作</td><td>操作</td><td>用于页面编辑、查看或导出动作。</td><td>前端操作列，不参与数仓计算。</td><td>输出字段：<code>action</code>。<br>表计算口径：前端操作列，不参与数仓计算。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>SPU 备货特别说明：</strong>
+    SPU 下同一个库存 SKU 只能算一条。日均类指标不是简单把 SKU 加权日均相加，而是先汇总 S7、S30，再重新计算 S7/S30、动态档位和 SPU 加权日均。
+  </div>
+
+  <h2>四、备货模型（SPU）列表字段计算逻辑</h2>
+  <p class="note">本节按页面列表字段顺序说明。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>商品基础信息</td><td>站点、店铺、SPU编码、SPU名称</td><td>SPU 级展示对象。</td><td>直接透传 SPU 基础信息。</td><td>输出字段：<code>siteCode/storeName/spu/spuName</code>。<br>表计算口径：直接透传 SPU 基础信息。</td></tr>
+    <tr><td>2</td><td>销量与加权</td><td>7天日均（S7）</td><td>SPU 近期日均销量。</td><td>同一站点 + 店铺 + SPU 下，按库存 SKU 去重后汇总 SKU 的 S7。</td><td>输出字段：<code>dailySalesQty7d</code>。<br>表计算口径：同一站点 + 店铺 + SPU 下，按库存 SKU 去重后汇总 SKU 的 S7。</td></tr>
+    <tr><td>3</td><td>销量与加权</td><td>30天日均（S30）</td><td>SPU 稳定日均销量。</td><td>同一站点 + 店铺 + SPU 下，按库存 SKU 去重后汇总 SKU 的 S30。</td><td>输出字段：<code>dailySalesQty30d</code>。<br>表计算口径：同一站点 + 店铺 + SPU 下，按库存 SKU 去重后汇总 SKU 的 S30。</td></tr>
+    <tr><td>4</td><td>销量与加权</td><td>S7/S30比值</td><td>SPU 层销量趋势。</td><td>使用 SPU 汇总后的 S7 / S30 重新计算；<br>S30 为 0 时为 0。</td><td>输出字段：<code>s7S30Ratio</code>。<br>表计算口径：使用 SPU 汇总后的 S7 / S30 重新计算；<br>S30 为 0 时为 0。</td></tr>
+    <tr><td>5</td><td>销量与加权</td><td>动态权重档位</td><td>SPU 层趋势档位。</td><td>基于 SPU 层 S7/S30 重新判断上涨档、平稳档、下滑档或无销量档。</td><td>输出字段：<code>dynamicWeightLevel</code>。<br>表计算口径：基于 SPU 层 S7/S30 重新判断上涨档、平稳档、下滑档或无销量档。</td></tr>
+    <tr><td>6</td><td>销量与加权</td><td>加权日均</td><td>SPU 级预计日销。</td><td>基于 SPU 汇总后的 S7、S30 和 SPU 档位重新计算，不汇总 SKU 加权日均。</td><td>输出字段：<code>weightedDailySalesQty</code>。<br>表计算口径：基于 SPU 汇总后的 S7、S30 和 SPU 档位重新计算，不汇总 SKU 加权日均。</td></tr>
+    <tr><td>7</td><td>销量与加权</td><td>预计断货日期</td><td>SPU 整体断货预估。</td><td>业务日期 + FLOOR(SPU 汇总店铺侧被同步总库存 / SPU 加权日均)；<br>加权日均小于等于 0 时为空。</td><td>输出字段：<code>estimatedOutOfStockDate</code>。<br>表计算口径：业务日期 + FLOOR(SPU 汇总店铺侧被同步总库存 / SPU 加权日均)；<br>加权日均小于等于 0 时为空。</td></tr>
+    <tr><td>8</td><td>销量与加权</td><td>退货率（近14天）</td><td>SPU 售后风险参考。</td><td>按去重库存 SKU 的近 14 天退货率取平均。</td><td>输出字段：<code>returnRate14d</code>。<br>表计算口径：按去重库存 SKU 的近 14 天退货率取平均。</td></tr>
+    <tr><td>9</td><td>SKU结构</td><td>A层SKU数</td><td>重点热卖 SKU 数。</td><td>按去重库存 SKU 统计 SKU 分层为 A 的数量。</td><td>输出字段：<code>skuTierACount</code>。<br>表计算口径：按去重库存 SKU 统计 SKU 分层为 A 的数量。</td></tr>
+    <tr><td>10</td><td>SKU结构</td><td>B层SKU数</td><td>腰部销售 SKU 数。</td><td>按去重库存 SKU 统计 SKU 分层为 B 的数量。</td><td>输出字段：<code>skuTierBCount</code>。<br>表计算口径：按去重库存 SKU 统计 SKU 分层为 B 的数量。</td></tr>
+    <tr><td>11</td><td>SKU结构</td><td>C层SKU数</td><td>普通 SKU 数。</td><td>按去重库存 SKU 统计 SKU 分层为 C 的数量。</td><td>输出字段：<code>skuTierCCount</code>。<br>表计算口径：按去重库存 SKU 统计 SKU 分层为 C 的数量。</td></tr>
+    <tr><td>12</td><td>SKU结构</td><td>D层SKU数</td><td>VOC 风险 SKU 数。</td><td>按去重库存 SKU 统计 SKU 分层为 D 的数量。</td><td>输出字段：<code>skuTierDCount</code>。<br>表计算口径：按去重库存 SKU 统计 SKU 分层为 D 的数量。</td></tr>
+    <tr><td>13</td><td>SKU结构</td><td>热卖色码SKU数</td><td>SPU 下重点色码数。</td><td>按去重库存 SKU 统计是否热卖色码 = 是的数量。</td><td>输出字段：<code>hotColorSizeSkuCount</code>。<br>表计算口径：按去重库存 SKU 统计是否热卖色码 = 是的数量。</td></tr>
+    <tr><td>14</td><td>补货决策汇总</td><td>需采购SKU数</td><td>SPU 下需采购 SKU 规模。</td><td>按去重库存 SKU 统计是否采购 = 是的数量。</td><td>输出字段：<code>purchaseSkuCount</code>。<br>表计算口径：按去重库存 SKU 统计是否采购 = 是的数量。</td></tr>
+    <tr><td>15</td><td>补货决策汇总</td><td>建议采购数量</td><td>SPU 总采购建议数量。</td><td>按去重库存 SKU 汇总建议采购数量。</td><td>输出字段：<code>suggestPurchaseQty</code>。<br>表计算口径：按去重库存 SKU 汇总建议采购数量。</td></tr>
+    <tr><td>16</td><td>补货决策汇总</td><td>目标库存（海外仓）</td><td>SPU 海外仓目标库存。</td><td>按去重库存 SKU 汇总目标海外库存。</td><td>输出字段：<code>targetOverseasStockQty</code>。<br>表计算口径：按去重库存 SKU 汇总目标海外库存。</td></tr>
+    <tr><td>17</td><td>补货决策汇总</td><td>目标库存（直邮仓）</td><td>SPU 直邮仓目标库存。</td><td>按去重库存 SKU 汇总目标直邮库存。</td><td>输出字段：<code>targetDirectMailStockQty</code>。<br>表计算口径：按去重库存 SKU 汇总目标直邮库存。</td></tr>
+    <tr><td>18</td><td>补货决策汇总</td><td>补货优先级</td><td>SPU 补货排序字段。</td><td>有采购且有 A 层 SKU 为 P1；<br>有采购且有 B 层 SKU 为 P2；<br>有采购为 P3；<br>其他为 P4。</td><td>输出字段：<code>restockPriority</code>。<br>表计算口径：有采购且有 A 层 SKU 为 P1；<br>有采购且有 B 层 SKU 为 P2；<br>有采购为 P3；<br>其他为 P4。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>五、发货模型（SKU）列表字段计算逻辑</h2>
+  <p class="note">本节按页面列表字段顺序说明。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>商品基础信息</td><td>站点、店铺、SPU编码、SPU名称、PID、MSKU、SKU ID、库存SKU、SKU名称</td><td>用于定位发货对象。</td><td>直接透传商品和库存 SKU 基础信息。</td><td>输出字段：<code>siteCode/storeName/spu/spuName/pid/msku/skuId/inventorySku/inventorySkuName</code>。<br>表计算口径：直接透传商品和库存 SKU 基础信息。</td></tr>
+    <tr><td>2</td><td>发货触发条件</td><td>海外有效库存</td><td>判断海外库存还能撑多久。</td><td>海外在库总库存 + 海外在途总库存。</td><td>输出字段：<code>overseasEffectiveStockQty</code>。<br>表计算口径：海外在库总库存 + 海外在途总库存。</td></tr>
+    <tr><td>3</td><td>发货触发条件</td><td>海外可售天数</td><td>海外库存预计还能卖几天。</td><td>FLOOR(海外有效库存 / 加权日均)；<br>加权日均为 0 时返回 0。</td><td>输出字段：<code>overseasSellableDays</code>。<br>表计算口径：FLOOR(海外有效库存 / 加权日均)；<br>加权日均为 0 时返回 0。</td></tr>
+    <tr><td>4</td><td>发货触发条件</td><td>发货触发阈值</td><td>低于该天数时进入发货判断。</td><td>取规则配置中的发货触发阈值天数。</td><td>输出字段：<code>shipTriggerThresholdDays</code>。<br>表计算口径：取规则配置中的发货触发阈值天数。</td></tr>
+    <tr><td>5</td><td>发货触发条件</td><td>紧急标记</td><td>发货风险提示。</td><td>可售天数低于分层阈值时为断货风险；<br>国内可发库存小于等于 0 时为国内无货；<br>VOC 风险时为 VOC风险；<br>否则为空。</td><td>输出字段：<code>urgentFlag</code>。<br>表计算口径：可售天数低于分层阈值时为断货风险；<br>国内可发库存小于等于 0 时为国内无货；<br>VOC 风险时为 VOC风险；<br>否则为空。</td></tr>
+    <tr><td>6</td><td>发货数量计算</td><td>直邮预留量</td><td>为直邮保留的安全库存。</td><td>CEIL(加权日均 × 直邮安全库存天数)，默认按 25 天。</td><td>输出字段：<code>directMailReservedQty</code>。<br>表计算口径：CEIL(加权日均 × 直邮安全库存天数)，默认按 25 天。</td></tr>
+    <tr><td>7</td><td>发货数量计算</td><td>国内可发库存</td><td>扣掉直邮预留后还能发往海外的库存。</td><td>CEIL(MAX(国内在库 - 直邮预留量, 0))。</td><td>输出字段：<code>domesticShippableQty</code>。<br>表计算口径：CEIL(MAX(国内在库 - 直邮预留量, 0))。</td></tr>
+    <tr><td>8</td><td>发货数量计算</td><td>建议发货数量</td><td>建议本次发往海外的数量。</td><td>CEIL(MAX(MIN(国内可发库存, ABS(库存缺口)), 0))。</td><td>输出字段：<code>suggestShipQty</code>。<br>表计算口径：CEIL(MAX(MIN(国内可发库存, ABS(库存缺口)), 0))。</td></tr>
+    <tr><td>9</td><td>发货数量计算</td><td>库存缺口</td><td>负数表示海外库存不足。</td><td>海外有效库存 - 目标海外库存，保留正负号并按绝对值向上取整。</td><td>输出字段：<code>stockGapQty</code>。<br>表计算口径：海外有效库存 - 目标海外库存，保留正负号并按绝对值向上取整。</td></tr>
+    <tr><td>10</td><td>最小批量校验</td><td>最小发货批量</td><td>仓配或物流发货门槛。</td><td>优先取商品 / 仓库配置中的最小发货批量，缺失取默认规则。</td><td>输出字段：<code>minShipBatchQty</code>。<br>表计算口径：优先取商品 / 仓库配置中的最小发货批量，缺失取默认规则。</td></tr>
+    <tr><td>11</td><td>最小批量校验</td><td>是否满足最小批量</td><td>不满足时一般建议等待积累或合并发货。</td><td>建议发货数量大于等于最小发货批量为是，否则为否。</td><td>输出字段：<code>isMeetMinBatch</code>。<br>表计算口径：建议发货数量大于等于最小发货批量为是，否则为否。</td></tr>
+    <tr><td>12</td><td>目的仓选择</td><td>发货目的仓</td><td>本次建议发往的仓库。</td><td>取启用的默认发货目的仓配置。</td><td>输出字段：<code>shipDestinationWarehouse</code>。<br>表计算口径：取启用的默认发货目的仓配置。</td></tr>
+    <tr><td>13</td><td>运输方式判断</td><td>最近截单日</td><td>发货排期基础。</td><td>取规则配置的最近截单日；<br>缺失时按业务日期推算最近默认截单日。</td><td>输出字段：<code>nearestCutoffDate</code>。<br>表计算口径：取规则配置的最近截单日；<br>缺失时按业务日期推算最近默认截单日。</td></tr>
+    <tr><td>14</td><td>运输方式判断</td><td>预计到仓可售日（发货）</td><td>预计海外可售日期。</td><td>最近截单日 + 发货 ETA 天数。</td><td>输出字段：<code>shipEtaSellableDate</code>。<br>表计算口径：最近截单日 + 发货 ETA 天数。</td></tr>
+    <tr><td>15</td><td>运输方式判断</td><td>截单/到仓（UI合并展示列）</td><td>方便页面同时查看截单和到仓。</td><td>最近截单日 + 预计到仓可售日拼接展示。</td><td>输出字段：<code>cutoffEtaDisplay</code>。<br>表计算口径：最近截单日 + 预计到仓可售日拼接展示。</td></tr>
+    <tr><td>16</td><td>运输方式判断</td><td>预计断货日</td><td>海外库存预计断货时间。</td><td>业务日期 + FLOOR(海外可售天数)；<br>加权日均小于等于 0 时为空。</td><td>输出字段：<code>estimatedOutOfStockDate</code>。<br>表计算口径：业务日期 + FLOOR(海外可售天数)；<br>加权日均小于等于 0 时为空。</td></tr>
+    <tr><td>17</td><td>运输方式判断</td><td>断货到到仓空窗期</td><td>发货到仓前可能断货的天数。</td><td>MAX(预计到仓可售日 - 预计断货日, 0)。</td><td>输出字段：<code>stockoutToEtaGapDays</code>。<br>表计算口径：MAX(预计到仓可售日 - 预计断货日, 0)。</td></tr>
+    <tr><td>18</td><td>运输方式判断</td><td>直邮可衔接</td><td>判断空窗期是否可用直邮撑住。</td><td>断货到到仓空窗期小于等于直邮衔接天数时为是；<br>默认直邮衔接天数 12 天。</td><td>输出字段：<code>isDirectMailConnectable</code>。<br>表计算口径：断货到到仓空窗期小于等于直邮衔接天数时为是；<br>默认直邮衔接天数 12 天。</td></tr>
+    <tr><td>19</td><td>运输方式判断</td><td>建议运输方式（发货）</td><td>发货物流建议。</td><td>按断货风险、空窗期和规则参数判断发货运输方式。</td><td>输出字段：<code>suggestShipTransportMode</code>。<br>表计算口径：按断货风险、空窗期和规则参数判断发货运输方式。</td></tr>
+    <tr><td>20</td><td>发货决策输出</td><td>是否发货</td><td>发货动作判断。</td><td>海外可售天数低于发货触发阈值，且建议发货数量大于 0 时为是。</td><td>输出字段：<code>isShip</code>。<br>表计算口径：海外可售天数低于发货触发阈值，且建议发货数量大于 0 时为是。</td></tr>
+    <tr><td>21</td><td>发货决策输出</td><td>发货优先级</td><td>用于排序识别更紧急 SKU。</td><td>SKU 级字段当前为海外可售天数数值，数值越小越紧急。</td><td>输出字段：<code>shipPriority</code>。<br>表计算口径：SKU 级字段当前为海外可售天数数值，数值越小越紧急。</td></tr>
+    <tr><td>22</td><td>联动输出字段</td><td>联动告警类型</td><td>用于告警筛选和排障。</td><td>根据采购标记、国内可发库存、海外可售天数、发货阈值、直邮衔接情况输出严重缺货、正常缺货、分布不均、直邮撑不住等标签。</td><td>输出字段：<code>linkedAlertType</code>。<br>表计算口径：根据采购标记、国内可发库存、海外可售天数、发货阈值、直邮衔接情况输出严重缺货、正常缺货、分布不均、直邮撑不住等标签。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>六、发货模型（SPU）列表字段计算逻辑</h2>
+  <p class="note">本节按页面列表字段顺序说明。输出字段已合并到“表计算逻辑说明”中。</p>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段分组</th>
+      <th class="w-scope">列表字段名</th>
+      <th class="w-action">业务说明</th>
+      <th class="w-business-logic">业务逻辑说明</th>
+      <th class="w-logic">表计算逻辑说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>商品基础信息</td><td>站点、店铺、SPU编码、SPU名称</td><td>SPU 级展示对象。</td><td>直接透传 SPU 基础信息。</td><td>输出字段：<code>siteCode/storeName/spu/spuName</code>。<br>表计算口径：直接透传 SPU 基础信息。</td></tr>
+    <tr><td>2</td><td>发货触发汇总</td><td>需发货SKU数</td><td>SPU 下需发货 SKU 规模。</td><td>同一站点 + 店铺 + SPU 下，按库存 SKU 去重后统计是否发货 = 是的 SKU 数。</td><td>输出字段：<code>shipSkuCount</code>。<br>表计算口径：同一站点 + 店铺 + SPU 下，按库存 SKU 去重后统计是否发货 = 是的 SKU 数。</td></tr>
+    <tr><td>3</td><td>发货触发汇总</td><td>海外有效库存</td><td>SPU 海外库存水位。</td><td>按去重库存 SKU 汇总海外有效库存。</td><td>输出字段：<code>overseasEffectiveStockQty</code>。<br>表计算口径：按去重库存 SKU 汇总海外有效库存。</td></tr>
+    <tr><td>4</td><td>发货触发汇总</td><td>海外可售天数（最小）</td><td>SPU 下最容易断货 SKU 的可售天数。</td><td>按去重库存 SKU 取海外可售天数最小值。</td><td>输出字段：<code>minOverseasSellableDays</code>。<br>表计算口径：按去重库存 SKU 取海外可售天数最小值。</td></tr>
+    <tr><td>5</td><td>发货触发汇总</td><td>最早预计断货日</td><td>SPU 最早风险日期。</td><td>按去重库存 SKU 取预计断货日最早值。</td><td>输出字段：<code>earliestEstimatedOutOfStockDate</code>。<br>表计算口径：按去重库存 SKU 取预计断货日最早值。</td></tr>
+    <tr><td>6</td><td>发货触发汇总</td><td>紧急标记</td><td>SPU 风险级别。</td><td>按断货风险、国内无货、VOC 风险排序取最高风险，再映射为紧急或关注。</td><td>输出字段：<code>maxUrgentFlag</code>。<br>表计算口径：按断货风险、国内无货、VOC 风险排序取最高风险，再映射为紧急或关注。</td></tr>
+    <tr><td>7</td><td>发货数量汇总</td><td>直邮预留量</td><td>SPU 直邮安全库存需求。</td><td>按去重库存 SKU 汇总直邮预留量。</td><td>输出字段：<code>directMailReservedQty</code>。<br>表计算口径：按去重库存 SKU 汇总直邮预留量。</td></tr>
+    <tr><td>8</td><td>发货数量汇总</td><td>国内可发库存</td><td>SPU 可用于发货的国内库存。</td><td>按去重库存 SKU 汇总国内可发库存。</td><td>输出字段：<code>domesticShippableQty</code>。<br>表计算口径：按去重库存 SKU 汇总国内可发库存。</td></tr>
+    <tr><td>9</td><td>发货数量汇总</td><td>建议发货数量</td><td>SPU 建议总发货数量。</td><td>按去重库存 SKU 汇总建议发货数量。</td><td>输出字段：<code>suggestShipQty</code>。<br>表计算口径：按去重库存 SKU 汇总建议发货数量。</td></tr>
+    <tr><td>10</td><td>发货数量汇总</td><td>库存缺口</td><td>SPU 海外库存缺口。</td><td>按去重库存 SKU 汇总库存缺口。</td><td>输出字段：<code>stockGapQty</code>。<br>表计算口径：按去重库存 SKU 汇总库存缺口。</td></tr>
+    <tr><td>11</td><td>发货数量汇总</td><td>满足最小批量SKU数</td><td>可直接发货的 SKU 数。</td><td>按去重库存 SKU 统计是否满足最小批量 = 是的 SKU 数。</td><td>输出字段：<code>meetMinBatchSkuCount</code>。<br>表计算口径：按去重库存 SKU 统计是否满足最小批量 = 是的 SKU 数。</td></tr>
+    <tr><td>12</td><td>运输与目的仓汇总</td><td>主要发货目的仓</td><td>SPU 主发货目的仓。</td><td>取 SPU 下建议发货数量最大的库存 SKU 对应目的仓。</td><td>输出字段：<code>mainShipDestinationWarehouse</code>。<br>表计算口径：取 SPU 下建议发货数量最大的库存 SKU 对应目的仓。</td></tr>
+    <tr><td>13</td><td>运输与目的仓汇总</td><td>最近截单日</td><td>SPU 最近可赶截单日。</td><td>按去重库存 SKU 取最近截单日最小值。</td><td>输出字段：<code>nearestCutoffDate</code>。<br>表计算口径：按去重库存 SKU 取最近截单日最小值。</td></tr>
+    <tr><td>14</td><td>运输与目的仓汇总</td><td>预计到仓可售日</td><td>SPU 最早可到仓日期。</td><td>按去重库存 SKU 取预计到仓可售日最小值。</td><td>输出字段：<code>shipEtaSellableDate</code>。<br>表计算口径：按去重库存 SKU 取预计到仓可售日最小值。</td></tr>
+    <tr><td>15</td><td>运输与目的仓汇总</td><td>建议运输方式</td><td>SPU 主运输建议。</td><td>取 SPU 下建议发货数量最大的库存 SKU 对应运输方式。</td><td>输出字段：<code>suggestShipTransportMode</code>。<br>表计算口径：取 SPU 下建议发货数量最大的库存 SKU 对应运输方式。</td></tr>
+    <tr><td>16</td><td>运输与目的仓汇总</td><td>发货优先级</td><td>SPU 发货排序字段。</td><td>最高紧急为 P1；<br>有发货且最低可售天数小于 15 为 P1；<br>有发货为 P2；<br>有需发货 SKU 为 P3；<br>其他为 P4。</td><td>输出字段：<code>shipPriority</code>。<br>表计算口径：最高紧急为 P1；<br>有发货且最低可售天数小于 15 为 P1；<br>有发货为 P2；<br>有需发货 SKU 为 P3；<br>其他为 P4。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>七、通用计算逻辑说明</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-name">通用逻辑</th>
+      <th class="w-scope">适用模块</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-action">业务理解</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>库存 SKU 去重</td>
+      <td>备货 SPU、发货 SPU、Summary 卡片</td>
+      <td>同一 SPU 下，同一个库存 SKU 只算一条，避免同 SKU 因多个 PID 展示导致库存、建议采购、建议发货重复累计。</td>
+      <td>SPU 是管理视角，库存 SKU 才是真正共享库存对象。</td>
+    </tr>
+    <tr>
+      <td>SKU 去重键</td>
+      <td>Summary 卡片</td>
+      <td>统计 SKU 数时，去重键优先取 MSKU，其次取库存 SKU，最后取 SKU ID。</td>
+      <td>尽量用更稳定的业务 SKU 口径计数。</td>
+    </tr>
+    <tr>
+      <td>S7 过滤</td>
+      <td>备货 SKU、发货 SKU</td>
+      <td>S30 小于等于 0 时取 S7；S7 大于 S30 两倍时取 S30；其他取 S7。</td>
+      <td>避免短期爆量把备货或发货建议放得过大。</td>
+    </tr>
+    <tr>
+      <td>动态档位</td>
+      <td>备货 SKU、备货 SPU、发货 SKU</td>
+      <td>S7/S30 大于等于 1.3 为上涨档；小于 0.8 为下滑档；其余为平稳档；无 S30 时为无销量档。</td>
+      <td>用近期和长期销量对比判断趋势。</td>
+    </tr>
+    <tr>
+      <td>SKU 分层（A/B/C/D）</td>
+      <td>备货 SKU、备货 SPU、发货 SKU、发货 SPU</td>
+      <td>
+        D 层优先判断：VOC 值大于等于 2 时为 D 层。
+        <br>A 层：非 D，且累计销售贡献小于等于 60%，并且趋势为上涨档或平稳档。
+        <br>B 层：非 D，且累计销售贡献小于等于 90%，并且有销量。
+        <br>C 层：不满足 A / B / D 条件的其他 SKU。
+      </td>
+      <td>A 层是重点热卖 SKU，B 层是腰部 SKU，C 层是普通或长尾 SKU，D 层是 VOC 风险 SKU；采购、热卖色码、SPU 优先级都会参考这个分层。</td>
+    </tr>
+    <tr>
+      <td>加权日均</td>
+      <td>备货 SKU、发货 SKU</td>
+      <td>上涨档更看重 S7，平稳档兼顾 S7 和 S30，下滑档更看重 S30。</td>
+      <td>这是目标库存、断货日期、发货建议的核心销量预测。</td>
+    </tr>
+    <tr>
+      <td>SPU 日均重算</td>
+      <td>备货 SPU</td>
+      <td>先汇总去重 SKU 的 S7 和 S30，再重新计算 SPU 的 S7/S30、动态档位和加权日均，不直接汇总 SKU 加权日均。</td>
+      <td>SPU 级趋势必须按 SPU 汇总销量重新判断。</td>
+    </tr>
+    <tr>
+      <td>优先级</td>
+      <td>备货 SPU、发货 SPU</td>
+      <td>备货优先级看需采购数量和 A/B 层 SKU；发货优先级看紧急风险、建议发货数量和最低可售天数。</td>
+      <td>P1 优先处理，P4 通常不急。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>八、来源数据方式</h2>
+  <table class="source-table">
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">数据来源</th>
+      <th class="w-table">对应底层表名</th>
+      <th class="w-scope">对应页面</th>
+      <th class="w-logic">来源说明</th>
+      <th class="w-action">截图说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>商品数据</td>
+      <td>
+        <code>ods.ods_inventory_tiktok_product_online_product_df</code>
+        <br><code>dim.dim_product_archive_config</code>
+      </td>
+      <td>库存看板列表、备货模型、发货模型</td>
+      <td>
+        基于 TK 的 API，商品管理的数据，定时拉取。
+        <br>
+        链接为：
+        <a href="https://partner.tiktokshop.com/docv2/page/search-products-202502" target="_blank" rel="noopener">TikTok Shop Search Products API</a>
+      </td>
+      <td>
+        如图：
+        <img class="source-shot" src="imag/tiktok_shop_search_products_api.png" alt="TikTok Shop Search Products API 来源截图">
+      </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>站点库存数据来源</td>
+      <td><code>ods.ods_inventory_tiktok_site_product_stock_df</code></td>
+      <td>库存看板列表、备货模型、发货模型</td>
+      <td>
+        积加 -&gt; 仓库 -&gt; 产品库存 -&gt; 站点产品库存 -&gt; 筛选仓库 -&gt; 筛选共享。
+        <br>获取每一个 SKU 在每一个仓库的 2 个库存指标：在途量、可用量。
+        <br><br>
+        美区仓库：
+        <br>美国TK-国内厦门仓
+        <br>万邑通:USKY3_Warehouse
+        <br>万邑通:USWC2_Warehouse
+        <br>万邑通:USWC_Warehouse
+        <br>美国TK-艾斯特尼-美国谷仓:美西仓库
+        <br>美国TK-厦门直邮仓
+        <br><br>
+        英区仓库：
+        <br>美国TK-国内厦门仓
+        <br>美国TK-厦门直邮仓
+        <br>美国TK-艾斯特尼-英国退件仓:英国仓
+        <br>万邑通:UKTW Warehouse
+      </td>
+      <td>
+        路径筛选如图：
+        <img class="source-shot" src="imag/jijia_site_product_inventory_source.png" alt="积加站点产品库存来源截图">
+        导出字段如图：
+        <img class="source-shot" src="imag/jijia_site_inventory_export_fields.png" alt="积加站点库存导出字段截图">
+      </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>TikTok.FBT库存数据</td>
+      <td><code>ods.ods_inventory_tiktok_fbt_stock_df</code></td>
+      <td>库存看板列表、备货模型、发货模型</td>
+      <td>
+        积加 -&gt; 仓库 -&gt; 平台仓库存 -&gt; TikTok自运营 -&gt; 筛选仓库为“美国TK-艾斯特尼-美区跨境1店:US_FBT” -&gt; 筛选同步状态为“正常”。
+        <br>获取 SKU 的 3 个库存指标：在库量、在途量、可用量。
+      </td>
+      <td>
+        路径筛选如图：
+        <img class="source-shot" src="imag/jijia_tiktok_fbt_inventory_source.png" alt="积加 TikTok FBT 库存来源截图">
+        导出字段如图：
+        <img class="source-shot" src="imag/jijia_tiktok_fbt_inventory_export_fields.png" alt="积加 TikTok FBT 库存导出字段截图">
+      </td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>商品管理的可用库存（TK自运营）</td>
+      <td>
+        <code>ods.ods_product_tiktok_product_warehouse_df</code>
+        <br><code>dim.dim_product_archive_config</code>
+      </td>
+      <td>库存看板列表、备货模型、发货模型</td>
+      <td>
+        积加 -&gt; 仓库 -&gt; 产品库存 -&gt; 站点产品库存 -&gt; 筛选仓库 -&gt; 筛选共享 -&gt; 库存数量。
+        <br>每一个 SKU 在 TK 后台的真实可用库存数据，会获取到不同仓库的可用库存。
+        <br><br>
+        注意：FBT 的数量基于“总计 - 已知仓库数量”倒算，剩下的数量作为 FBT 总量。
+      </td>
+      <td>
+        如图：
+        <img class="source-shot" src="imag/jijia_tiktok_self_operated_product_available_inventory.png" alt="积加商品管理 TK 自运营可用库存截图">
+      </td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>订单的数据来源</td>
+      <td>
+        <code>ods.ods_trade_api_tiktok_order_di</code>
+        <br><code>ods.ods_trade_api_tiktok_order_item_di</code>
+        <br><code>dwd.dwd_sales_order_item_market_wide_api_realtime</code>
+      </td>
+      <td>备货模型、发货模型、销量与日均相关字段</td>
+      <td>
+        基于 TK 的官方 API 数据拉取。
+        <br>
+        链接为：
+        <a href="https://partner.tiktokshop.com/docv2/page/get-order-list-202309" target="_blank" rel="noopener">TikTok Shop Get Order List API</a>
+      </td>
+      <td>
+        如图：
+        <img class="source-shot" src="imag/tiktok_shop_get_order_list_api.png" alt="TikTok Shop Get Order List API 来源截图">
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>九、计算逻辑变动记录</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-name">变动日期</th>
+      <th class="w-scope">提出人</th>
+      <th class="w-scope">影响模块</th>
+      <th class="w-logic">原先逻辑</th>
+      <th class="w-logic">调整逻辑</th>
+      <th class="w-action">业务影响</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>备货模型（SPU）、发货模型（SPU）</td>
+      <td>SPU 汇总时如果直接按 PID 展示行累计，同一个库存 SKU 可能因为多个 PID 被重复计算。</td>
+      <td>同一站点 + 店铺 + SPU 下，先按库存 SKU 去重，再进行 SPU 汇总。</td>
+      <td>避免同一个库存 SKU 因多个 PID 展示被重复累计，SPU 层库存、建议采购、建议发货更贴近真实共享库存。</td>
+    </tr>
+    <tr>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>备货模型（SPU）</td>
+      <td>SPU 层如果直接汇总 SKU 的加权日均，会把 SKU 级趋势判断结果简单相加。</td>
+      <td>先汇总去重 SKU 的 S7、S30，再在 SPU 层重新计算 S7/S30、动态权重档位和加权日均。</td>
+      <td>SPU 的趋势判断不再简单相加 SKU 加权日均，避免趋势档位和目标库存被 SKU 级结果放大或扭曲。</td>
+    </tr>
+    <tr>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>发货模型（SPU）</td>
+      <td>SPU 层风险、日期、目的仓、运输方式如果简单汇总或随机取值，无法表达最紧急风险和主发货建议。</td>
+      <td>最低可售天数取最小值，最早断货日取最早值，目的仓和运输方式取建议发货数量最大的 SKU。</td>
+      <td>SPU 列表更适合用于排序和决策，优先暴露最紧急风险和主发货建议。</td>
+    </tr>
+    <tr>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>业务说明文档</td>
+      <td>文档按计算主题组织，业务同学需要在页面字段和说明之间来回对照。</td>
+      <td>按页面展示顺序排版：先卡片，再库存列表、备货 SKU、备货 SPU、发货 SKU、发货 SPU，最后补通用逻辑。</td>
+      <td>业务同学可以按页面看到哪个字段，就在文档同名字段下查看计算逻辑。</td>
+    </tr>
+    <tr>
+      <td>2026-08-21</td>
+      <td>业务提出</td>
+      <td>业务说明文档</td>
+      <td>文档只有字段计算说明，缺少数据来源截图和页面字段标注说明的承载位置。</td>
+      <td>新增“来源数据方式”章节，预留数据源截图、页面截图和字段标注说明位置。</td>
+      <td>后续补截图后，可直接用于解释页面数据从哪里来、哪些规则在哪里维护。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    生成说明：本文为发补货看板业务口径说明，依据发补货 ADS/DWS SQL 与前端 restock-board 字段配置整理。更新时间：2026-08-21。
+  </footer>
+</main>
+</body>
+</html>

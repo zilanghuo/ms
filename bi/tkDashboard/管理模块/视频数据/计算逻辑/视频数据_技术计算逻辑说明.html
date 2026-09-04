@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>视频数据技术计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+      --danger-bg: #fef2f2;
+      --danger-line: #fecaca;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p { margin: 8px 0; }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .danger {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-line);
+      border-left: 5px solid #dc2626;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) { background: var(--soft); }
+
+    .w-no { width: 5%; white-space: nowrap; }
+    .w-name { width: 14%; }
+    .w-field { width: 15%; }
+    .w-source { width: 22%; }
+    .w-logic { width: 32%; }
+    .w-note { width: 12%; }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main { padding: 22px 14px 42px; }
+      .grid { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>视频数据技术计算逻辑说明</h1>
+  <p class="meta">适用对象：研发、数仓、测试同学。本文基于当前前端、后端和数仓 SQL 反推视频数据查询链路、字段来源和计算口径。</p>
+
+  <section class="summary">
+    <strong>核心链路：</strong>
+    ODS 视频表现数据先沉淀 DWD 日快照明细，再由视频 DIM 取最新全量快照做基础信息，并结合 DWD 累计指标、寄样订单视频关系、PID 广告消耗和人工维护字段，形成页面当前生效视频配置。
+  </section>
+
+  <h2>一、数据链路</h2>
+  <div class="flow">ods.ods_traffic_file_tiktok_video_performance_di -> dwd.dwd_sales_tiktok_video_performance_detail_di -> dim.dim_sales_tiktok_video_config -> /tk/content/video/* -> video-data 页面</div>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">层级/模块</th>
+      <th class="w-field">表或类</th>
+      <th class="w-source">职责</th>
+      <th class="w-logic">关键逻辑</th>
+      <th class="w-note">备注</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>ODS</td><td><code>ods_traffic_file_tiktok_video_performance_di</code></td><td>视频表现原始导入表。</td><td>业务上按全量快照使用，DIM 取最大 <code>sdt</code> 作为基础信息来源。</td><td>命名为 di，但按 df 理解。</td></tr>
+    <tr><td>2</td><td>DWD 明细</td><td><code>dwd_sales_tiktok_video_performance_detail_di</code></td><td>保留每日源分区视频表现快照。</td><td><code>smt/sdt</code> 保持 ODS 源分区，<code>publish_smt/publish_sdt</code> 按发布时间派生；仅写入 20260601 之后源分区。</td><td>表现明细弹窗直接查询。</td></tr>
+    <tr><td>3</td><td>DWS 关系</td><td><code>dws_sales_sample_order_video_relation_realtime</code></td><td>提供视频关联样品订单、款号、颜色和首次订单日期。</td><td>按视频粒度聚合订单号、寄样 SKU、寄样颜色，并影响开单状态和开单日期。</td><td>依赖寄样链路。</td></tr>
+    <tr><td>4</td><td>DIM 主表</td><td><code>dim_sales_tiktok_video_config</code></td><td>视频管理当前生效配置表。</td><td>合并最新 ODS 基础信息、DWD 累计指标、人工维护、寄样关系和广告投放标记。</td><td>主列表查询表。</td></tr>
+    <tr><td>5</td><td>Java</td><td><code>TkContentVideoController</code> / <code>TkContentVideoServiceImpl</code></td><td>提供视频列表、详情、维护、导入导出、表现明细接口。</td><td>主列表读 DIM，表现明细读 DWD，保存和导入更新写 DIM。</td><td>接口根路径 <code>/tk/content/video</code>。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、接口与底表</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">接口</th>
+      <th class="w-field">方法</th>
+      <th class="w-source">读写表</th>
+      <th class="w-logic">逻辑说明</th>
+      <th class="w-note">返回/影响</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td><code>/dataLatestTime</code></td><td>GET</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询未删除记录最大 <code>sdt</code>，再取该分区最大 <code>updated_time</code>。</td><td>返回刷新频率文案。</td></tr>
+    <tr><td>2</td><td><code>/all/page</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询全部视频分页列表。</td><td>不固定视频类型。</td></tr>
+    <tr><td>3</td><td><code>/affiliate/page</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询联盟视频。</td><td>固定 <code>account_type = 2</code>。</td></tr>
+    <tr><td>4</td><td><code>/self/page</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询自制视频。</td><td>固定非联盟账号类型。</td></tr>
+    <tr><td>5</td><td><code>/detail</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>按 <code>smt + sdt + storeName + videoId + accountType</code> 查详情。</td><td>编辑弹窗使用。</td></tr>
+    <tr><td>6</td><td><code>/performance/detail/page</code></td><td>POST</td><td><code>dwd.dwd_sales_tiktok_video_performance_detail_di</code></td><td>按视频 ID、店铺、可选 PID 和日期区间查询表现明细。</td><td>明细弹窗使用。</td></tr>
+    <tr><td>7</td><td><code>/save</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>更新视频维护字段，不更新商品名称和 PID。</td><td>置人工维护标记。</td></tr>
+    <tr><td>8</td><td><code>/maintain/page</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询商品信息缺失的视频。</td><td>缺 PID 或商品名称为空。</td></tr>
+    <tr><td>9</td><td><code>/maintain/save</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>只更新 PID 和商品名称。</td><td>维护视频数据入口。</td></tr>
+    <tr><td>10</td><td><code>/import/template</code></td><td>GET</td><td>模板文件</td><td>下载视频导入更新模板。</td><td>classpath 模板。</td></tr>
+    <tr><td>11</td><td><code>/import/update</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>按主键定位视频，批量更新可维护字段。</td><td>支持导出文件回导。</td></tr>
+    <tr><td>12</td><td><code>/export</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>按当前筛选导出视频数据。</td><td>文件名为视频数据导出。</td></tr>
+    <tr><td>13</td><td><code>/performance/detail/export</code></td><td>POST</td><td><code>dwd.dwd_sales_tiktok_video_performance_detail_di</code></td><td>导出视频表现明细。</td><td>按明细查询条件导出。</td></tr>
+    <tr><td>14</td><td><code>/options</code></td><td>GET</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>查询月份、店铺、人员选项，并返回静态归因标签选项。</td><td>筛选下拉。</td></tr>
+    <tr><td>15</td><td><code>/tag/recalculate</code></td><td>POST</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td>按当前筛选条件重算 AI、IP、口播、实拍标签。</td><td>更新 DIM。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、DIM 字段计算</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">字段</th>
+      <th class="w-field">字段名</th>
+      <th class="w-source">主要来源</th>
+      <th class="w-logic">计算逻辑</th>
+      <th class="w-note">默认/保护</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>分区与主键</td><td><code>smt/sdt/store_name/video_id/account_type</code></td><td>ODS 最新快照</td><td><code>smt/sdt</code> 由 <code>publish_time</code> 派生。</td><td>不是源 ODS 分区。</td></tr>
+    <tr><td>2</td><td>PID</td><td><code>pid</code></td><td>人工维护 + ODS</td><td>人工 PID 优先；其次从人工商品名末尾括号数字解析；最后从源商品名末尾括号数字解析。</td><td>特殊手动商品会置空。</td></tr>
+    <tr><td>3</td><td>达人 ID</td><td><code>creator_id</code></td><td>人工维护 + ODS</td><td>人工维护优先，否则取源达人 ID；data_source_name 为 shoudong 时输出空。</td><td>保留 source_creator_id 追溯。</td></tr>
+    <tr><td>4</td><td>商品名称</td><td><code>product_name</code></td><td>人工维护 + ODS</td><td>人工维护优先，否则取源商品名称。</td><td>特殊手动商品会置空。</td></tr>
+    <tr><td>5</td><td>视频链接</td><td><code>video_url</code></td><td>已有值 + ODS</td><td>已有值非空保留；为空时按 <code>https://www.tiktok.com/@达人昵称/video/视频ID</code> 拼接。</td><td>达人名前自动补 @。</td></tr>
+    <tr><td>6</td><td>累计指标</td><td>播放、互动、订单、GMV 等</td><td>DWD 视频表现明细</td><td>按视频粒度汇总 20260601 之后 DWD 明细。</td><td>空值按 0。</td></tr>
+    <tr><td>7</td><td>累计比率</td><td>GPM、点击率、引流率、完播率、CTOR</td><td>DWD 视频表现明细</td><td>按累计分子分母重算；完播率按播放量加权平均。</td><td>分母为 0 时为 0。</td></tr>
+    <tr><td>8</td><td>开单状态</td><td><code>is_ordered</code></td><td>已有值 + 关系表 + DWD 指标</td><td>已有为 1、已有开单日期、有关联订单或累计 GMV 大于 0 时为 1。</td><td>只升不降。</td></tr>
+    <tr><td>9</td><td>开单日期</td><td><code>first_gmv_date</code></td><td>已有值 + 关系表 + DWD 指标</td><td>已有值不覆盖；为空时优先取关联订单最早下单日期，其次取 DWD 明细最早 GMV 日期。</td><td>DATE 类型。</td></tr>
+    <tr><td>10</td><td>是否投放</td><td><code>is_ad_video</code></td><td>PID 看板 DWD</td><td>按店铺 + PID 关联 T-2 <code>dwd_sales_pid_dashboard_wide_di</code>，广告总消耗非 0 为 1。</td><td>每天更新。</td></tr>
+    <tr><td>11</td><td>视频类型</td><td><code>data_source_name/video_type_name</code></td><td>账号类型</td><td>account_type=1 为已绑定账号/自制视频；account_type=2 为联盟账号/联盟视频；其他为历史未知。</td><td>后端也做展示兜底。</td></tr>
+    <tr><td>12</td><td>寄样关系字段</td><td><code>video_sku/sample_order_ids/video_color_name/display_color</code></td><td>寄样订单视频关系 DWS</td><td>按视频粒度聚合寄样 SKU、订单号和颜色；颜色只在原字段为空时补充。</td><td>多个值用 / 或逗号拼接。</td></tr>
+    <tr><td>13</td><td>内容识别标签</td><td><code>is_real_shot_video/is_ai_video/is_ip_video/is_talk_video</code></td><td>视频名称</td><td>FitScene 判 AI/实拍；IP 和口播使用关键词或特殊字符编码识别。</td><td>可通过接口重算。</td></tr>
+    <tr><td>14</td><td>人工维护字段</td><td>人员、授权码、颜色、脚本、模特、归因标签、备注</td><td>页面编辑或导入</td><td>人工维护后置 <code>is_manual_maintained = 1</code>，自动刷新保护主要人工字段。</td><td>按主键覆盖更新。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>四、DWD 明细口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">处理点</th>
+      <th class="w-field">关键字段</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">逻辑说明</th>
+      <th class="w-note">影响</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>源分区</td><td><code>smt/sdt</code></td><td>ODS</td><td>保留 ODS 源月和源日，表示导入或快照日期。</td><td>用于表现明细。</td></tr>
+    <tr><td>2</td><td>生效范围</td><td><code>sdt >= 20260601</code></td><td>DWD 日调</td><td>仅写入 20260601 及之后源分区。</td><td>DIM 累计指标同范围。</td></tr>
+    <tr><td>3</td><td>发布时间分区</td><td><code>publish_smt/publish_sdt</code></td><td>ODS publish_time</td><td>由视频发布时间派生，用于视频归属日期。</td><td>区别于源分区。</td></tr>
+    <tr><td>4</td><td>PID 解析</td><td><code>pid</code></td><td>ODS product_name</td><td>从商品名称末尾数字解析。</td><td>用于关联主列表和 PID 分析。</td></tr>
+    <tr><td>5</td><td>去重</td><td>源分区 + 店铺 + 视频 + 账号类型 + PID</td><td>ODS</td><td>同一源分区内保留源 <code>insert_time</code> 最新记录。</td><td>避免重复导入放大。</td></tr>
+    <tr><td>6</td><td>视频链接</td><td><code>video_url</code></td><td>达人昵称 + 视频 ID</td><td>按 TikTok 固定链接规则拼接。</td><td>供明细导出。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>五、Java 查询与更新规则</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">能力</th>
+      <th class="w-field">关键方法</th>
+      <th class="w-source">SQL 特征</th>
+      <th class="w-logic">规则</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>分页查询</td><td><code>getPage</code></td><td>DIM + WHERE + ORDER + LIMIT</td><td>固定 <code>is_deleted = 0</code>，根据页签追加账号类型条件。</td><td>默认按发布时间倒序。</td></tr>
+    <tr><td>2</td><td>详情查询</td><td><code>getDetail</code></td><td>主键 WHERE</td><td>主键必须包含 smt、sdt、storeName、videoId、accountType。</td><td>未命中返回 404。</td></tr>
+    <tr><td>3</td><td>编辑保存</td><td><code>save</code></td><td>UPDATE DIM</td><td>更新人工维护字段，空值不覆盖已有值。</td><td>置人工维护标记。</td></tr>
+    <tr><td>4</td><td>商品维护</td><td><code>saveMaintain</code></td><td>UPDATE DIM</td><td>只更新 PID 和商品名称。</td><td>维护缺失商品信息。</td></tr>
+    <tr><td>5</td><td>导入更新</td><td><code>importUpdate</code></td><td>UPDATE DIM</td><td>扫描前 10 行识别表头，按主键定位，更新模板或导出文件中的可维护字段。</td><td>布尔字段支持是/否等值。</td></tr>
+    <tr><td>6</td><td>标签重算</td><td><code>recalculateTags</code></td><td>UPDATE DIM</td><td>按当前筛选条件重算 AI、IP、口播、实拍。</td><td>不会重算其他字段。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>六、调度与补数</h2>
+  <div class="grid">
+    <div class="panel">
+      <strong>DWD 日调</strong>
+      每次删除并重写当前参数覆盖的近两日源分区，仅导入 20260601 之后数据。
+    </div>
+    <div class="panel">
+      <strong>DIM 日调</strong>
+      从 ODS 最大 sdt 取最新全量快照做基础信息，指标从 DWD 明细按视频累计。
+    </div>
+    <div class="panel">
+      <strong>页面查询</strong>
+      主列表查 DIM 当前生效结果，表现明细查 DWD 源日快照。
+    </div>
+  </div>
+  <p class="note">推荐调度顺序：ODS 视频表现导入 -> DWD 视频表现明细 -> 寄样订单视频关系 DWS -> DIM 视频配置 -> 页面接口查询。</p>
+
+  <footer>
+    口径来源：day/sales/dwd、day/sales/dim、TkContentVideoController、TkContentVideoServiceImpl、前端 video-data 页面。本文不引用截图和 doc/docx 文件。
+  </footer>
+</main>
+</body>
+</html>

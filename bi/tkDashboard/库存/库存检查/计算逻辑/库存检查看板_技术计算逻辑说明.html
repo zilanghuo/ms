@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>库存检查看板技术计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p {
+      margin: 8px 0;
+    }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) {
+      background: var(--soft);
+    }
+
+    .w-field {
+      width: 18%;
+    }
+
+    .w-source {
+      width: 26%;
+    }
+
+    .w-logic {
+      width: 40%;
+    }
+
+    .w-note {
+      width: 16%;
+    }
+
+    ol,
+    ul {
+      margin: 8px 0 14px 22px;
+      padding: 0;
+    }
+
+    li {
+      margin: 4px 0;
+    }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main {
+        padding: 22px 14px 42px;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        table-layout: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>库存检查看板技术计算逻辑说明</h1>
+  <p class="meta">适用对象：数仓、后端、数据排障同学。本文说明库存检查看板 ADS 三张表的来源、粒度、核心计算和页面字段映射。</p>
+
+  <section class="summary">
+    <strong>链路定位：</strong>
+    库存检查看板 ADS 层只承接页面查询。SKU ADS 会在 DWS 结果基础上重新打异常标签，SPU ADS 透传 DWS SPU，Summary ADS 透传 DWS Summary。核心口径统一维护在 DWD / DWS。
+  </section>
+
+  <h2>一、目标表与上游关系</h2>
+  <div class="flow">DWD SKU 快照 → DWS SKU 明细 → ADS SKU 列表</div>
+  <div class="flow">DWD SKU 快照 → DWS SPU 聚合 → ADS SPU 列表</div>
+  <div class="flow">DWD SKU 快照 + DWS SPU + ODS 库存源 → DWS Summary → ADS Summary 卡片</div>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">ADS 表</th>
+      <th class="w-source">主要上游</th>
+      <th class="w-logic">职责</th>
+      <th class="w-note">页面用途</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>ads.ads_inventory_stock_check_sku_1d</code></td>
+      <td><code>dws.dws_inventory_stock_check_sku_1d</code></td>
+      <td>承接 SKU 明细字段，并按最新规则重新计算 <code>is_inventory_abnormal</code>、<code>abnormal_type</code>、<code>abnormal_type_name</code>、<code>abnormal_message</code>。</td>
+      <td>SKU 明细列表。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_stock_check_spu_1d</code></td>
+      <td><code>dws.dws_inventory_stock_check_spu_1d</code></td>
+      <td>透传 DWS SPU 聚合结果，不在 ADS 层重算库存与异常逻辑。</td>
+      <td>SPU 明细列表。</td>
+    </tr>
+    <tr>
+      <td><code>ads.ads_inventory_stock_check_summary_1d</code></td>
+      <td><code>dws.dws_inventory_stock_check_summary_1d</code></td>
+      <td>透传 SKU / SPU 统计卡片字段，页面按 <code>view_grain</code> 区分 SKU 与 SPU 汇总。</td>
+      <td>顶部统计卡片。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>二、调度分区与执行参数</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">参数</th>
+      <th class="w-source">含义</th>
+      <th class="w-logic">使用位置</th>
+      <th class="w-note">注意事项</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>${currentMonthPre}</code></td>
+      <td>前一业务日所属月份。</td>
+      <td>ADS 三张表删除和插入的 <code>smt</code> 分区。</td>
+      <td>日表 T-1 口径，跨月时不能直接使用调度当天月份。</td>
+    </tr>
+    <tr>
+      <td><code>${currentDatePrev}</code></td>
+      <td>前一业务日。</td>
+      <td>ADS 三张表删除和插入的 <code>sdt</code> 分区。</td>
+      <td>页面按同步日期查询时，对应此业务日期。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>三、SKU 明细计算口径</h2>
+  <div class="grid">
+    <div class="panel">
+      <strong>展示粒度</strong>
+      <code>smt + sdt + site_code + store_name + pid + sku_id / inventory_sku</code>。PID 是页面展示层级，库存类字段按同店铺同库存 SKU 收敛。
+    </div>
+    <div class="panel">
+      <strong>异常重算</strong>
+      ADS SKU 从 DWS 取字段后，重新执行异常 CASE，避免上游字段被旧标签覆盖后进入页面。
+    </div>
+  </div>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">字段组</th>
+      <th class="w-source">字段</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-note">页面映射</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>产品基本信息</td>
+      <td><code>store_name</code>、<code>spu</code>、<code>spu_name</code>、<code>pid</code>、<code>msku</code>、<code>sku_id</code>、<code>inventory_sku</code>、<code>inventory_sku_name</code></td>
+      <td>从 DWS SKU 透传。<code>inventory_sku</code> 是库存共享口径，优先用于库存聚合和排障。</td>
+      <td>前端产品基本信息列。</td>
+    </tr>
+    <tr>
+      <td>总库存</td>
+      <td><code>total_inventory_qty</code>、<code>total_in_transit_qty</code>、<code>total_available_qty</code>、FBT 占比字段</td>
+      <td>总库存由国内、海外在库、海外在途组成；占比类字段在 DWS 按分子和分母重新计算，并处理除零。</td>
+      <td>前端“总库存”分组。</td>
+    </tr>
+    <tr>
+      <td>国内库存</td>
+      <td><code>domestic_total_qty</code>、<code>purchase_in_transit_qty</code>、<code>factory_unfulfilled_qty</code>、<code>domestic_delivery_in_transit_qty</code>、<code>domestic_on_hand_qty</code>、<code>jijia_xiamen_available_qty</code>、<code>jijia_uk_direct_available_qty</code></td>
+      <td>国内总库存为采购、交货在途、在库等国内侧库存合计；国内在库拆分厦门仓和英国直邮仓展示。</td>
+      <td>前端“国内库存”分组。</td>
+    </tr>
+    <tr>
+      <td>海外库存</td>
+      <td>海外在途与海外在库各仓字段</td>
+      <td>按万邑通、谷仓、FBA、FBT、英国退货仓等仓库分别沉淀，再汇总为海外在途总量和海外在库总库存。</td>
+      <td>前端“海外在途库存”“海外在库库存”分组。</td>
+    </tr>
+    <tr>
+      <td>店铺同步库存</td>
+      <td><code>should_sync_inventory_qty</code>、<code>store_synced_total_qty</code>、各仓店铺侧同步字段</td>
+      <td><code>should_sync_inventory_qty</code> 是应同步库存；<code>store_synced_total_qty</code> 是店铺侧实际挂出的总库存。店铺侧各仓字段按同店铺 + 同库存 SKU 保持一致。</td>
+      <td>前端“店铺应该被同步的库存”“店铺实际被同步库存的情况”。</td>
+    </tr>
+    <tr>
+      <td>库存差异</td>
+      <td><code>store_backend_should_sync_total_diff_qty</code>、各仓差异字段、<code>abnormal_warehouse_names</code></td>
+      <td>库存总差异为店铺侧被同步减应该被同步。异常仓库按各仓差异不为 0 拼接。英国退货仓差异仅用于定位异常仓库，不纳入库存总差异。</td>
+      <td>前端“库存差异”“异常判断”分组。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>四、异常 CASE 逻辑</h2>
+  <p>ADS SKU 和 DWS SPU 使用同向异常逻辑。DWS SPU 是汇总后重算，ADS SKU 是明细行重算。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">优先级</th>
+      <th class="w-source">代码值</th>
+      <th class="w-logic">判断条件</th>
+      <th class="w-note">中文名 / 提示文案</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td><code>store_stock_jijia_no_stock</code></td>
+      <td><code>COALESCE(should_sync_inventory_qty, 0) = 0</code> 且 <code>COALESCE(store_synced_total_qty, 0) &gt; 0</code></td>
+      <td>店铺有库存，积加无库存；检查是否手动填写库存。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>oversold_risk</code></td>
+      <td><code>exception_store_backend_should_sync_total_diff_qty &gt; COALESCE(inventory_threshold_qty, 0)</code></td>
+      <td>超卖风险；实际没那么多库存，可能超卖，立即检查。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>threshold</code></td>
+      <td><code>exception_store_backend_should_sync_total_diff_qty &gt; 0</code> 且 <code>&lt;= COALESCE(inventory_threshold_qty, 0)</code></td>
+      <td>阀值问题；库存到达阀值，调整阀值或备货。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>less_sync</code></td>
+      <td><code>COALESCE(should_sync_inventory_qty, 0) &gt; 0</code> 且 <code>exception_store_backend_should_sync_total_diff_qty &lt; 0</code></td>
+      <td>少同步；库存同步数量少了，安排检查库存。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>normal</code></td>
+      <td>不满足以上异常条件。</td>
+      <td>正常。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <strong>字段方向：</strong>
+    <code>库存总差异 = 店铺侧被同步 - 应该被同步</code>。因此差异为正代表店铺侧挂得偏多，超过阀值就是超卖风险；差异为负代表店铺侧挂得偏少，属于少同步。
+  </div>
+
+  <h2>五、SPU 聚合计算口径</h2>
+  <p>SPU 表不是简单按 PID 行汇总。由于一个库存 SKU 可能挂在同一个 SPU 下的多个 PID，如果直接汇总会放大库存，因此 DWS SPU 会先去重再汇总。</p>
+
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">步骤</th>
+      <th class="w-source">关键键</th>
+      <th class="w-logic">逻辑</th>
+      <th class="w-note">结果</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1. 来源过滤</td>
+      <td><code>smt</code>、<code>sdt</code></td>
+      <td>读取 <code>dwd.dwd_inventory_stock_check_sku_snapshot_1d</code> 当前业务分区。</td>
+      <td>取得 SKU 明细快照。</td>
+    </tr>
+    <tr>
+      <td>2. SKU 去重</td>
+      <td><code>store_name + spu + COALESCE(msku, inventory_sku, sku_id)</code></td>
+      <td>同一库存 SKU 在同店铺同 SPU 下只保留一份库存值，各字段按 MAX、SUM 或拼接规则归并。</td>
+      <td>避免 PID 展示行重复累计库存。</td>
+    </tr>
+    <tr>
+      <td>3. SPU 汇总</td>
+      <td><code>store_name + spu</code></td>
+      <td>对去重后的 SKU 进行库存、同步量、差异量汇总；占比类字段按 SPU 汇总后的分子分母重算。</td>
+      <td>得到 SPU 列表数据。</td>
+    </tr>
+    <tr>
+      <td>4. 异常重算</td>
+      <td>汇总后的差异与阀值</td>
+      <td>使用 SPU 汇总后的 <code>exception_store_backend_should_sync_total_diff_qty</code> 和 <code>inventory_threshold_qty</code> 重新打标。</td>
+      <td>SPU 异常方向与 SKU 一致。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>六、Summary 统计卡片计算口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">字段</th>
+      <th class="w-source">来源</th>
+      <th class="w-logic">计算说明</th>
+      <th class="w-note">页面字段</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td><code>view_grain</code></td>
+      <td>DWS Summary</td>
+      <td>区分 <code>sku</code> 和 <code>spu</code> 两类卡片行。</td>
+      <td>决定页面读取 SKU 卡片还是 SPU 卡片。</td>
+    </tr>
+    <tr>
+      <td><code>total_object_cnt</code></td>
+      <td>DWD SKU 或 DWS SPU</td>
+      <td>SKU 店铺行按店铺 + SKU 去重；SPU 店铺行按店铺 + SPU 汇总；美国 TK 全部行按跨店铺去重口径汇总。</td>
+      <td>SKU 总数 / SPU 总数。</td>
+    </tr>
+    <tr>
+      <td><code>total_inventory_qty</code></td>
+      <td>DWS Summary</td>
+      <td><code>overseas_on_hand_total_qty + overseas_in_transit_total_qty + domestic_total_qty</code>。</td>
+      <td>总库存相关展示。</td>
+    </tr>
+    <tr>
+      <td><code>fbt_inventory_qty</code></td>
+      <td>FBT 可用与在途库存</td>
+      <td><code>jijia_fbt_available_qty + fbt_in_transit_qty</code>。</td>
+      <td>FBT 库存。</td>
+    </tr>
+    <tr>
+      <td><code>overseas_on_hand_total_qty</code></td>
+      <td>海外在库字段</td>
+      <td>海外各仓在库或可用库存合计，包含 FBT 可用。</td>
+      <td>海外在库总库存。</td>
+    </tr>
+    <tr>
+      <td><code>overseas_in_transit_total_qty</code></td>
+      <td>海外在途字段</td>
+      <td>海外各仓在途合计，包含 FBT 在途。</td>
+      <td>海外在途总库存。</td>
+    </tr>
+    <tr>
+      <td><code>domestic_total_qty</code></td>
+      <td>国内侧库存</td>
+      <td><code>factory_unfulfilled_qty + domestic_delivery_in_transit_qty + domestic_on_hand_qty</code>。</td>
+      <td>国内总库存。</td>
+    </tr>
+    <tr>
+      <td>异常计数字段</td>
+      <td>DWD SKU / DWS SPU 异常类型</td>
+      <td><code>less_sync_abnormal_cnt</code>、<code>oversold_risk_abnormal_cnt</code>、<code>store_stock_jijia_no_stock_abnormal_cnt</code> 按对应 <code>abnormal_type</code> 计数。<code>threshold_abnormal_cnt</code> 在 SKU 店铺行和美国 TK 全部行按 <code>inventory_threshold_qty IS NULL</code> 计数；SPU 店铺行按 <code>ps.abnormal_type = 'threshold'</code> 计数；SPU 美国 TK 全部行复用 SKU 异常汇总。</td>
+      <td>阈值同步异常数、少同步异常数、超卖风险异常数。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>七、页面字段映射</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-field">前端分组</th>
+      <th class="w-source">前端字段示例</th>
+      <th class="w-logic">ADS 字段示例</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>产品基本信息</td>
+      <td><code>storeName</code>、<code>spu</code>、<code>pid</code>、<code>inventorySku</code></td>
+      <td><code>store_name</code>、<code>spu</code>、<code>pid</code>、<code>inventory_sku</code></td>
+      <td><code>inventorySku</code> 查询字段映射到接口字段 <code>sku</code>。</td>
+    </tr>
+    <tr>
+      <td>总库存</td>
+      <td><code>totalInventoryQty</code>、<code>totalAvailableQty</code></td>
+      <td><code>total_inventory_qty</code>、<code>total_available_qty</code></td>
+      <td>支持数值排序。</td>
+    </tr>
+    <tr>
+      <td>国内库存</td>
+      <td><code>totalDomesticInventoryQty</code>、<code>jijiaXiamenAvailableQty</code></td>
+      <td><code>domestic_total_qty</code>、<code>jijia_xiamen_available_qty</code></td>
+      <td>用于国内仓和直邮仓排障。</td>
+    </tr>
+    <tr>
+      <td>海外库存</td>
+      <td><code>overseaOnHandTotalQty</code>、<code>overseaInTransitTotalQty</code></td>
+      <td><code>overseas_on_hand_total_qty</code>、<code>overseas_in_transit_total_qty</code></td>
+      <td>前端命名使用 <code>oversea</code>，底表命名使用 <code>overseas</code>。</td>
+    </tr>
+    <tr>
+      <td>店铺同步</td>
+      <td><code>storeShouldSyncQty</code>、<code>storeSyncedTotalQty</code></td>
+      <td><code>should_sync_inventory_qty</code>、<code>store_synced_total_qty</code></td>
+      <td>库存总差异的基础字段。</td>
+    </tr>
+    <tr>
+      <td>库存差异</td>
+      <td><code>inventoryTotalDiffQty</code>、<code>ukReturnDiffQty</code></td>
+      <td><code>store_backend_should_sync_total_diff_qty</code>、<code>uk_return_sync_diff_qty</code></td>
+      <td>英国退货仓差异只参与异常仓库展示定位，不计入库存总差异。</td>
+    </tr>
+    <tr>
+      <td>异常判断</td>
+      <td><code>abnormalWarehouseNames</code>、<code>inventoryStatusName</code></td>
+      <td><code>abnormal_warehouse_names</code>、<code>abnormal_type_name</code></td>
+      <td>SKU 列表展示完整异常字段；SPU 列表当前主要展示是否异常和差异。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>八、已固化的修正口径</h2>
+  <ul>
+    <li>库存总差异方向固定为 <code>店铺侧被同步 - 应该被同步</code>，差异为正才可能进入阀值问题或超卖风险。</li>
+    <li>英国退货仓差异公式为店铺侧英国退货仓减积加英国退货仓，不再扣减 FBT 可用量。</li>
+    <li>英国退货仓差异不纳入库存总差异，只参与异常仓库定位展示。</li>
+    <li>库存阀值按同店铺 + 同库存 SKU 取最大值，保证跨 PID 展示一致。</li>
+    <li>店铺侧各仓同步库存按同店铺 + 同库存 SKU 收敛，PID 只是展示层级。</li>
+    <li>异常仓库按各仓差异不为 0 拼接；SPU 层按去重 SKU 后的仓差异归并。</li>
+  </ul>
+
+  <div class="note">
+    <strong>Summary 卡片实现备注：</strong>
+    页面字段名 <code>thresholdSyncAbnormalCount</code> 对应 ADS 字段 <code>threshold_abnormal_cnt</code>。当前 DWS Summary 中，SKU 口径使用“阀值为空”作为计数条件，SPU 店铺口径使用 <code>abnormal_type = 'threshold'</code>。如果后续业务希望卡片完全等同列表“阀值问题”，需要单独调整 DWS Summary SQL。
+  </div>
+
+  <footer>
+    生成说明：本文依据库存检查 ADS/DWS SQL 与前端库存看板字段配置整理。更新时间：2026-08-20。
+  </footer>
+</main>
+</body>
+</html>

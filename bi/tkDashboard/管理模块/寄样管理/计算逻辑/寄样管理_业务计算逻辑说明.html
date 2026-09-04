@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>寄样管理业务计算逻辑说明</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #d9e2ec;
+      --soft: #f5f7fb;
+      --band: #eef6f3;
+      --accent: #0f766e;
+      --accent-2: #b45309;
+      --code: #334155;
+      --warn-bg: #fff7ed;
+      --warn-line: #fed7aa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      background: #ffffff;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 32px 28px 56px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 30px;
+      line-height: 1.25;
+    }
+
+    h2 {
+      margin: 34px 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--line);
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+    }
+
+    p { margin: 8px 0; }
+
+    code {
+      color: var(--code);
+      background: #edf2f7;
+      border: 1px solid #dbe4ee;
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      white-space: nowrap;
+    }
+
+    .meta {
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: var(--band);
+      border: 1px solid #c8e6dc;
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 20px 0 24px;
+    }
+
+    .note {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-line);
+      border-left: 5px solid var(--accent-2);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 16px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin: 14px 0 4px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px 16px;
+      background: #ffffff;
+    }
+
+    .panel strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0 24px;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 10px;
+      vertical-align: top;
+      word-break: break-word;
+    }
+
+    th {
+      background: #eef2f6;
+      text-align: left;
+      font-weight: 700;
+    }
+
+    tbody tr:nth-child(even) { background: var(--soft); }
+
+    .w-no { width: 5%; white-space: nowrap; }
+    .w-name { width: 13%; }
+    .w-field { width: 14%; }
+    .w-source { width: 18%; }
+    .w-logic { width: 32%; }
+    .w-note { width: 18%; }
+
+    .flow {
+      margin: 12px 0 20px;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfe;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      color: #263445;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    footer {
+      margin-top: 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 920px) {
+      main { padding: 22px 14px 42px; }
+      .grid { grid-template-columns: 1fr; }
+      table { table-layout: auto; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>寄样管理业务计算逻辑说明</h1>
+  <p class="meta">适用对象：业务、运营、内容团队。本文按寄样管理页面展示内容说明字段含义、筛选统计和状态口径。</p>
+
+  <section class="summary">
+    <strong>一句话理解：</strong>
+    寄样管理页面以 TikTok 官方 API 样品订单为基础，结合人工维护信息、达人账号配置、商品档案和视频履约关系，展示每笔寄样 SKU 明细的寄样状态、达人信息、履约结果和逾期情况。
+  </section>
+
+  <h2>一、页面数据范围</h2>
+  <div class="grid">
+    <div class="panel">
+      <strong>页面底表</strong>
+      <code>ads.ads_sales_sample_order_realtime</code>
+    </div>
+    <div class="panel">
+      <strong>数据粒度</strong>
+      每笔样品订单 SKU 明细，主键为订单 ID、订单明细 ID、SKU ID。
+    </div>
+    <div class="panel">
+      <strong>默认店铺范围</strong>
+      美区跨境 1 店、2 店、3 店和英国直邮店；选择店铺后按所选店铺过滤。
+    </div>
+    <div class="panel">
+      <strong>更新时间</strong>
+      页面展示后端返回的最后更新时间；刷新频率说明为订单 30 分钟更新一次，达人信息每日补齐最近一天。
+    </div>
+  </div>
+  <p class="note">ADS 表不重算业务口径，只透传 DWS 已加工完成的寄样订单结果。页面列表、统计、详情和导出均读取 ADS。</p>
+
+  <h2>二、页面统计卡片</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">卡片名称</th>
+      <th class="w-field">统计字段</th>
+      <th class="w-source">查询来源</th>
+      <th class="w-logic">业务逻辑</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>共</td>
+      <td><code>total</code></td>
+      <td><code>COUNT(1)</code></td>
+      <td>按当前筛选条件统计寄样 SKU 明细总数。</td>
+      <td>与列表分页总数一致。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>已履约</td>
+      <td><code>fulfilled</code></td>
+      <td><code>is_fulfilled</code></td>
+      <td><code>is_fulfilled = 1</code> 的记录数。</td>
+      <td>只要当前已匹配到有效履约视频，即为已履约，不限制 7 天内。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>待跟进</td>
+      <td><code>pending</code></td>
+      <td><code>is_fulfilled</code>、<code>sample_status_name</code></td>
+      <td><code>is_fulfilled = 0</code> 且寄样状态不包含“异常”。</td>
+      <td>用于业务继续跟进未履约寄样。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>异常</td>
+      <td><code>abnormal</code></td>
+      <td><code>sample_status_name</code></td>
+      <td>寄样状态包含“异常”的记录数。</td>
+      <td>当前主要对应物流人工标记异常。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>三、筛选与搜索逻辑</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">筛选项</th>
+      <th class="w-field">接口字段</th>
+      <th class="w-source">底表字段</th>
+      <th class="w-logic">筛选逻辑</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>站点</td>
+      <td><code>siteCode</code></td>
+      <td><code>site_code</code></td>
+      <td>由前端站点级联选择后传入，用于联动店铺列表。</td>
+      <td>最终列表主要按店铺过滤。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>店铺</td>
+      <td><code>storeName</code></td>
+      <td><code>store_name</code></td>
+      <td>传入时精确匹配；未传时默认限定四个 TikTok 寄样店铺。</td>
+      <td>避免默认展示非目标店铺。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>寄样状态</td>
+      <td><code>sampleStatus</code></td>
+      <td><code>sample_status_name</code></td>
+      <td>精确匹配寄样物流状态。</td>
+      <td>候选值包含待发货、已发货、运输中、已签收、签收异常等。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>达人名称</td>
+      <td><code>creatorName</code></td>
+      <td><code>creator_name</code></td>
+      <td>模糊匹配达人名称。</td>
+      <td>达人名称来自订单侧买家昵称。</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>合作阶段</td>
+      <td><code>cooperationStage</code></td>
+      <td><code>cooperation_stage_name</code></td>
+      <td>精确匹配首次合作、二次合作或多次合作。</td>
+      <td>人工维护字段。</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>寄样商务</td>
+      <td><code>sampleOwner</code></td>
+      <td><code>sample_owner</code></td>
+      <td>精确匹配寄样商务；选择“未配置”时匹配空值。</td>
+      <td>寄样商务只来自人工维护。</td>
+    </tr>
+    <tr>
+      <td>7</td>
+      <td>履约筛选</td>
+      <td><code>isFulfilled</code>、<code>isFulfillmentOverdue</code>、<code>overdueOnly</code></td>
+      <td><code>is_fulfilled</code>、<code>is_fulfillment_overdue</code></td>
+      <td>按当前是否履约、是否履约逾期过滤；逾期提醒勾选时过滤逾期记录。</td>
+      <td>履约与逾期是两个独立字段。</td>
+    </tr>
+    <tr>
+      <td>8</td>
+      <td>寄样时间</td>
+      <td><code>startDate</code>、<code>endDate</code></td>
+      <td><code>sdt</code></td>
+      <td>按寄样市场日期区间过滤。</td>
+      <td>前端默认最近 14 天到当天。</td>
+    </tr>
+    <tr>
+      <td>9</td>
+      <td>关键词</td>
+      <td><code>searchField</code>、<code>searchMode</code>、<code>keyword</code></td>
+      <td>达人、SKU、商品、PID、订单号等字段</td>
+      <td>支持模糊或精准搜索；全部字段模式会同时搜索达人 ID、达人名字、寄样 SKU、商品名称、PID、订单编号。</td>
+      <td>精准搜索支持前端对多值输入做标准化。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>四、列表展示字段</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">展示字段</th>
+      <th class="w-field">接口字段</th>
+      <th class="w-source">底表字段</th>
+      <th class="w-logic">业务含义与计算逻辑</th>
+      <th class="w-note">来源说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>合作站点</td><td><code>siteCode</code></td><td><code>site_code</code></td><td>订单所属站点编码。</td><td>来源订单 DWD。</td></tr>
+    <tr><td>2</td><td>合作店铺</td><td><code>storeName</code></td><td><code>store_name</code></td><td>订单所属 TikTok 店铺。</td><td>来源订单 DWD 市场店铺名称。</td></tr>
+    <tr><td>3</td><td>订单编号</td><td><code>jijiaOrderNo</code></td><td><code>jijia_order_no</code></td><td>页面展示订单编号，当前使用 TikTok 订单 ID。</td><td>用于导出回导时辅助定位记录。</td></tr>
+    <tr><td>4</td><td>定向Product ID</td><td><code>pid</code></td><td><code>pid</code></td><td>样品订单对应的 TikTok 商品 PID。</td><td>来源订单 DWD。</td></tr>
+    <tr><td>5</td><td>商品名称</td><td><code>productName</code></td><td><code>product_name</code></td><td>优先取订单商品名称，其次取商品档案中文名称。</td><td>用于识别寄样商品。</td></tr>
+    <tr><td>6</td><td>寄样SKU</td><td><code>sampleSku</code></td><td><code>sample_sku</code></td><td>优先取订单 MSKU，其次取 TikTok SKU ID。</td><td>用于定位具体寄样 SKU。</td></tr>
+    <tr><td>7</td><td>寄样商务</td><td><code>sampleOwner</code></td><td><code>sample_owner</code></td><td>只支持人工维护。</td><td>未维护时为空，可通过页面筛选“未配置”。</td></tr>
+    <tr><td>8</td><td>合作阶段</td><td><code>cooperationStage</code></td><td><code>cooperation_stage_name</code></td><td>人工维护合作阶段。</td><td>候选值为首次合作、二次合作、多次合作。</td></tr>
+    <tr><td>9</td><td>寄样时间</td><td><code>sampleTimeMarket</code></td><td><code>sample_time_market</code></td><td>寄样订单市场时间；页面优先展示市场时间。</td><td>另保留北京时间字段。</td></tr>
+    <tr><td>10</td><td>寄样月份</td><td><code>sampleMonth</code></td><td><code>sample_month_name</code></td><td>按寄样市场时间生成“YYYY年M月”。</td><td>用于月份展示和排序。</td></tr>
+    <tr><td>11</td><td>寄样渠道</td><td><code>sampleChannel</code></td><td><code>sample_channel_name</code></td><td>人工维护优先，默认“线上”。</td><td>可通过保存或导入更新。</td></tr>
+    <tr><td>12</td><td>寄样颜色</td><td><code>sampleColor</code></td><td><code>sample_color</code></td><td>按订单 MSKU 优先关联商品档案 SKU 获取颜色。</td><td>来源商品档案。</td></tr>
+    <tr><td>13</td><td>寄样尺码</td><td><code>sampleSize</code></td><td><code>sample_size</code></td><td>按订单 MSKU 优先关联商品档案 SKU 获取尺码。</td><td>来源商品档案。</td></tr>
+    <tr><td>14</td><td>寄样数量</td><td><code>sampleQty</code></td><td><code>sample_qty</code></td><td>样品订单明细数量。</td><td>来源订单 DWD 销量字段。</td></tr>
+    <tr><td>15</td><td>达人ID（TIKTOK ID）</td><td><code>creatorId</code></td><td><code>creator_id</code></td><td>按达人名称匹配账号配置后获取 TikTok UID。</td><td>账号配置未命中时为空。</td></tr>
+    <tr><td>16</td><td>达人名字</td><td><code>creatorName</code></td><td><code>creator_name</code></td><td>来源订单 DWD 的 <code>file_buyer_username</code>（通过每天财务的 RPA 导入更新）。</td><td>达人信息补齐后才可用于视频履约匹配。</td></tr>
+    <tr><td>17</td><td>达人等级</td><td><code>creatorLevel</code></td><td><code>creator_level_name</code></td><td>账号配置优先，其次人工维护，默认“未知”。</td><td>前端用达人等级字典展示。</td></tr>
+    <tr><td>18</td><td>达人性别</td><td><code>creatorGender</code></td><td><code>creator_gender_name</code></td><td>账号配置优先，其次人工维护，默认“未知”。</td><td>用于达人画像展示。</td></tr>
+    <tr><td>19</td><td>是否开单达人</td><td><code>openedCreator</code>、<code>openedCreatorName</code></td><td><code>is_opened_creator</code>、<code>is_opened_creator_name</code></td><td>账号配置，该字段基于历史数据的解析，新增的数据待联盟订单 RPA 集成后自动计算。</td><td>页面以是/否标签展示。</td></tr>
+    <tr><td>20</td><td>达人佣金</td><td><code>creatorCommission</code></td><td><code>creator_commission</code></td><td>人工维护；为空时默认展示 <code>10%</code>。</td><td>保存和导入时同样默认 10%。</td></tr>
+    <tr><td>21</td><td>寄样状态</td><td><code>sampleStatus</code></td><td><code>sample_status_name</code></td><td>只表示物流状态，不承载履约状态。</td><td>物流异常优先，其次已签收、运输中、已发货、待发货。</td></tr>
+    <tr><td>22</td><td>签收时间</td><td><code>deliveryTime</code></td><td><code>delivery_time</code></td><td>订单签收或交付市场时间。</td><td>来源订单 DWD 物流时间。</td></tr>
+    <tr><td>23</td><td>是否履约逾期</td><td><code>fulfillmentOverdue</code></td><td><code>is_fulfillment_overdue</code></td><td>签收后履约间隔达到 7 天及以上时为是。</td><td>已履约但超过 7 天发布视频，也保留逾期标记。</td></tr>
+    <tr><td>24</td><td>当前是否履约</td><td><code>fulfilled</code></td><td><code>is_fulfilled</code></td><td>当前是否匹配到有效履约视频。</td><td>不限制视频是否在签收后 7 天内。</td></tr>
+    <tr><td>25</td><td>逾期天数</td><td><code>overdueDays</code></td><td><code>overdue_days</code></td><td>履约判断间隔天数减 7，未逾期展示为 0 或页面横线。</td><td>页面仅逾期时展示具体天数。</td></tr>
+    <tr><td>26</td><td>补寄情况</td><td><code>resendDesc</code></td><td><code>resend_desc</code></td><td>人工维护补寄说明。</td><td>可导入更新。</td></tr>
+    <tr><td>27</td><td>备注</td><td><code>remark</code></td><td><code>remark</code></td><td>人工维护备注。</td><td>可导入更新。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>五、状态口径</h2>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">状态</th>
+      <th class="w-field">字段</th>
+      <th class="w-source">判断来源</th>
+      <th class="w-logic">计算逻辑</th>
+      <th class="w-note">业务说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>1</td>
+      <td>寄样状态</td>
+      <td><code>sample_status_name</code></td>
+      <td>订单物流字段 + 人工异常标记</td>
+      <td>人工标记异常时为“签收异常”；有签收时间为“已签收”；物流描述包含运输为“运输中”；有物流单号为“已发货”；否则“待发货”。</td>
+      <td>不再输出已履约、履约中、逾期等履约语义。</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>当前是否履约</td>
+      <td><code>is_fulfilled</code></td>
+      <td>履约视频关系表</td>
+      <td>订单当前能匹配到最优履约视频时为是。</td>
+      <td>视频很久之后产生也算当前已履约。</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>是否履约逾期</td>
+      <td><code>is_fulfillment_overdue</code></td>
+      <td>签收时间 + 视频发布时间或当前业务日期</td>
+      <td>签收后未履约时按当前业务日期计算间隔；已履约时按视频发布时间计算间隔；间隔达到 7 天及以上为逾期。</td>
+      <td>超过 7 天后才发布视频，当前是否履约为是，但是否履约逾期也为是。</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>逾期天数</td>
+      <td><code>overdue_days</code></td>
+      <td>履约判断间隔</td>
+      <td>逾期时为履约判断间隔天数减 7；未逾期为 0。</td>
+      <td>页面逾期时展示数值，否则展示横线。</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <h2>六、导入、导出与编辑</h2>
+  <div class="flow">页面导出或下载模板 -> 业务填写可编辑字段 -> 导入更新 -> 后端写入人工维护 DIM -> DWS/ADS 刷新后页面展示</div>
+  <table>
+    <thead>
+    <tr>
+      <th class="w-no">序号</th>
+      <th class="w-name">操作</th>
+      <th class="w-field">接口</th>
+      <th class="w-source">写入位置</th>
+      <th class="w-logic">规则</th>
+      <th class="w-note">说明</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr><td>1</td><td>新增/编辑</td><td><code>/save</code></td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>按订单 ID、订单明细 ID、SKU ID 覆盖写入人工维护字段。</td><td>达人佣金为空时默认 10%。</td></tr>
+    <tr><td>2</td><td>导入更新</td><td><code>/import/update</code></td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>支持模板主键或导出文件中的订单编号 + 寄样 SKU 定位记录，只更新可编辑字段。</td><td>空白行、样例行和无可编辑内容行会跳过。</td></tr>
+    <tr><td>3</td><td>软删除</td><td><code>/delete</code></td><td><code>dim.dim_sales_sample_order_manual_config</code></td><td>写入人工配置删除标记，不直接删除 ADS 或 DWS 数据。</td><td>后续刷新后生效。</td></tr>
+    <tr><td>4</td><td>导出</td><td><code>/export</code></td><td><code>ads.ads_sales_sample_order_realtime</code></td><td>按当前筛选和排序导出页面字段。</td><td>导出文件可用于回导更新。</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    口径来源：前端 sample-ship 页面、TkContentSampleOrderController、TkContentSampleOrderServiceImpl、ads/dws 寄样管理 SQL。本文不引用截图和 doc/docx 文件。
+  </footer>
+</main>
+</body>
+</html>
