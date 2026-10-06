@@ -1,0 +1,399 @@
+{
+  "purpose": "字段核查补充查询及失败记录",
+  "entries": [
+    {
+      "key": "w0199_available_with_identities",
+      "tool": "mcp__tiktok_ads_read__gmv_max_video_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_id": "7495432785128294757",
+        "store_authorized_bc_id": "7342337793537982466",
+        "spu_id_list": [
+          "1730564893724676453",
+          "1730664352968905061"
+        ],
+        "need_auth_code_video": true,
+        "page": 1,
+        "page_size": 3,
+        "identity_list": [
+          {
+            "identity_id": "7670440110739145741",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7478263820134827051",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7631052079893349389",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7657062369784546317",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757",
+            "identity_id": "7597331798162998285"
+          },
+          {
+            "identity_id": "7661836181289567246",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "store_id": "7495432785128294757",
+            "identity_id": "7543137593636291598",
+            "identity_type": "TTS_TT"
+          },
+          {
+            "identity_id": "7540873096112423950",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7649279075828614157",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7638842008547755022",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7649294298961331214",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7598024598869902350",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7618152553487303694",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7545677513269052429",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7649279080547009549",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7682636916839580685",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7670426023124812813",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7641135923157615629",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_id": "7597288260062970935",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "store_id": "7495432785128294757",
+            "identity_id": "7688178642329535501",
+            "identity_type": "TTS_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7481123289583288337",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "86515cf9-10f0-5c34-a3cc-101e7c53a6df",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "f6aecda0-e047-5bef-8060-d1d2654eee4d"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "c318640a-8e07-505d-af70-c5bad760dc50",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_id": "a46328f9-5cc6-5f21-9100-607c0b6220aa",
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "bff8a327-a71a-525a-9a71-8007218ec42b",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_id": "a3fe5424-e42b-5102-9d02-42ae23e8c3f9",
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "2e912a43-ff2a-5b2d-8254-03d6df02e0f6"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "e1219d12-d4f7-55ce-856b-1c6cabbb6452",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "2cab75f3-f13e-5bcf-aeef-b88cc059d651",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "758eeebe-5005-5d56-b811-00850de153ec"
+          },
+          {
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "ab91d434-db24-5f9c-9ed3-c057b8752633",
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "3540cad4-c2be-516c-8fac-39e949d1adc7",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "f41df588-cf4a-5ade-ad62-1c8ca5e21d89",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "f2b0a295-e2e4-5d42-a52f-336cc8b8a653",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_id": "a01fa09d-2791-5e9c-9251-c2f1183eca82",
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "57a552e6-d97a-584d-9709-d66a9ceac39c",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "25080cf9-e379-5768-a4c7-0881c8418a89",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "a2b0a86a-c193-56c4-b568-105d6e128ce3",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "ee5a4363-8369-5781-bc30-f2da2d8affd8",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "b62b9733-bb9c-5dad-8783-5764ba6f9203",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "d15e4877-c00e-5a27-a261-f3e8fbe384fd",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "38e20866-b8c6-53a2-ac1f-89f440ae64ed"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "7325a6ef-1cf1-5ec0-9618-81ae8fc8cd15",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "b42e3a8b-0c5a-5208-b7e2-7cfc05c14e3b",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7481123289583288337",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "bfdcc705-c962-5bfa-b391-ff18cda04ee6"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "ed6efca2-cc03-52a4-8ef0-bd269d827674",
+            "identity_type": "BC_AUTH_TT"
+          },
+          {
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "a6bb6acd-2edc-5436-b19e-f4e91cbc489f",
+            "identity_type": "BC_AUTH_TT"
+          }
+        ]
+      },
+      "collected_at": "2026-09-23T05:38:39.502Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "<HTML><HEAD>\n<TITLE>Bad Request</TITLE>\n</HEAD><BODY>\n<H1>Bad Request</H1>\nYour browser sent a request that this server could not understand.<P>\nReference&#32;&#35;7&#46;cfce2d17&#46;1790141920&#46;4211129c\n<P>https&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;7&#46;cfce2d17&#46;1790141920&#46;4211129c</P>\n</BODY>\n</HTML>\n"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_state_AUTHORIZATION_NEEDED_retry",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ],
+          "creative_delivery_statuses": [
+            "AUTHORIZATION_NEEDED"
+          ]
+        },
+        "page": 1,
+        "page_size": 3
+      },
+      "collected_at": "2026-09-23T05:38:41.205Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"request_id\":\"20260923133841678F19C569F48F0360F2\",\"data\":{\"list\":[{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7598880752750660877\"},\"metrics\":{\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\",\"cost\":\"0.00\"}},{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7627159273579105549\"},\"metrics\":{\"cost\":\"0.00\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"}},{\"metrics\":{\"cost\":\"0.00\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"},\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7598898532958932238\"}}],\"page_info\":{\"page\":1,\"page_size\":3,\"total_number\":132,\"total_page\":44}},\"code\":0,\"message\":\"OK\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_video_performance_sample",
+      "tool": "mcp__tiktok_content_center__tk_content_video_performance_detail_page_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "pid": "1730564893724676453",
+        "videoId": "7682504617925577998",
+        "startDate": "20260901",
+        "endDate": "20260922",
+        "page": 1,
+        "pageSize": 3
+      },
+      "collected_at": "2026-09-23T05:38:40.555Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code\":200,\"msg\":\"操作成功\",\"total\":16,\"data\":{\"page\":1,\"pageSize\":3,\"total\":16,\"list\":[{\"smt\":202609,\"sdt\":\"20260921\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7682504617925577998\",\"accountType\":2,\"pid\":\"1730564893724676453\",\"publishSmt\":202609,\"publishSdt\":\"20260906\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"creatorId\":\"7390557992028128298\",\"creatorName\":\"itsmekaycee77\",\"creatorCountryRegion\":\"美国\",\"videoTitle\":\"\",\"videoUrl\":\"https://www.tiktok.com/@itsmekaycee77/video/7682504617925577998\",\"publishTime\":\"2026-09-06 11:21:55\",\"videoViews\":275,\"likeCount\":3,\"commentCount\":0,\"shareCount\":0,\"newFollowerCount\":0,\"trafficDiversionCount\":0,\"productExposureCount\":280,\"productClickCount\":8,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":1,\"videoSkuOrderCount\":1,\"indirectSkuOrderCount\":0,\"videoDealOrderCount\":1,\"attributedSoldQuantity\":1,\"videoSoldQuantity\":1,\"indirectSoldQuantity\":0,\"attributedShoppableVideoGmv\":53.9900,\"gmv\":53.9900,\"indirectGmv\":0.0000,\"gpm\":196.3300,\"videoClickRate\":2.9100,\"trafficDiversionRate\":0.0000,\"videoCompletionRate\":4.3600,\"videoClickToOrderConvertRate\":12.5000,\"diagnosis\":\"No issues\",\"dataSourceName\":\"联盟账号\",\"videoTypeName\":\"联盟视频\",\"sourceInsertTime\":\"2026-09-23 06:03:21\",\"insertTime\":\"2026-09-23 10:46:20\"},{\"smt\":202609,\"sdt\":\"20260920\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7682504617925577998\",\"accountType\":2,\"pid\":\"1730564893724676453\",\"publishSmt\":202609,\"publishSdt\":\"20260906\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"creatorId\":\"7390557992028128298\",\"creatorName\":\"itsmekaycee77\",\"creatorCountryRegion\":\"美国\",\"videoTitle\":\"\",\"videoUrl\":\"https://www.tiktok.com/@itsmekaycee77/video/7682504617925577998\",\"publishTime\":\"2026-09-06 11:21:55\",\"videoViews\":421,\"likeCount\":1,\"commentCount\":0,\"shareCount\":0,\"newFollowerCount\":0,\"trafficDiversionCount\":0,\"productExposureCount\":447,\"productClickCount\":10,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":0,\"videoSkuOrderCount\":0,\"indirectSkuOrderCount\":0,\"videoDealOrderCount\":0,\"attributedSoldQuantity\":0,\"videoSoldQuantity\":0,\"indirectSoldQuantity\":0,\"attributedShoppableVideoGmv\":0.0000,\"gmv\":0.0000,\"indirectGmv\":0.0000,\"gpm\":0.0000,\"videoClickRate\":2.3800,\"trafficDiversionRate\":0.0000,\"videoCompletionRate\":2.3800,\"videoClickToOrderConvertRate\":0.0000,\"diagnosis\":\"No issues\",\"dataSourceName\":\"联盟账号\",\"videoTypeName\":\"联盟视频\",\"sourceInsertTime\":\"2026-09-22 06:03:31\",\"insertTime\":\"2026-09-22 22:46:10\"},{\"smt\":202609,\"sdt\":\"20260919\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7682504617925577998\",\"accountType\":2,\"pid\":\"1730564893724676453\",\"publishSmt\":202609,\"publishSdt\":\"20260906\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"creatorId\":\"7390557992028128298\",\"creatorName\":\"itsmekaycee77\",\"creatorCountryRegion\":\"美国\",\"videoTitle\":\"\",\"videoUrl\":\"https://www.tiktok.com/@itsmekaycee77/video/7682504617925577998\",\"publishTime\":\"2026-09-06 11:21:55\",\"videoViews\":909,\"likeCount\":2,\"commentCount\":0,\"shareCount\":0,\"newFollowerCount\":0,\"trafficDiversionCount\":0,\"productExposureCount\":947,\"productClickCount\":21,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":1,\"videoSkuOrderCount\":1,\"indirectSkuOrderCount\":0,\"videoDealOrderCount\":1,\"attributedSoldQuantity\":1,\"videoSoldQuantity\":1,\"indirectSoldQuantity\":0,\"attributedShoppableVideoGmv\":47.9900,\"gmv\":47.9900,\"indirectGmv\":0.0000,\"gpm\":52.7900,\"videoClickRate\":2.3100,\"trafficDiversionRate\":0.0000,\"videoCompletionRate\":2.4200,\"videoClickToOrderConvertRate\":4.7600,\"diagnosis\":\"No issues\",\"dataSourceName\":\"联盟账号\",\"videoTypeName\":\"联盟视频\",\"sourceInsertTime\":\"2026-09-21 09:12:14\",\"insertTime\":\"2026-09-21 22:46:45\"}]}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "key": "w0199_available_small_identity_sample",
+      "tool": "mcp__tiktok_ads_read__gmv_max_video_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_id": "7495432785128294757",
+        "store_authorized_bc_id": "7342337793537982466",
+        "spu_id_list": [
+          "1730564893724676453"
+        ],
+        "need_auth_code_video": true,
+        "page": 1,
+        "page_size": 2,
+        "identity_list": [
+          {
+            "identity_id": "7670440110739145741",
+            "identity_type": "TTS_TT",
+            "store_id": "7495432785128294757"
+          },
+          {
+            "identity_type": "BC_AUTH_TT",
+            "identity_authorized_bc_id": "7342337793537982466",
+            "identity_authorized_shop_id": "7495432785128294757",
+            "identity_id": "f6aecda0-e047-5bef-8060-d1d2654eee4d"
+          }
+        ]
+      },
+      "collected_at": "2026-09-23T05:38:55.741Z",
+      "scope_note": "仅两个已知身份的字段样本，不是全店完整可投池",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"message\":\"OK\",\"request_id\":\"202609231338547E1541EDC35A0E87381E\",\"data\":{\"item_list\":[],\"page_info\":{\"page\":1,\"page_size\":2,\"total_number\":0,\"total_page\":0}},\"code\":0}"
+          }
+        ]
+      }
+    }
+  ]
+}

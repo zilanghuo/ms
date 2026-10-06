@@ -1,0 +1,3 @@
+const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
+http.createServer((req,res)=>{try{const p=path.resolve(__dirname,'.'+decodeURIComponent(new URL(req.url,'http://localhost').pathname));if(!p.startsWith(__dirname+path.sep)){res.writeHead(403);return res.end();}fs.readFile(p,(err,b)=>{if(err){res.writeHead(404);return res.end();}res.setHeader('Content-Type',p.endsWith('.html')?'text/html; charset=utf-8':p.endsWith('.png')?'image/png':'application/octet-stream');res.end(b);});}catch{res.writeHead(400);res.end();}}).listen(8769,'127.0.0.1',()=>console.log('Preview: http://127.0.0.1:8769/PID_AI%E4%BA%A7%E5%93%81%E9%A2%84%E8%A7%88.html'));
+

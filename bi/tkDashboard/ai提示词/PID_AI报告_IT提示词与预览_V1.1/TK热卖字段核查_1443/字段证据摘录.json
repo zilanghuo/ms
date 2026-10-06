@@ -1,0 +1,2952 @@
+{
+  "purpose": "更正热卖色码字段来源；5次只读查询的明确标注摘录",
+  "entries": [
+    {
+      "key": "sku_dashboard_hot_field",
+      "tool": "mcp__tiktok_content_center__tk_product_sku_stats_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "searchField": "spu",
+        "exactSearchKeyword": "AL-W0199",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "page": 1,
+        "pageSize": 5
+      },
+      "collected_at": "2026-09-23T06:43:03.120Z",
+      "code": 200,
+      "msg": "操作成功",
+      "extraction_note": "字段证据摘录；非完整原始报文。SKU看板仅保留与标签/去重/销量对账相关的原始字段",
+      "source_meta": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "total": 39,
+        "page": 1,
+        "pageSize": 5,
+        "returned_rows": 5,
+        "buckets": [
+          {
+            "label": "2026/9/22"
+          },
+          {
+            "label": "2026/9/21"
+          },
+          {
+            "label": "2026/9/20"
+          },
+          {
+            "label": "2026/9/19"
+          },
+          {
+            "label": "2026/9/18"
+          },
+          {
+            "label": "2026/9/17"
+          },
+          {
+            "label": "2026/9/16"
+          },
+          {
+            "label": "2026/9/15"
+          },
+          {
+            "label": "2026/9/14"
+          },
+          {
+            "label": "2026/9/13"
+          },
+          {
+            "label": "2026/9/12"
+          },
+          {
+            "label": "2026/9/11"
+          },
+          {
+            "label": "2026/9/10"
+          },
+          {
+            "label": "2026/9/9"
+          },
+          {
+            "label": "2026/9/8"
+          },
+          {
+            "label": "2026/9/7"
+          },
+          {
+            "label": "2026/9/6"
+          },
+          {
+            "label": "2026/9/5"
+          },
+          {
+            "label": "2026/9/4"
+          },
+          {
+            "label": "2026/9/3"
+          },
+          {
+            "label": "2026/9/2"
+          },
+          {
+            "label": "2026/9/1"
+          }
+        ]
+      },
+      "rows": [
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-M",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 11,
+          "vals": [
+            9,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-L",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 10,
+          "vals": [
+            3,
+            2,
+            3,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-M",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 8,
+          "vals": [
+            4,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XS",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XS",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 7,
+          "vals": [
+            4,
+            2,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-S",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 6,
+          "vals": [
+            3,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "totalRow": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "currencyCode": "USD",
+        "currencySymbol": "$",
+        "totalSub": 42,
+        "totalAvg": 1.91,
+        "storeDiffStr": "+187.50%",
+        "storeTotals": [
+          23,
+          8,
+          5,
+          0,
+          0,
+          3,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ],
+        "salesQtyTotalSub": 42,
+        "salesQtyTotalAvg": 1.91,
+        "salesQtyTotalDiffStr": "+187.50%",
+        "salesAmountTotalSub": 2248.9,
+        "salesAmountTotalAvg": 102.22,
+        "salesAmountTotalDiffStr": "+187.43%",
+        "storeMetricTotals": [
+          {
+            "salesQty": 23,
+            "salesAmount": 1233.69
+          },
+          {
+            "salesQty": 8,
+            "salesAmount": 429.22
+          },
+          {
+            "salesQty": 5,
+            "salesAmount": 267.45
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 3,
+            "salesAmount": 159.27
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 51.29
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          }
+        ]
+      }
+    },
+    {
+      "key": "sku_sales_hot_field",
+      "tool": "mcp__tiktok_content_center__tk_product_sku_sales_detail_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "spu": "AL-W0199",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22"
+      },
+      "collected_at": "2026-09-23T06:43:08.240Z",
+      "code": 200,
+      "msg": "操作成功",
+      "extraction_note": "字段证据摘录；非完整原始报文。SKU看板仅保留与标签/去重/销量对账相关的原始字段",
+      "source_meta": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22"
+      },
+      "totalRow": {
+        "cells": [
+          {
+            "sizeName": "XS",
+            "saleQty": 9,
+            "rowRatio": "8.49%"
+          },
+          {
+            "sizeName": "S",
+            "saleQty": 14,
+            "rowRatio": "13.21%"
+          },
+          {
+            "sizeName": "M",
+            "saleQty": 34,
+            "rowRatio": "32.08%"
+          },
+          {
+            "sizeName": "L",
+            "saleQty": 27,
+            "rowRatio": "25.47%"
+          },
+          {
+            "sizeName": "XL",
+            "saleQty": 11,
+            "rowRatio": "10.38%"
+          },
+          {
+            "sizeName": "2XL",
+            "saleQty": 11,
+            "rowRatio": "10.38%"
+          }
+        ],
+        "totalSaleQty": 106,
+        "totalRatio": "100.00%"
+      },
+      "sku_detail_color_rows": [
+        {
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "totalSaleQty": 50,
+          "colorRatio": "47.17%",
+          "cells": [
+            {
+              "sizeName": "XS",
+              "saleQty": 7,
+              "rowRatio": "14.00%"
+            },
+            {
+              "sizeName": "S",
+              "saleQty": 9,
+              "rowRatio": "18.00%"
+            },
+            {
+              "sizeName": "M",
+              "saleQty": 12,
+              "rowRatio": "24.00%"
+            },
+            {
+              "sizeName": "L",
+              "saleQty": 11,
+              "rowRatio": "22.00%"
+            },
+            {
+              "sizeName": "XL",
+              "saleQty": 9,
+              "rowRatio": "18.00%"
+            },
+            {
+              "sizeName": "2XL",
+              "saleQty": 2,
+              "rowRatio": "4.00%"
+            }
+          ]
+        },
+        {
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "totalSaleQty": 29,
+          "colorRatio": "27.36%",
+          "cells": [
+            {
+              "sizeName": "XS",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "S",
+              "saleQty": 3,
+              "rowRatio": "10.34%"
+            },
+            {
+              "sizeName": "M",
+              "saleQty": 11,
+              "rowRatio": "37.93%"
+            },
+            {
+              "sizeName": "L",
+              "saleQty": 7,
+              "rowRatio": "24.14%"
+            },
+            {
+              "sizeName": "XL",
+              "saleQty": 2,
+              "rowRatio": "6.90%"
+            },
+            {
+              "sizeName": "2XL",
+              "saleQty": 6,
+              "rowRatio": "20.69%"
+            }
+          ]
+        },
+        {
+          "colorName": "大身玫粉色140桃心红色81",
+          "totalSaleQty": 11,
+          "colorRatio": "10.38%",
+          "cells": [
+            {
+              "sizeName": "XS",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "S",
+              "saleQty": 1,
+              "rowRatio": "9.09%"
+            },
+            {
+              "sizeName": "M",
+              "saleQty": 5,
+              "rowRatio": "45.45%"
+            },
+            {
+              "sizeName": "L",
+              "saleQty": 3,
+              "rowRatio": "27.27%"
+            },
+            {
+              "sizeName": "XL",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "2XL",
+              "saleQty": 2,
+              "rowRatio": "18.18%"
+            }
+          ]
+        },
+        {
+          "colorName": "大身硫化黑27桃心红色81",
+          "totalSaleQty": 9,
+          "colorRatio": "8.49%",
+          "cells": [
+            {
+              "sizeName": "XS",
+              "saleQty": 1,
+              "rowRatio": "11.11%"
+            },
+            {
+              "sizeName": "S",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "M",
+              "saleQty": 4,
+              "rowRatio": "44.44%"
+            },
+            {
+              "sizeName": "L",
+              "saleQty": 4,
+              "rowRatio": "44.44%"
+            },
+            {
+              "sizeName": "XL",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "2XL",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            }
+          ]
+        },
+        {
+          "colorName": "大身红色81桃心浅粉37",
+          "totalSaleQty": 7,
+          "colorRatio": "6.60%",
+          "cells": [
+            {
+              "sizeName": "XS",
+              "saleQty": 1,
+              "rowRatio": "14.29%"
+            },
+            {
+              "sizeName": "S",
+              "saleQty": 1,
+              "rowRatio": "14.29%"
+            },
+            {
+              "sizeName": "M",
+              "saleQty": 2,
+              "rowRatio": "28.57%"
+            },
+            {
+              "sizeName": "L",
+              "saleQty": 2,
+              "rowRatio": "28.57%"
+            },
+            {
+              "sizeName": "XL",
+              "saleQty": 0,
+              "rowRatio": "0.00%"
+            },
+            {
+              "sizeName": "2XL",
+              "saleQty": 1,
+              "rowRatio": "14.29%"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "w0199_all_sku_hot_flags",
+      "tool": "mcp__tiktok_content_center__tk_product_sku_stats_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "searchField": "spu",
+        "exactSearchKeyword": "AL-W0199",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "page": 1,
+        "pageSize": 100
+      },
+      "collected_at": "2026-09-23T06:43:26.793Z",
+      "code": 200,
+      "msg": "操作成功",
+      "extraction_note": "字段证据摘录；非完整原始报文。SKU看板仅保留与标签/去重/销量对账相关的原始字段",
+      "source_meta": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "total": 39,
+        "page": 1,
+        "pageSize": 100,
+        "returned_rows": 39,
+        "buckets": [
+          {
+            "label": "2026/9/22"
+          },
+          {
+            "label": "2026/9/21"
+          },
+          {
+            "label": "2026/9/20"
+          },
+          {
+            "label": "2026/9/19"
+          },
+          {
+            "label": "2026/9/18"
+          },
+          {
+            "label": "2026/9/17"
+          },
+          {
+            "label": "2026/9/16"
+          },
+          {
+            "label": "2026/9/15"
+          },
+          {
+            "label": "2026/9/14"
+          },
+          {
+            "label": "2026/9/13"
+          },
+          {
+            "label": "2026/9/12"
+          },
+          {
+            "label": "2026/9/11"
+          },
+          {
+            "label": "2026/9/10"
+          },
+          {
+            "label": "2026/9/9"
+          },
+          {
+            "label": "2026/9/8"
+          },
+          {
+            "label": "2026/9/7"
+          },
+          {
+            "label": "2026/9/6"
+          },
+          {
+            "label": "2026/9/5"
+          },
+          {
+            "label": "2026/9/4"
+          },
+          {
+            "label": "2026/9/3"
+          },
+          {
+            "label": "2026/9/2"
+          },
+          {
+            "label": "2026/9/1"
+          }
+        ]
+      },
+      "rows": [
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-M",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 11,
+          "vals": [
+            9,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-L",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 10,
+          "vals": [
+            3,
+            2,
+            3,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-M",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 8,
+          "vals": [
+            4,
+            1,
+            1,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XS",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XS",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 7,
+          "vals": [
+            4,
+            2,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-S",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 6,
+          "vals": [
+            3,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 6,
+          "vals": [
+            4,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-2XL",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 5,
+          "vals": [
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-L",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 5,
+          "vals": [
+            5,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-M",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 4,
+          "vals": [
+            2,
+            0,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-S",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LHH-L",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LHH-M",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-XL",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 2,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-L",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 2,
+          "vals": [
+            1,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-M",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 2,
+          "vals": [
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-2XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 2,
+          "vals": [
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 2,
+          "vals": [
+            0,
+            0,
+            0,
+            2,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-L",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 2,
+          "vals": [
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-BLS-M",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 2,
+          "vals": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-LL-S",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 2,
+          "vals": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-L",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "是",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-M",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-2XL",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-S",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-XS",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "XS",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LHH-XS",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "XS",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-L",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-M",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-S",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "是",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-2XL",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-2XL",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-L",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "L",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-S",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-BLS-2XL",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-BLS-L",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-LHH-L",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-LHH-M",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-LL-XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "是",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-MFS-M",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "totalRow": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "currencyCode": "USD",
+        "currencySymbol": "$",
+        "totalSub": 106,
+        "totalAvg": 4.82,
+        "storeDiffStr": "+381.82%",
+        "storeTotals": [
+          53,
+          11,
+          12,
+          8,
+          1,
+          5,
+          2,
+          1,
+          3,
+          1,
+          4,
+          1,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          1,
+          0,
+          1,
+          0
+        ],
+        "salesQtyTotalSub": 106,
+        "salesQtyTotalAvg": 4.82,
+        "salesQtyTotalDiffStr": "+381.82%",
+        "salesAmountTotalSub": 5674.9,
+        "salesAmountTotalAvg": 257.95,
+        "salesAmountTotalDiffStr": "+381.94%",
+        "storeMetricTotals": [
+          {
+            "salesQty": 53,
+            "salesAmount": 2849.2
+          },
+          {
+            "salesQty": 11,
+            "salesAmount": 591.19
+          },
+          {
+            "salesQty": 12,
+            "salesAmount": 642.88
+          },
+          {
+            "salesQty": 8,
+            "salesAmount": 426.52
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 5,
+            "salesAmount": 267.25
+          },
+          {
+            "salesQty": 2,
+            "salesAmount": 105.28
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 3,
+            "salesAmount": 161.97
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 4,
+            "salesAmount": 204.02
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 51.29
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 51.36
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          },
+          {
+            "salesQty": 1,
+            "salesAmount": 53.99
+          },
+          {
+            "salesQty": 0,
+            "salesAmount": 0
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0161_hot_flag_sample",
+      "tool": "mcp__tiktok_content_center__tk_product_sku_stats_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "searchField": "spu",
+        "exactSearchKeyword": "AL-W0161",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "page": 1,
+        "pageSize": 3
+      },
+      "collected_at": "2026-09-23T06:43:28.521Z",
+      "code": 200,
+      "msg": "操作成功",
+      "extraction_note": "字段证据摘录；非完整原始报文。SKU看板仅保留与标签/去重/销量对账相关的原始字段",
+      "source_meta": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-22",
+        "total": 374,
+        "page": 1,
+        "pageSize": 3,
+        "returned_rows": 3,
+        "buckets": [
+          {
+            "label": "2026/9/22"
+          },
+          {
+            "label": "2026/9/21"
+          },
+          {
+            "label": "2026/9/20"
+          },
+          {
+            "label": "2026/9/19"
+          },
+          {
+            "label": "2026/9/18"
+          },
+          {
+            "label": "2026/9/17"
+          },
+          {
+            "label": "2026/9/16"
+          },
+          {
+            "label": "2026/9/15"
+          },
+          {
+            "label": "2026/9/14"
+          },
+          {
+            "label": "2026/9/13"
+          },
+          {
+            "label": "2026/9/12"
+          },
+          {
+            "label": "2026/9/11"
+          },
+          {
+            "label": "2026/9/10"
+          },
+          {
+            "label": "2026/9/9"
+          },
+          {
+            "label": "2026/9/8"
+          },
+          {
+            "label": "2026/9/7"
+          },
+          {
+            "label": "2026/9/6"
+          },
+          {
+            "label": "2026/9/5"
+          },
+          {
+            "label": "2026/9/4"
+          },
+          {
+            "label": "2026/9/3"
+          },
+          {
+            "label": "2026/9/2"
+          },
+          {
+            "label": "2026/9/1"
+          }
+        ]
+      },
+      "rows": [
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0161",
+          "pid": "1729773126172578149",
+          "sku": "AL-W0161-LHH-M",
+          "colorName": "硫化黑27",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 128,
+          "vals": [
+            9,
+            7,
+            14,
+            0,
+            12,
+            7,
+            6,
+            2,
+            0,
+            10,
+            0,
+            3,
+            7,
+            9,
+            8,
+            5,
+            4,
+            5,
+            4,
+            6,
+            5,
+            5
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0161",
+          "pid": "1729773126172578149",
+          "sku": "AL-W0161-MLS-M",
+          "colorName": "墨绿色200",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 124,
+          "vals": [
+            4,
+            4,
+            4,
+            7,
+            6,
+            4,
+            4,
+            4,
+            0,
+            5,
+            0,
+            9,
+            6,
+            9,
+            6,
+            6,
+            7,
+            7,
+            9,
+            10,
+            7,
+            6
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0161",
+          "pid": "1729773126172578149",
+          "sku": "AL-W0161-HS-M",
+          "colorName": "红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 89,
+          "vals": [
+            5,
+            3,
+            3,
+            3,
+            2,
+            5,
+            3,
+            4,
+            2,
+            5,
+            2,
+            6,
+            3,
+            3,
+            5,
+            8,
+            6,
+            4,
+            5,
+            2,
+            4,
+            6
+          ]
+        }
+      ],
+      "totalRow": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "currencyCode": "USD",
+        "currencySymbol": "$",
+        "totalSub": 341,
+        "totalAvg": 15.5,
+        "storeDiffStr": "+28.57%",
+        "storeTotals": [
+          18,
+          14,
+          21,
+          10,
+          20,
+          16,
+          13,
+          10,
+          2,
+          20,
+          2,
+          18,
+          16,
+          21,
+          19,
+          19,
+          17,
+          16,
+          18,
+          18,
+          16,
+          17
+        ],
+        "salesQtyTotalSub": 341,
+        "salesQtyTotalAvg": 15.5,
+        "salesQtyTotalDiffStr": "+28.57%",
+        "salesAmountTotalSub": 19487.66,
+        "salesAmountTotalAvg": 885.8,
+        "salesAmountTotalDiffStr": "+31.39%",
+        "storeMetricTotals": [
+          {
+            "salesQty": 18,
+            "salesAmount": 1052.81
+          },
+          {
+            "salesQty": 14,
+            "salesAmount": 801.26
+          },
+          {
+            "salesQty": 21,
+            "salesAmount": 1185.19
+          },
+          {
+            "salesQty": 10,
+            "salesAmount": 569.9
+          },
+          {
+            "salesQty": 20,
+            "salesAmount": 1128.98
+          },
+          {
+            "salesQty": 16,
+            "salesAmount": 901.9
+          },
+          {
+            "salesQty": 13,
+            "salesAmount": 737.75
+          },
+          {
+            "salesQty": 10,
+            "salesAmount": 564.2
+          },
+          {
+            "salesQty": 2,
+            "salesAmount": 113.98
+          },
+          {
+            "salesQty": 20,
+            "salesAmount": 1129
+          },
+          {
+            "salesQty": 2,
+            "salesAmount": 113.98
+          },
+          {
+            "salesQty": 18,
+            "salesAmount": 1041.14
+          },
+          {
+            "salesQty": 16,
+            "salesAmount": 903.89
+          },
+          {
+            "salesQty": 21,
+            "salesAmount": 1194.13
+          },
+          {
+            "salesQty": 19,
+            "salesAmount": 1072.21
+          },
+          {
+            "salesQty": 19,
+            "salesAmount": 1077.39
+          },
+          {
+            "salesQty": 17,
+            "salesAmount": 963.41
+          },
+          {
+            "salesQty": 16,
+            "salesAmount": 902.99
+          },
+          {
+            "salesQty": 18,
+            "salesAmount": 1035.63
+          },
+          {
+            "salesQty": 18,
+            "salesAmount": 1066.82
+          },
+          {
+            "salesQty": 16,
+            "salesAmount": 938.33
+          },
+          {
+            "salesQty": 17,
+            "salesAmount": 992.77
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_hot_flags_single_date",
+      "tool": "mcp__tiktok_content_center__tk_product_sku_stats_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "searchField": "spu",
+        "exactSearchKeyword": "AL-W0199",
+        "startDate": "2026-09-22",
+        "endDate": "2026-09-22",
+        "page": 1,
+        "pageSize": 100
+      },
+      "collected_at": "2026-09-23T06:43:58.288Z",
+      "code": 200,
+      "msg": "操作成功",
+      "extraction_note": "字段证据摘录；非完整原始报文。SKU看板仅保留与标签/去重/销量对账相关的原始字段",
+      "source_meta": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "startDate": "2026-09-22",
+        "endDate": "2026-09-22",
+        "total": 19,
+        "page": 1,
+        "pageSize": 100,
+        "returned_rows": 19,
+        "buckets": [
+          {
+            "label": "2026/9/22"
+          }
+        ]
+      },
+      "rows": [
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-M",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 9,
+          "vals": [
+            9
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-2XL",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 5,
+          "vals": [
+            5
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-L",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 5,
+          "vals": [
+            5
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-M",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 4,
+          "vals": [
+            4
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 4,
+          "vals": [
+            4
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-XS",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "XS",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 4,
+          "vals": [
+            4
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LHH-L",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LHH-M",
+          "colorName": "大身硫化黑27桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-L",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-S",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 3,
+          "vals": [
+            3
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-M",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "M",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 2,
+          "vals": [
+            2
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-S",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-BLS-XL",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "是",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-2XL",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-HS-L",
+          "colorName": "大身红色81桃心浅粉37",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-LL-2XL",
+          "colorName": "大身亮蓝145桃心浅蓝40",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-2XL",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "2XL",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730564893724676453",
+          "sku": "AL-W0199-MFS-S",
+          "colorName": "大身玫粉色140桃心红色81",
+          "sizeName": "S",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "是",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        },
+        {
+          "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+          "spu": "AL-W0199",
+          "pid": "1730664352968905061",
+          "sku": "AL-W0199-BLS-L",
+          "colorName": "大身宝蓝色55桃心浅蓝40",
+          "sizeName": "L",
+          "isHotColorSize": "否",
+          "isOutOfStock": "否",
+          "isAdInvestment": "否",
+          "salesQtySub": 1,
+          "vals": [
+            1
+          ]
+        }
+      ],
+      "totalRow": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "currencyCode": "USD",
+        "currencySymbol": "$",
+        "totalSub": 53,
+        "totalAvg": 53,
+        "storeDiffStr": "—",
+        "storeTotals": [
+          53
+        ],
+        "salesQtyTotalSub": 53,
+        "salesQtyTotalAvg": 53,
+        "salesQtyTotalDiffStr": "—",
+        "salesAmountTotalSub": 2849.2,
+        "salesAmountTotalAvg": 2849.2,
+        "salesAmountTotalDiffStr": "—",
+        "storeMetricTotals": [
+          {
+            "salesQty": 53,
+            "salesAmount": 2849.2
+          }
+        ]
+      }
+    }
+  ]
+}

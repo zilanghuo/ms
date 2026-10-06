@@ -1,0 +1,398 @@
+{
+  "purpose": "Business MCP素材字段抽样，非全量产品分析",
+  "entries": [
+    {
+      "key": "account",
+      "tool": "mcp__tiktok_ads_read__advertiser_info_get",
+      "args": {
+        "advertiser_ids": [
+          "7458490220338511873"
+        ],
+        "fields": [
+          "advertiser_id",
+          "name",
+          "currency",
+          "timezone",
+          "display_timezone"
+        ]
+      },
+      "collected_at": "2026-09-23T05:36:42.934Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"request_id\":\"202609231336439C6A67D0DDDF486E5B59\",\"data\":{\"list\":[{\"timezone\":\"Etc/GMT+8\",\"name\":\"TTOK-大魔王-1店faiablefashion-1\",\"currency\":\"USD\",\"advertiser_id\":\"7458490220338511873\",\"display_timezone\":\"America/Los_Angeles\"}]},\"code\":0,\"message\":\"OK\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "shops",
+      "tool": "mcp__tiktok_ads_read__gmv_max_store_list_get",
+      "args": {
+        "advertiser_id": "7458490220338511873"
+      },
+      "collected_at": "2026-09-23T05:36:43.573Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"data\":{\"store_list\":[{\"store_authorized_bc_id\":\"7481123289583288337\",\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_code\":\"CNUSCBHTELR9\",\"targeting_region_codes\":[\"US\"],\"store_id\":\"7495838640872392746\",\"store_name\":\"Faiable Comfywear\",\"store_role\":\"AD_PROMOTION\",\"store_status\":\"ACTIVE\",\"thumbnail_url\":\"https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/9a8a37158a944a33867bcf67cbfb5972~tplv-o3syd03w52-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7458211298812461057\",\"advertiser_name\":\"TTOK-大魔王-3店-1\",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":false,\"is_owner_bc\":false},{\"store_name\":\"Faiable Comfywear\",\"store_status\":\"ACTIVE\",\"targeting_region_codes\":[\"US\"],\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7458211298812461057\",\"advertiser_name\":\"TTOK-大魔王-3店-1\",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":false,\"store_id\":\"7495838640872392746\",\"store_role\":\"AD_PROMOTION\",\"thumbnail_url\":\"https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/9a8a37158a944a33867bcf67cbfb5972~tplv-o3syd03w52-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"is_owner_bc\":false,\"store_authorized_bc_id\":\"7342337793537982466\",\"store_authorized_bc_info\":{\"bc_name\":\"HATANT\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\",\"bc_id\":\"7342337793537982466\"},\"store_code\":\"CNUSCBHTELR9\"},{\"targeting_region_codes\":[\"US\"],\"store_authorized_bc_id\":\"7481123289583288337\",\"store_code\":\"CNUSCB32ELXP\",\"store_name\":\"Faiable Days\",\"thumbnail_url\":\"https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/99851bda4a144613af7f2c3d230099db~tplv-o3syd03w52-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7458211121242210320\",\"advertiser_name\":\"TTOK-大魔王-2店-1\",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":false,\"is_owner_bc\":false,\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_id\":\"7495750504340360001\",\"store_role\":\"AD_PROMOTION\",\"store_status\":\"ACTIVE\"},{\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7458490220338511873\",\"advertiser_name\":\"TTOK-大魔王-1店faiablefashion-1\",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":true,\"is_owner_bc\":false,\"store_authorized_bc_id\":\"7481123289583288337\",\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_role\":\"AD_PROMOTION\",\"store_status\":\"ACTIVE\",\"targeting_region_codes\":[\"US\"],\"store_code\":\"CNUSCBGWEL2N\",\"store_id\":\"7495432785128294757\",\"store_name\":\"Faiable Fashion\",\"thumbnail_url\":\"https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/aaabd9673bb242a189fb5765026aa80b~tplv-o3syd03w52-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\"},{\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7458490220338511873\",\"advertiser_name\":\"TTOK-大魔王-1店faiablefashion-1\",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":true,\"store_authorized_bc_id\":\"7342337793537982466\",\"store_authorized_bc_info\":{\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\",\"bc_id\":\"7342337793537982466\",\"bc_name\":\"HATANT\"},\"store_id\":\"7495432785128294757\",\"store_name\":\"Faiable Fashion\",\"store_role\":\"AD_PROMOTION\",\"thumbnail_url\":\"https://p16-oec-va.ibyteimg.com/tos-maliva-i-o3syd03w52-us/aaabd9673bb242a189fb5765026aa80b~tplv-o3syd03w52-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"is_owner_bc\":true,\"store_code\":\"CNUSCBGWEL2N\",\"store_status\":\"ACTIVE\",\"targeting_region_codes\":[\"US\"]},{\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_id\":\"7496162054293392066\",\"store_name\":\"Faiable Finds\",\"store_status\":\"ACTIVE\",\"thumbnail_url\":\"https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/351960d63a4643cf903c26779eda1dad~tplv-aphluv4xwc-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7509742064113025031\",\"advertiser_name\":\"TTOK-厦门驻客-英区1 \",\"advertiser_status\":\"STATUS_ENABLE\"},\"is_gmv_max_available\":false,\"store_code\":\"HKGBCBRLQLYP\",\"store_role\":\"AD_PROMOTION\",\"targeting_region_codes\":[\"GB\"],\"is_owner_bc\":false,\"store_authorized_bc_id\":\"7481123289583288337\"},{\"is_owner_bc\":false,\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_id\":\"7496161937680271590\",\"store_status\":\"ACTIVE\",\"is_gmv_max_available\":false,\"store_authorized_bc_id\":\"7481123289583288337\",\"store_code\":\"HKDECBRLQLY7\",\"store_name\":\"Faiable Stylish\",\"store_role\":\"AD_PROMOTION\",\"targeting_region_codes\":[\"DE\"],\"thumbnail_url\":\"https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/48a7dbf9efe24d1fb48e913e59b8a0d7~tplv-aphluv4xwc-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7513877543884242951\",\"advertiser_name\":\"TTOK-厦门鸿图展-德国1\",\"advertiser_status\":\"STATUS_ENABLE\"}},{\"store_authorized_bc_info\":{\"bc_id\":\"7481123289583288337\",\"bc_name\":\"香港趣拓-CLD\",\"bc_profile_image\":\"\",\"user_role\":\"ADMIN\"},\"store_role\":\"AD_PROMOTION\",\"store_status\":\"ACTIVE\",\"thumbnail_url\":\"https://p16-oec-sg.ibyteimg.com/tos-alisg-i-aphluv4xwc-sg/48a7dbf9efe24d1fb48e913e59b8a0d7~tplv-aphluv4xwc-origin-jpeg.jpeg?dr=15568\\u0026from=1345521523\\u0026idc=my2\\u0026ps=933b5bde\\u0026shcp=5166750d\\u0026shp=50330773\\u0026t=555f072d\",\"is_gmv_max_available\":false,\"is_owner_bc\":false,\"store_authorized_bc_id\":\"7481123289583288337\",\"store_code\":\"HKFRCBRLQLYE\",\"store_id\":\"8647368097712150758\",\"store_name\":\"Faiable Stylish\",\"targeting_region_codes\":[\"FR\"],\"exclusive_authorized_advertiser_info\":{\"advertiser_id\":\"7563493841689673744\",\"advertiser_name\":\"TTOK-厦门鸿图展-法国1\",\"advertiser_status\":\"STATUS_ENABLE\"}}]},\"code\":0,\"message\":\"OK\",\"request_id\":\"20260923133643C8C32D9AF87E25FCFF38\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_creative_sample",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-21",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "item_group_ids": [
+            "1730564893724676453",
+            "1730664352968905061"
+          ],
+          "campaign_statuses": [
+            "STATUS_ALL"
+          ]
+        },
+        "page": 1,
+        "page_size": 5
+      },
+      "collected_at": "2026-09-23T05:36:58.028Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"request_id\":\"20260923133658FFCCDB9BAEC58E4282CA\",\"code\":40002,\"message\":\"Creative level report must have at least 1 campaign ID and 1 item group ID, please correct the filters.\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_available_videos",
+      "tool": "mcp__tiktok_ads_read__gmv_max_video_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_id": "7495432785128294757",
+        "store_authorized_bc_id": "7342337793537982466",
+        "spu_id_list": [
+          "1730564893724676453",
+          "1730664352968905061"
+        ],
+        "need_auth_code_video": true,
+        "page": 1,
+        "page_size": 5
+      },
+      "collected_at": "2026-09-23T05:37:10.076Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"message\":\"OK\",\"request_id\":\"20260923133658BA3D800D2FE08E35FA29\",\"data\":{\"item_list\":[],\"page_info\":{\"page\":1,\"page_size\":5,\"total_number\":0,\"total_page\":0}},\"code\":0}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_campaigns",
+      "tool": "mcp__tiktok_ads_read__gmv_max_campaign_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "filtering": {
+          "gmv_max_promotion_types": [
+            "PRODUCT_GMV_MAX"
+          ],
+          "store_ids": [
+            "7495432785128294757"
+          ],
+          "campaign_name": "W0199"
+        },
+        "page": 1,
+        "page_size": 10
+      },
+      "collected_at": "2026-09-23T05:37:21.902Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"message\":\"OK\",\"request_id\":\"20260923133722BD25DBB140C60332D268\",\"data\":{\"list\":[{\"operation_status\":\"ENABLE\",\"roi_protection_compensation_status\":\"NOT_ELIGIBLE\",\"advertiser_id\":\"7458490220338511873\",\"campaign_id\":\"1877016135107762\",\"campaign_name\":\"AL-W0199-1730564893724676453\",\"create_time\":\"2026-09-22 07:45:29\",\"modify_time\":\"2026-09-23 01:11:59\",\"objective_type\":\"PRODUCT_SALES\"},{\"campaign_name\":\"新-AL-W0199-主PID-1730564893724676453\",\"create_time\":\"2026-01-21 08:30:49\",\"objective_type\":\"PRODUCT_SALES\",\"operation_status\":\"DISABLE\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"campaign_id\":\"1854914360257874\",\"modify_time\":\"2026-02-03 09:18:43\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"advertiser_id\":\"7458490220338511873\"},{\"advertiser_id\":\"7458490220338511873\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"modify_time\":\"2026-01-21 08:27:09\",\"operation_status\":\"DISABLE\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"campaign_id\":\"1854280091998370\",\"create_time\":\"2026-01-14 08:28:24\",\"objective_type\":\"PRODUCT_SALES\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\"},{\"advertiser_id\":\"7458490220338511873\",\"campaign_id\":\"1852642895743266\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"create_time\":\"2025-12-27 06:47:31\",\"modify_time\":\"2026-01-14 08:27:07\",\"objective_type\":\"PRODUCT_SALES\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"operation_status\":\"DISABLE\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\"},{\"roi_protection_compensation_status\":\"IN_EFFECT\",\"campaign_id\":\"1852442132519122\",\"modify_time\":\"2025-12-27 06:45:09\",\"operation_status\":\"DISABLE\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"advertiser_id\":\"7458490220338511873\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"create_time\":\"2025-12-25 01:35:16\",\"objective_type\":\"PRODUCT_SALES\"},{\"create_time\":\"2025-11-26 08:11:58\",\"modify_time\":\"2025-12-25 01:34:03\",\"operation_status\":\"DISABLE\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"advertiser_id\":\"7458490220338511873\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"objective_type\":\"PRODUCT_SALES\",\"campaign_id\":\"1849839801817265\"},{\"advertiser_id\":\"7458490220338511873\",\"campaign_id\":\"1848094684717121\",\"objective_type\":\"PRODUCT_SALES\",\"operation_status\":\"DISABLE\",\"campaign_name\":\"新-AL-W0199-1730664352968905061\",\"create_time\":\"2025-11-07 01:54:03\",\"modify_time\":\"2025-11-24 01:12:53\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"secondary_status\":\"CAMPAIGN_STATUS_DISABLE\"},{\"objective_type\":\"PRODUCT_SALES\",\"operation_status\":\"DISABLE\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"campaign_id\":\"1848094116515937\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"create_time\":\"2025-11-07 01:45:20\",\"modify_time\":\"2025-11-26 08:11:06\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"advertiser_id\":\"7458490220338511873\"},{\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"modify_time\":\"2025-11-07 01:42:40\",\"objective_type\":\"PRODUCT_SALES\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"campaign_id\":\"1844582093858817\",\"create_time\":\"2025-09-29 07:23:05\",\"operation_status\":\"DISABLE\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"advertiser_id\":\"7458490220338511873\"},{\"campaign_id\":\"1843506012919985\",\"campaign_name\":\"AL-W0199-主PID-1730564893724676453\",\"create_time\":\"2025-09-17 10:19:05\",\"modify_time\":\"2025-09-29 07:21:56\",\"roi_protection_compensation_status\":\"IN_EFFECT\",\"secondary_status\":\"CAMPAIGN_STATUS_PRODUCT_USED_BY_PRODUCT_GMV_MAX\",\"advertiser_id\":\"7458490220338511873\",\"objective_type\":\"PRODUCT_SALES\",\"operation_status\":\"DISABLE\"}],\"page_info\":{\"total_number\":15,\"total_page\":2,\"page\":1,\"page_size\":10}},\"code\":0}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_content_sample",
+      "tool": "mcp__tiktok_content_center__tk_content_video_all_page_query",
+      "args": {
+        "storeName": "美国TK-艾斯特尼-美区跨境1店:US",
+        "searchField": "productId",
+        "searchMode": "exact",
+        "keyword": "1730564893724676453",
+        "page": 1,
+        "pageSize": 5
+      },
+      "collected_at": "2026-09-23T05:37:23.581Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code\":200,\"msg\":\"操作成功\",\"total\":506,\"data\":{\"page\":1,\"pageSize\":5,\"total\":506,\"list\":[{\"smt\":202609,\"sdt\":\"20260920\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7687652873638776077\",\"accountType\":2,\"videoTypeName\":\"联盟视频\",\"productId\":\"1730564893724676453\",\"mainSpu\":\"AL-W0199\",\"sampleOrderIds\":\"\",\"creatorId\":\"7203928897346880555\",\"sourceCreatorId\":\"7203928897346880555\",\"creatorAccountName\":\"mishi4you\",\"creatorCountryRegion\":\"美国\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"videoName\":\"Change of heart feels good! #fdt#dem#democrat#heart#sweatshirt\",\"videoUrl\":\"https://www.tiktok.com/@_/video/7687652873638776077\",\"publishTime\":\"2026-09-20 08:19:37\",\"playCnt\":2137,\"likeCount\":75,\"commentCount\":14,\"shareCount\":2,\"interactionCount\":91,\"newFollowerCount\":0,\"trafficDiversionCount\":3,\"productExposureCount\":2219,\"productClickCount\":84,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":1,\"videoSkuOrderCount\":1,\"indirectSkuOrderCount\":0,\"gmvAmount\":53.9900,\"attributedShoppableVideoGmv\":53.9900,\"videoGmv\":53.9900,\"orderCnt\":1,\"soldQty\":1,\"attributedSoldQuantity\":1,\"indirectSoldQuantity\":0,\"indirectGmv\":0.0000,\"gpm\":25.2644,\"videoClickRate\":0.0379,\"videoClickToOrderConvertRate\":0.0119,\"ordered\":true,\"adVideo\":false,\"firstGmvDate\":\"2026-09-21\",\"sampleAttributionTag\":null,\"relationAttributionTag\":null,\"realShotVideo\":true,\"aiVideo\":false,\"ipVideo\":false,\"talkVideo\":false,\"ownerBusiness\":\"杨滨羽\",\"authCode\":\"0\",\"videoColorName\":\"宝蓝色\",\"sampleBusiness\":\"\",\"editorName\":null,\"editorAssistant\":null,\"directorName\":null,\"modelName\":null,\"modelGender\":null,\"displayColor\":\"\",\"scriptType\":null,\"crossRegion\":null,\"remark\":null,\"updatedTime\":\"2026-09-23 10:45:58\"},{\"smt\":202609,\"sdt\":\"20260919\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7687259287206268174\",\"accountType\":2,\"videoTypeName\":\"联盟视频\",\"productId\":\"1730564893724676453\",\"mainSpu\":\"AL-W0199\",\"sampleOrderIds\":\"\",\"creatorId\":\"6791517134549713926\",\"sourceCreatorId\":\"6791517134549713926\",\"creatorAccountName\":\"dezbreel\",\"creatorCountryRegion\":\"美国\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"videoName\":\"Oversized Cozy unisex hoodie with heart detail! #hearthoodie #oversizedhoodie #dodgerbluesweater #tiktokshopbacktoschool #tiktokshopcreatorpicks\",\"videoUrl\":\"https://www.tiktok.com/@_/video/7687259287206268174\",\"publishTime\":\"2026-09-19 14:00:00\",\"playCnt\":530,\"likeCount\":1,\"commentCount\":0,\"shareCount\":0,\"interactionCount\":1,\"newFollowerCount\":1,\"trafficDiversionCount\":0,\"productExposureCount\":552,\"productClickCount\":14,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":0,\"videoSkuOrderCount\":0,\"indirectSkuOrderCount\":0,\"gmvAmount\":0.0000,\"attributedShoppableVideoGmv\":0.0000,\"videoGmv\":0.0000,\"orderCnt\":0,\"soldQty\":0,\"attributedSoldQuantity\":0,\"indirectSoldQuantity\":0,\"indirectGmv\":0.0000,\"gpm\":0.0000,\"videoClickRate\":0.0254,\"videoClickToOrderConvertRate\":0.0000,\"ordered\":false,\"adVideo\":false,\"firstGmvDate\":null,\"sampleAttributionTag\":null,\"relationAttributionTag\":null,\"realShotVideo\":true,\"aiVideo\":false,\"ipVideo\":false,\"talkVideo\":false,\"ownerBusiness\":\"魏芷颖\",\"authCode\":\"0\",\"videoColorName\":\"\",\"sampleBusiness\":\"\",\"editorName\":null,\"editorAssistant\":null,\"directorName\":null,\"modelName\":null,\"modelGender\":null,\"displayColor\":\"\",\"scriptType\":null,\"crossRegion\":null,\"remark\":null,\"updatedTime\":\"2026-09-23 10:45:58\"},{\"smt\":202609,\"sdt\":\"20260919\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7687203178776972557\",\"accountType\":2,\"videoTypeName\":\"联盟视频\",\"productId\":\"1730564893724676453\",\"mainSpu\":\"AL-W0199\",\"sampleOrderIds\":\"577255444417974779\",\"creatorId\":\"7427748582199739438\",\"sourceCreatorId\":\"7427748582199739438\",\"creatorAccountName\":\"chicandbonkers\",\"creatorCountryRegion\":\"美国\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"videoName\":\"Oversized Cozy unisex hoodie with heart detail! #hearthoodie #oversizedhoodie #dodgerbluesweater #tiktokshopbacktoschool #tiktokshopcreatorpicks\",\"videoUrl\":\"https://www.tiktok.com/@_/video/7687203178776972557\",\"publishTime\":\"2026-09-19 08:00:00\",\"playCnt\":154,\"likeCount\":0,\"commentCount\":0,\"shareCount\":1,\"interactionCount\":1,\"newFollowerCount\":0,\"trafficDiversionCount\":0,\"productExposureCount\":157,\"productClickCount\":6,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":0,\"videoSkuOrderCount\":0,\"indirectSkuOrderCount\":0,\"gmvAmount\":0.0000,\"attributedShoppableVideoGmv\":0.0000,\"videoGmv\":0.0000,\"orderCnt\":0,\"soldQty\":0,\"attributedSoldQuantity\":0,\"indirectSoldQuantity\":0,\"indirectGmv\":0.0000,\"gpm\":0.0000,\"videoClickRate\":0.0382,\"videoClickToOrderConvertRate\":0.0000,\"ordered\":false,\"adVideo\":false,\"firstGmvDate\":null,\"sampleAttributionTag\":null,\"relationAttributionTag\":null,\"realShotVideo\":true,\"aiVideo\":false,\"ipVideo\":false,\"talkVideo\":false,\"ownerBusiness\":\"张筱敏\",\"authCode\":\"0\",\"videoColorName\":\"大身亮蓝145桃心浅蓝40\",\"sampleBusiness\":\"张筱敏\",\"editorName\":null,\"editorAssistant\":null,\"directorName\":null,\"modelName\":null,\"modelGender\":null,\"displayColor\":\"大身亮蓝145桃心浅蓝40\",\"scriptType\":null,\"crossRegion\":null,\"remark\":null,\"updatedTime\":\"2026-09-23 10:45:58\"},{\"smt\":202609,\"sdt\":\"20260917\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7686642506217311501\",\"accountType\":2,\"videoTypeName\":\"联盟视频\",\"productId\":\"1730564893724676453\",\"mainSpu\":\"AL-W0199\",\"sampleOrderIds\":\"\",\"creatorId\":\"6881837670604882949\",\"sourceCreatorId\":\"6881837670604882949\",\"creatorAccountName\":\"lidawishhh\",\"creatorCountryRegion\":\"美国\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"videoName\":\"🩵💙 #hoodieszn #comfystyle #oversizedhoodie #faiable #navyblue\",\"videoUrl\":\"https://www.tiktok.com/@_/video/7686642506217311501\",\"publishTime\":\"2026-09-17 14:58:53\",\"playCnt\":4918,\"likeCount\":48,\"commentCount\":7,\"shareCount\":0,\"interactionCount\":55,\"newFollowerCount\":2,\"trafficDiversionCount\":0,\"productExposureCount\":4509,\"productClickCount\":47,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":0,\"videoSkuOrderCount\":0,\"indirectSkuOrderCount\":0,\"gmvAmount\":0.0000,\"attributedShoppableVideoGmv\":0.0000,\"videoGmv\":0.0000,\"orderCnt\":0,\"soldQty\":0,\"attributedSoldQuantity\":0,\"indirectSoldQuantity\":0,\"indirectGmv\":0.0000,\"gpm\":0.0000,\"videoClickRate\":0.0104,\"videoClickToOrderConvertRate\":0.0000,\"ordered\":false,\"adVideo\":false,\"firstGmvDate\":null,\"sampleAttributionTag\":null,\"relationAttributionTag\":null,\"realShotVideo\":true,\"aiVideo\":false,\"ipVideo\":false,\"talkVideo\":false,\"ownerBusiness\":\"严丹艳\",\"authCode\":\"0\",\"videoColorName\":\"\",\"sampleBusiness\":\"\",\"editorName\":null,\"editorAssistant\":null,\"directorName\":null,\"modelName\":null,\"modelGender\":null,\"displayColor\":\"\",\"scriptType\":null,\"crossRegion\":null,\"remark\":null,\"updatedTime\":\"2026-09-23 10:45:58\"},{\"smt\":202609,\"sdt\":\"20260906\",\"storeName\":\"美国TK-艾斯特尼-美区跨境1店:US\",\"videoId\":\"7682504617925577998\",\"accountType\":2,\"videoTypeName\":\"联盟视频\",\"productId\":\"1730564893724676453\",\"mainSpu\":\"AL-W0199\",\"sampleOrderIds\":\"\",\"creatorId\":\"7390557992028128298\",\"sourceCreatorId\":\"7390557992028128298\",\"creatorAccountName\":\"itsmekaycee77\",\"creatorCountryRegion\":\"美国\",\"productName\":\"FAIABLE Unisex Trendy Vintage Pullover Sweatshirt for Women & Men- Oversized Heart Design Crewneck with Acid Wash Finish and Spacious Pockets for Ultimate Comfort and Style - Perfect for Gifts and Everyday Wear(1730564893724676453)\",\"videoName\":\"\",\"videoUrl\":\"https://www.tiktok.com/@_/video/7682504617925577998\",\"publishTime\":\"2026-09-06 11:21:55\",\"playCnt\":14307,\"likeCount\":47,\"commentCount\":0,\"shareCount\":1,\"interactionCount\":48,\"newFollowerCount\":1,\"trafficDiversionCount\":0,\"productExposureCount\":14862,\"productClickCount\":450,\"dedupCustomerCount\":0,\"attributedSkuOrderCount\":10,\"videoSkuOrderCount\":9,\"indirectSkuOrderCount\":1,\"gmvAmount\":519.8000,\"attributedShoppableVideoGmv\":519.8000,\"videoGmv\":468.5100,\"orderCnt\":9,\"soldQty\":9,\"attributedSoldQuantity\":10,\"indirectSoldQuantity\":1,\"indirectGmv\":51.2900,\"gpm\":36.3319,\"videoClickRate\":0.0303,\"videoClickToOrderConvertRate\":0.0222,\"ordered\":true,\"adVideo\":false,\"firstGmvDate\":\"2026-09-11\",\"sampleAttributionTag\":null,\"relationAttributionTag\":null,\"realShotVideo\":true,\"aiVideo\":false,\"ipVideo\":false,\"talkVideo\":false,\"ownerBusiness\":\"魏芷颖\",\"authCode\":\"0\",\"videoColorName\":\"亮蓝色\",\"sampleBusiness\":\"\",\"editorName\":null,\"editorAssistant\":null,\"directorName\":null,\"modelName\":null,\"modelGender\":null,\"displayColor\":\"\",\"scriptType\":null,\"crossRegion\":null,\"remark\":null,\"updatedTime\":\"2026-09-23 10:45:58\"}]}}"
+          }
+        ],
+        "isError": false
+      }
+    },
+    {
+      "key": "w0199_creative_corrected",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ]
+        },
+        "page": 1,
+        "page_size": 5
+      },
+      "collected_at": "2026-09-23T05:37:38.249Z",
+      "range_note": "字段抽样；9/22在广告账户业务时区尚未结束，不作为完整日对比",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"message\":\"OK\",\"request_id\":\"20260923133738B5F71A46DAF7DA25A473\",\"data\":{\"list\":[{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7594773703443926285\"},\"metrics\":{\"cost\":\"0.00\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"}},{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7598880752750660877\"},\"metrics\":{\"cost\":\"0.00\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"}},{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7587330050974944542\"},\"metrics\":{\"cost\":\"0.00\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"}},{\"metrics\":{\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\",\"cost\":\"0.00\"},\"dimensions\":{\"item_id\":\"7613346058848046367\",\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\"}},{\"dimensions\":{\"item_id\":\"7595139551622860087\",\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\"},\"metrics\":{\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\",\"cost\":\"0.00\"}}],\"page_info\":{\"page\":1,\"page_size\":5,\"total_number\":997,\"total_page\":200}},\"code\":0}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_campaign_detail",
+      "tool": "mcp__tiktok_ads_read__campaign_gmv_max_info_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "campaign_id": "1877016135107762"
+      },
+      "collected_at": "2026-09-23T05:37:50.738Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"request_id\":\"2026092313375079B7681168AD279537E6\",\"data\":{\"accelerate_testing_for_new_videos\":\"OFF\",\"age_groups\":[\"AGE_18_24\",\"AGE_25_34\",\"AGE_35_44\",\"AGE_45_54\",\"AGE_55_100\"],\"product_specific_type\":\"CUSTOMIZED_PRODUCTS\",\"advertiser_id\":\"7458490220338511873\",\"auto_budget\":{\"remained_times\":0,\"auto_budget_enabled\":true,\"budget_increase_percentage\":50,\"current_budget\":10,\"increase_limit\":10,\"maximum_budget\":60,\"next_increase\":0},\"billing_event\":\"OCPM\",\"identity_list\":[{\"identity_id\":\"7670440110739145741\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7478263820134827051\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7631052079893349389\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7657062369784546317\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\",\"identity_id\":\"7597331798162998285\"},{\"identity_id\":\"7661836181289567246\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"store_id\":\"7495432785128294757\",\"identity_id\":\"7543137593636291598\",\"identity_type\":\"TTS_TT\"},{\"identity_id\":\"7540873096112423950\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7649279075828614157\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7638842008547755022\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7649294298961331214\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7598024598869902350\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7618152553487303694\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7545677513269052429\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7649279080547009549\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7682636916839580685\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7670426023124812813\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7641135923157615629\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"identity_id\":\"7597288260062970935\",\"identity_type\":\"TTS_TT\",\"store_id\":\"7495432785128294757\"},{\"store_id\":\"7495432785128294757\",\"identity_id\":\"7688178642329535501\",\"identity_type\":\"TTS_TT\"},{\"identity_authorized_bc_id\":\"7481123289583288337\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"86515cf9-10f0-5c34-a3cc-101e7c53a6df\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"f6aecda0-e047-5bef-8060-d1d2654eee4d\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"c318640a-8e07-505d-af70-c5bad760dc50\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_id\":\"a46328f9-5cc6-5f21-9100-607c0b6220aa\",\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"bff8a327-a71a-525a-9a71-8007218ec42b\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_id\":\"a3fe5424-e42b-5102-9d02-42ae23e8c3f9\",\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\"},{\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"2e912a43-ff2a-5b2d-8254-03d6df02e0f6\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"e1219d12-d4f7-55ce-856b-1c6cabbb6452\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"2cab75f3-f13e-5bcf-aeef-b88cc059d651\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"758eeebe-5005-5d56-b811-00850de153ec\"},{\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"ab91d434-db24-5f9c-9ed3-c057b8752633\",\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"3540cad4-c2be-516c-8fac-39e949d1adc7\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"f41df588-cf4a-5ade-ad62-1c8ca5e21d89\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"f2b0a295-e2e4-5d42-a52f-336cc8b8a653\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_id\":\"a01fa09d-2791-5e9c-9251-c2f1183eca82\",\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"57a552e6-d97a-584d-9709-d66a9ceac39c\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"25080cf9-e379-5768-a4c7-0881c8418a89\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"a2b0a86a-c193-56c4-b568-105d6e128ce3\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"ee5a4363-8369-5781-bc30-f2da2d8affd8\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"b62b9733-bb9c-5dad-8783-5764ba6f9203\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"d15e4877-c00e-5a27-a261-f3e8fbe384fd\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"38e20866-b8c6-53a2-ac1f-89f440ae64ed\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"7325a6ef-1cf1-5ec0-9618-81ae8fc8cd15\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"b42e3a8b-0c5a-5208-b7e2-7cfc05c14e3b\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_type\":\"BC_AUTH_TT\",\"identity_authorized_bc_id\":\"7481123289583288337\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"bfdcc705-c962-5bfa-b391-ff18cda04ee6\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"ed6efca2-cc03-52a4-8ef0-bd269d827674\",\"identity_type\":\"BC_AUTH_TT\"},{\"identity_authorized_bc_id\":\"7342337793537982466\",\"identity_authorized_shop_id\":\"7495432785128294757\",\"identity_id\":\"a6bb6acd-2edc-5436-b19e-f4e91cbc489f\",\"identity_type\":\"BC_AUTH_TT\"}],\"location_ids\":[\"6252001\"],\"placements\":[\"PLACEMENT_TIKTOK\"],\"store_id\":\"7495432785128294757\",\"affiliate_posts_enabled\":true,\"promotion_days\":{\"custom_schedule_list\":[],\"is_enabled\":false},\"roi_protection_enabled\":true,\"schedule_start_time\":\"2026-09-22 07:43:05\",\"budget\":10,\"item_list\":[],\"campaign_name\":\"AL-W0199-1730564893724676453\",\"custom_anchor_video_list\":[],\"deep_bid_type\":\"VO_MIN_ROAS\",\"shopping_ads_type\":\"PRODUCT\",\"auto_budget_enabled\":true,\"campaign_id\":\"1877016135107762\",\"item_group_ids\":[\"1730564893724676453\"],\"operation_status\":\"ENABLE\",\"optimization_goal\":\"VALUE\",\"roas_bid\":10,\"schedule_type\":\"SCHEDULE_FROM_NOW\",\"product_video_specific_type\":\"AUTO_SELECTION\",\"schedule_end_time\":\"2036-09-19 07:43:05\",\"store_authorized_bc_id\":\"7342337793537982466\"},\"code\":0,\"message\":\"OK\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_state_DELIVERING",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ],
+          "creative_delivery_statuses": [
+            "DELIVERING"
+          ]
+        },
+        "page": 1,
+        "page_size": 3
+      },
+      "collected_at": "2026-09-23T05:37:51.107Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"data\":{\"page_info\":{\"page\":1,\"page_size\":3,\"total_number\":0,\"total_page\":0},\"list\":[]},\"code\":0,\"message\":\"OK\",\"request_id\":\"2026092313375103C1383A87B0624C9F70\"}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_state_LEARNING",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ],
+          "creative_delivery_statuses": [
+            "LEARNING"
+          ]
+        },
+        "page": 1,
+        "page_size": 3
+      },
+      "collected_at": "2026-09-23T05:37:50.468Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"message\":\"OK\",\"request_id\":\"2026092313375076C358F66C7086F8C247\",\"data\":{\"list\":[{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7686642506217311501\"},\"metrics\":{\"cost\":\"5.76\",\"currency\":\"USD\",\"gross_revenue\":\"0.00\",\"orders\":\"0\"}},{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7682504617925577998\"},\"metrics\":{\"cost\":\"1.43\",\"currency\":\"USD\",\"gross_revenue\":\"221.96\",\"orders\":\"4\"}},{\"dimensions\":{\"campaign_id\":\"1877016135107762\",\"item_group_id\":\"1730564893724676453\",\"item_id\":\"7681096365748800781\"},\"metrics\":{\"currency\":\"USD\",\"gross_revenue\":\"107.98\",\"orders\":\"2\",\"cost\":\"0.04\"}}],\"page_info\":{\"page\":1,\"page_size\":3,\"total_number\":13,\"total_page\":5}},\"code\":0}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_state_IN_QUEUE",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ],
+          "creative_delivery_statuses": [
+            "IN_QUEUE"
+          ]
+        },
+        "page": 1,
+        "page_size": 3
+      },
+      "collected_at": "2026-09-23T05:37:50.990Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "{\"code\":0,\"message\":\"OK\",\"request_id\":\"20260923133751BDBE4B520B2843048C4D\",\"data\":{\"list\":[],\"page_info\":{\"page_size\":3,\"total_number\":0,\"total_page\":0,\"page\":1}}}"
+          }
+        ]
+      }
+    },
+    {
+      "key": "w0199_state_AUTHORIZATION_NEEDED",
+      "tool": "mcp__tiktok_ads_read__gmv_max_report_get",
+      "args": {
+        "advertiser_id": "7458490220338511873",
+        "store_ids": [
+          "7495432785128294757"
+        ],
+        "start_date": "2026-09-01",
+        "end_date": "2026-09-22",
+        "dimensions": [
+          "campaign_id",
+          "item_group_id",
+          "item_id"
+        ],
+        "metrics": [
+          "cost",
+          "orders",
+          "gross_revenue"
+        ],
+        "filtering": {
+          "campaign_ids": [
+            "1877016135107762"
+          ],
+          "item_group_ids": [
+            "1730564893724676453"
+          ],
+          "creative_delivery_statuses": [
+            "AUTHORIZATION_NEEDED"
+          ]
+        },
+        "page": 1,
+        "page_size": 3
+      },
+      "collected_at": "2026-09-23T05:37:50.912Z",
+      "result": {
+        "content": [
+          {
+            "type": "text",
+            "text": "rate limit exceeded"
+          }
+        ],
+        "isError": true
+      }
+    }
+  ]
+}

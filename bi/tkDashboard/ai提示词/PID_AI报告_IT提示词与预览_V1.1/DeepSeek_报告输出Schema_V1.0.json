@@ -1,0 +1,403 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PID AI report analysis v1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "report_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "data_status": {
+      "enum": [
+        "sufficient",
+        "partial",
+        "insufficient"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "headline": {
+          "$ref": "#/$defs/claim"
+        },
+        "sales": {
+          "$ref": "#/$defs/claim"
+        },
+        "inventory": {
+          "$ref": "#/$defs/claim"
+        },
+        "material_supply": {
+          "$ref": "#/$defs/claim"
+        },
+        "advertising": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "direction": {
+              "enum": [
+                "有条件放量",
+                "小步测试",
+                "维持",
+                "缩量",
+                "待核实"
+              ]
+            },
+            "reason": {
+              "$ref": "#/$defs/claim"
+            },
+            "preconditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "review_conditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "stop_conditions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "direction",
+            "reason",
+            "preconditions",
+            "review_conditions",
+            "stop_conditions"
+          ]
+        }
+      },
+      "required": [
+        "headline",
+        "sales",
+        "inventory",
+        "material_supply",
+        "advertising"
+      ]
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "enum": [
+              "sales_channels",
+              "inventory_replenishment",
+              "advertising",
+              "material_supply",
+              "old_material_recovery",
+              "data_sources"
+            ]
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "available",
+              "partial",
+              "unavailable"
+            ]
+          },
+          "findings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/claim"
+            }
+          },
+          "evidence_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "findings",
+          "evidence_ids"
+        ]
+      },
+      "minItems": 6,
+      "maxItems": 6
+    },
+    "boost_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "candidate_type": {
+            "enum": [
+              "已验证素材",
+              "新素材测试"
+            ]
+          },
+          "pid": {
+            "type": "string"
+          },
+          "video_id": {
+            "type": "string"
+          },
+          "video_url": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "team": {
+            "enum": [
+              "商务",
+              "剪辑",
+              "待归属"
+            ]
+          },
+          "readiness": {
+            "enum": [
+              "可供人工评估",
+              "条件候选"
+            ]
+          },
+          "reason": {
+            "$ref": "#/$defs/claim"
+          },
+          "preconditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "candidate_type",
+          "pid",
+          "video_id",
+          "video_url",
+          "team",
+          "readiness",
+          "reason",
+          "preconditions",
+          "review_conditions"
+        ]
+      }
+    },
+    "boost_candidates_status": {
+      "enum": [
+        "有候选",
+        "无合适候选",
+        "数据不足"
+      ]
+    },
+    "priority_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "role": {
+            "enum": [
+              "运营",
+              "剪辑",
+              "商务",
+              "供应链"
+            ]
+          },
+          "priority": {
+            "enum": [
+              "优先",
+              "随后",
+              "持续观察"
+            ]
+          },
+          "action": {
+            "type": "string"
+          },
+          "reason": {
+            "$ref": "#/$defs/claim"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_conditions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "role",
+          "priority",
+          "action",
+          "reason",
+          "dependencies",
+          "review_conditions"
+        ]
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "module": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          },
+          "impact": {
+            "type": "string"
+          },
+          "required_data": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "module",
+          "issue",
+          "impact",
+          "required_data"
+        ]
+      }
+    }
+  },
+  "required": [
+    "report_id",
+    "data_status",
+    "summary",
+    "sections",
+    "boost_candidates",
+    "boost_candidates_status",
+    "priority_actions",
+    "limitations"
+  ],
+  "$defs": {
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "text": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "事实",
+            "计算结果",
+            "支持性推断",
+            "待核实"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "metric_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "entity_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "window_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "text",
+        "kind",
+        "evidence_ids",
+        "metric_ids",
+        "entity_ids",
+        "window_ids",
+        "limitations"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "enum": [
+                  "事实",
+                  "计算结果"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "evidence_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "待核实"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>寄样维护</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; --accent:#0d9488; --accent-dark:#0f766e; --danger:#dc2626; --warning:#d97706; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:20px; background:var(--bg); color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; }
+    button,input,select { font:inherit; }
+    .container { max-width:1440px; margin:0 auto; }
+    .topbar,.query-card,.table-card,.content-note { background:var(--card); border:1px solid var(--border); border-radius:8px; }
+    .topbar { min-height:76px; padding:16px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; }
+    .title-wrap,.toolbar,.query-row,.query-actions,.summary,.drawer-head,.drawer-actions,.inline-two { display:flex; align-items:center; }
+    .title-wrap { gap:12px; }
+    .title-icon { display:grid; place-items:center; width:38px; height:38px; color:#fff; background:var(--accent); border-radius:8px; }
+    .title-icon svg { width:21px; height:21px; }
+    h1 { margin:0; font-size:20px; font-weight:600; }
+    .record-count { margin-top:2px; color:var(--muted); font-size:13px; }
+    .toolbar { gap:8px; flex-wrap:wrap; }
+    .btn { min-height:32px; padding:0 12px; border:1px solid transparent; border-radius:4px; cursor:pointer; transition:.15s; white-space:nowrap; }
+    .btn:hover { filter:brightness(.97); }
+    .btn-query { background:var(--accent); color:#fff; }
+    .btn-query:hover { background:var(--accent-dark); }
+    .btn-light { background:#fff; color:#374151; border-color:#d1d5db; }
+    .btn-danger { color:var(--danger); background:#fff; border-color:#fecaca; }
+    .query-card { margin-top:16px; padding:16px; }
+    .query-row { gap:10px; flex-wrap:wrap; }
+    .query-item { display:flex; align-items:center; gap:6px; min-height:32px; }
+    .query-item select,.query-item input,.field input,.field select { height:32px; padding:0 9px; color:var(--text); background:#fff; border:1px solid #d1d5db; border-radius:4px; outline:none; }
+    .query-item select:focus,.query-item input:focus,.field input:focus,.field select:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(13,148,136,.12); }
+    .date-range input { width:135px; }.search-input { width:180px; }.query-actions { gap:8px; margin-left:auto; }
+    .summary { gap:20px; padding:12px 2px; color:var(--muted); }.summary strong { color:var(--text); }.summary .repeated strong { color:var(--warning); }
+    .table-card { overflow:hidden; }.table-wrap { overflow:auto; }
+    table { width:100%; min-width:1040px; border-collapse:collapse; }
+    th,td { height:46px; padding:8px 12px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+    th { height:42px; color:#4b5563; background:#f9fafb; font-weight:500; }
+    tbody tr:hover { background:#f0fdfa; } tbody tr:last-child td { border-bottom:0; }
+    .tag { display:inline-flex; align-items:center; min-width:40px; height:22px; padding:0 7px; border-radius:4px; font-size:12px; }
+    .tag-yes { color:#b45309; background:#fffbeb; }.tag-no { color:#047857; background:#ecfdf5; }.tag-pending { color:#6b7280; background:#f3f4f6; }
+    .link { color:var(--accent); text-decoration:none; cursor:pointer; }.link:hover { text-decoration:underline; }
+    .table-action { padding:0; border:0; color:var(--accent); background:transparent; cursor:pointer; }.table-action + .table-action { margin-left:12px; }.table-action.delete { color:var(--danger); }
+    .pager { display:flex; align-items:center; justify-content:flex-end; gap:8px; padding:14px 16px; color:var(--muted); }.pager button { width:30px; height:30px; border:1px solid var(--border); border-radius:4px; background:#fff; color:#374151; cursor:pointer; }.pager button:disabled { color:#c4c8cf; cursor:not-allowed; }.pager .active { color:#fff; background:var(--accent); border-color:var(--accent); }
+    .content-note { margin-top:16px; padding:18px 20px; color:#4b5563; }.content-note h2 { margin:0 0 8px; font-size:15px; color:var(--text); }.content-note p { margin:5px 0; }.content-note code { padding:1px 4px; background:#f3f4f6; border-radius:3px; }
+    .mask { position:fixed; inset:0; display:none; background:rgba(17,24,39,.34); z-index:10; }.mask.show { display:block; }
+    .drawer { position:fixed; top:0; right:-560px; z-index:11; width:min(520px,100vw); height:100vh; display:flex; flex-direction:column; background:#fff; box-shadow:-8px 0 24px rgba(15,23,42,.15); transition:right .2s; }.drawer.show { right:0; }
+    .drawer-head { min-height:62px; padding:0 20px; justify-content:space-between; border-bottom:1px solid var(--border); }.drawer-title { font-size:17px; font-weight:600; }.close { width:30px; height:30px; border:0; color:#6b7280; background:transparent; font-size:25px; cursor:pointer; }
+    .drawer-body { flex:1; overflow:auto; padding:20px; }.form-section + .form-section { margin-top:20px; }.section-title { margin:0 0 14px; padding-left:9px; border-left:3px solid var(--accent); font-size:15px; }.field { margin-bottom:15px; }.field label { display:block; margin-bottom:6px; color:#374151; }.required::before { content:"*"; margin-right:4px; color:var(--danger); }.field input,.field select { width:100%; }.field-hint { margin-top:5px; color:var(--muted); font-size:12px; }.readonly { color:#6b7280!important; background:#f9fafb!important; }.drawer-actions { justify-content:flex-end; gap:8px; padding:14px 20px; border-top:1px solid var(--border); }
+    .toast { position:fixed; left:50%; bottom:28px; z-index:20; transform:translate(-50%,20px); opacity:0; padding:9px 16px; color:#fff; background:#1f2937; border-radius:4px; pointer-events:none; transition:.2s; }.toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:900px) { body { padding:12px; }.topbar { align-items:flex-start; flex-direction:column; }.query-actions { width:100%; margin-left:0; }.date-range input,.search-input { width:calc(50vw - 38px); }.summary { flex-wrap:wrap; }.drawer { width:100%; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <div class="title-wrap">
+        <span class="title-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h9l3 3v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5Z"/><path d="M8 11h8M8 15h8M8 7h3"/></svg></span>
+        <div><h1>寄样维护</h1><div class="record-count">共 <strong id="topTotal">0</strong> 条记录</div></div>
+      </div>
+      <div class="toolbar"><button class="btn btn-query" id="addBtn">新增记录</button></div>
+    </header>
+
+    <section class="query-card" aria-label="筛选条件">
+      <div class="query-row">
+        <div class="query-item date-range"><span>寄样时间</span><input id="startDate" type="date" aria-label="寄样开始时间"/><span>至</span><input id="endDate" type="date" aria-label="寄样结束时间"/></div>
+        <div class="query-item"><input class="search-input" id="creatorFilter" placeholder="达人昵称" aria-label="达人昵称" /></div>
+        <div class="query-item"><select id="ownerFilter" aria-label="寄样商务"><option value="">全部寄样商务</option><option>张安妮</option><option>王博</option><option>刘佳</option><option>张大卫</option></select></div>
+        <div class="query-actions"><button class="btn btn-query" id="queryBtn">查询</button><button class="btn btn-light" id="resetBtn">重置</button></div>
+      </div>
+    </section>
+
+    <div class="summary"><span>当前结果 <strong id="resultCount">0</strong> 条</span><span class="repeated">重复记录 <strong id="repeatCount">0</strong> 条</span></div>
+
+    <section class="table-card">
+      <div class="table-wrap"><table>
+        <thead><tr><th>序号</th><th>达人昵称</th><th>寄样时间（北京时间）</th><th>寄样商务</th><th>是否重复</th><th>是否寄样</th><th>寄样订单链接</th><th>更新时间</th><th>操作</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table></div>
+      <div class="pager" id="pager"></div>
+    </section>
+
+    <section class="content-note">
+      <h2>内容说明</h2>
+      <p>达人昵称、寄样时间（北京时间）、寄样商务、是否寄样和第三方寄样订单链接由业务人员维护。</p>
+      <p>“是否重复”由后端以“达人昵称 + 寄样订单链接”计算；本原型仅展示演示返回值，保存后应以接口返回结果为准。</p>
+      <p>寄样订单链接跳转至第三方订单系统，新标签页打开；当前原型不解析外部订单数据。</p>
+    </section>
+  </main>
+
+  <div class="mask" id="mask"></div>
+  <aside class="drawer" id="drawer" aria-label="寄样维护编辑抽屉">
+    <div class="drawer-head"><span class="drawer-title" id="drawerTitle">新增寄样维护</span><button class="close" id="closeBtn" aria-label="关闭">×</button></div>
+    <div class="drawer-body">
+      <section class="form-section"><h2 class="section-title">寄样信息</h2>
+        <div class="field"><label class="required">达人昵称</label><input id="formCreator" placeholder="请输入达人昵称" /></div>
+        <div class="field"><label class="required">寄样时间（北京时间）</label><input id="formTime" type="datetime-local" /></div>
+        <div class="field"><label class="required">寄样商务</label><select id="formOwner"><option value="">请选择</option><option>张安妮</option><option>王博</option><option>刘佳</option><option>张大卫</option></select></div>
+        <div class="field"><label class="required">是否寄样</label><select id="formSampled"><option value="true">是</option><option value="false">否</option></select></div>
+        <div class="field"><label class="required">寄样订单链接</label><input id="formLink" type="url" placeholder="https://" /><div class="field-hint">保存前校验 http/https 地址</div></div>
+      </section>
+      <section class="form-section"><h2 class="section-title">系统计算</h2>
+        <div class="field"><label>是否重复</label><input id="formRepeated" class="readonly" readonly value="由后端计算" /><div class="field-hint">判定键：标准化后的达人昵称 + 寄样订单链接。</div></div>
+      </section>
+    </div>
+    <div class="drawer-actions"><button class="btn btn-light" id="cancelBtn">取消</button><button class="btn btn-query" id="saveBtn">保存</button></div>
+  </aside>
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var records = [
+        { id:'sample-001', creator:'FashionQueen_Sarah', time:'2026-09-28T10:30', owner:'张安妮', repeated:true, sampled:true, link:'https://third-party.example.com/sample/JJ-2026-001201', updated:'2026-09-28 10:38:12' },
+        { id:'sample-002', creator:'OutdoorVibes_Mike', time:'2026-09-27T15:20', owner:'王博', repeated:false, sampled:true, link:'https://third-party.example.com/sample/JJ-2026-001202', updated:'2026-09-27 15:22:46' },
+        { id:'sample-003', creator:'HomeDecor_Emma', time:'2026-09-26T09:15', owner:'刘佳', repeated:false, sampled:false, link:'https://third-party.example.com/sample/JJ-2026-001203', updated:'2026-09-26 09:20:08' },
+        { id:'sample-004', creator:'FashionQueen_Sarah', time:'2026-09-25T18:00', owner:'张安妮', repeated:true, sampled:true, link:'https://third-party.example.com/sample/JJ-2026-001201', updated:'2026-09-25 18:02:31' },
+        { id:'sample-005', creator:'TechGadget_Leo', time:'2026-09-24T11:40', owner:'张大卫', repeated:false, sampled:true, link:'https://third-party.example.com/sample/JJ-2026-001204', updated:'2026-09-24 11:41:13' }
+      ];
+      var currentPage = 1, pageSize = 5, editingId = null;
+      var rows = document.getElementById('rows'), pager = document.getElementById('pager'), mask = document.getElementById('mask'), drawer = document.getElementById('drawer');
+      function esc(value) { return String(value == null ? '' : value).replace(/[&<>'"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]; }); }
+      function formatTime(value) { return value ? value.replace('T', ' ') : ''; }
+      function filtered() {
+        var start = document.getElementById('startDate').value, end = document.getElementById('endDate').value, creator = document.getElementById('creatorFilter').value.trim().toLowerCase(), owner = document.getElementById('ownerFilter').value;
+        return records.filter(function (item) { var date = item.time.slice(0,10); return (!start || date >= start) && (!end || date <= end) && (!creator || item.creator.toLowerCase().indexOf(creator) > -1) && (!owner || item.owner === owner); });
+      }
+      function render() {
+        var data = filtered(), totalPages = Math.max(1, Math.ceil(data.length / pageSize)); if (currentPage > totalPages) currentPage = totalPages;
+        var current = data.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+        rows.innerHTML = current.length ? current.map(function (item, index) {
+          var repeated = item.repeated === true ? '<span class="tag tag-yes">是</span>' : item.repeated === false ? '<span class="tag tag-no">否</span>' : '<span class="tag tag-pending">待计算</span>';
+          return '<tr><td>' + ((currentPage - 1) * pageSize + index + 1) + '</td><td>' + esc(item.creator) + '</td><td>' + esc(formatTime(item.time)) + '</td><td>' + esc(item.owner) + '</td><td>' + repeated + '</td><td><span class="tag ' + (item.sampled ? 'tag-no' : 'tag-pending') + '">' + (item.sampled ? '是' : '否') + '</span></td><td><a class="link" data-link="' + esc(item.link) + '">查看订单</a></td><td>' + esc(item.updated) + '</td><td><button class="table-action" data-edit="' + esc(item.id) + '">编辑</button><button class="table-action delete" data-delete="' + esc(item.id) + '">删除</button></td></tr>';
+        }).join('') : '<tr><td colspan="9" style="text-align:center;color:#9ca3af">暂无寄样维护记录</td></tr>';
+        document.getElementById('topTotal').textContent = records.length; document.getElementById('resultCount').textContent = data.length; document.getElementById('repeatCount').textContent = data.filter(function (item) { return item.repeated === true; }).length;
+        pager.innerHTML = '<span>共 ' + data.length + ' 条</span><button ' + (currentPage === 1 ? 'disabled' : '') + ' data-page="prev">‹</button><button class="active">' + currentPage + '</button><button ' + (currentPage === totalPages ? 'disabled' : '') + ' data-page="next">›</button>';
+      }
+      function openDrawer(record) { editingId = record ? record.id : null; document.getElementById('drawerTitle').textContent = record ? '编辑寄样维护' : '新增寄样维护'; document.getElementById('formCreator').value = record ? record.creator : ''; document.getElementById('formTime').value = record ? record.time : ''; document.getElementById('formOwner').value = record ? record.owner : ''; document.getElementById('formSampled').value = record ? String(record.sampled) : 'true'; document.getElementById('formLink').value = record ? record.link : ''; document.getElementById('formRepeated').value = record ? (record.repeated === true ? '是（后端计算）' : record.repeated === false ? '否（后端计算）' : '待后端计算') : '由后端计算'; mask.classList.add('show'); drawer.classList.add('show'); }
+      function closeDrawer() { mask.classList.remove('show'); drawer.classList.remove('show'); editingId = null; }
+      function toast(message) { var node = document.getElementById('toast'); node.textContent = message; node.classList.add('show'); window.setTimeout(function () { node.classList.remove('show'); }, 2400); }
+      document.getElementById('addBtn').onclick = function () { openDrawer(null); }; document.getElementById('closeBtn').onclick = closeDrawer; document.getElementById('cancelBtn').onclick = closeDrawer; mask.onclick = closeDrawer;
+      document.getElementById('queryBtn').onclick = function () { currentPage = 1; render(); }; document.getElementById('resetBtn').onclick = function () { document.getElementById('startDate').value = ''; document.getElementById('endDate').value = ''; document.getElementById('creatorFilter').value = ''; document.getElementById('ownerFilter').value = ''; currentPage = 1; render(); };
+      document.getElementById('saveBtn').onclick = function () { var creator = document.getElementById('formCreator').value.trim(), time = document.getElementById('formTime').value, owner = document.getElementById('formOwner').value, sampled = document.getElementById('formSampled').value === 'true', link = document.getElementById('formLink').value.trim(); if (!creator || !time || !owner || !link) { toast('请填写全部必填字段'); return; } try { var url = new URL(link); if (url.protocol !== 'http:' && url.protocol !== 'https:') throw new Error(); } catch (e) { toast('请输入合法的 http/https 寄样订单链接'); return; } var now = new Date().toISOString().slice(0,19).replace('T',' '); if (editingId) { var item = records.filter(function (record) { return record.id === editingId; })[0]; item.creator = creator; item.time = time; item.owner = owner; item.sampled = sampled; item.link = link; item.updated = now; item.repeated = null; } else { records.unshift({ id:'sample-' + Date.now(), creator:creator, time:time, owner:owner, sampled:sampled, link:link, repeated:null, updated:now }); } closeDrawer(); render(); toast('原型已保存，是否重复需以后端接口返回结果为准'); };
+      rows.onclick = function (event) { var target = event.target, id = target.getAttribute('data-edit'), deleteId = target.getAttribute('data-delete'), link = target.getAttribute('data-link'); if (id) openDrawer(records.filter(function (item) { return item.id === id; })[0]); if (deleteId && window.confirm('确定删除该寄样维护记录吗？')) { records = records.filter(function (item) { return item.id !== deleteId; }); render(); toast('原型记录已删除'); } if (link) window.open(link, '_blank', 'noopener'); };
+      pager.onclick = function (event) { var action = event.target.getAttribute('data-page'); if (action === 'prev') currentPage--; if (action === 'next') currentPage++; render(); };
+      render();
+    }());
+  </script>
+</body>
+</html>
