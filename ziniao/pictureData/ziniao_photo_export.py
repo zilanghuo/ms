@@ -7,6 +7,7 @@ import argparse
 import json
 import time
 import uuid
+from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,22 @@ PHOTO_DETAILS_URL = (
 DEFAULT_UPLOAD_ENDPOINT = "http://124.71.66.128:9210/tk/temp/excel/import/example"
 
 
+@dataclass(frozen=True)
+class ShopConfig:
+    """一次导出任务对应的紫鸟店铺及归档文件名前缀。"""
+
+    label: str
+    browser_name: str | None = None
+    browser_id: str | None = None
+
+
+SHOP_CONFIGS = (
+    ShopConfig("1店", browser_name="美国TK-艾斯特尼-美区跨境1店"),
+    ShopConfig("3店", browser_name="美国TK-艾斯特尼-美区跨境3店（原大魔王）"),
+    ShopConfig("英国直邮店", browser_name="美国TK-艾斯特尼-英国直邮店"),
+)
+
+
 def parse_date(value: str | None) -> date:
     """返回指定的 ISO 日期；未指定时返回本机前两天。"""
     if value is None:
@@ -35,9 +52,43 @@ def parse_date(value: str | None) -> date:
     return date.fromisoformat(value)
 
 
+def iter_dates(start_date: date, end_date: date):
+    """按自然日正序遍历闭区间，并校验日期范围。"""
+    if start_date > end_date:
+        raise ValueError("开始日期不能晚于结束日期。")
+    current_date = start_date
+    while current_date <= end_date:
+        yield current_date
+        current_date += timedelta(days=1)
+
+
 def build_export_filename(shop_label: str, account_label: str, target_date: date) -> str:
     """生成稳定且便于归档的 Excel 文件名。"""
     return f"{shop_label}-{account_label}-{target_date:%Y%m%d}.xlsx"
+
+
+def validate_shop_arguments(
+    all_shops: bool,
+    browser_id: str | None,
+    browser_name: str | None,
+    shop_label: str | None,
+) -> None:
+    """避免三店模式和单店定位参数同时出现。"""
+    if all_shops and (browser_id or browser_name or shop_label):
+        raise ValueError("--all-shops 不能与 --browser-id、--browser-name 或 --shop-label 同时使用。")
+
+
+def select_shops(
+    all_shops: bool,
+    browser_id: str | None,
+    browser_name: str | None,
+    shop_label: str | None,
+) -> tuple[ShopConfig, ...]:
+    """返回本轮执行的店铺清单；未启用三店模式时保持单店兼容。"""
+    validate_shop_arguments(all_shops, browser_id, browser_name, shop_label)
+    if all_shops:
+        return SHOP_CONFIGS
+    return (ShopConfig(shop_label or "1店", browser_name=browser_name, browser_id=browser_id),)
 
 
 def parse_upload_response(raw_response: str) -> dict[str, Any]:
@@ -141,6 +192,11 @@ def start_browser(api_base: str, credentials: dict[str, str], browser_id: str) -
     return extract_debug_port(response)
 
 
+def stop_browser(api_base: str, credentials: dict[str, str], browser_id: str) -> None:
+    """调用紫鸟接口关闭本次启动的店铺窗口。"""
+    ziniao_call(api_base, credentials, "stopBrowser", browserId=browser_id)
+
+
 def attach_driver(debug_port: int, chrome_driver_path: str) -> webdriver.Chrome:
     options = Options()
     options.add_experimental_option("debuggerAddress", f"127.0.0.1:{debug_port}")
@@ -201,8 +257,6 @@ def wait_and_rename_download(
 ) -> Path:
     """等待导出记录就绪，点击下载，并将本次 xlsx 以业务文件名归档。"""
     destination = download_dir / target_name
-    if destination.exists():
-        raise RuntimeError(f"目标文件已存在，拒绝覆盖：{destination}")
     deadline = time.monotonic() + timeout
     download_clicked = False
     while time.monotonic() < deadline:
@@ -210,7 +264,7 @@ def wait_and_rename_download(
         candidates = [path for path in download_dir.glob("*.xlsx") if path not in existing_files]
         if candidates and not partial:
             source = max(candidates, key=lambda path: path.stat().st_mtime)
-            source.rename(destination)
+            source.replace(destination)
             return destination
         if not download_clicked:
             download_buttons = driver.find_elements(
@@ -227,54 +281,113 @@ def wait_and_rename_download(
     raise RuntimeError(f"等待下载文件超时：{target_name}")
 
 
+def export_shop(
+    *,
+    api_base: str,
+    credentials: dict[str, str],
+    browser_list: list[dict[str, Any]],
+    shop: ShopConfig,
+    chrome_driver_path: str,
+    target_dates: list[date],
+    timeout: int,
+    download_dir: Path,
+    download_timeout: int,
+    upload_endpoint: str,
+    skip_upload: bool,
+    keep_browser_open: bool,
+) -> None:
+    """完成一间店铺的启动、导出、上传和关闭生命周期。"""
+    browser_id = resolve_browser_id(browser_list, shop.browser_id, shop.browser_name)
+    debug_port = start_browser(api_base, credentials, browser_id)
+    driver: webdriver.Chrome | None = None
+    try:
+        driver = attach_driver(debug_port, chrome_driver_path)
+        download_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            driver.execute_cdp_cmd(
+                "Browser.setDownloadBehavior",
+                {"behavior": "allow", "downloadPath": str(download_dir), "eventsEnabled": True},
+            )
+        except Exception:
+            driver.execute_cdp_cmd("Page.setDownloadBehavior", {"behavior": "allow", "downloadPath": str(download_dir)})
+        for target_date in target_dates:
+            driver.get(PHOTO_DETAILS_URL)
+            set_date_range(driver, target_date, timeout)
+            for account_label in ("已绑定账号", "联盟账号"):
+                existing_files = set(download_dir.glob("*.xlsx"))
+                export_account_type(driver, account_label, target_date, timeout)
+                saved_path = wait_and_rename_download(
+                    driver,
+                    download_dir,
+                    existing_files,
+                    build_export_filename(shop.label, account_label, target_date),
+                    download_timeout,
+                )
+                print(f"[{shop.label}] 已导出并重命名：{saved_path}")
+                if not skip_upload:
+                    upload_excel(upload_endpoint, saved_path)
+                    print(f"[{shop.label}] 已上传：{saved_path.name}")
+    finally:
+        try:
+            if driver is not None:
+                driver.quit()
+        finally:
+            if not keep_browser_open:
+                stop_browser(api_base, credentials, browser_id)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--credentials-file", required=True, type=Path)
     parser.add_argument("--browser-id")
     parser.add_argument("--browser-name")
-    parser.add_argument("--date", help="YYYY-MM-DD；默认前一天")
+    parser.add_argument("--all-shops", action="store_true", help="依次导出内置的三家店铺")
+    parser.add_argument("--date", help="YYYY-MM-DD；默认前两天。不能与日期范围参数同时使用")
+    parser.add_argument("--start-date", help="YYYY-MM-DD；日期范围开始（含）")
+    parser.add_argument("--end-date", help="YYYY-MM-DD；日期范围结束（含）")
     parser.add_argument("--api-base", default="http://127.0.0.1:18888")
     parser.add_argument("--chrome-driver", required=True)
     parser.add_argument("--timeout", type=int, default=30)
     parser.add_argument("--download-dir", type=Path, default=Path.home() / "Downloads")
     parser.add_argument("--download-timeout", type=int, default=120)
-    parser.add_argument("--shop-label", default="1店")
+    parser.add_argument("--shop-label", help="单店导出文件名前缀，默认 1店")
     parser.add_argument("--upload-endpoint", default=DEFAULT_UPLOAD_ENDPOINT)
     parser.add_argument("--skip-upload", action="store_true")
+    parser.add_argument("--keep-browser-open", action="store_true", help="执行完成后不调用紫鸟 stopBrowser")
     args = parser.parse_args()
-    target_date = parse_date(args.date)
+    if args.date and (args.start_date or args.end_date):
+        parser.error("--date 不能与 --start-date 或 --end-date 同时使用。")
+    if bool(args.start_date) != bool(args.end_date):
+        parser.error("--start-date 与 --end-date 必须同时传入。")
+    try:
+        target_dates = (
+            list(iter_dates(parse_date(args.start_date), parse_date(args.end_date)))
+            if args.start_date
+            else [parse_date(args.date)]
+        )
+    except ValueError as error:
+        parser.error(str(error))
+    try:
+        shops = select_shops(args.all_shops, args.browser_id, args.browser_name, args.shop_label)
+    except ValueError as error:
+        parser.error(str(error))
     credentials = read_credentials(args.credentials_file)
     browser_list = ziniao_call(args.api_base, credentials, "getBrowserList").get("browserList", [])
-    browser_id = resolve_browser_id(browser_list, args.browser_id, args.browser_name)
-    debug_port = start_browser(args.api_base, credentials, browser_id)
-    driver = attach_driver(debug_port, args.chrome_driver)
-    try:
-        args.download_dir.mkdir(parents=True, exist_ok=True)
-        try:
-            driver.execute_cdp_cmd(
-                "Browser.setDownloadBehavior",
-                {"behavior": "allow", "downloadPath": str(args.download_dir), "eventsEnabled": True},
-            )
-        except Exception:
-            driver.execute_cdp_cmd("Page.setDownloadBehavior", {"behavior": "allow", "downloadPath": str(args.download_dir)})
-        driver.get(PHOTO_DETAILS_URL)
-        set_date_range(driver, target_date, args.timeout)
-        for account_label in ("已绑定账号", "联盟账号"):
-            existing_files = set(args.download_dir.glob("*.xlsx"))
-            export_account_type(driver, account_label, target_date, args.timeout)
-            saved_path = wait_and_rename_download(
-                driver,
-                args.download_dir,
-                existing_files,
-                build_export_filename(args.shop_label, account_label, target_date),
-                args.download_timeout,
-            )
-            print(f"已导出并重命名：{saved_path}")
-            if not args.skip_upload:
-                upload_excel(args.upload_endpoint, saved_path)
-                print(f"已上传：{saved_path.name}")
-    finally:
-        driver.quit()
+    for shop in shops:
+        export_shop(
+            api_base=args.api_base,
+            credentials=credentials,
+            browser_list=browser_list,
+            shop=shop,
+            chrome_driver_path=args.chrome_driver,
+            target_dates=target_dates,
+            timeout=args.timeout,
+            download_dir=args.download_dir,
+            download_timeout=args.download_timeout,
+            upload_endpoint=args.upload_endpoint,
+            skip_upload=args.skip_upload,
+            keep_browser_open=args.keep_browser_open,
+        )
     return 0
 
 
