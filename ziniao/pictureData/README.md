@@ -8,6 +8,7 @@
 - 目标店铺已人工完成登录；验证码、人机校验和风控验证不能由此脚本绕过。
 - Python 环境已安装 `selenium`。
 - ChromeDriver 与紫鸟浏览器内核版本匹配。
+- 脚本当前以无界面模式启动店铺浏览器，不显示窗口；执行结束后仍会关闭本次店铺浏览器。
 
 ## 凭据文件
 
@@ -59,7 +60,7 @@ python3 ziniao_photo_export.py \
 
 1. `1店`：美国TK-艾斯特尼-美区跨境1店
 2. `3店`：美国TK-艾斯特尼-美区跨境3店（原大魔王）
-3. `英国直邮店`：美国TK-艾斯特尼-英国直邮店
+3. `英国直邮店`：美国TK-艾斯特尼-英国直邮店（直接打开 GB 站点的照片详情页）
 
 三店按同一日期范围导出的示例：
 
@@ -79,6 +80,23 @@ python3 ziniao_photo_export.py \
 - `英国直邮店-已绑定账号-YYYYMMDD.xlsx`
 
 `--all-shops` 不能和单店定位参数 `--browser-id`、`--browser-name` 或 `--shop-label` 同时使用；未传 `--all-shops` 时，单店模式维持原有行为。
+
+### 交互式启动器
+
+日常执行可直接启动三店脚本；它会依次询问开始日期和结束日期（均为 `YYYY-MM-DD`，并包含结束日期），再调用 Python 进行导出、上传和关闭浏览器：
+
+```bash
+cd /Users/a1/Documents/Office/code/ms-proj/ziniao/pictureData
+sh run_all_shops.sh
+```
+
+启动器默认使用本机现有的虚拟环境、凭据文件与 ChromeDriver。若本机路径发生变更，可在启动时覆盖，而无需把凭据写入脚本：
+
+```bash
+ZINIAO_CREDENTIALS_FILE=/安全路径/ziniao-credentials.json \
+ZINIAO_PYTHON=/安全路径/venv/bin/python \
+sh run_all_shops.sh
+```
 
 也可用精确店铺名称匹配代替 `--browser-id`：
 

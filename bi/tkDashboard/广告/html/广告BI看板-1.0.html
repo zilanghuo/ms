@@ -1402,7 +1402,7 @@
     <h1 class="page-title">
       广告BI看板
       <span class="badge">Demo 1.0</span>
-      <span class="badge" id="pageSubtitle">先看项目全盘，再逐层定位广告、产品、素材与行动</span>
+      <span class="badge" id="pageSubtitle">先看项目全盘，再逐层定位广告、产品与素材表现</span>
     </h1>
 
     <div class="query-card">
@@ -1413,7 +1413,6 @@
           <button type="button" class="tab" role="tab" data-tab="spu" data-testid="tab-spu">SPU看板</button>
           <button type="button" class="tab" role="tab" data-tab="pid" data-testid="tab-pid">PID看板</button>
           <button type="button" class="tab" role="tab" data-tab="creative" data-testid="tab-creative">素材看板</button>
-          <button type="button" class="tab" role="tab" data-tab="action" data-testid="tab-action">行动点看板</button>
         </div>
         <div class="query-item">
           <span class="label">快捷日期</span>
@@ -1513,21 +1512,19 @@
 
     /* ---------- Mapping schemas: exact field order from the six-sheet workbook ---------- */
     const FIELD_SCHEMAS = {
-      project: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","规则版本","项目ID","项目名称","报告币种","汇率版本","纳入店铺数","纳入广告账户数","当前在投Campaign数","当前在投SPU数","当前在投PID数","高花费零单Campaign数","无投放Campaign数","项目成本","项目订单","项目收入","项目ROI","项目平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","其他不可用素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","衰退但可用素材数","正在加热素材量&比例","已加热素材量&比例","重新加热候选数","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率","样本成熟度","未关闭行动点数","高优先级行动点数","逾期行动点数","素材续期跟进数"],
-      campaign: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","规则版本","序号","开/关","Campaign ID","广告计划名称","推广类型","Campaign状态","状态截至日期","排期时间","效果目标","目标ROI","广告计划预算","平台建议","ROI保护","权益","有效升级功能","创意作品加热预算","成本","订单","收入","ROI","平均下单成本","商品曝光","商品点击","CTR","CVR","关联SPU数","关联PID数","关联PID列表","PID映射异常数","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","其他不可用素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","衰退但可用素材数","正在加热素材量&比例","已加热素材量&比例","重新加热候选数","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率","样本成熟度","经营标签","系统诊断","建议动作","未关闭行动点数"],
-      spu: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","规则版本","SPU","SPU中文名称","历史PID数","当前有效PID数","当前在投PID数","PID列表","PID映射异常数","历史Campaign数","当前在投Campaign数","最早投放日期","最近投放日期","SPU成本","SPU订单","SPU收入","SPUROI","SPU平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","其他不可用素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","衰退但可用素材数","正在加热素材量&比例","已加热素材量&比例","重新加热候选数","库存总数","热卖码断货占比","库存详情入口","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率","样本成熟度","经营标签","系统诊断","建议动作","未关闭行动点数"],
-      pid: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","规则版本","Product ID（PID）","主推SPU","主推SPU中文名称","PID映射状态","历史Campaign数","最早投放日期","最近投放日期","当前在投Campaign数","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","其他不可用素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","衰退但可用素材数","正在加热素材量&比例","已加热素材量&比例","重新加热候选数","PID累计成本","PID累计订单","PID累计收入","PID累计ROI","PID累计平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","层级金额差异","库存总数","热卖码断货占比","库存详情入口","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率","样本成熟度","经营标签","系统诊断","建议动作","未关闭行动点数"],
-      creative: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","规则版本","Video ID","Item ID","素材预览/封面","视频标题/文案","发布时间","发布年份","发布月份","关联Campaign数","关联Campaign列表","关联PID数","关联PID列表","多PID标记","PID映射异常数","Identity Type","Creator ID","Creator Name","素材类型","分类依据","匹配置信度","归属商务","归属剪辑","当前可用状态","不可用原因","授权/code状态","授权/code到期日","探索状态","平台表现标签","平台真实投放状态","平台状态中文释义","状态业务日期","状态抓取时间","加热情况","当前加热Session ID","最近加热开始时间","最近加热结束时间","历史加热次数","素材成本","素材订单","素材收入","素材ROI","素材平均下单成本","商品曝光","商品点击","CTR","CVR","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率","样本成熟度","内部经营判断","经营标签","系统诊断","建议动作","未关闭行动点数"],
-      action: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","抓取批次","数据完整性","规则版本","行动点ID","来源TAP","目标对象类型","目标对象ID","目标对象名称","触发时间","触发窗口开始日期","触发窗口结束日期","触发指标快照","触发状态快照","经营标签","系统诊断","建议动作","问题类型","优先级","任务状态","负责人","协同人","创建时间","截止日期","成功标准","回退条件","动作类型","动作时间","修改前值","修改后值","执行证据","外部任务ID/链接","复盘日期/窗口","复盘指标快照","复盘结果","最终决定","下次复查日期"]
+      project: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","项目ID","项目名称","报告币种","汇率版本","纳入店铺数","纳入广告账户数","当前在投Campaign数","当前在投SPU数","当前在投PID数","高花费零单Campaign数","无投放Campaign数","项目成本","项目订单","项目收入","项目ROI","项目平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","正在加热素材量&比例","已加热素材量&比例","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率"],
+      campaign: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","序号","开/关","Campaign ID","广告计划名称","推广类型","Campaign状态","状态截至日期","排期时间","目标ROI","广告计划预算","ROI保护","创意作品加热预算","成本","订单","收入","ROI","平均下单成本","商品曝光","商品点击","CTR","CVR","关联SPU数","关联PID数","关联PID列表","PID映射异常数","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","正在加热素材量&比例","已加热素材量&比例","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率"],
+      spu: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","SPU","SPU中文名称","历史PID数","当前有效PID数","当前在投PID数","PID列表","PID映射异常数","历史Campaign数","当前在投Campaign数","最早投放日期","最近投放日期","SPU成本","SPU订单","SPU收入","SPUROI","SPU平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","正在加热素材量&比例","已加热素材量&比例","库存总数","热卖码断货占比","库存详情入口","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率"],
+      pid: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","Product ID（PID）","主推SPU","主推SPU中文名称","PID映射状态","历史Campaign数","最早投放日期","最近投放日期","当前在投Campaign数","历史去重素材数","当前广告素材总量","当前可用素材数","过期素材数","探索中素材量&比例","已探索素材量&比例","探索状态待获取素材数","表现出色素材量&比例","正在加热素材量&比例","已加热素材量&比例","PID累计成本","PID累计订单","PID累计收入","PID累计ROI","PID累计平均下单成本","商品曝光","商品点击","CTR","CVR","全渠道总订单","财务GMV","ACoAS/广告费率","广告订单贡献率","层级金额差异","库存总数","热卖码断货占比","库存详情入口","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率"],
+      creative: ["更新时间","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","Shop ID","广告账户 ID","币种","抓取批次","数据完整性","Video ID","Item ID","素材预览/封面","视频标题/文案","发布时间","发布年份","发布月份","关联Campaign数","关联Campaign列表","关联PID数","关联PID列表","多PID标记","PID映射异常数","Identity Type","Creator ID","Creator Name","素材类型","分类依据","匹配置信度","归属商务","归属剪辑","授权/code状态","授权/code到期日","探索状态","平台表现标签","平台真实投放状态","平台状态中文释义","状态业务日期","状态抓取时间","加热情况","当前加热Session ID","最近加热开始时间","最近加热结束时间","历史加热次数","素材成本","素材订单","素材收入","素材ROI","素材平均下单成本","商品曝光","商品点击","CTR","CVR","昨日表现","近3日表现","近7日表现","前7日表现","成本变化率","订单变化率","收入变化率","ROI变化率"]
     };
 
     const TAB_META = {
-      project: { label: "项目总览", subtitle: "先看项目全盘，再逐层定位广告、产品、素材与行动", grain: "项目", total: 62, header: 16, analysis: 8, main: 38 },
+      project: { label: "项目总览", subtitle: "先看项目全盘，再逐层定位广告、产品与素材表现", grain: "项目", total: 54, header: 15, analysis: 8, main: 31 },
       campaign: { label: "Campaign看板", subtitle: "查看历史 Campaign 表现、产品关系、素材供给和下一动作", grain: "Campaign ID", total: 67, header: 12, analysis: 8, main: 47 },
       spu: { label: "SPU看板", subtitle: "按经营款式聚合 PID、历史 Campaign、素材与库存风险", grain: "店铺 + SPU", total: 65, header: 12, analysis: 8, main: 45 },
       pid: { label: "PID看板", subtitle: "按 Product ID 聚合全部历史 Campaign、素材与库存", grain: "店铺 + Product ID", total: 63, header: 12, analysis: 8, main: 43 },
-      creative: { label: "素材看板", subtitle: "按 Video ID 核对素材类型、归属、平台真实状态和动作", grain: "Video ID", total: 71, header: 12, analysis: 8, main: 51 },
-      action: { label: "行动点看板", subtitle: "把诊断转成可执行、可追踪、可复盘的任务", grain: "行动点 ID", total: 44, header: 11, analysis: 0, main: 33 }
+      creative: { label: "素材看板", subtitle: "按 Video ID 核对素材类型、归属、平台真实状态和广告表现", grain: "Video ID", total: 61, header: 11, analysis: 8, main: 42 }
     };
 
     const DATE_MODES = {
@@ -1535,23 +1532,20 @@
       campaign: [{value:"performance",label:"广告表现日期"},{value:"schedule",label:"投放排期日期"}],
       spu: [{value:"performance",label:"广告表现日期"}],
       pid: [{value:"performance",label:"广告表现日期"}],
-      creative: [{value:"performance",label:"广告表现日期"},{value:"published",label:"素材发布时间"},{value:"authDue",label:"授权到期日"}],
-      action: [{value:"triggered",label:"触发时间"},{value:"due",label:"截止日期"},{value:"review",label:"复盘日期"}]
+      creative: [{value:"performance",label:"广告表现日期"},{value:"published",label:"素材发布时间"},{value:"authDue",label:"授权到期日"}]
     };
 
     const TAB_FILTERS = {
       project: [
-        {key:"attentionType",label:"关注对象",options:[["all","全部对象"],["Campaign","Campaign"],["PID","PID"],["素材","素材"],["行动点","行动点"]]}
+        {key:"attentionType",label:"关注对象",options:[["all","全部对象"],["Campaign","Campaign"],["PID","PID"],["素材","素材"]]}
       ],
       campaign: [
         {key:"campaignStatus",label:"Campaign状态",options:[["all","全部状态"],["投放中","投放中"],["暂停","暂停"]]},
-        {key:"campaignType",label:"推广类型",options:[["all","全部类型"],["Product GMV Max","Product GMV Max"]]},
-        {key:"campaignTag",label:"经营标签",options:[["all","全部标签"],["稳定贡献","稳定贡献"],["素材衰退","素材衰退"],["季节返场候选","季节返场候选"],["新起量","新起量"],["观察中","观察中"]]}
+        {key:"campaignType",label:"推广类型",options:[["all","全部类型"],["Product GMV Max","Product GMV Max"]]}
       ],
       spu: [
         {key:"deliveryState",label:"投放状态",options:[["all","全部"],["active","当前在投"],["inactive","当前未投"]]},
-        {key:"inventoryRisk",label:"库存风险",options:[["all","全部"],["risk","热卖码断货≥30%"],["safe","热卖码断货<30%"]]},
-        {key:"businessTag",label:"经营标签",options:[["all","全部标签"],["稳定贡献","稳定贡献"],["库存风险","库存风险"],["季节返场","季节返场"]]}
+        {key:"inventoryRisk",label:"库存风险",options:[["all","全部"],["risk","热卖码断货≥30%"],["safe","热卖码断货<30%"]]}
       ],
       pid: [
         {key:"deliveryState",label:"投放状态",options:[["all","全部"],["active","当前在投"],["inactive","当前未投"]]},
@@ -1563,11 +1557,6 @@
         {key:"productColor",label:"主推颜色",options:[["all","全部颜色"],["黑色","黑色"],["灰色","灰色"],["红色","红色"],["咖色","咖色"],["白色","白色"]]},
         {key:"availability",label:"可用状态",options:[["all","全部"],["可用","可用"],["不可用","不可用"]]},
         {key:"creativeStage",label:"素材阶段",options:[["all","全部阶段"],["exploring","探索中"],["excellent","表现出色"],["heating","正在加热"],["expired","已过期"]]}
-      ],
-      action: [
-        {key:"priority",label:"优先级",options:[["all","全部"],["P0","P0"],["P1","P1"]]},
-        {key:"taskStatus",label:"任务状态",options:[["all","全部状态"],["待领取","待领取"],["进行中","进行中"],["等待素材","等待素材"],["已完成待复盘","已完成待复盘"],["已关闭","已关闭"]]},
-        {key:"actionType",label:"动作类型",options:[["all","全部动作"],["继续观察与复查","继续观察与复查"],["Campaign状态调整","Campaign状态调整"],["授权处理","授权处理"],["库存处理","库存处理"]]}
       ]
     };
 
@@ -1578,27 +1567,27 @@
     };
 
     const campaigns = [
-      { site:"US", store:"Sweet-US", id:"CAM-90512001", name:"W0169 Always-on GMV Max", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-06-15", end:"长期", goal:"GMV", target:8, budget:600, heatBudget:120, cost:564.32, orders:69, revenue:5170.40, impressions:148230, clicks:4812, spus:["W0169"], pids:["PID-741921"], materialCount:6, platformSuggest:"保持预算，观察素材衰退", roiProtection:"开启", benefit:"可用", upgrade:"有效", tag:"稳定贡献", diagnosis:"ROI高于目标，1条高效素材开始衰退；关联PID热卖码断货占比12%。", suggest:"维持预算；先补齐热卖码，再评估衰退素材重新加热。", openActions:1 },
-      { site:"US", store:"Sweet-US", id:"CAM-90512002", name:"W0181 Creator Growth", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-07-02", end:"长期", goal:"GMV", target:7, budget:420, heatBudget:80, cost:410.20, orders:47, revenue:3486.70, impressions:92180, clicks:3224, spus:["W0181"], pids:["PID-741922"], materialCount:5, platformSuggest:"增加优质素材供给", roiProtection:"开启", benefit:"可用", upgrade:"有效", tag:"素材衰退", diagnosis:"近7日ROI仍达标，但订单与收入连续下降；可用素材仅3条。", suggest:"补2条联盟视频，并把过期素材转续授权任务。", openActions:2 },
-      { site:"US", store:"Sweet-US", id:"CAM-90512003", name:"W0228 Autumn Restart", enabled:"关", type:"Product GMV Max", status:"暂停", statusRaw:"DISABLE", start:"2026-03-08", end:"2026-05-15", goal:"GMV", target:6, budget:260, heatBudget:0, cost:118.20, orders:0, revenue:0, impressions:30120, clicks:702, spus:["W0228"], pids:["PID-741923"], materialCount:4, platformSuggest:"检查商品和素材", roiProtection:"关闭", benefit:"—", upgrade:"—", tag:"季节返场候选", diagnosis:"历史高花费零单后暂停；现有2条可用素材，库存充足，适合秋季小预算复测。", suggest:"9月以$40/日重启3天；首单前成本超过$80则回退暂停。", openActions:1 },
-      { site:"US", store:"Sweet-US", id:"CAM-90512004", name:"W0169 Retarget Test", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-08-20", end:"2026-09-30", goal:"GMV", target:8, budget:160, heatBudget:60, cost:168.64, orders:14, revenue:1433.44, impressions:41580, clicks:1518, spus:["W0169"], pids:["PID-741921"], materialCount:3, platformSuggest:"继续探索", roiProtection:"开启", benefit:"可用", upgrade:"有效", tag:"新起量", diagnosis:"样本仍在成熟，ROI达标；一条自制素材处于探索中。", suggest:"继续观察3日，不扩大预算。", openActions:0 },
-      { site:"GB", store:"Sweet-GB", id:"CAM-90513001", name:"W0312 UK Launch", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-08-10", end:"长期", goal:"GMV", target:5.5, budget:260, heatBudget:50, cost:246.10, orders:24, revenue:1513.52, impressions:57800, clicks:1816, spus:["W0312"], pids:["PID-841101"], materialCount:4, platformSuggest:"保持投放", roiProtection:"开启", benefit:"可用", upgrade:"有效", tag:"观察中", diagnosis:"新站点样本有限，暂未发现显著异常。", suggest:"继续观察至订单30单后再调整目标ROI。", openActions:0 }
+      { site:"US", store:"Sweet-US", id:"CAM-90512001", name:"W0169 Always-on GMV Max", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-06-15", end:"长期", target:8, budget:600, heatBudget:120, cost:564.32, orders:69, revenue:5170.40, impressions:148230, clicks:4812, spus:["W0169"], pids:["PID-741921"], materialCount:6, roiProtection:"开启" },
+      { site:"US", store:"Sweet-US", id:"CAM-90512002", name:"W0181 Creator Growth", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-07-02", end:"长期", target:7, budget:420, heatBudget:80, cost:410.20, orders:47, revenue:3486.70, impressions:92180, clicks:3224, spus:["W0181"], pids:["PID-741922"], materialCount:5, roiProtection:"开启" },
+      { site:"US", store:"Sweet-US", id:"CAM-90512003", name:"W0228 Autumn Restart", enabled:"关", type:"Product GMV Max", status:"暂停", statusRaw:"DISABLE", start:"2026-03-08", end:"2026-05-15", target:6, budget:260, heatBudget:0, cost:118.20, orders:0, revenue:0, impressions:30120, clicks:702, spus:["W0228"], pids:["PID-741923"], materialCount:4, roiProtection:"关闭" },
+      { site:"US", store:"Sweet-US", id:"CAM-90512004", name:"W0169 Retarget Test", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-08-20", end:"2026-09-30", target:8, budget:160, heatBudget:60, cost:168.64, orders:14, revenue:1433.44, impressions:41580, clicks:1518, spus:["W0169"], pids:["PID-741921"], materialCount:3, roiProtection:"开启" },
+      { site:"GB", store:"Sweet-GB", id:"CAM-90513001", name:"W0312 UK Launch", enabled:"开", type:"Product GMV Max", status:"投放中", statusRaw:"ENABLE", start:"2026-08-10", end:"长期", target:5.5, budget:260, heatBudget:50, cost:246.10, orders:24, revenue:1513.52, impressions:57800, clicks:1816, spus:["W0312"], pids:["PID-841101"], materialCount:4, roiProtection:"开启" }
     ];
 
     const pidRecords = [
-      { site:"US", store:"Sweet-US", pid:"PID-741921", spu:"W0169", name:"高腰阔腿瑜伽裤", mapStatus:"已映射", campaignIds:["CAM-90512001","CAM-90512004"], first:"2026-06-15", last:"至今", inventory:682, hotOos:12, totalOrders:136, financialGmv:10422.50, amountDiff:0, tag:"稳定贡献", diagnosis:"广告产出稳定；热卖码有轻度缺口。", suggest:"补齐M/L黑色库存后再评估加热。", openActions:1 },
-      { site:"US", store:"Sweet-US", pid:"PID-741922", spu:"W0181", name:"抓绒喇叭裤", mapStatus:"已映射", campaignIds:["CAM-90512002"], first:"2026-07-02", last:"至今", inventory:214, hotOos:36, totalOrders:78, financialGmv:5618.40, amountDiff:0, tag:"库存风险", diagnosis:"热卖码断货占比36%，不满足继续放量门禁。", suggest:"先补库存；补货前仅维持预算，不新增加热。", openActions:2 },
-      { site:"US", store:"Sweet-US", pid:"PID-741923", spu:"W0228", name:"针织开衫套装", mapStatus:"已映射", campaignIds:["CAM-90512003"], first:"2026-03-08", last:"2026-05-15", inventory:905, hotOos:4, totalOrders:29, financialGmv:2886.10, amountDiff:0, tag:"季节返场", diagnosis:"历史广告停投，但库存充足；需重新验证秋季需求。", suggest:"采用小预算、短窗口、明确回退条件的返场测试。", openActions:1 },
-      { site:"GB", store:"Sweet-GB", pid:"PID-841101", spu:"W0312", name:"轻薄防晒衫", mapStatus:"已映射", campaignIds:["CAM-90513001"], first:"2026-08-10", last:"至今", inventory:366, hotOos:8, totalOrders:41, financialGmv:2589.30, amountDiff:2.10, tag:"观察中", diagnosis:"广告和库存均无显著风险，金额存在小额汇率差异。", suggest:"继续观察并核对汇率版本。", openActions:0 }
+      { site:"US", store:"Sweet-US", pid:"PID-741921", spu:"W0169", name:"高腰阔腿瑜伽裤", mapStatus:"已映射", campaignIds:["CAM-90512001","CAM-90512004"], first:"2026-06-15", last:"至今", inventory:682, hotOos:12, totalOrders:136, financialGmv:10422.50, amountDiff:0 },
+      { site:"US", store:"Sweet-US", pid:"PID-741922", spu:"W0181", name:"抓绒喇叭裤", mapStatus:"已映射", campaignIds:["CAM-90512002"], first:"2026-07-02", last:"至今", inventory:214, hotOos:36, totalOrders:78, financialGmv:5618.40, amountDiff:0 },
+      { site:"US", store:"Sweet-US", pid:"PID-741923", spu:"W0228", name:"针织开衫套装", mapStatus:"已映射", campaignIds:["CAM-90512003"], first:"2026-03-08", last:"2026-05-15", inventory:905, hotOos:4, totalOrders:29, financialGmv:2886.10, amountDiff:0 },
+      { site:"GB", store:"Sweet-GB", pid:"PID-841101", spu:"W0312", name:"轻薄防晒衫", mapStatus:"已映射", campaignIds:["CAM-90513001"], first:"2026-08-10", last:"至今", inventory:366, hotOos:8, totalOrders:41, financialGmv:2589.30, amountDiff:2.10 }
     ];
 
     const creatives = [
-      { site:"US",store:"Sweet-US",videoId:"VID-22001901",itemId:"ITEM-741921-A",title:"通勤显腿长三套穿搭",published:"2026-06-08",campaignIds:["CAM-90512001","CAM-90512004"],pidList:["PID-741921"],identity:"AUTHORIZED_POST",creatorId:"CRE-88901",creator:"Mia Style",type:"联盟视频",basis:"Identity与Creator ID匹配达人库",confidence:"高",mainColor:"黑色",colors:["黑色","灰色"],colorBasis:"商品款色标签+人工确认",business:"林妍",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"2026-09-30",explore:"已探索",performance:"表现出色",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"已加热",session:"HEAT-9001",heatStart:"2026-08-20 09:00",heatEnd:"2026-08-27 09:00",heatTimes:2,cost:318.74,orders:36,revenue:2844.42,impressions:81120,clicks:2914,internal:"稳定贡献",tag:"高效素材",diagnosis:"ROI稳定且授权有效；关联库存轻度缺口。",suggest:"维持投放，授权到期前7天自动提醒。",openActions:0},
-      { site:"US",store:"Sweet-US",videoId:"VID-22001902",itemId:"ITEM-741921-B",title:"办公室到健身房快速换装",published:"2026-07-16",campaignIds:["CAM-90512001"],pidList:["PID-741921"],identity:"SELF_POST",creatorId:"—",creator:"品牌号",type:"自制视频",basis:"品牌账号发布 + 剪辑交付记录",confidence:"高",mainColor:"灰色",colors:["灰色","黑色"],colorBasis:"商品款色标签+人工确认",business:"—",editor:"周祺",available:"可用",unavailableReason:"—",auth:"自有内容",authDue:"—",explore:"探索中",performance:"—",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"正在加热",session:"HEAT-9014",heatStart:"2026-09-01 10:00",heatEnd:"2026-09-08 10:00",heatTimes:1,cost:137.06,orders:15,revenue:1222.58,impressions:38900,clicks:1290,internal:"探索中",tag:"新素材",diagnosis:"仍处于探索期，样本未成熟。",suggest:"观察至20单或满7日，再判断放量。",openActions:0},
-      { site:"US",store:"Sweet-US",videoId:"VID-22001903",itemId:"ITEM-741922-A",title:"冬季显瘦喇叭裤实测",published:"2026-07-03",campaignIds:["CAM-90512002"],pidList:["PID-741922"],identity:"AUTHORIZED_POST",creatorId:"CRE-77109",creator:"Sophie Fits",type:"联盟视频",basis:"Creator ID匹配联盟达人",confidence:"高",mainColor:"红色",colors:["红色"],colorBasis:"商品款色标签+人工确认",business:"赵岚",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"待接口确认",explore:"已探索",performance:"表现出色",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:0,cost:242.66,orders:30,revenue:2227.62,impressions:55740,clicks:1906,internal:"疑似衰退",tag:"衰退但可用",diagnosis:"近7日订单下降；红色库存仅覆盖4天，需先排除库存影响。",suggest:"暂停加热判断，优先补红色库存后复查。",openActions:1},
-      { site:"US",store:"Sweet-US",videoId:"VID-22001904",itemId:"ITEM-741922-B",title:"达人授权穿搭片段",published:"2026-06-20",campaignIds:["CAM-90512002"],pidList:["PID-741922"],identity:"AUTHORIZED_POST",creatorId:"CRE-77008",creator:"Amy Wardrobe",type:"联盟视频",basis:"Identity与Creator ID匹配达人库",confidence:"高",mainColor:"红色",colors:["红色","黑色"],colorBasis:"商品款色标签+人工确认",business:"赵岚",editor:"—",available:"不可用",unavailableReason:"授权过期",auth:"已过期",authDue:"2026-09-01",explore:"已探索",performance:"—",delivery:"CREATIVE_EXPIRED",deliveryLabel:"不可投放",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:1,cost:54.91,orders:5,revenue:345.93,impressions:14110,clicks:442,internal:"素材过期",tag:"授权风险",diagnosis:"TikTok返回素材不可投放，内部授权记录已到期。",suggest:"商务续授权；完成后重新读取平台真实状态。",openActions:1},
-      { site:"US",store:"Sweet-US",videoId:"VID-22001905",itemId:"ITEM-741923-A",title:"早秋针织套装三种场景",published:"2026-03-01",campaignIds:["CAM-90512003"],pidList:["PID-741923"],identity:"SELF_POST",creatorId:"—",creator:"品牌号",type:"自制视频",basis:"品牌账号发布 + 剪辑交付记录",confidence:"中",mainColor:"咖色",colors:["咖色","米色"],colorBasis:"商品款色标签+人工确认",business:"—",editor:"陈果",available:"可用",unavailableReason:"—",auth:"自有内容",authDue:"—",explore:"已探索",performance:"表现出色",delivery:"CAMPAIGN_INACTIVE",deliveryLabel:"所属广告未投放",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"历史已加热",session:"—",heatStart:"2026-04-01 10:00",heatEnd:"2026-04-08 10:00",heatTimes:1,cost:79.00,orders:10,revenue:725.22,impressions:20110,clicks:690,internal:"季节返场候选",tag:"历史优质素材",diagnosis:"素材历史表现出色且仍可用；所属Campaign停投，咖色库存充足。",suggest:"进入秋季返场测试，首轮不超过$40/日。",openActions:0},
-      { site:"GB",store:"Sweet-GB",videoId:"VID-33001101",itemId:"ITEM-841101-A",title:"UK summer layering idea",published:"2026-08-05",campaignIds:["CAM-90513001"],pidList:["PID-841101"],identity:"AUTHORIZED_POST",creatorId:"CRE-UK-21",creator:"Ella Moves",type:"联盟视频",basis:"Creator ID匹配联盟达人",confidence:"高",mainColor:"白色",colors:["白色","浅蓝"],colorBasis:"商品款色标签+人工确认",business:"安妮",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"2026-10-15",explore:"探索中",performance:"—",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:0,cost:126.40,orders:12,revenue:775.20,impressions:28200,clicks:910,internal:"探索中",tag:"新素材",diagnosis:"新站点样本仍在成熟。",suggest:"继续探索至20单。",openActions:0}
+      { site:"US",store:"Sweet-US",videoId:"VID-22001901",itemId:"ITEM-741921-A",title:"通勤显腿长三套穿搭",published:"2026-06-08",campaignIds:["CAM-90512001","CAM-90512004"],pidList:["PID-741921"],identity:"AUTHORIZED_POST",creatorId:"CRE-88901",creator:"Mia Style",type:"联盟视频",basis:"Identity与Creator ID匹配达人库",confidence:"高",mainColor:"黑色",colors:["黑色","灰色"],colorBasis:"商品款色标签+人工确认",business:"林妍",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"2026-09-30",explore:"已探索",performance:"表现出色",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"已加热",session:"HEAT-9001",heatStart:"2026-08-20 09:00",heatEnd:"2026-08-27 09:00",heatTimes:2,cost:318.74,orders:36,revenue:2844.42,impressions:81120,clicks:2914},
+      { site:"US",store:"Sweet-US",videoId:"VID-22001902",itemId:"ITEM-741921-B",title:"办公室到健身房快速换装",published:"2026-07-16",campaignIds:["CAM-90512001"],pidList:["PID-741921"],identity:"SELF_POST",creatorId:"—",creator:"品牌号",type:"自制视频",basis:"品牌账号发布 + 剪辑交付记录",confidence:"高",mainColor:"灰色",colors:["灰色","黑色"],colorBasis:"商品款色标签+人工确认",business:"—",editor:"周祺",available:"可用",unavailableReason:"—",auth:"自有内容",authDue:"—",explore:"探索中",performance:"—",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"正在加热",session:"HEAT-9014",heatStart:"2026-09-01 10:00",heatEnd:"2026-09-08 10:00",heatTimes:1,cost:137.06,orders:15,revenue:1222.58,impressions:38900,clicks:1290},
+      { site:"US",store:"Sweet-US",videoId:"VID-22001903",itemId:"ITEM-741922-A",title:"冬季显瘦喇叭裤实测",published:"2026-07-03",campaignIds:["CAM-90512002"],pidList:["PID-741922"],identity:"AUTHORIZED_POST",creatorId:"CRE-77109",creator:"Sophie Fits",type:"联盟视频",basis:"Creator ID匹配联盟达人",confidence:"高",mainColor:"红色",colors:["红色"],colorBasis:"商品款色标签+人工确认",business:"赵岚",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"待接口确认",explore:"已探索",performance:"表现出色",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:0,cost:242.66,orders:30,revenue:2227.62,impressions:55740,clicks:1906},
+      { site:"US",store:"Sweet-US",videoId:"VID-22001904",itemId:"ITEM-741922-B",title:"达人授权穿搭片段",published:"2026-06-20",campaignIds:["CAM-90512002"],pidList:["PID-741922"],identity:"AUTHORIZED_POST",creatorId:"CRE-77008",creator:"Amy Wardrobe",type:"联盟视频",basis:"Identity与Creator ID匹配达人库",confidence:"高",mainColor:"红色",colors:["红色","黑色"],colorBasis:"商品款色标签+人工确认",business:"赵岚",editor:"—",available:"不可用",unavailableReason:"授权过期",auth:"已过期",authDue:"2026-09-01",explore:"已探索",performance:"—",delivery:"CREATIVE_EXPIRED",deliveryLabel:"不可投放",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:1,cost:54.91,orders:5,revenue:345.93,impressions:14110,clicks:442},
+      { site:"US",store:"Sweet-US",videoId:"VID-22001905",itemId:"ITEM-741923-A",title:"早秋针织套装三种场景",published:"2026-03-01",campaignIds:["CAM-90512003"],pidList:["PID-741923"],identity:"SELF_POST",creatorId:"—",creator:"品牌号",type:"自制视频",basis:"品牌账号发布 + 剪辑交付记录",confidence:"中",mainColor:"咖色",colors:["咖色","米色"],colorBasis:"商品款色标签+人工确认",business:"—",editor:"陈果",available:"可用",unavailableReason:"—",auth:"自有内容",authDue:"—",explore:"已探索",performance:"表现出色",delivery:"CAMPAIGN_INACTIVE",deliveryLabel:"所属广告未投放",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"历史已加热",session:"—",heatStart:"2026-04-01 10:00",heatEnd:"2026-04-08 10:00",heatTimes:1,cost:79.00,orders:10,revenue:725.22,impressions:20110,clicks:690},
+      { site:"GB",store:"Sweet-GB",videoId:"VID-33001101",itemId:"ITEM-841101-A",title:"UK summer layering idea",published:"2026-08-05",campaignIds:["CAM-90513001"],pidList:["PID-841101"],identity:"AUTHORIZED_POST",creatorId:"CRE-UK-21",creator:"Ella Moves",type:"联盟视频",basis:"Creator ID匹配联盟达人",confidence:"高",mainColor:"白色",colors:["白色","浅蓝"],colorBasis:"商品款色标签+人工确认",business:"安妮",editor:"—",available:"可用",unavailableReason:"—",auth:"有效",authDue:"2026-10-15",explore:"探索中",performance:"—",delivery:"DELIVERY_OK",deliveryLabel:"投放中",statusDate:"2026-09-03",statusFetched:"2026-09-04 09:20",heat:"未加热",session:"—",heatStart:"—",heatEnd:"—",heatTimes:0,cost:126.40,orders:12,revenue:775.20,impressions:28200,clicks:910}
     ];
 
     const colorInventoryRecords = [
@@ -1612,12 +1601,6 @@
       {site:"GB",store:"Sweet-GB",pid:"PID-841101",color:"浅蓝",stock:96,inbound:40,dailySales:4.8,days:20,hotOos:6}
     ];
 
-    const actions = [
-      {site:"US",store:"Sweet-US",id:"ACT-20260903-001",source:"素材看板",targetType:"Video ID",targetId:"VID-22001904",targetName:"达人授权穿搭片段",triggeredAt:"2026-09-03 09:25",windowStart:"2026-08-28",windowEnd:"2026-09-03",metrics:"成本 $54.91 / 订单 5 / ROI 6.30x",statusSnapshot:"CREATIVE_EXPIRED / 授权已过期",tag:"授权风险",diagnosis:"TikTok返回不可投放，内部授权记录于9月1日到期。",recommend:"联系达人续授权；续期后重新同步creative_delivery_status。",issueType:"授权处理",priority:"P0",taskStatus:"进行中",owner:"赵岚",collaborators:"林妍",created:"2026-09-03",due:"2026-09-05",success:"新授权生效且平台状态恢复可投放",rollback:"无法续权则替换素材，不恢复原素材",actionType:"授权处理",actionAt:"—",before:"授权已过期",after:"待执行",evidence:"达人沟通记录待补充",external:"FS-TASK-8821",review:"D+1",reviewMetrics:"待动作执行",reviewResult:"未执行",decision:"待定",nextReview:"2026-09-06"},
-      {site:"US",store:"Sweet-US",id:"ACT-20260903-002",source:"PID看板",targetType:"Product ID",targetId:"PID-741922",targetName:"W0181 / 抓绒喇叭裤",triggeredAt:"2026-09-03 09:30",windowStart:"2026-08-28",windowEnd:"2026-09-03",metrics:"库存214 / 热卖码断货36% / ROI 8.50x",statusSnapshot:"Campaign投放中 / 库存风险",tag:"库存风险",diagnosis:"广告仍达标，但热卖码断货占比36%，新增放量可能损害转化。",recommend:"补齐黑色M/L并维持当前预算，库存门禁通过后再加热。",issueType:"库存处理",priority:"P0",taskStatus:"待领取",owner:"供应链-王倩",collaborators:"赵岚",created:"2026-09-03",due:"2026-09-06",success:"热卖码断货占比降至10%以下",rollback:"补货延误则下调预算20%",actionType:"库存处理",actionAt:"—",before:"热卖码断货36%",after:"待执行",evidence:"库存快照INV-0903",external:"FS-TASK-8822",review:"D+3",reviewMetrics:"待动作执行",reviewResult:"未执行",decision:"待定",nextReview:"2026-09-09"},
-      {site:"US",store:"Sweet-US",id:"ACT-20260902-003",source:"Campaign看板",targetType:"Campaign ID",targetId:"CAM-90512003",targetName:"W0228 Autumn Restart",triggeredAt:"2026-09-02 15:10",windowStart:"2026-03-08",windowEnd:"2026-05-15",metrics:"成本 $118.20 / 订单 0 / 当前库存905",statusSnapshot:"DISABLE / 季节返场候选",tag:"季节返场",diagnosis:"历史高花费零单后暂停；当前库存充足，历史优质素材仍可用。",recommend:"9月小预算重启3天，设定首单成本回退线。",issueType:"商品或活动处理",priority:"P1",taskStatus:"已完成待复盘",owner:"林妍",collaborators:"陈果",created:"2026-09-02",due:"2026-09-04",success:"3日获得订单且ROI不低于4.0x",rollback:"首单前成本超过$80则暂停",actionType:"Campaign状态调整",actionAt:"2026-09-04 10:00",before:"DISABLE / $0",after:"ENABLE / $40每日",evidence:"平台操作截图DEMO-01",external:"FS-TASK-8818",review:"D+3",reviewMetrics:"待2026-09-07读取",reviewResult:"待复盘",decision:"继续观察",nextReview:"2026-09-07"},
-      {site:"US",store:"Sweet-US",id:"ACT-20260829-004",source:"素材看板",targetType:"Video ID",targetId:"VID-22001903",targetName:"冬季显瘦喇叭裤实测",triggeredAt:"2026-08-29 11:20",windowStart:"2026-08-23",windowEnd:"2026-08-29",metrics:"订单环比-12% / ROI 8.50x",statusSnapshot:"DELIVERY_OK / 表现出色 / 疑似衰退",tag:"衰退但可用",diagnosis:"素材订单下降，但PID库存断货构成混杂因素。",recommend:"暂不加热；库存恢复后复查素材趋势。",issueType:"继续观察与复查",priority:"P1",taskStatus:"进行中",owner:"赵岚",collaborators:"供应链-王倩",created:"2026-08-29",due:"2026-09-09",success:"库存恢复后完成同口径7日复盘",rollback:"库存未恢复则延后素材结论",actionType:"继续观察与复查",actionAt:"2026-08-29 11:30",before:"准备加热",after:"暂停加热判断",evidence:"诊断快照DIAG-829",external:"—",review:"库存恢复后D+7",reviewMetrics:"待库存门禁通过",reviewResult:"继续观察",decision:"等待库存",nextReview:"2026-09-09"}
-    ];
 
     const state = {
       tab: "project",
@@ -1724,8 +1707,7 @@
         "广告账户 ID": state.store === "all" ? "多账户" : account.advertiserId,
         "币种": account.currency,
         "抓取批次": "BATCH-20260904-0920",
-        "数据完整性": "通过",
-        "规则版本": "TK-ADS-RULE-v1.1"
+        "数据完整性": "通过"
       };
     }
 
@@ -1765,7 +1747,7 @@
       const groups = {};
       pidRecords.filter(inScope).forEach((pid) => {
         const key = `${pid.store}|${pid.spu}`;
-        if (!groups[key]) groups[key] = { site:pid.site, store:pid.store, spu:pid.spu, name:pid.name, pids:[], campaignIds:[], inventory:0, hotOos:0, totalOrders:0, financialGmv:0, openActions:0 };
+        if (!groups[key]) groups[key] = { site:pid.site, store:pid.store, spu:pid.spu, name:pid.name, pids:[], campaignIds:[], inventory:0, hotOos:0, totalOrders:0, financialGmv:0 };
         const group = groups[key];
         group.pids.push(pid.pid);
         group.campaignIds.push(...pid.campaignIds);
@@ -1773,12 +1755,10 @@
         group.hotOos = Math.max(group.hotOos, pid.hotOos);
         group.totalOrders += pid.totalOrders;
         group.financialGmv += pid.financialGmv;
-        group.openActions += pid.openActions;
       });
-      let rows = Object.values(groups).map((group) => ({ ...group, campaignIds:unique(group.campaignIds), tag:group.hotOos >= 30 ? "库存风险" : group.spu === "W0228" ? "季节返场" : "稳定贡献", diagnosis:group.hotOos >= 30 ? "热卖码断货影响广告继续放量。" : "广告、素材和库存暂未出现高风险。", suggest:group.hotOos >= 30 ? "先处理库存，再评估广告加热。" : "按当前节奏继续观察。" }));
+      let rows = Object.values(groups).map((group) => ({ ...group, campaignIds:unique(group.campaignIds) }));
       if (filterValue("inventoryRisk") === "risk") rows = rows.filter((row) => row.hotOos >= 30);
       if (filterValue("inventoryRisk") === "safe") rows = rows.filter((row) => row.hotOos < 30);
-      if (filterValue("businessTag") !== "all") rows = rows.filter((row) => row.tag === filterValue("businessTag"));
       if (filterValue("deliveryState") !== "all") rows = rows.filter((row) => {
         const active = campaignsForIds(row.campaignIds).some((campaign) => campaign.status === "投放中");
         return filterValue("deliveryState") === "active" ? active : !active;
@@ -1807,18 +1787,6 @@
       return rows.filter(matchesQuery);
     }
 
-    function actionRows() {
-      let rows = actions.filter(inScope);
-      if (state.dateMode === "triggered") rows = rows.filter((row) => dateInRange(row.triggeredAt.slice(0,10)));
-      if (state.dateMode === "due") rows = rows.filter((row) => dateInRange(row.due));
-      if (state.dateMode === "review") rows = rows.filter((row) => dateInRange(row.nextReview));
-      if (state.relationFilter?.type === "target") rows = rows.filter((row) => row.targetId === state.relationFilter.id);
-      if (filterValue("priority") !== "all") rows = rows.filter((row) => row.priority === filterValue("priority"));
-      if (filterValue("taskStatus") !== "all") rows = rows.filter((row) => row.taskStatus === filterValue("taskStatus"));
-      if (filterValue("actionType") !== "all") rows = rows.filter((row) => row.actionType === filterValue("actionType"));
-      return rows.filter(matchesQuery);
-    }
-
     function campaignsForIds(ids) { return campaigns.filter((row) => ids.includes(row.id)); }
     function creativesForCampaignIds(ids) { return creatives.filter((row) => row.campaignIds.some((id) => ids.includes(id))); }
     function creativesForPids(ids) { return creatives.filter((row) => row.pidList.some((id) => ids.includes(id))); }
@@ -1827,16 +1795,13 @@
       const total = rows.length;
       const available = rows.filter((row) => row.available === "可用").length;
       const expired = rows.filter((row) => row.auth === "已过期").length;
-      const otherUnavailable = rows.filter((row) => row.available !== "可用" && row.auth !== "已过期").length;
       const exploring = rows.filter((row) => row.explore === "探索中").length;
       const explored = rows.filter((row) => row.explore === "已探索").length;
       const pendingExplore = rows.filter((row) => row.explore === "待获取").length;
       const high = rows.filter((row) => row.performance === "表现出色").length;
-      const decline = rows.filter((row) => row.available === "可用" && /衰退/.test(row.internal)).length;
       const heating = rows.filter((row) => row.heat === "正在加热").length;
       const heated = rows.filter((row) => /已加热/.test(row.heat)).length;
-      const reheat = rows.filter((row) => row.available === "可用" && (/衰退|返场/.test(row.internal))).length;
-      return { historical:total, current:total, available, expired, otherUnavailable, exploring, explored, pendingExplore, high, decline, heating, heated, reheat };
+      return { historical:total, current:total, available, expired, exploring, explored, pendingExplore, high, heating, heated };
     }
 
     function colorRollup(rows) {
@@ -1871,7 +1836,6 @@
       const scopedCampaigns = campaigns.filter(inScope);
       const scopedPids = pidRecords.filter(inScope);
       const scopedCreatives = creatives.filter(inScope);
-      const scopedActions = actions.filter(inScope);
       const metrics = aggregateMetrics(scopedCampaigns);
       const stats = materialStats(scopedCreatives);
       const activeCampaigns = scopedCampaigns.filter((row) => row.status === "投放中");
@@ -1892,14 +1856,10 @@
         "项目平均下单成本":metrics.orders ? metrics.cost / metrics.orders : null,
         "商品曝光":metrics.impressions, "商品点击":metrics.clicks, "CTR":metrics.impressions ? metrics.clicks / metrics.impressions : 0, "CVR":metrics.clicks ? metrics.orders / metrics.clicks : 0,
         "全渠道总订单":allOrders, "财务GMV":financialGmv, "ACoAS/广告费率":financialGmv ? metrics.cost / financialGmv : 0, "广告订单贡献率":allOrders ? metrics.orders / allOrders : 0,
-        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired, "其他不可用素材数":stats.otherUnavailable,
+        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired,
         "探索中素材量&比例":ratio(stats.exploring, stats.current), "已探索素材量&比例":ratio(stats.explored, stats.current), "探索状态待获取素材数":stats.pendingExplore,
-        "表现出色素材量&比例":ratio(stats.high, stats.current), "衰退但可用素材数":stats.decline, "正在加热素材量&比例":ratio(stats.heating, stats.current), "已加热素材量&比例":ratio(stats.heated, stats.current), "重新加热候选数":stats.reheat,
-        ...performanceBundle(metrics, "project"), "样本成熟度":metrics.orders >= 100 ? "成熟" : "观察中",
-        "未关闭行动点数":scopedActions.filter((row) => row.taskStatus !== "已关闭").length,
-        "高优先级行动点数":scopedActions.filter((row) => row.priority === "P0" && row.taskStatus !== "已关闭").length,
-        "逾期行动点数":scopedActions.filter((row) => row.due < "2026-09-04" && !["已关闭","已完成待复盘"].includes(row.taskStatus)).length,
-        "素材续期跟进数":scopedActions.filter((row) => row.issueType === "授权处理" && row.taskStatus !== "已关闭").length
+        "表现出色素材量&比例":ratio(stats.high, stats.current), "正在加热素材量&比例":ratio(stats.heating, stats.current), "已加热素材量&比例":ratio(stats.heated, stats.current),
+        ...performanceBundle(metrics, "project")
       };
     }
 
@@ -1909,15 +1869,15 @@
       const metrics = aggregateMetrics([row]);
       return {
         ...baseContext(row), "序号":index + 1, "开/关":row.enabled, "Campaign ID":row.id, "广告计划名称":row.name,
-        "推广类型":row.type, "Campaign状态":row.status, "状态截至日期":"2026-09-03", "排期时间":`${row.start} → ${row.end}`, "效果目标":row.goal,
-        "目标ROI":row.target, "广告计划预算":row.budget, "平台建议":row.platformSuggest, "ROI保护":row.roiProtection, "权益":row.benefit, "有效升级功能":row.upgrade,
+        "推广类型":row.type, "Campaign状态":row.status, "状态截至日期":"2026-09-03", "排期时间":`${row.start} → ${row.end}`,
+        "目标ROI":row.target, "广告计划预算":row.budget, "ROI保护":row.roiProtection,
         "创意作品加热预算":row.heatBudget, "成本":row.cost, "订单":row.orders, "收入":row.revenue, "ROI":roi(row), "平均下单成本":cpo(row),
         "商品曝光":row.impressions, "商品点击":row.clicks, "CTR":ctr(row), "CVR":cvr(row), "关联SPU数":row.spus.length, "关联PID数":row.pids.length,
         "关联PID列表":row.pids.join(" / "), "PID映射异常数":0,
-        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired, "其他不可用素材数":stats.otherUnavailable,
+        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired,
         "探索中素材量&比例":ratio(stats.exploring,stats.current), "已探索素材量&比例":ratio(stats.explored,stats.current), "探索状态待获取素材数":stats.pendingExplore,
-        "表现出色素材量&比例":ratio(stats.high,stats.current), "衰退但可用素材数":stats.decline, "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current), "重新加热候选数":stats.reheat,
-        ...performanceBundle(metrics,row.id), "样本成熟度":row.orders >= 20 ? "成熟" : row.orders >= 5 ? "观察中" : "样本不足", "经营标签":row.tag, "系统诊断":row.diagnosis, "建议动作":row.suggest, "未关闭行动点数":row.openActions
+        "表现出色素材量&比例":ratio(stats.high,stats.current), "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current),
+        ...performanceBundle(metrics,row.id)
       };
     }
 
@@ -1935,11 +1895,11 @@
         "SPU成本":metrics.cost, "SPU订单":metrics.orders, "SPU收入":metrics.revenue, "SPUROI":metrics.cost ? metrics.revenue / metrics.cost : 0, "SPU平均下单成本":metrics.orders ? metrics.cost / metrics.orders : null,
         "商品曝光":metrics.impressions, "商品点击":metrics.clicks, "CTR":metrics.impressions ? metrics.clicks / metrics.impressions : 0, "CVR":metrics.clicks ? metrics.orders / metrics.clicks : 0,
         "全渠道总订单":row.totalOrders, "财务GMV":row.financialGmv, "ACoAS/广告费率":row.financialGmv ? metrics.cost / row.financialGmv : 0, "广告订单贡献率":row.totalOrders ? metrics.orders / row.totalOrders : 0,
-        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired, "其他不可用素材数":stats.otherUnavailable,
+        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired,
         "探索中素材量&比例":ratio(stats.exploring,stats.current), "已探索素材量&比例":ratio(stats.explored,stats.current), "探索状态待获取素材数":stats.pendingExplore,
-        "表现出色素材量&比例":ratio(stats.high,stats.current), "衰退但可用素材数":stats.decline, "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current), "重新加热候选数":stats.reheat,
+        "表现出色素材量&比例":ratio(stats.high,stats.current), "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current),
         "库存总数":row.inventory, "热卖码断货占比":row.hotOos / 100, "库存详情入口":`/inventory?store=${row.store}&spu=${row.spu}`,
-        ...performanceBundle(metrics,row.spu), "样本成熟度":metrics.orders >= 20 ? "成熟" : "观察中", "经营标签":row.tag, "系统诊断":row.diagnosis, "建议动作":row.suggest, "未关闭行动点数":row.openActions
+        ...performanceBundle(metrics,row.spu)
       };
     }
 
@@ -1952,14 +1912,14 @@
       return {
         ...baseContext(row), "Product ID（PID）":row.pid, "主推SPU":row.spu, "主推SPU中文名称":row.name, "PID映射状态":row.mapStatus,
         "历史Campaign数":unique(row.campaignIds).length, "最早投放日期":row.first, "最近投放日期":row.last, "当前在投Campaign数":activeCampaigns.length,
-        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired, "其他不可用素材数":stats.otherUnavailable,
+        "历史去重素材数":stats.historical, "当前广告素材总量":stats.current, "当前可用素材数":stats.available, "过期素材数":stats.expired,
         "探索中素材量&比例":ratio(stats.exploring,stats.current), "已探索素材量&比例":ratio(stats.explored,stats.current), "探索状态待获取素材数":stats.pendingExplore,
-        "表现出色素材量&比例":ratio(stats.high,stats.current), "衰退但可用素材数":stats.decline, "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current), "重新加热候选数":stats.reheat,
+        "表现出色素材量&比例":ratio(stats.high,stats.current), "正在加热素材量&比例":ratio(stats.heating,stats.current), "已加热素材量&比例":ratio(stats.heated,stats.current),
         "PID累计成本":metrics.cost, "PID累计订单":metrics.orders, "PID累计收入":metrics.revenue, "PID累计ROI":metrics.cost ? metrics.revenue / metrics.cost : 0, "PID累计平均下单成本":metrics.orders ? metrics.cost / metrics.orders : null,
         "商品曝光":metrics.impressions, "商品点击":metrics.clicks, "CTR":metrics.impressions ? metrics.clicks / metrics.impressions : 0, "CVR":metrics.clicks ? metrics.orders / metrics.clicks : 0,
         "全渠道总订单":row.totalOrders, "财务GMV":row.financialGmv, "ACoAS/广告费率":row.financialGmv ? metrics.cost / row.financialGmv : 0, "广告订单贡献率":row.totalOrders ? metrics.orders / row.totalOrders : 0,
         "层级金额差异":row.amountDiff, "库存总数":row.inventory, "热卖码断货占比":row.hotOos / 100, "库存详情入口":`/inventory?store=${row.store}&pid=${row.pid}`,
-        ...performanceBundle(metrics,row.pid), "样本成熟度":metrics.orders >= 20 ? "成熟" : "观察中", "经营标签":row.tag, "系统诊断":row.diagnosis, "建议动作":row.suggest, "未关闭行动点数":row.openActions
+        ...performanceBundle(metrics,row.pid)
       };
     }
 
@@ -1970,32 +1930,20 @@
         "发布时间":row.published, "发布年份":row.published.slice(0,4), "发布月份":row.published.slice(0,7), "关联Campaign数":row.campaignIds.length, "关联Campaign列表":row.campaignIds.join(" / "),
         "关联PID数":row.pidList.length, "关联PID列表":row.pidList.join(" / "), "多PID标记":row.pidList.length > 1 ? "是" : "否", "PID映射异常数":0,
         "Identity Type":row.identity, "Creator ID":row.creatorId, "Creator Name":row.creator, "素材类型":row.type, "分类依据":row.basis, "匹配置信度":row.confidence,
-        "归属商务":row.business, "归属剪辑":row.editor, "当前可用状态":row.available, "不可用原因":row.unavailableReason, "授权/code状态":row.auth, "授权/code到期日":row.authDue,
+        "归属商务":row.business, "归属剪辑":row.editor, "授权/code状态":row.auth, "授权/code到期日":row.authDue,
         "探索状态":row.explore, "平台表现标签":row.performance, "平台真实投放状态":row.delivery, "平台状态中文释义":row.deliveryLabel, "状态业务日期":row.statusDate, "状态抓取时间":row.statusFetched,
         "加热情况":row.heat, "当前加热Session ID":row.session, "最近加热开始时间":row.heatStart, "最近加热结束时间":row.heatEnd, "历史加热次数":row.heatTimes,
         "素材成本":row.cost, "素材订单":row.orders, "素材收入":row.revenue, "素材ROI":roi(row), "素材平均下单成本":cpo(row), "商品曝光":row.impressions, "商品点击":row.clicks, "CTR":ctr(row), "CVR":cvr(row),
-        ...performanceBundle(metrics,row.videoId), "样本成熟度":row.orders >= 20 ? "成熟" : row.orders >= 5 ? "观察中" : "样本不足", "内部经营判断":row.internal, "经营标签":row.tag,
-        "系统诊断":row.diagnosis, "建议动作":row.suggest, "未关闭行动点数":row.openActions
+        ...performanceBundle(metrics,row.videoId)
       };
     }
 
-    function actionMap(row) {
-      return {
-        ...baseContext(row), "行动点ID":row.id, "来源TAP":row.source, "目标对象类型":row.targetType, "目标对象ID":row.targetId, "目标对象名称":row.targetName,
-        "触发时间":row.triggeredAt, "触发窗口开始日期":row.windowStart, "触发窗口结束日期":row.windowEnd, "触发指标快照":row.metrics, "触发状态快照":row.statusSnapshot,
-        "经营标签":row.tag, "系统诊断":row.diagnosis, "建议动作":row.recommend, "问题类型":row.issueType, "优先级":row.priority, "任务状态":row.taskStatus,
-        "负责人":row.owner, "协同人":row.collaborators, "创建时间":row.created, "截止日期":row.due, "成功标准":row.success, "回退条件":row.rollback,
-        "动作类型":row.actionType, "动作时间":row.actionAt, "修改前值":row.before, "修改后值":row.after, "执行证据":row.evidence, "外部任务ID/链接":row.external,
-        "复盘日期/窗口":row.review, "复盘指标快照":row.reviewMetrics, "复盘结果":row.reviewResult, "最终决定":row.decision, "下次复查日期":row.nextReview
-      };
-    }
 
     /* ---------- Shared page header ---------- */
     function visibleContextMap() {
       const context = baseContext({});
       context["日期口径"] = DATE_MODES[state.tab].find((item) => item.value === state.dateMode)?.label || "广告表现日期";
       if (state.tab === "project") Object.assign(context, { "项目ID":"TK-US-GB-ADS", "项目名称":"TikTok美英站广告项目", "报告币种":"USD", "汇率版本":"FX-2026-09-03" });
-      if (state.tab === "action") delete context["币种"];
       return context;
     }
 
@@ -2007,13 +1955,13 @@
       byId("startDate").value = state.startDate;
       byId("endDate").value = state.endDate;
       byId("tabFilters").innerHTML = (TAB_FILTERS[state.tab] || []).map((filter) => `<div class="query-item"><span class="label">${escapeHtml(filter.label)}</span><select data-tab-filter="${filter.key}" data-testid="filter-${filter.key}">${filter.options.map(([value,label]) => `<option value="${escapeHtml(value)}" ${filterValue(filter.key)===value?"selected":""}>${escapeHtml(label)}</option>`).join("")}</select></div>`).join("");
-      const placeholders = {project:"名称 / ID",campaign:"Campaign名称 / ID / PID",spu:"SPU / 中文名称",pid:"Product ID / SPU",creative:"Video ID / 标题 / 人员 / 颜色",action:"行动点 / 对象 / 负责人"};
+      const placeholders = {project:"名称 / ID",campaign:"Campaign名称 / ID / PID",spu:"SPU / 中文名称",pid:"Product ID / SPU",creative:"Video ID / 标题 / 人员 / 颜色"};
       byId("searchInput").placeholder = placeholders[state.tab];
     }
 
     function renderContext() {
       const map = visibleContextMap();
-      const important = ["日期口径","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","广告账户 ID","数据完整性","规则版本"];
+      const important = ["日期口径","查询开始日期","查询结束日期","最近完整业务日","站点","店铺","广告账户 ID","数据完整性"];
       byId("contextChips").innerHTML = important.filter((field) => field in map).map((field) => `<span class="context-chip"><span>${escapeHtml(field)}</span>${escapeHtml(map[field])}</span>`).join("");
       byId("contextDetails").innerHTML = Object.entries(map).map(([field,value]) => `<div class="context-detail"><span>${escapeHtml(field)}</span><strong title="${escapeHtml(value)}">${escapeHtml(value)}</strong></div>`).join("");
       byId("contextDetails").classList.toggle("open", state.contextOpen);
@@ -2063,7 +2011,6 @@
       const scopedCampaigns = campaigns.filter(inScope);
       const scopedPids = pidRecords.filter(inScope);
       const scopedCreatives = creatives.filter(inScope);
-      const scopedActions = actions.filter(inScope);
       const businessCreativeCount = scopedCreatives.filter((row) => row.type === "联盟视频" && row.business && row.business !== "—").length;
       const editingCreativeCount = scopedCreatives.filter((row) => row.type === "自制视频" && row.editor && row.editor !== "—").length;
       const metrics = [
@@ -2071,23 +2018,21 @@
         {label:"项目订单",value:number(map["项目订单"]),note:`平均下单成本 ${money(map["项目平均下单成本"])}`},
         {label:"项目收入",value:money(map["项目收入"]),note:"广告归因收入"},
         {label:"项目ROI",value:multiple(map["项目ROI"]),note:"收入 ÷ 成本",className:map["项目ROI"] >= 7 ? "metric-good" : ""},
-        {label:"当前在投Campaign",value:number(map["当前在投Campaign数"]),note:`${map["当前在投SPU数"]} SPU · ${map["当前在投PID数"]} PID`},
-        {label:"未关闭行动点",value:number(map["未关闭行动点数"]),note:`P0 ${map["高优先级行动点数"]} · 逾期 ${map["逾期行动点数"]}`,className:map["高优先级行动点数"] ? "metric-bad" : ""}
+        {label:"当前在投Campaign",value:number(map["当前在投Campaign数"]),note:`${map["当前在投SPU数"]} SPU · ${map["当前在投PID数"]} PID`}
       ];
       const summaryGroup = (title, action, items) => `<article class="summary-group"><header class="summary-group__head"><h2>${escapeHtml(title)}</h2>${action}</header><div class="summary-group__body">${items.map(([label,value,className]) => `<div class="summary-item"><span>${escapeHtml(label)}</span><strong class="${className || ""}">${value}</strong></div>`).join("")}</div></article>`;
       const groups = `<div class="section-grid">
-        ${summaryGroup("广告与经营",`<button class="button button--quiet" data-analyze="project:project" type="button">表现分析</button>`,[["商品曝光",number(map["商品曝光"])],["CTR",percent(map["CTR"]*100)],["全渠道总订单",number(map["全渠道总订单"])],["ACoAS/广告费率",percent(map["ACoAS/广告费率"]*100)],["广告订单贡献率",percent(map["广告订单贡献率"]*100)],["样本成熟度",map["样本成熟度"]]])}
-        ${summaryGroup("素材供给",`<button class="button button--quiet" data-analyze="material:project" type="button">结构分析</button> <button class="button button--quiet" data-jump="creative" type="button">查看素材</button>`,[["历史去重素材",number(map["历史去重素材数"])],["当前广告素材",number(map["当前广告素材总量"])],["商务素材占比",ratio(businessCreativeCount,map["当前广告素材总量"])],["剪辑素材占比",ratio(editingCreativeCount,map["当前广告素材总量"])],["当前可用",number(map["当前可用素材数"]),"metric-good"],["过期素材",number(map["过期素材数"]),map["过期素材数"]?"metric-bad":""],["探索中",map["探索中素材量&比例"]],["重新加热候选",number(map["重新加热候选数"])]])}
-        ${summaryGroup("风险与行动",`<button class="button button--quiet" data-analyze="action:project" type="button">闭环分析</button> <button class="button button--quiet" data-jump="action" type="button">查看行动点</button>`,[["高花费零单Campaign",number(map["高花费零单Campaign数"]),map["高花费零单Campaign数"]?"metric-bad":""],["无投放Campaign",number(map["无投放Campaign数"])],["P0行动点",number(map["高优先级行动点数"]),map["高优先级行动点数"]?"metric-bad":""],["逾期行动点",number(map["逾期行动点数"]),map["逾期行动点数"]?"metric-bad":""],["素材续期跟进",number(map["素材续期跟进数"])],["数据完整性",pill(map["数据完整性"]) ]])}
+        ${summaryGroup("广告与经营",`<button class="button button--quiet" data-analyze="project:project" type="button">表现分析</button>`,[["商品曝光",number(map["商品曝光"])],["CTR",percent(map["CTR"]*100)],["全渠道总订单",number(map["全渠道总订单"])],["ACoAS/广告费率",percent(map["ACoAS/广告费率"]*100)],["广告订单贡献率",percent(map["广告订单贡献率"]*100)]])}
+        ${summaryGroup("素材供给",`<button class="button button--quiet" data-jump="creative" type="button">查看素材</button>`,[["历史去重素材",number(map["历史去重素材数"])],["当前广告素材",number(map["当前广告素材总量"])],["商务素材占比",ratio(businessCreativeCount,map["当前广告素材总量"])],["剪辑素材占比",ratio(editingCreativeCount,map["当前广告素材总量"])],["当前可用",number(map["当前可用素材数"]),"metric-good"],["过期素材",number(map["过期素材数"]),map["过期素材数"]?"metric-bad":""],["探索中",map["探索中素材量&比例"]]])}
+        ${summaryGroup("投放概览","",[["高花费零单Campaign",number(map["高花费零单Campaign数"]),map["高花费零单Campaign数"]?"metric-bad":""],["无投放Campaign",number(map["无投放Campaign数"])],["当前在投SPU",number(map["当前在投SPU数"])],["当前在投PID",number(map["当前在投PID数"])],["数据完整性",pill(map["数据完整性"]) ]])}
       </div>`;
       let attention = [];
-      scopedCampaigns.filter((row) => row.orders === 0 || row.openActions > 0).forEach((row) => attention.push({type:"Campaign",id:row.id,name:row.name,risk:row.tag,basis:`成本 ${money(row.cost)} / 订单 ${row.orders} / ROI ${multiple(roi(row))}`,next:row.suggest,target:"campaign"}));
-      scopedPids.filter((row) => row.hotOos >= 30).forEach((row) => attention.push({type:"PID",id:row.pid,name:`${row.spu} · ${row.name}`,risk:"库存风险",basis:`库存 ${row.inventory} / 热卖码断货 ${row.hotOos}%`,next:row.suggest,target:"pid"}));
-      scopedCreatives.filter((row) => row.auth === "已过期").forEach((row) => attention.push({type:"素材",id:row.videoId,name:row.title,risk:"授权过期",basis:`${row.delivery} / 到期 ${row.authDue}`,next:row.suggest,target:"creative"}));
-      scopedActions.filter((row) => row.priority === "P0").forEach((row) => attention.push({type:"行动点",id:row.id,name:row.targetName,risk:`${row.priority} · ${row.taskStatus}`,basis:row.metrics,next:row.recommend,target:"action"}));
+      scopedCampaigns.filter((row) => row.orders === 0).forEach((row) => attention.push({type:"Campaign",id:row.id,name:row.name,risk:"零订单",basis:`成本 ${money(row.cost)} / 订单 ${row.orders} / ROI ${multiple(roi(row))}`,next:"请在Campaign看板核对投放表现。",target:"campaign"}));
+      scopedPids.filter((row) => row.hotOos >= 30).forEach((row) => attention.push({type:"PID",id:row.pid,name:`${row.spu} · ${row.name}`,risk:"库存风险",basis:`库存 ${row.inventory} / 热卖码断货 ${row.hotOos}%`,next:"请在PID看板核对库存与广告表现。",target:"pid"}));
+      scopedCreatives.filter((row) => row.auth === "已过期").forEach((row) => attention.push({type:"素材",id:row.videoId,name:row.title,risk:"授权过期",basis:`${row.delivery} / 到期 ${row.authDue}`,next:"请在素材看板核对授权状态。",target:"creative"}));
       if (filterValue("attentionType") !== "all") attention = attention.filter((item) => item.type === filterValue("attentionType"));
-      const rows = attention.length ? attention.slice(0,8).map((item) => `<tr class="data-row"><td class="cell--key"><span class="primary-text">${escapeHtml(item.name)}</span><span class="secondary-text">${escapeHtml(item.type)} · ${escapeHtml(item.id)}</span></td><td>${pill(item.risk)}</td><td class="cell--wide">${escapeHtml(item.basis)}</td><td class="cell--wide">${escapeHtml(item.next)}</td><td class="cell--actions"><button class="button button--quiet" data-jump="${item.target}" data-search="${item.id}" type="button">进入${escapeHtml(TAB_META[item.target].label)}</button></td></tr>`).join("") : emptyRow(5,"风险对象");
-      byId("viewRoot").innerHTML = metricStrip(metrics) + groups + panel("当前需要关注", "从项目风险直接进入对应看板；项目指标不再塞进宽表。", `${attention.length} 个对象`, ["对象","风险","判断依据","下一步","操作"], rows);
+      const rows = attention.length ? attention.slice(0,8).map((item) => `<tr class="data-row"><td class="cell--key"><span class="primary-text">${escapeHtml(item.name)}</span><span class="secondary-text">${escapeHtml(item.type)} · ${escapeHtml(item.id)}</span></td><td>${pill(item.risk)}</td><td class="cell--wide">${escapeHtml(item.basis)}</td><td class="cell--wide">${escapeHtml(item.next)}</td><td class="cell--actions"><button class="button button--quiet" data-jump="${item.target}" data-search="${item.id}" type="button">进入${escapeHtml(TAB_META[item.target].label)}</button></td></tr>`).join("") : emptyRow(5,"关注对象");
+      byId("viewRoot").innerHTML = metricStrip(metrics) + groups + panel("当前关注", "从项目概览直接进入对应看板，核对投放表现与基础状态。", `${attention.length} 个对象`, ["对象","状态","判断依据","说明","操作"], rows);
     }
 
     function renderCampaign() {
@@ -2101,8 +2046,7 @@
         {label:"广告成本",value:money(totals.cost),note:"筛选范围合计"},
         {label:"广告订单",value:number(totals.orders),note:`CPO ${money(totals.orders?totals.cost/totals.orders:null)}`},
         {label:"广告收入",value:money(totals.revenue),note:"广告归因"},
-        {label:"汇总ROI",value:multiple(totals.cost?totals.revenue/totals.cost:0),note:"按合计重算"},
-        {label:"未关闭行动点",value:number(rows.reduce((total,row)=>total+row.openActions,0)),note:"可进入行动点看板"}
+        {label:"汇总ROI",value:multiple(totals.cost?totals.revenue/totals.cost:0),note:"按合计重算"}
       ];
       const tableRows = rows.length ? rows.map((row) => {
         const stats = materialStats(creatives.filter((creative) => creative.campaignIds.includes(row.id)));
@@ -2114,11 +2058,9 @@
           <td><button class="button button--link" data-jump="pid" data-relation="pid:${row.pids[0]}" type="button">${escapeHtml(row.pids.join(" / "))}</button><span class="secondary-text">SPU ${escapeHtml(row.spus.join(" / "))} · 映射异常 0</span></td>
           <td><button class="button button--link" data-jump="creative" data-relation="campaign:${row.id}" type="button">历史去重 ${stats.historical} · 当前 ${stats.current}</button><span class="secondary-text">可用 ${stats.available} · 过期 ${stats.expired} · 探索中 ${stats.exploring}</span></td>
           <td>${pill(`热卖码断货 ${stockRisk}%`)}<span class="secondary-text">库存风险来自关联PID，不是TikTok字段</span></td>
-          <td class="cell--wide"><strong>${escapeHtml(row.tag)}</strong><span class="secondary-text">${escapeHtml(row.diagnosis)}</span></td>
-          <td class="cell--wide">${escapeHtml(row.suggest)}</td>
-          <td class="cell--actions"><button class="button button--quiet" data-analyze="campaign:${row.id}" type="button">表现分析</button> <button class="button button--quiet" data-jump="action" data-relation="target:${row.id}" type="button">行动点 ${row.openActions}</button></td></tr>`;
-      }).join("") : emptyRow(10,"Campaign");
-      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("历史 Campaign 表现", "头部字段统一放在页面上方；时期变化进入表现分析弹窗，主表专注配置、表现、关系和动作。", `${rows.length} 条`, ["Campaign","状态与排期","目标与预算","广告表现","产品关系","素材供给","库存门禁","诊断","建议动作","操作"], tableRows);
+          <td class="cell--actions"><button class="button button--quiet" data-analyze="campaign:${row.id}" type="button">表现分析</button></td></tr>`;
+      }).join("") : emptyRow(8,"Campaign");
+      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("历史 Campaign 表现", "头部字段统一放在页面上方；时期变化进入表现分析弹窗，主表专注配置、表现、关系和库存。", `${rows.length} 条`, ["Campaign","状态与排期","目标与预算","广告表现","产品关系","素材供给","库存门禁","操作"], tableRows);
     }
 
     function renderSpu() {
@@ -2146,12 +2088,10 @@
           <td class="cell--numeric"><strong>${multiple(perf.cost?perf.revenue/perf.cost:0)}</strong><span class="secondary-text">成本 ${money(perf.cost)} · 订单 ${number(perf.orders)} · 收入 ${money(perf.revenue)}</span></td>
           <td><button class="button button--link" data-jump="creative" data-relation="spu:${row.spu}" type="button">历史 ${stats.historical} · 当前 ${stats.current}</button><span class="secondary-text">可用 ${stats.available} · 优质 ${stats.high} · 过期 ${stats.expired}</span></td>
           <td>${pill(`库存 ${row.inventory}`)}<span class="secondary-text">热卖码断货 ${row.hotOos}%</span><button class="button button--link" data-inventory="spu:${row.spu}" type="button">查看库存</button></td>
-          <td class="cell--wide"><strong>${escapeHtml(row.tag)}</strong><span class="secondary-text">${escapeHtml(row.diagnosis)}</span></td>
-          <td class="cell--wide">${escapeHtml(row.suggest)}</td>
           <td class="cell--actions"><button class="button button--quiet" data-analyze="spu:${row.spu}" type="button">表现分析</button> <button class="button button--quiet" data-jump="campaign" data-relation="spu:${row.spu}" type="button">看Campaign</button></td></tr>`;
-        body += rowDetailCampaigns("spu", row.spu, row.campaignIds, 9);
+        body += rowDetailCampaigns("spu", row.spu, row.campaignIds, 7);
       });
-      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("SPU 广告经营聚合", "SPU作为经营款式聚合多个PID；历史Campaign数可点击展开去重明细。", `${rows.length} 个SPU`, ["SPU","PID结构","历史Campaign","广告表现","素材供给","库存门禁","诊断","建议动作","操作"], body || emptyRow(9,"SPU"));
+      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("SPU 广告经营聚合", "SPU作为经营款式聚合多个PID；历史Campaign数可点击展开去重明细。", `${rows.length} 个SPU`, ["SPU","PID结构","历史Campaign","广告表现","素材供给","库存门禁","操作"], body || emptyRow(7,"SPU"));
     }
 
     function renderPid() {
@@ -2180,12 +2120,10 @@
           <td class="cell--numeric"><strong>${multiple(perf.cost?perf.revenue/perf.cost:0)}</strong><span class="secondary-text">成本 ${money(perf.cost)} · 订单 ${number(perf.orders)} · CPO ${money(perf.orders?perf.cost/perf.orders:null)}</span></td>
           <td><button class="button button--link" data-jump="creative" data-relation="pid:${row.pid}" type="button">历史 ${stats.historical} · 当前 ${stats.current}</button><span class="secondary-text">可用 ${stats.available} · 探索中 ${stats.exploring} · 过期 ${stats.expired}</span></td>
           <td>${pill(`库存 ${row.inventory}`)}<span class="secondary-text">热卖码断货 ${row.hotOos}%</span><button class="button button--link" data-inventory="pid:${row.pid}" type="button">查看库存</button></td>
-          <td class="cell--wide"><strong>${escapeHtml(row.tag)}</strong><span class="secondary-text">${escapeHtml(row.diagnosis)}</span></td>
-          <td class="cell--wide">${escapeHtml(row.suggest)}</td>
           <td class="cell--actions"><button class="button button--quiet" data-analyze="pid:${row.pid}" type="button">表现分析</button> <button class="button button--quiet" data-jump="campaign" data-relation="pid:${row.pid}" type="button">看Campaign</button></td></tr>`;
-        body += rowDetailCampaigns("pid", row.pid, row.campaignIds, 9);
+        body += rowDetailCampaigns("pid", row.pid, row.campaignIds, 7);
       });
-      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("PID 历史广告聚合", "一个PID对应一个主推SPU；历史Campaign数可点击展开，库存门禁与广告表现并列核对。", `${rows.length} 个PID`, ["Product ID / 主推SPU","映射状态","历史Campaign","广告表现","素材供给","库存门禁","诊断","建议动作","操作"], body || emptyRow(9,"PID"));
+      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("PID 历史广告聚合", "一个PID对应一个主推SPU；历史Campaign数可点击展开，库存门禁与广告表现并列核对。", `${rows.length} 个PID`, ["Product ID / 主推SPU","映射状态","历史Campaign","广告表现","素材供给","库存门禁","操作"], body || emptyRow(7,"PID"));
     }
 
     function creativeHistoryRow(row, colspan) {
@@ -2195,7 +2133,7 @@
         ["2026-08-27",row.auth === "已过期" ? "DELIVERY_OK" : row.delivery,row.auth === "已过期" ? "投放中" : row.deliveryLabel,"已探索",row.performance,row.cost*0.82,Math.round(row.orders*0.85),roi(row)*1.03],
         ["2026-08-20","DELIVERY_OK","投放中",row.explore === "探索中" ? "探索中" : "已探索",row.performance,row.cost*0.64,Math.round(row.orders*0.68),roi(row)*1.06]
       ];
-      return `<tr class="detail-row"><td colspan="${colspan}"><div class="inline-detail"><div class="inline-detail__head"><h3>素材历史状态趋势 · ${escapeHtml(row.videoId)}</h3><button class="button button--quiet" data-collapse type="button">收起</button></div><div class="detail-grid"><div class="detail-card"><span>当前可用状态</span><strong>${row.available}</strong></div><div class="detail-card"><span>平台真实状态</span><strong>${row.delivery}</strong></div><div class="detail-card"><span>探索 / 表现标签</span><strong>${row.explore} / ${row.performance}</strong></div><div class="detail-card"><span>内部经营判断</span><strong>${row.internal}</strong></div></div><table class="history-table"><thead><tr><th>业务日</th><th>creative_delivery_status</th><th>中文释义</th><th>探索状态</th><th>平台表现标签</th><th>成本</th><th>订单</th><th>ROI</th></tr></thead><tbody>${snapshots.map((item)=>`<tr><td>${item[0]}</td><td><code>${item[1]}</code></td><td>${item[2]}</td><td>${item[3]}</td><td>${item[4]}</td><td>${money(item[5])}</td><td>${item[6]}</td><td>${multiple(item[7])}</td></tr>`).join("")}</tbody></table></div></td></tr>`;
+      return `<tr class="detail-row"><td colspan="${colspan}"><div class="inline-detail"><div class="inline-detail__head"><h3>素材历史状态趋势 · ${escapeHtml(row.videoId)}</h3><button class="button button--quiet" data-collapse type="button">收起</button></div><div class="detail-grid"><div class="detail-card"><span>授权状态</span><strong>${row.auth}</strong></div><div class="detail-card"><span>平台真实状态</span><strong>${row.delivery}</strong></div><div class="detail-card"><span>探索 / 表现标签</span><strong>${row.explore} / ${row.performance}</strong></div><div class="detail-card"><span>加热情况</span><strong>${row.heat}</strong></div></div><table class="history-table"><thead><tr><th>业务日</th><th>creative_delivery_status</th><th>中文释义</th><th>探索状态</th><th>平台表现标签</th><th>成本</th><th>订单</th><th>ROI</th></tr></thead><tbody>${snapshots.map((item)=>`<tr><td>${item[0]}</td><td><code>${item[1]}</code></td><td>${item[2]}</td><td>${item[3]}</td><td>${item[4]}</td><td>${money(item[5])}</td><td>${item[6]}</td><td>${multiple(item[7])}</td></tr>`).join("")}</tbody></table></div></td></tr>`;
     }
 
     function renderCreative() {
@@ -2222,56 +2160,17 @@
           <td>${tag(row.type)}<span class="secondary-text">${escapeHtml(row.basis)} · 置信度${row.confidence}</span><span class="secondary-text">商务 ${row.business} · 剪辑 ${row.editor}</span></td>
           <td>${colorTag(row.mainColor)}<span class="secondary-text">包含 ${escapeHtml(row.colors.join(" / "))}</span><span class="secondary-text">${colorStock ? `现货 ${number(colorStock.stock)} · 在途 ${number(colorStock.inbound)} · 可售 ${colorStock.days}天` : "颜色库存待映射"}</span><span class="secondary-text ${colorStock?.days<=7?"inventory-risk":""}">${colorStock ? colorRestockDecision(colorStock,[row]) : "待确认"}</span></td>
           <td><button class="button button--link" data-jump="pid" data-relation="pid:${row.pidList[0]}" type="button">${escapeHtml(row.pidList.join(" / "))}</button><span class="secondary-text">Campaign ${escapeHtml(row.campaignIds.join(" / "))}</span></td>
-          <td>${pill(row.available)}<span class="secondary-text">${row.unavailableReason} · 授权 ${row.auth} · 到期 ${row.authDue}</span></td>
+          <td>${pill(row.auth)}<span class="secondary-text">到期 ${row.authDue}</span></td>
           <td>${tag(row.explore)} ${tag(row.performance)}<span class="secondary-text">${row.heat} · 历史${row.heatTimes}次</span></td>
           <td>${pill(row.deliveryLabel,row.delivery)}<span class="secondary-text">业务日 ${row.statusDate} · 抓取 ${row.statusFetched}</span></td>
           <td class="cell--numeric"><strong>${multiple(roi(row))}</strong><span class="secondary-text">成本 ${money(row.cost)} · 订单 ${row.orders} · CPO ${money(cpo(row))}</span></td>
-          <td class="cell--wide"><strong>${escapeHtml(row.internal)}</strong><span class="secondary-text">${escapeHtml(row.diagnosis)}</span><span class="secondary-text">库存门禁：热卖码断货 ${inventoryRisk}%</span></td>
-          <td class="cell--wide">${escapeHtml(row.suggest)}</td>
-          <td class="cell--actions"><button class="button button--quiet" data-expand="creative:${row.videoId}" type="button">历史状态</button> <button class="button button--quiet" data-analyze="creative:${row.videoId}" type="button">表现分析</button>${row.auth === "已过期" || /衰退|返场/.test(row.internal) ? ` <button class="button button--quiet" data-create-task="${row.videoId}" type="button">生成跟进</button>` : ""}</td></tr>`;
-        body += creativeHistoryRow(row,11);
+          <td class="cell--actions"><button class="button button--quiet" data-expand="creative:${row.videoId}" type="button">历史状态</button> <button class="button button--quiet" data-analyze="creative:${row.videoId}" type="button">表现分析</button></td></tr>`;
+        body += creativeHistoryRow(row,9);
       });
       const notice = "素材颜色指视频主推商品款色，并按店铺 + Product ID + 商品颜色关联库存；不能仅凭素材数量决定备货。平台真实投放状态仍只展示 TikTok 返回的 <code>creative_delivery_status</code>。";
-      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("素材列表", "按Video ID核对归属、主推商品颜色、颜色库存、平台状态、表现和行动；不使用素材卡片。", `${rows.length} 条素材`, ["素材 / Video ID","类型与归属","商品颜色 / 颜色库存","广告与产品关系","可用与授权","探索 / 表现 / 加热","平台真实状态","素材表现","经营判断","建议动作","操作"], body || emptyRow(11,"素材"), notice);
+      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("素材列表", "按Video ID核对归属、主推商品颜色、颜色库存、平台状态与广告表现；不使用素材卡片。", `${rows.length} 条素材`, ["素材 / Video ID","类型与归属","商品颜色 / 颜色库存","广告与产品关系","授权","探索 / 表现 / 加热","平台真实状态","素材表现","操作"], body || emptyRow(9,"素材"), notice);
     }
 
-    function actionDetailRow(row, colspan) {
-      if (state.expanded !== `action:${row.id}`) return "";
-      const details = [["触发指标快照",row.metrics],["触发状态快照",row.statusSnapshot],["系统诊断",row.diagnosis],["建议动作",row.recommend],["成功标准",row.success],["回退条件",row.rollback],["修改前值",row.before],["修改后值",row.after],["执行证据",row.evidence],["复盘指标快照",row.reviewMetrics],["复盘结果",row.reviewResult],["最终决定",row.decision]];
-      return `<tr class="detail-row"><td colspan="${colspan}"><div class="inline-detail"><div class="inline-detail__head"><h3>行动点闭环 · ${escapeHtml(row.id)}</h3><button class="button button--quiet" data-collapse type="button">收起</button></div><div class="detail-grid">${details.map(([label,value])=>`<div class="detail-card"><span>${escapeHtml(label)}</span><strong>${escapeHtml(value)}</strong></div>`).join("")}</div></div></td></tr>`;
-    }
-
-    function renderAction() {
-      const rows = actionRows();
-      state.currentMaps = rows.map(actionMap);
-      const open = rows.filter((row)=>row.taskStatus!=="已关闭").length;
-      const p0 = rows.filter((row)=>row.priority==="P0" && row.taskStatus!=="已关闭").length;
-      const overdue = rows.filter((row)=>row.due<"2026-09-04" && !["已关闭","已完成待复盘"].includes(row.taskStatus)).length;
-      const metrics = [
-        {label:"未关闭行动点",value:number(open),note:"待领取 / 进行中 / 待复盘"},
-        {label:"P0优先",value:number(p0),note:"需要优先处理",className:p0?"metric-bad":""},
-        {label:"已逾期",value:number(overdue),note:"不含已完成待复盘",className:overdue?"metric-bad":""},
-        {label:"待复盘",value:number(rows.filter((row)=>row.taskStatus==="已完成待复盘"||row.reviewResult==="待复盘").length),note:"按真实动作时间计算"},
-        {label:"授权处理",value:number(rows.filter((row)=>row.actionType==="授权处理").length),note:"素材续期"},
-        {label:"库存处理",value:number(rows.filter((row)=>row.actionType==="库存处理").length),note:"投放前置门禁"}
-      ];
-      let body = "";
-      rows.forEach((row) => {
-        const isOverdue = row.due < "2026-09-04" && !["已关闭","已完成待复盘"].includes(row.taskStatus);
-        body += `<tr class="data-row"><td class="cell--key"><span class="primary-text">${escapeHtml(row.id)}</span><span class="secondary-text">${escapeHtml(row.source)} · ${escapeHtml(row.created)}</span></td>
-          <td><span class="primary-text">${escapeHtml(row.targetName)}</span><span class="secondary-text">${escapeHtml(row.targetType)} · ${escapeHtml(row.targetId)}</span></td>
-          <td>${pill(row.priority)}<span class="secondary-text">${escapeHtml(row.issueType)} · ${escapeHtml(row.tag)}</span></td>
-          <td><select data-action-status="${row.id}" aria-label="更新任务状态"><option ${row.taskStatus==="待领取"?"selected":""}>待领取</option><option ${row.taskStatus==="进行中"?"selected":""}>进行中</option><option ${row.taskStatus==="等待素材"?"selected":""}>等待素材</option><option ${row.taskStatus==="已完成待复盘"?"selected":""}>已完成待复盘</option><option ${row.taskStatus==="已关闭"?"selected":""}>已关闭</option></select><span class="secondary-text">${escapeHtml(row.owner)} · 协同 ${escapeHtml(row.collaborators)}</span></td>
-          <td>${pill(row.actionType)}<span class="secondary-text">系统建议与真实动作分开记录</span></td>
-          <td class="cell--wide">${escapeHtml(row.metrics)}<span class="secondary-text">${escapeHtml(row.statusSnapshot)}</span></td>
-          <td class="cell--wide">${escapeHtml(row.recommend)}</td>
-          <td class="${isOverdue?"metric-bad":""}">${escapeHtml(row.due)}${isOverdue?"<span class=\"secondary-text\">已逾期</span>":""}<span class="secondary-text">复盘 ${escapeHtml(row.review)} · ${escapeHtml(row.reviewResult)}</span></td>
-          <td class="cell--actions"><button class="button button--quiet" data-expand="action:${row.id}" type="button">查看闭环</button></td></tr>`;
-        body += actionDetailRow(row,9);
-      });
-      const notice = "动作类型采用标准分类；Demo只记录任务和模拟执行证据，不调用TikTok写接口。";
-      byId("viewRoot").innerHTML = metricStrip(metrics) + panel("行动点闭环", "建议动作、真实动作类型、任务状态、执行证据和复盘结果分开记录。", `${rows.length} 条`, ["行动点","目标对象","问题与优先级","任务状态 / 负责人","动作类型","判断依据","建议动作","截止 / 复盘","操作"], body || emptyRow(9,"行动点"), notice);
-    }
 
     function render() {
       renderFilterControls();
@@ -2291,7 +2190,6 @@
       if (state.tab === "spu") renderSpu();
       if (state.tab === "pid") renderPid();
       if (state.tab === "creative") renderCreative();
-      if (state.tab === "action") renderAction();
 
       // restyle action buttons wired after each render
       const exportInline = byId("exportInlineBtn");
@@ -2306,10 +2204,10 @@
         byId("modalControls").innerHTML = "";
         byId("modalBody").innerHTML = `<div class="notice">本页为本地交互 Demo，使用模拟数据，不代表 TikTok 广告后台实时结果。</div>
           <div class="detail-grid">
-            <div class="detail-card"><span>页面用途</span><strong>按项目→Campaign→SPU→PID→素材→行动点六层下钻，定位广告表现、库存门禁与可执行行动。</strong></div>
-            <div class="detail-card"><span>核心栏目</span><strong>项目总览 / Campaign / SPU / PID / 素材 / 行动点</strong></div>
+            <div class="detail-card"><span>页面用途</span><strong>按项目→Campaign→SPU→PID→素材五层下钻，定位广告表现、库存门禁与素材状态。</strong></div>
+            <div class="detail-card"><span>核心栏目</span><strong>项目总览 / Campaign / SPU / PID / 素材</strong></div>
             <div class="detail-card"><span>数据来源</span><strong>Demo 模拟数据；正式落地对接 TikTok Business API 与现有数仓 ADS/DIM。</strong></div>
-            <div class="detail-card"><span>操作边界</span><strong>仅演示查询、导出、分析弹窗与任务状态切换，不调用平台写接口。</strong></div>
+            <div class="detail-card"><span>操作边界</span><strong>仅演示查询、导出与表现分析弹窗，不调用平台写接口。</strong></div>
           </div>`;
       };
       const columnBtn = byId("columnConfigBtn");
@@ -2324,27 +2222,27 @@
       if (type === "project") {
         const rows = campaigns.filter(inScope);
         const relatedPids = pidRecords.filter(inScope);
-        return { label:"TikTok美英站广告项目", metrics:aggregateMetrics(rows), relatedCampaigns:rows, relatedPids, relatedCreatives:creatives.filter(inScope), dailyBudget:sum(rows,"budget"), diagnosis:"项目ROI整体健康，但存在授权过期、颜色库存不足和季节返场三个独立问题。", suggest:"先处理P0授权与颜色库存任务，再推进返场测试。" };
+        return { label:"TikTok美英站广告项目", metrics:aggregateMetrics(rows), relatedCampaigns:rows, relatedPids, relatedCreatives:creatives.filter(inScope), dailyBudget:sum(rows,"budget") };
       }
       if (type === "campaign") {
         const row = campaigns.find((item)=>item.id===id);
-        return row ? { label:row.name, metrics:aggregateMetrics([row]), relatedCampaigns:[row], relatedPids:pidRecords.filter((pid)=>row.pids.includes(pid.pid)), relatedCreatives:creativesForCampaignIds([row.id]), dailyBudget:row.budget, targetRoi:row.target, diagnosis:row.diagnosis, suggest:row.suggest } : null;
+        return row ? { label:row.name, metrics:aggregateMetrics([row]), relatedCampaigns:[row], relatedPids:pidRecords.filter((pid)=>row.pids.includes(pid.pid)), relatedCreatives:creativesForCampaignIds([row.id]), dailyBudget:row.budget, targetRoi:row.target } : null;
       }
       if (type === "spu") {
         const row = spuRows().find((item)=>item.spu===id);
         if (!row) return null;
         const relatedCampaigns = campaignsForIds(row.campaignIds);
-        return { label:`${row.spu} · ${row.name}`, metrics:aggregateMetrics(relatedCampaigns), relatedCampaigns, relatedPids:pidRecords.filter((pid)=>row.pids.includes(pid.pid)), relatedCreatives:creativesForPids(row.pids), dailyBudget:sum(relatedCampaigns,"budget"), diagnosis:row.diagnosis, suggest:row.suggest };
+        return { label:`${row.spu} · ${row.name}`, metrics:aggregateMetrics(relatedCampaigns), relatedCampaigns, relatedPids:pidRecords.filter((pid)=>row.pids.includes(pid.pid)), relatedCreatives:creativesForPids(row.pids), dailyBudget:sum(relatedCampaigns,"budget") };
       }
       if (type === "pid") {
         const row = pidRecords.find((item)=>item.pid===id);
         if (!row) return null;
         const relatedCampaigns = campaignsForIds(row.campaignIds);
-        return { label:`${row.pid} · ${row.name}`, metrics:aggregateMetrics(relatedCampaigns), relatedCampaigns, relatedPids:[row], relatedCreatives:creativesForPids([row.pid]), dailyBudget:sum(relatedCampaigns,"budget"), diagnosis:row.diagnosis, suggest:row.suggest };
+        return { label:`${row.pid} · ${row.name}`, metrics:aggregateMetrics(relatedCampaigns), relatedCampaigns, relatedPids:[row], relatedCreatives:creativesForPids([row.pid]), dailyBudget:sum(relatedCampaigns,"budget") };
       }
       if (type === "creative") {
         const row = creatives.find((item)=>item.videoId===id);
-        return row ? { label:`${row.videoId} · ${row.title}`, metrics:aggregateMetrics([row]), relatedCampaigns:campaignsForIds(row.campaignIds), relatedPids:pidRecords.filter((pid)=>row.pidList.includes(pid.pid)), relatedCreatives:[row], dailyBudget:null, diagnosis:row.diagnosis, suggest:row.suggest } : null;
+        return row ? { label:`${row.videoId} · ${row.title}`, metrics:aggregateMetrics([row]), relatedCampaigns:campaignsForIds(row.campaignIds), relatedPids:pidRecords.filter((pid)=>row.pidList.includes(pid.pid)), relatedCreatives:[row], dailyBudget:null } : null;
       }
       return null;
     }
@@ -2429,23 +2327,11 @@
       byId("modalTitle").textContent = "素材供给与颜色库存分析";
       byId("modalSubtitle").textContent = "按主推商品颜色聚合素材表现，再与颜色库存核对；包含颜色不重复计数";
       byId("modalControls").innerHTML = analysisControls("广告表现日期");
-      const metrics = [{label:"当前素材",value:number(total),note:"Video ID去重"},{label:"商务素材",value:ratio(business,total),note:"联盟视频且有商务归属"},{label:"剪辑素材",value:ratio(editing,total),note:"自制视频且有剪辑归属"},{label:"当前可用",value:number(stats.available),note:`过期 ${stats.expired}`},{label:"颜色库存风险",value:number(risks),note:"主推颜色可售≤7天",className:risks?"metric-bad":""},{label:"重新加热候选",value:number(stats.reheat),note:"仍可用且衰退/返场"}];
+      const metrics = [{label:"当前素材",value:number(total),note:"Video ID去重"},{label:"商务素材",value:ratio(business,total),note:"联盟视频且有商务归属"},{label:"剪辑素材",value:ratio(editing,total),note:"自制视频且有剪辑归属"},{label:"当前可用",value:number(stats.available),note:`过期 ${stats.expired}`},{label:"颜色库存风险",value:number(risks),note:"主推颜色可售≤7天",className:risks?"metric-bad":""}];
       const table = colors.map((row)=>`<tr><td>${colorTag(row.color)}</td><td>${ratio(row.creatives.length,total)}</td><td>${money(row.cost)}</td><td>${number(row.orders)}</td><td>${multiple(row.roi)}</td><td>${number(row.stock)}</td><td>${number(row.inbound)}</td><td class="${row.days<=7?"inventory-risk":""}">${row.days==null?"—":`${row.days}天`}</td><td>${escapeHtml(row.decision)}</td></tr>`).join("");
       byId("modalBody").innerHTML = metricStrip(metrics) + `<article class="analysis-card"><div class="analysis-card__head">商品颜色投放贡献 × 颜色库存</div><div class="table-scroll"><table class="history-table"><thead><tr><th>主推颜色</th><th>素材数/占比</th><th>成本</th><th>订单</th><th>ROI</th><th>现货</th><th>在途</th><th>可售天数</th><th>备货判断</th></tr></thead><tbody>${table}</tbody></table></div><div class="analysis-card__body"><div class="insight__boundary">判断边界：素材数量多不等于需要补货；只有颜色广告贡献较高且库存覆盖不足时，才建议增加该颜色备货。</div></div></article>`;
     }
 
-    function renderActionAnalysisModal() {
-      const modal = state.modal;
-      const rows = actions.filter(inScope).filter((row)=>row.triggeredAt.slice(0,10)>=modal.startDate&&row.triggeredAt.slice(0,10)<=modal.endDate);
-      const open = rows.filter((row)=>row.taskStatus!=="已关闭").length, p0 = rows.filter((row)=>row.priority==="P0"&&row.taskStatus!=="已关闭").length;
-      const overdue = rows.filter((row)=>row.due<"2026-09-04"&&!['已关闭','已完成待复盘'].includes(row.taskStatus)).length;
-      byId("modalTitle").textContent = "风险与行动闭环分析";
-      byId("modalSubtitle").textContent = "按触发时间查看问题来源、任务状态和责任归属";
-      byId("modalControls").innerHTML = analysisControls("触发时间");
-      const metrics = [{label:"触发行动点",value:number(rows.length),note:"当前日期范围"},{label:"未关闭",value:number(open),note:"待领取/进行中/待复盘"},{label:"P0",value:number(p0),note:"优先处理",className:p0?"metric-bad":""},{label:"已逾期",value:number(overdue),note:"不含待复盘"},{label:"授权处理",value:number(rows.filter((row)=>row.actionType==="授权处理").length),note:"素材续权"},{label:"库存处理",value:number(rows.filter((row)=>row.actionType==="库存处理").length),note:"投放门禁"}];
-      const table = rows.map((row)=>`<tr><td>${row.id}</td><td>${row.targetName}</td><td>${pill(row.priority)}</td><td>${row.actionType}</td><td>${row.taskStatus}</td><td>${row.owner}</td><td>${row.due}</td><td>${row.reviewResult}</td></tr>`).join("");
-      byId("modalBody").innerHTML = metricStrip(metrics) + `<article class="analysis-card"><div class="analysis-card__head">行动点明细</div><div class="table-scroll"><table class="history-table"><thead><tr><th>行动点</th><th>对象</th><th>优先级</th><th>动作类型</th><th>任务状态</th><th>负责人</th><th>截止日期</th><th>复盘结果</th></tr></thead><tbody>${table||`<tr><td colspan="8">当前触发时间范围内没有行动点</td></tr>`}</tbody></table></div></article>`;
-    }
 
     function renderPerformanceAnalysisModal() {
       const modal = state.modal, entity = analysisEntity(modal.type,modal.id);
@@ -2465,12 +2351,11 @@
       else metrics = [{label:"日预算合计",value:money(entity.dailyBudget),note:`${days}日容量 ${money(entity.dailyBudget*days)}`},{label:"成本",value:money(now.cost),note:`较前期 ${percent(change(now.cost,before.cost))}`},{label:"订单",value:number(now.orders),note:`较前期 ${percent(change(now.orders,before.orders))}`},{label:"收入",value:money(now.revenue),note:`较前期 ${percent(change(now.revenue,before.revenue))}`},{label:"ROI",value:multiple(now.roi),note:`较前期 ${percent(change(now.roi,before.roi))}`},{label:"平均下单成本",value:money(now.cpo),note:"成本÷订单"}];
       const dailyHead = modal.type === "creative" ? "<th>日期</th><th>平台状态</th><th>探索/表现</th><th>成本</th><th>订单</th><th>收入</th><th>ROI</th>" : "<th>日期</th><th>日预算</th><th>成本</th><th>订单</th><th>收入</th><th>ROI</th>";
       const dailyRows = current.map((row)=>modal.type === "creative" ? `<tr><td>${row.date}</td><td><code>${row.delivery}</code></td><td>${row.explore}</td><td>${money(row.cost)}</td><td>${row.orders}</td><td>${money(row.revenue)}</td><td>${multiple(row.roi)}</td></tr>` : `<tr><td>${row.date}</td><td>${money(row.budget)}</td><td>${money(row.cost)}</td><td>${row.orders}</td><td>${money(row.revenue)}</td><td>${multiple(row.roi)}</td></tr>`).join("");
-      byId("modalBody").innerHTML = metricStrip(metrics) + `<div class="analysis-grid"><article class="analysis-card"><div class="analysis-card__head">ROI日趋势</div><div class="analysis-card__body">${chartSvg(current)}</div></article><article class="analysis-card"><div class="analysis-card__head">诊断与下一步</div><div class="analysis-card__body insight"><strong>当前判断</strong><br>${escapeHtml(entity.diagnosis)}<br><br><strong>建议动作</strong><br>${escapeHtml(entity.suggest)}<div class="insight__boundary">判断边界：先核对数据完整性、颜色库存和授权，再把变化归因到广告或素材。</div></div></article></div><article class="analysis-card" style="margin-top:10px"><div class="analysis-card__head">日粒度明细</div><div class="table-scroll" style="max-height:230px"><table class="history-table"><thead><tr>${dailyHead}</tr></thead><tbody>${dailyRows}</tbody></table></div></article>${analysisSupport(modal.type,entity)}`;
+      byId("modalBody").innerHTML = metricStrip(metrics) + `<div class="analysis-grid"><article class="analysis-card"><div class="analysis-card__head">ROI日趋势</div><div class="analysis-card__body">${chartSvg(current)}</div></article><article class="analysis-card"><div class="analysis-card__head">数据说明</div><div class="analysis-card__body insight">当前范围与紧邻前期进行对比展示。<div class="insight__boundary">请结合数据完整性、颜色库存、授权和平台状态理解广告表现变化。</div></div></article></div><article class="analysis-card" style="margin-top:10px"><div class="analysis-card__head">日粒度明细</div><div class="table-scroll" style="max-height:230px"><table class="history-table"><thead><tr>${dailyHead}</tr></thead><tbody>${dailyRows}</tbody></table></div></article>${analysisSupport(modal.type,entity)}`;
     }
 
     function renderAnalysisModal() {
       if (state.modal.type === "material") return renderMaterialAnalysisModal();
-      if (state.modal.type === "action") return renderActionAnalysisModal();
       return renderPerformanceAnalysisModal();
     }
 
@@ -2507,37 +2392,6 @@
       byId("modalMask").setAttribute("aria-hidden","true");
     }
 
-    /* ---------- Action-point creation ---------- */
-    function createTask(videoId) {
-      const creative = creatives.find((row)=>row.videoId===videoId);
-      if (!creative) return;
-      const issueType = creative.auth === "已过期" ? "授权处理" : /返场/.test(creative.internal) ? "商品或活动处理" : "继续观察与复查";
-      const existing = actions.find((row)=>row.targetId===videoId && row.issueType===issueType && row.taskStatus!=="已关闭");
-      if (existing) {
-        state.tab = "action";
-        state.query = existing.id;
-        state.relationFilter = null;
-        byId("searchInput").value = existing.id;
-        render();
-        showToast(`已定位未关闭任务 ${existing.id}，未重复生成`);
-        return;
-      }
-      const id = `ACT-DEMO-${String(actions.length+1).padStart(3,"0")}`;
-      actions.unshift({
-        site:creative.site,store:creative.store,id,source:"素材看板",targetType:"Video ID",targetId:creative.videoId,targetName:creative.title,
-        triggeredAt:"2026-09-04 12:00",windowStart:state.startDate,windowEnd:state.endDate,metrics:`成本 ${money(creative.cost)} / 订单 ${creative.orders} / ROI ${multiple(roi(creative))}`,
-        statusSnapshot:`${creative.delivery} / ${creative.auth} / ${creative.internal}`,tag:creative.tag,diagnosis:creative.diagnosis,recommend:creative.suggest,issueType,
-        priority:creative.auth==="已过期"?"P0":"P1",taskStatus:"待领取",owner:creative.type==="联盟视频"?creative.business:creative.editor,collaborators:creative.type==="联盟视频"?"运营":"运营 / 商务",
-        created:"2026-09-04",due:"2026-09-07",success:"完成建议动作并补充执行证据",rollback:"证据不足时不扩大投放",actionType:issueType,actionAt:"—",before:creative.internal,after:"待执行",evidence:"—",external:"—",review:"D+3",reviewMetrics:"待动作执行",reviewResult:"未执行",decision:"待定",nextReview:"2026-09-10"
-      });
-      creative.openActions += 1;
-      state.tab = "action";
-      state.query = id;
-      state.relationFilter = null;
-      byId("searchInput").value = id;
-      render();
-      showToast(`已生成本地Demo行动点 ${id}`);
-    }
 
     /* ---------- Minimal self-contained XLSX writer ---------- */
     function crcTable() { const table=[]; for(let n=0;n<256;n+=1){let c=n;for(let k=0;k<8;k+=1)c=(c&1)?0xedb88320^(c>>>1):c>>>1;table[n]=c>>>0;} return table; }
@@ -2615,14 +2469,9 @@
     byId("viewRoot").addEventListener("click",(event)=>{
       const analyze=event.target.closest("[data-analyze]");if(analyze){openAnalysis(analyze.dataset.analyze);return;}
       const inventory=event.target.closest("[data-inventory]");if(inventory){openInventory(inventory.dataset.inventory);return;}
-      const task=event.target.closest("[data-create-task]");if(task){createTask(task.dataset.createTask);return;}
       const expand=event.target.closest("[data-expand]");if(expand){state.expanded=state.expanded===expand.dataset.expand?null:expand.dataset.expand;render();return;}
       if(event.target.closest("[data-collapse]")){state.expanded=null;render();return;}
       const jump=event.target.closest("[data-jump]");if(jump){state.tab=jump.dataset.jump;state.filters={};state.dateMode=DATE_MODES[state.tab][0].value;state.expanded=null;state.relationFilter=jump.dataset.relation?{type:jump.dataset.relation.split(":")[0],id:jump.dataset.relation.split(":").slice(1).join(":")}:null;state.query=jump.dataset.search||"";byId("searchInput").value=state.query;render();window.scrollTo({top:0,behavior:"smooth"});}
-    });
-    byId("viewRoot").addEventListener("change",(event)=>{
-      if(!event.target.matches("[data-action-status]"))return;
-      const row=actions.find((item)=>item.id===event.target.dataset.actionStatus);if(!row)return;row.taskStatus=event.target.value;render();showToast(`任务 ${row.id} 已更新为${row.taskStatus}（仅本地Demo）`);
     });
     byId("modalClose").addEventListener("click",closeModal);
     byId("modalMask").addEventListener("click",(event)=>{if(event.target===byId("modalMask"))closeModal();});

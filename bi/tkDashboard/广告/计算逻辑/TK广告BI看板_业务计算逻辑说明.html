@@ -261,7 +261,8 @@
     <a href="#sec-action">六、行动点看板字段计算逻辑</a><br>
     <a href="#sec-common">七、通用说明</a><br>
     <a href="#sec-changelog">八、变动记录</a><br>
-    <a href="#sec-api-access">九、广告API需要接入的明细</a>
+    <a href="#sec-api-access">九、广告API需要接入的明细</a><br>
+    <a href="#sec-vsa">十、VSA 消耗识别与接口补充（2026-10-07 联调）</a>
   </div>
 </div>
 <h2 id="sec-dw-reuse">〇、现有数仓可复用结论（非广告指标）</h2>
@@ -707,7 +708,7 @@
 <tr><td>2026-09-17</td><td>业务</td><td>接入清单</td><td>序号7–9改用账户 7458211298812461057（Faiable Comfywear）补齐非空 video/session 样列；video/get 注明 need_auth_code_video=true。</td></tr>
 </tbody></table>
 <h2 id="sec-api-access">九、广告API需要接入的明细</h2>
-<p class="note">按正文各栏目已映射的 TikTok Business API 去重整理；「字段注释」为样列字段的中文说明（<code>//</code> 注释，非接口原始返回）；「样列数据」为接口真实返回 JSON（序号1账户列表保留全量；其余列表/数组最多保留 2 条）。主采样广告账户 <code>advertiser_id=7458490220338511873</code>，<code>store_id=7495432785128294757</code>（Faiable Fashion），<code>campaign_id=1876546919972898</code>。因该账户 video/session 为空，序号 7–9 改用 <code>advertiser_id=7458211298812461057</code> / <code>store_id=7495838640872392746</code>（Faiable Comfywear）；video/get 需传 <code>need_auth_code_video=true</code> 才有返回；session 样列对应 <code>campaign_id=1852287833477170</code> / <code>session_id=1852287936334034</code>。凭证不写入本文档。</p>
+<p class="note">按正文各栏目已映射的 TikTok Business API 去重整理；「字段注释」为样列字段的中文说明（<code>//</code> 注释，非接口原始返回）；「样列数据」为接口真实返回 JSON（序号1账户列表保留全量；其余列表/数组最多保留 2 条）。主采样广告账户 <code>advertiser_id=7458490220338511873</code>，<code>store_id=7495432785128294757</code>（Faiable Fashion），<code>campaign_id=1876546919972898</code>。因该账户 video/session 为空，序号 7–9 改用 <code>advertiser_id=7458211298812461057</code> / <code>store_id=7495838640872392746</code>（Faiable Comfywear）；video/get 需传 <code>need_auth_code_video=true</code> 才有返回；session 样列对应 <code>campaign_id=1852287833477170</code> / <code>session_id=1852287936334034</code>。序号 12–14 于 2026-10-07 使用 Python 直连 TikTok 官方接口获取，未经过 9204，样例仅保留必要业务字段且不包含鉴权信息。凭证不写入本文档。</p>
 <table><thead><tr><th class="w-no">序号</th><th class="w-name">接口中文名称</th><th class="w-logic">接口地址</th><th class="w-comment">字段注释</th><th class="w-sample">样列数据</th></tr></thead><tbody>
 <tr><td>1</td><td>获取授权广告账户列表</td><td><code>GET /open_api/v1.3/oauth2/advertiser/get/</code></td><td class="w-comment"><pre>{
   &quot;code&quot;: 0, // 返回码，0 表示成功
@@ -1659,5 +1660,141 @@
     ]
   }
 }</pre></td></tr>
+<tr><td>12</td><td>获取普通 Campaign 列表</td><td><code>GET /open_api/v1.3/campaign/get/</code></td><td class="w-comment"><pre>{
+  "code": 0, // 成功状态码
+  "message": "OK", // 调用结果说明
+  "data": {
+    "list": [
+      {
+        "advertiser_id": "7458490220338511873", // 广告主账户 ID
+        "campaign_id": "1876771326979745", // Campaign ID
+        "campaign_name": "161-红色-7676081534889119007", // Campaign 名称
+        "objective_type": "PRODUCT_SALES", // 推广目标
+        "operation_status": "DISABLE", // 人工设置的投放状态
+        "secondary_status": "CAMPAIGN_STATUS_DISABLE", // 平台二级状态
+        "budget_mode": "BUDGET_MODE_INFINITE", // 预算模式
+        "budget": 0.0 // Campaign 预算金额
+      }
+    ]
+  }
+}</pre></td><td class="w-sample"><pre>{
+  "code": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "advertiser_id": "7458490220338511873",
+        "campaign_id": "1876771326979745",
+        "campaign_name": "161-红色-7676081534889119007",
+        "objective_type": "PRODUCT_SALES",
+        "operation_status": "DISABLE",
+        "secondary_status": "CAMPAIGN_STATUS_DISABLE",
+        "budget_mode": "BUDGET_MODE_INFINITE",
+        "budget": 0.0
+      }
+    ]
+  }
+}</pre></td></tr>
+<tr><td>13</td><td>获取普通 Ad Group 列表</td><td><code>GET /open_api/v1.3/adgroup/get/</code></td><td class="w-comment"><pre>{
+  "code": 0, // 成功状态码
+  "message": "OK", // 调用结果说明
+  "data": {
+    "list": [
+      {
+        "advertiser_id": "7458490220338511873", // 广告主账户 ID
+        "campaign_id": "1876771326979745", // 所属 Campaign ID
+        "campaign_name": "161-红色-7676081534889119007", // 所属 Campaign 名称
+        "adgroup_id": "1876771300789281", // Ad Group ID
+        "adgroup_name": "161-红色7676081534889119007", // Ad Group 名称
+        "promotion_type": "VIDEO_SHOPPING", // VSA 主识别字段：VIDEO_SHOPPING 表示 Video Shopping Ads
+        "shopping_ads_type": "VIDEO", // VSA 交叉校验字段：VIDEO 表示视频购物广告
+        "product_source": "STORE", // 商品来源：TikTok Shop 店铺商品
+        "operation_status": "DISABLE", // 人工设置的投放状态
+        "secondary_status": "ADGROUP_STATUS_CAMPAIGN_DISABLE", // 平台二级状态
+        "budget_mode": "BUDGET_MODE_DYNAMIC_DAILY_BUDGET", // 预算模式
+        "budget": 300.0, // Ad Group 日预算金额
+        "optimization_goal": "VALUE", // 优化目标
+        "billing_event": "OCPM" // 计费方式
+      }
+    ]
+  }
+}</pre></td><td class="w-sample"><pre>{
+  "code": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "advertiser_id": "7458490220338511873",
+        "campaign_id": "1876771326979745",
+        "campaign_name": "161-红色-7676081534889119007",
+        "adgroup_id": "1876771300789281",
+        "adgroup_name": "161-红色7676081534889119007",
+        "promotion_type": "VIDEO_SHOPPING",
+        "shopping_ads_type": "VIDEO",
+        "product_source": "STORE",
+        "operation_status": "DISABLE",
+        "secondary_status": "ADGROUP_STATUS_CAMPAIGN_DISABLE",
+        "budget_mode": "BUDGET_MODE_DYNAMIC_DAILY_BUDGET",
+        "budget": 300.0,
+        "optimization_goal": "VALUE",
+        "billing_event": "OCPM"
+      }
+    ]
+  }
+}</pre></td></tr>
+<tr><td>14</td><td>获取同步广告报表</td><td><code>GET /open_api/v1.3/report/integrated/get/</code></td><td class="w-comment"><pre>{
+  "code": 0, // 成功状态码
+  "message": "OK", // 调用结果说明
+  "data": {
+    "list": [
+      {
+        "metrics": {
+          "clicks": "0", // 点击量
+          "spend": "0.00", // 广告消耗；VSA 消耗取该字段
+          "impressions": "0" // 展示量
+        },
+        "dimensions": {
+          "adgroup_id": "1876771300789281", // Ad Group ID，与序号 13 关联
+          "stat_time_day": "2026-10-01 00:00:00" // 统计日期
+        }
+      }
+    ]
+  }
+}</pre></td><td class="w-sample"><pre>{
+  "code": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "metrics": {
+          "clicks": "0",
+          "spend": "0.00",
+          "impressions": "0"
+        },
+        "dimensions": {
+          "adgroup_id": "1876771300789281",
+          "stat_time_day": "2026-10-01 00:00:00"
+        }
+      }
+    ]
+  }
+}</pre></td></tr>
 </tbody></table>
-<footer>更新时间：2026-09-17。数仓备注仅覆盖非广告指标；第九节样列为接口真实返回 JSON。</footer></main></body></html>
+<h2 id="sec-vsa">十、VSA 消耗识别与接口补充（2026-10-07 联调）</h2>
+<section class="summary"><strong>结论：</strong>当前已接入接口只能查询 <code>GMV Max</code>；不能据此识别传统 <code>Video Shopping Ads（VSA）</code>。VSA 的投放类型需要在普通广告组（Ad Group）层判断，Campaign 仅作为归属和汇总层。纯 VSA 消耗必须先筛出 VSA 广告组，再按广告组日粒度汇总。</section>
+<div class="note"><strong>真实联调结果：</strong>当前授权成功返回 20 个广告账户。选取其中一个已授权账户调用 GMV Max Campaign 列表，返回总量 721 条；列表仅有 <code>advertiserId / campaignId / campaignName / operationStatus / secondaryStatus / objectiveType</code> 等字段。继续调用 Campaign 详情，真实返回 <code>shoppingAdsType=PRODUCT</code>、<code>productSpecificType=CUSTOMIZED_PRODUCTS</code>、<code>productVideoSpecificType=AUTO_SELECTION</code>、<code>affiliatePostsEnabled=true</code>。其中 <code>shoppingAdsType=PRODUCT</code> 是 <strong>GMV Max 商品投放类型</strong>，不是 VSA 标记，不能用于将消耗归类为 VSA。</div>
+<div class="note"><strong>VSA 与消耗真实联调结果：</strong>直接调用普通广告组接口成功返回 20 条记录，VSA 样本同时满足 <code>promotion_type=VIDEO_SHOPPING</code>、<code>shopping_ads_type=VIDEO</code>、<code>product_source=STORE</code>。再以该 <code>adgroup_id</code> 调用同步报表接口，成功返回 5 天日粒度数据；回连键为 <code>dimensions.adgroup_id + dimensions.stat_time_day</code>，消耗字段为 <code>metrics.spend</code>，并同返 <code>metrics.impressions</code>、<code>metrics.clicks</code>。本次样本 5 天消耗均为 0，验证的是接口、字段和关联链路，不代表账户整体无消耗。</div>
+<table><thead><tr><th class="w-no">序号</th><th>识别层级</th><th>当前接口与真实返回</th><th>是否可识别 VSA</th><th>明确字段 / 规则</th><th>处理结论</th></tr></thead><tbody>
+<tr><td>1</td><td>GMV Max Campaign</td><td><code>GET /open_api/v1.3/gmv_max/campaign/get/</code><br>当前外部服务：<code>/api/tiktok/ads/gmv-max/campaign/list</code>、<code>/campaign/info</code></td><td>否</td><td><code>shopping_ads_type</code>：真实值为 <code>PRODUCT</code>；仅区分 Product / Live GMV Max。<br><code>product_video_specific_type</code>、<code>affiliate_posts_enabled</code> 仅补充素材选择方式和联盟作品开关。</td><td>保留为 GMV Max 消耗分类；不得将 <code>PRODUCT</code> 映射为 <code>VSA</code>。</td></tr>
+<tr><td>2</td><td>普通 Campaign</td><td>已实现：<code>POST /api/tiktok/ads/campaign/list</code><br>上游：<code>GET /open_api/v1.3/campaign/get/</code></td><td>否，不能单独定性</td><td>保存 <code>campaign_id</code>、<code>objective_type</code>、<code>product_source</code>（如平台返回）、状态及原始 JSON。用于筛选 TikTok Shop/Shop Ads 范围和关联广告组。</td><td>已提供 Campaign 查询代理；仅作范围、归属和汇总。</td></tr>
+<tr><td>3</td><td>普通 Ad Group</td><td>已实现：<code>POST /api/tiktok/ads/adgroup/list</code><br>上游：<code>GET /open_api/v1.3/adgroup/get/</code></td><td><strong>是，唯一判定层</strong></td><td><strong>已验证：</strong><code>promotion_type=VIDEO_SHOPPING</code> 为 VSA 主判定；<code>shopping_ads_type=VIDEO</code>、<code>product_source=STORE</code> 为交叉核对字段。同步保存 <code>adgroup_id</code>、<code>campaign_id</code>、状态和原始 JSON。</td><td>三个字段同时命中时标记 <code>adFormat=VSA</code>；主判定以 <code>promotion_type</code> 为准。字段缺失或不一致统一标记 <code>UNKNOWN</code>，不得猜测。</td></tr>
+<tr><td>4</td><td>普通广告报表</td><td>已实现：<code>POST /api/tiktok/ads/report/integrated</code><br>上游：<code>GET /open_api/v1.3/report/integrated/get/</code>；大范围日期使用异步报表任务</td><td>是</td><td><strong>已验证：</strong>请求 <code>data_level=AUCTION_ADGROUP</code>，维度 <code>stat_time_day</code>、<code>adgroup_id</code>，指标 <code>spend</code>、<code>impressions</code>、<code>clicks</code>。返回结构：<code>dimensions.adgroup_id / dimensions.stat_time_day / metrics.spend</code>。<code>filtering</code> 必须为数组，<code>adgroup_ids</code> 的 <code>filter_value</code> 必须为 JSON 数组字符串。</td><td><code>SUM(metrics.spend)</code>，过滤 <code>adFormat=VSA</code> 后得到 VSA 消耗。不得按 Campaign 汇总后再拆分，否则一个 Campaign 内混投 VSA/LSA/PSA 时会串量。</td></tr>
+</tbody></table>
+<h3>已实现接口清单</h3>
+<table><thead><tr><th class="w-no">序号</th><th>内部代理接口</th><th>上游 TikTok API</th><th>用途</th><th>验收要点</th></tr></thead><tbody>
+<tr><td>1</td><td><code>POST /api/tiktok/ads/campaign/list</code></td><td><code>GET /open_api/v1.3/campaign/get/</code></td><td>拉取普通 Campaign 快照，与广告组建立父子关系。</td><td>至少保留 Campaign ID、营销目标、产品来源、投放状态和原始 JSON。</td></tr>
+<tr><td>2</td><td><code>POST /api/tiktok/ads/adgroup/list</code></td><td><code>GET /open_api/v1.3/adgroup/get/</code></td><td>拉取 VSA/LSA/PSA 等广告格式，形成唯一的 <code>adFormat</code> 判定。</td><td>已验证 VSA：<code>promotion_type=VIDEO_SHOPPING</code>；交叉核对 <code>shopping_ads_type=VIDEO</code> 与 <code>product_source=STORE</code>。仍需补非 VSA、字段缺失样本。</td></tr>
+<tr><td>3</td><td><code>POST /api/tiktok/ads/report/integrated</code></td><td><code>GET /open_api/v1.3/report/integrated/get/</code></td><td>按广告组日粒度拉取消耗与 Shop Ads 指标。</td><td>已验证结果可按 <code>adgroup_id + stat_time_day</code> 回连，消耗读取 <code>metrics.spend</code>；VSA 消耗与未过滤总消耗可分别对账。</td></tr>
+</tbody></table>
+<div class="note"><strong>实现状态：</strong>已在 <code>ms-api-external</code> 完成普通 <code>campaign/get</code>、<code>adgroup/get</code>、<code>report/integrated/get</code> 的只读代理，分别对应本节列出的三个内部 POST 接口。代理保留上游分页、字段、筛选、报表日期与指标参数；报表的 <code>filtering</code> 使用数组透传，不涉及任何写操作。</div>
+<footer>更新时间：2026-10-07。数仓备注仅覆盖非广告指标；第九节样列为接口真实返回 JSON；第十节记录 VSA 识别与真实联调结论。</footer></main></body></html>
