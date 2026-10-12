@@ -124,6 +124,21 @@ class DownloadNamingTests(unittest.TestCase):
             "商品照片详情_已绑定账号_美国TK-艾斯特尼-美区跨境1店_2026-10-04.xlsx",
         )
 
+    def test_claim_completed_download_renames_only_new_completed_file(self):
+        with TemporaryDirectory() as temporary_directory:
+            download_dir = Path(temporary_directory)
+            old_file = download_dir / "old.xlsx"
+            old_file.write_bytes(b"old")
+            new_file = download_dir / "export.xlsx"
+            new_file.write_bytes(b"new")
+            destination = download_dir / "商品照片详情_已绑定账号_店铺_2026-10-04.xlsx"
+
+            result = exporter.claim_completed_download(download_dir, {old_file}, destination)
+
+            self.assertEqual(result, destination)
+            self.assertEqual(destination.read_bytes(), b"new")
+            self.assertFalse(new_file.exists())
+
 
 class ShopSelectionTests(unittest.TestCase):
     def test_select_shops_returns_configured_three_shop_sequence(self):
@@ -301,6 +316,39 @@ class UploadResponseTests(unittest.TestCase):
             exporter.parse_upload_response('{"code":200,"msg":"success"}'),
             {"code": 200, "msg": "success"},
         )
+
+    @patch.object(exporter.time, "sleep")
+    @patch.object(exporter.request, "urlopen")
+    def test_upload_retries_transport_failure_with_bounded_backoff(self, mock_urlopen, mock_sleep):
+        response = MagicMock()
+        response.read.return_value = b'{"code": 200, "msg": "success"}'
+        response.__enter__.return_value = response
+        mock_urlopen.side_effect = [OSError("temporary network error"), response]
+
+        with TemporaryDirectory() as temporary_directory:
+            file_path = Path(temporary_directory) / "report.xlsx"
+            file_path.write_bytes(b"test")
+
+            exporter.upload_excel("http://example.test/upload", file_path)
+
+        self.assertEqual(mock_urlopen.call_count, 2)
+        mock_sleep.assert_called_once_with(2)
+
+
+class ZiniaoRetryTests(unittest.TestCase):
+    @patch.object(exporter.time, "sleep")
+    @patch.object(exporter.request, "urlopen")
+    def test_ziniao_call_retries_transport_failure_with_fresh_requests(self, mock_urlopen, mock_sleep):
+        response = MagicMock()
+        response.read.return_value = b'{"statusCode": 0, "data": {}}'
+        response.__enter__.return_value = response
+        mock_urlopen.side_effect = [OSError("temporary network error"), response]
+        credentials = {"company": "company", "username": "user", "password": "password"}
+
+        exporter.ziniao_call("http://127.0.0.1:18888", credentials, "startBrowser", browserId="shop-1")
+
+        self.assertEqual(mock_urlopen.call_count, 2)
+        mock_sleep.assert_called_once_with(2)
 
 
 class AllShopsLauncherTests(unittest.TestCase):

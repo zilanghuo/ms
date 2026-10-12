@@ -3,6 +3,9 @@
 # 三店照片详情导出启动器：交互输入日期范围，随后调用 Python 自动执行、上传并关闭浏览器。
 set -eu
 
+# 临时环境被系统清理后可重建为该路径；启动器固定使用其中的 Selenium 运行环境。
+export ZINIAO_PYTHON=/tmp/ziniao-webdriver-runtime/bin/python
+
 SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd)
 PYTHON_BIN=${ZINIAO_PYTHON:-/tmp/ziniao-webdriver-venv/bin/python}
 CREDENTIALS_FILE=${ZINIAO_CREDENTIALS_FILE:-/tmp/ziniao-webdriver-credentials.json}

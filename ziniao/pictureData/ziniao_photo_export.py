@@ -132,7 +132,7 @@ def parse_upload_response(raw_response: str) -> dict[str, Any]:
 
 
 def upload_excel(upload_endpoint: str, file_path: Path) -> dict[str, Any]:
-    """以接口约定的 multipart 字段 file 上传一个 Excel 文件。"""
+    """以接口约定的 multipart 字段 file 上传一个 Excel 文件，并重试传输错误。"""
     boundary = f"----ziniao-{uuid.uuid4().hex}"
     body = b"".join(
         (
@@ -143,14 +143,26 @@ def upload_excel(upload_endpoint: str, file_path: Path) -> dict[str, Any]:
             f"\r\n--{boundary}--\r\n".encode(),
         )
     )
-    http_request = request.Request(
-        upload_endpoint,
-        data=body,
-        headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
-        method="POST",
-    )
-    with request.urlopen(http_request, timeout=120) as response:
-        return parse_upload_response(response.read().decode("utf-8"))
+    last_error: OSError | None = None
+    for attempt, delay_seconds in enumerate((0, *RECONNECT_DELAYS), start=1):
+        if delay_seconds:
+            log(
+                f"上传 {file_path.name} 发生网络异常，{delay_seconds} 秒后第 "
+                f"{attempt}/{len(RECONNECT_DELAYS) + 1} 次尝试。"
+            )
+            time.sleep(delay_seconds)
+        http_request = request.Request(
+            upload_endpoint,
+            data=body,
+            headers={"Content-Type": f"multipart/form-data; boundary={boundary}"},
+            method="POST",
+        )
+        try:
+            with request.urlopen(http_request, timeout=120) as response:
+                return parse_upload_response(response.read().decode("utf-8"))
+        except OSError as error:
+            last_error = error
+    raise RuntimeError(f"Excel 上传网络重试耗尽：{file_path.name}") from last_error
 
 
 def extract_debug_port(response: dict[str, Any]) -> int:
@@ -211,18 +223,32 @@ def read_credentials(path: Path) -> dict[str, str]:
 
 
 def ziniao_call(api_base: str, credentials: dict[str, str], action: str, **extra: Any) -> dict[str, Any]:
-    payload = {**credentials, "action": action, "requestId": str(uuid.uuid4()), **extra}
-    http_request = request.Request(
-        api_base,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-    with request.urlopen(http_request, timeout=120) as response:
-        result = json.loads(response.read().decode("utf-8"))
-    if str(result.get("statusCode")) != "0":
-        raise RuntimeError(f"紫鸟 {action} 失败：{result.get('msg', '未知错误')}")
-    return result
+    """调用紫鸟本机接口；仅对网络层短暂失败进行有限重试。"""
+    last_error: OSError | None = None
+    for attempt, delay_seconds in enumerate((0, *RECONNECT_DELAYS), start=1):
+        if delay_seconds:
+            log(
+                f"紫鸟 {action} 接口连接失败，{delay_seconds} 秒后第 "
+                f"{attempt}/{len(RECONNECT_DELAYS) + 1} 次尝试。"
+            )
+            time.sleep(delay_seconds)
+        payload = {**credentials, "action": action, "requestId": str(uuid.uuid4()), **extra}
+        http_request = request.Request(
+            api_base,
+            data=json.dumps(payload).encode("utf-8"),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with request.urlopen(http_request, timeout=120) as response:
+                result = json.loads(response.read().decode("utf-8"))
+        except OSError as error:
+            last_error = error
+            continue
+        if str(result.get("statusCode")) != "0":
+            raise RuntimeError(f"紫鸟 {action} 失败：{result.get('msg', '未知错误')}")
+        return result
+    raise RuntimeError(f"紫鸟 {action} 接口网络重试耗尽。") from last_error
 
 
 def resolve_browser_id(browser_list: list[dict[str, Any]], browser_id: str | None, browser_name: str | None) -> str:
@@ -420,11 +446,14 @@ def click_download(driver: webdriver.Chrome, timeout: int) -> bool:
         return True
     except Exception:
         direct_buttons = driver.find_elements(*direct)
-        if any(
-            button.is_displayed() and (not button.is_enabled() or "disabled" in (button.get_attribute("class") or ""))
-            for button in direct_buttons
-        ):
-            return False
+        for button in direct_buttons:
+            try:
+                if button.is_displayed() and (
+                    not button.is_enabled() or "disabled" in (button.get_attribute("class") or "")
+                ):
+                    return False
+            except StaleElementReferenceException:
+                continue
     fallback = (By.XPATH, "(//table/preceding::button[not(@disabled)])[last()-1]")
     button = WebDriverWait(driver, timeout).until(EC.element_to_be_clickable(fallback))
     driver.execute_script("arguments[0].click()", button)
@@ -435,6 +464,22 @@ def export_account_type(driver: webdriver.Chrome, account_label: str, target_dat
     click_account_tab(driver, account_label, timeout)
     WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.TAG_NAME, "table")))
     return click_download(driver, timeout)
+
+
+def claim_completed_download(
+    download_dir: Path,
+    existing_files: set[Path],
+    destination: Path,
+) -> Path | None:
+    """接管已下载完成、但尚未重命名的本轮 Excel 文件。"""
+    if list(download_dir.glob("*.crdownload")):
+        return None
+    candidates = [path for path in download_dir.glob("*.xlsx") if path not in existing_files]
+    if not candidates:
+        return None
+    source = max(candidates, key=lambda path: path.stat().st_mtime)
+    source.replace(destination)
+    return destination
 
 
 def wait_and_rename_download(
@@ -449,12 +494,9 @@ def wait_and_rename_download(
     deadline = time.monotonic() + timeout
     download_clicked = False
     while time.monotonic() < deadline:
-        partial = list(download_dir.glob("*.crdownload"))
-        candidates = [path for path in download_dir.glob("*.xlsx") if path not in existing_files]
-        if candidates and not partial:
-            source = max(candidates, key=lambda path: path.stat().st_mtime)
-            source.replace(destination)
-            return destination
+        completed_path = claim_completed_download(download_dir, existing_files, destination)
+        if completed_path is not None:
+            return completed_path
         if not download_clicked:
             download_buttons = driver.find_elements(
                 By.XPATH,
@@ -574,13 +616,41 @@ def export_shop(
                 if not exported:
                     log(f"[{shop.label}] {account_label} 在 {target_date:%Y-%m-%d} 无可导出数据，已跳过。")
                     continue
-                saved_path = wait_and_rename_download(
-                    driver,
-                    download_dir,
-                    existing_files,
-                    build_export_filename(shop.filename_label or shop.browser_name or shop.label, account_label, target_date),
-                    download_timeout,
+                target_filename = build_export_filename(
+                    shop.filename_label or shop.browser_name or shop.label,
+                    account_label,
+                    target_date,
                 )
+                destination = download_dir / target_filename
+                saved_path: Path | None = None
+                for recovery_attempt in range(len(RECONNECT_DELAYS) + 1):
+                    try:
+                        saved_path = wait_and_rename_download(
+                            driver,
+                            download_dir,
+                            existing_files,
+                            target_filename,
+                            download_timeout,
+                        )
+                        break
+                    except (AttributeError, WebDriverException):
+                        saved_path = claim_completed_download(download_dir, existing_files, destination)
+                        if saved_path is not None:
+                            log(f"[{shop.label}] 下载窗口中断，但文件已完成，未重复发起导出。")
+                            break
+                        if recovery_attempt == len(RECONNECT_DELAYS):
+                            raise
+                        log(
+                            f"[{shop.label}] 下载窗口中断，准备第 {recovery_attempt + 1}/"
+                            f"{len(RECONNECT_DELAYS)} 次恢复：{account_label}"
+                        )
+                        restore_account_page()
+                        existing_files = set(download_dir.glob("*.xlsx"))
+                        if not export_account_type(driver, account_label, target_date, timeout):
+                            log(f"[{shop.label}] {account_label} 在 {target_date:%Y-%m-%d} 无可导出数据，已跳过。")
+                            break
+                if saved_path is None:
+                    continue
                 log(f"[{shop.label}] 已导出并重命名：{saved_path}")
                 if not skip_upload:
                     upload_excel(upload_endpoint, saved_path)
