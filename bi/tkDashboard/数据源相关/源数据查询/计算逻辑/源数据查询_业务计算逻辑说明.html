@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>源数据查询业务计算逻辑说明</title><style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#1f2937;--muted:#64748b;--accent:#0d9488;--border:#dfe3e8}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.doc{max-width:1280px;margin:28px auto;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:34px 42px 48px}h1{font-size:28px;margin:0 0 8px;padding-bottom:12px;border-bottom:3px solid var(--accent)}h2{font-size:20px;margin:32px 0 12px;color:#0f766e}p.meta{color:var(--muted);margin:0 0 18px}p.note{background:#f0fdfa;border-left:3px solid var(--accent);padding:10px 12px}table{border-collapse:collapse;width:100%;min-width:680px;margin:10px 0 18px}th,td{border:1px solid var(--border);padding:8px 10px;vertical-align:top}th{background:#eef2f3;font-weight:600;white-space:nowrap}.table-wrap{overflow:auto}code{background:#f1f5f9;border-radius:3px;padding:1px 4px;color:#0f766e}ul{padding-left:22px}.back a{color:var(--accent);text-decoration:none}@media(max-width:760px){.doc{margin:0;border-radius:0;padding:24px 16px}}
+</style></head><body><main class="doc">
+<div class="back"><a href="../../../index.html">返回 tkDashboard</a></div><h1>源数据查询业务计算逻辑说明</h1>
+<p class="meta">适用对象：业务、运营与页面使用同学。以实际 tkboard 前端页面、表格列、详情/编辑弹窗和操作入口为准。</p>
+<p class="meta">配套文档：<a href="源数据查询_技术计算逻辑说明.html">技术计算逻辑说明</a> ｜ <a href="源数据查询_业务计算逻辑说明.docx">下载业务 Word 版</a></p>
+<p>提供视频源数据与订单源数据的后端直查能力，当前尚未被 tkboard 页面承载。</p><p class="note"><strong>前端字段清单原则：</strong>本说明仅列用户在页面可见或可操作的字段；后端专用字段仅在技术说明解释。</p>
+<h2>一、页面范围与视图</h2><ul><li><strong>页面视图：</strong>暂无 tkboard 页面承载；不虚构卡片、筛选控件或展示列表。</li><li><strong>筛选与搜索：</strong>以后端请求对象中的查询条件为准；暂无前端可见筛选字段。</li><li><strong>用户操作：</strong>暂无前端操作入口。</li></ul>
+<h2>二、前端字段清单</h2><p>字段由前端 <code>无对应 tkboard 页面；已检索 tkboard 目录</code> 提取和核对。</p><div class="table-wrap"><table><thead><tr><th>序号</th><th>页面字段名称</th><th>接口字段</th><th>业务说明</th></tr></thead><tbody><tr><td>-</td><td>暂无前端展示字段</td><td>-</td><td>该模块暂无 tkboard 页面承载。</td></tr></tbody></table></div>
+<h2>三、业务使用规则</h2><p>提供视频源数据与订单源数据的后端直查能力，当前尚未被 tkboard 页面承载。 查询结果以页面当前筛选条件和排序/分页状态为准；导出沿用当前页面的查询条件。</p>
+<h2>四、操作与数据时效</h2><p>查询、详情、维护、导入和导出功能仅在前端存在对应入口时说明。数据更新时间以页面调用的数据最新时间接口或主查询返回信息为准。</p>
+<h2>五、页面与接口差异</h2><p>已检索 tkboard 页面和 API 目录，未发现 sourceData 对应页面或 API 封装。</p></main></body></html>
