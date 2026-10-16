@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>广告BI看板接口与ODS接入卡点分析</title>
+<style>
+  :root { --ink:#1f2937; --muted:#667085; --line:#d9e2ec; --soft:#f5f7fb; --band:#eef6f3; --accent:#0f766e; --warn:#b45309; --danger:#b42318; --warn-bg:#fff7ed; --danger-bg:#fef2f2; --ok-bg:#ecfdf3; }
+  * { box-sizing:border-box; }
+  body { margin:0; color:var(--ink); background:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; line-height:1.65; }
+  main { max-width:2400px; margin:0 auto; padding:32px 28px 56px; }
+  h1 { margin:0 0 10px; font-size:30px; line-height:1.25; }
+  h2 { margin:36px 0 14px; padding-bottom:8px; border-bottom:2px solid var(--line); font-size:22px; }
+  h3 { margin:24px 0 10px; font-size:18px; }
+  p { margin:8px 0; }
+  code { color:#334155; background:#edf2f7; border:1px solid #dbe4ee; border-radius:4px; padding:1px 5px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; font-size:.91em; white-space:nowrap; }
+  .meta { color:var(--muted); margin-bottom:20px; }
+  .summary,.note,.danger,.ok { border-radius:8px; padding:15px 18px; margin:16px 0; border:1px solid; }
+  .summary { background:var(--band); border-color:#c8e6dc; border-left:5px solid var(--accent); }
+  .note { background:var(--warn-bg); border-color:#fed7aa; border-left:5px solid var(--warn); }
+  .danger { background:var(--danger-bg); border-color:#fecaca; border-left:5px solid var(--danger); }
+  .ok { background:var(--ok-bg); border-color:#abefc6; border-left:5px solid #039855; }
+  .toc { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:8px 24px; margin:18px 0 24px; padding:14px 16px; border:1px solid var(--line); border-radius:8px; background:#fbfcfe; }
+  .toc strong { grid-column:1/-1; }.toc a,a { color:var(--accent); text-decoration:none; }.toc a:hover,a:hover { text-decoration:underline; }
+  .grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; margin:14px 0; }
+  .panel { border:1px solid var(--line); border-radius:8px; padding:14px 16px; background:#fff; }.panel strong { display:block; margin-bottom:6px; }.panel p { color:var(--muted); font-size:14px; }
+  .badge { display:inline-block; border-radius:999px; padding:2px 8px; font-size:12px; font-weight:700; line-height:1.5; white-space:nowrap; }.p0{background:#fee4e2;color:#b42318}.p1{background:#fef0c7;color:#93370d}.p2{background:#e0f2fe;color:#075985}.yes{background:#dcfae6;color:#067647}.no{background:#fee4e2;color:#b42318}.partial{background:#fef0c7;color:#93370d}
+  table { width:100%; border-collapse:collapse; margin:12px 0 24px; table-layout:fixed; font-size:14px; } th,td { border:1px solid var(--line); padding:9px 10px; vertical-align:top; word-break:break-word; } th { background:#eef2f6; text-align:left; font-weight:700; } tbody tr:nth-child(even){background:var(--soft)}
+  ul,ol { margin:8px 0 14px 22px; padding:0; } li{margin:4px 0}.flow{margin:12px 0 20px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:#fbfcfe;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;overflow:auto;white-space:nowrap}.muted{color:var(--muted)} footer{margin-top:36px;color:var(--muted);font-size:13px;border-top:1px solid var(--line);padding-top:14px}
+  @media(max-width:920px){main{padding:22px 14px 42px}.grid{grid-template-columns:1fr}table{table-layout:auto}}
+</style>
+</head>
+<body><main>
+<h1>广告 BI 看板：接口、ODS 与接入卡点分析</h1>
+<p class="meta">需求基准：<code>html/广告BI看板-1.0.html</code>；实现与口径基准：<code>计算逻辑/TK广告BI看板_业务计算逻辑说明.html</code>；现有 ODS 盘点：<code>ddl/marketing/ods</code>。更新时间：2026-10-15。</p>
+
+<section class="summary"><strong>结论先行：</strong>GMV Max 的账户、店铺、Campaign、日级效果、素材、Session 等主链路已具备 API ODS；但当前日级效果只稳定到 <code>Campaign</code>，不能直接支持看板的 SPU、PID、素材“效果归因”。VSA 的普通 Campaign、Ad Group、Ad Group 日报接口及内部代理均已具备且已有联调记录；当前缺口是尚未将这三段接口建设为 API ODS 与定时回刷链路。现有 VSA ODS 是 Excel 文件导入，缺少可回连的 <code>campaign_id / adgroup_id / stat_time_day</code>。</section>
+
+<nav class="toc"><strong>目录</strong><a href="#overview">一、范围与接入结论</a><a href="#tabs">二、按 Tab 的接口依赖</a><a href="#shared">三、跨 Tab 可复用接口</a><a href="#ods">四、ODS 落表盘点</a><a href="#vsa">五、VSA 专项链路</a><a href="#blockers">六、卡点与优先级</a><a href="#roadmap">七、接入顺序与验收</a></nav>
+
+<h2 id="overview">一、范围与接入结论</h2>
+<div class="grid">
+  <div class="panel"><strong>5 个看板 Tab</strong><p>项目总览、Campaign、SPU、PID、素材。各 Tab 都共享店铺、广告账户、日期、币种、数据完整性上下文。</p></div>
+  <div class="panel"><strong>11 张 GMV Max API ODS</strong><p>已覆盖账户、店铺、Campaign、报表、素材、身份、加热 Session、建议出价等快照/日事实。</p></div>
+  <div class="panel"><strong>3 个 VSA 已通 API</strong><p>普通 Campaign、普通 Ad Group、普通广告报表均已有内部只读代理；Ad Group 是唯一可靠的 VSA 判定层。</p></div>
+  <div class="panel"><strong>4 类主要缺口</strong><p>VSA API ODS、SPU/PID/素材归因事实、授权有效期主数据、诊断/行动/汇率等内部规则数据。</p></div>
+</div>
+<div class="flow">授权账户 → 广告账户详情 → 可投放店铺 → GMV Max Campaign / 普通 Campaign → 素材、Session、报表 → ODS → DWS/ADS 聚合 → 5 个看板 Tab</div>
+
+<h3>接口状态说明</h3>
+<table><thead><tr><th style="width:16%">状态</th><th>含义</th><th style="width:32%">使用原则</th></tr></thead><tbody>
+<tr><td><span class="badge yes">已有 ODS</span></td><td>已有营销域 API ODS DDL，可直接作为下游建模来源。</td><td>仍须验证实际调度、分页全量、接口回流延迟与指标粒度。</td></tr>
+<tr><td><span class="badge partial">部分覆盖</span></td><td>接口/ODS 有基础数据，但未覆盖看板所需对象粒度或指标。</td><td>不得把 Campaign 汇总金额复制给 SPU、PID 或素材。</td></tr>
+<tr><td><span class="badge no">待新增</span></td><td>业务计算说明要求或联调已确认，但当前 <code>ddl/marketing/ods</code> 无对应 API ODS。</td><td>先建 ODS 与采集任务，再进入 DWS/ADS 或前端接口开发。</td></tr>
+</tbody></table>
+
+<h2 id="tabs">二、按 Tab 的接口依赖</h2>
+<p>下表按原型中各 Tab 的展示对象和计算逻辑归并接口。接口名称采用 TikTok Business API v1.3；内部代理路径仅在业务计算说明已明确处列出。</p>
+<table><thead><tr><th style="width:11%">Tab</th><th style="width:20%">主要业务对象 / 指标</th><th style="width:29%">必需接口</th><th style="width:18%">可复用 ODS</th><th style="width:22%">实现边界 / 卡点</th></tr></thead><tbody>
+<tr><td><strong>项目总览</strong></td><td>项目成本、订单、收入、ROI、CPO、投放规模、素材池、整体健康度。</td><td><code>oauth2/advertiser/get</code>；<code>advertiser/info</code>；<code>gmv_max/store/list</code>；<code>gmv_max/campaign/get</code>；<code>gmv_max/report/get</code>；<code>gmv_max/video/get</code>。</td><td>广告账户、店铺、GMV Max Campaign、Campaign 日报、视频及视频-SPU。</td><td>广告核心指标可汇总；GMV Max 日报实测拒绝 <code>impressions/clicks</code>，不能据此实现商品曝光/点击。高花费零单、诊断标签、跨币种和完整性是内部规则，不是 TikTok 单一接口字段。</td></tr>
+<tr><td><strong>Campaign 看板</strong></td><td>Campaign 状态、预算、目标 ROI、成本/收入/订单/ROI、商品与素材、加热状态。</td><td><code>gmv_max/campaign/get</code>；<code>campaign/gmv_max/info</code>；<code>gmv_max/report/get</code>；<code>campaign/gmv_max/session/list</code>；<code>campaign/gmv_max/session/get</code>；<code>gmv_max/video/get</code>。</td><td>GMV Max Campaign、Campaign 日报、Session、Session-SPU、视频、视频-SPU。</td><td>Campaign 粒度最完整。Session 为当前/历史加热关系，不等于素材实际消耗归因；Campaign 状态需按快照而不是成本是否大于 0 推断。</td></tr>
+<tr><td><strong>SPU 看板</strong></td><td>SPU 投放规模、广告效果、关联 Campaign/素材、商品销售及库存协同。</td><td><code>gmv_max/video/get</code>；<code>campaign/gmv_max/session/list</code>；<code>gmv_max/report/get</code>（仅 Campaign 效果）；商品销售/库存需内部数仓。</td><td>视频-SPU、Session-SPU、Campaign 日报；商品及库存表不属于营销 ODS。</td><td><span class="badge p0">P0</span> 当前 GMV Max 报表无已验证 SPU 效果维度。素材-SPU、Session-SPU 仅为关联快照，不能据此分摊 Campaign 成本或收入。</td></tr>
+<tr><td><strong>PID 看板</strong></td><td>PID 在投状态、广告表现、关联 SPU/素材/Session、销售和库存风险。</td><td>GMV Max 接口链路同 SPU；PID-SPU 映射、销量、库存需内部数仓与主数据。</td><td>视频-SPU、Session-SPU 可作为 PID/SPU 关系线索；现有营销 ODS 不含 PID 主键。</td><td><span class="badge p0">P0</span> TikTok 返回的 <code>spu_id</code> 是否等同业务 PID 必须通过店铺与商品映射确认；PID 粒度广告效果目前无直接事实。</td></tr>
+<tr><td><strong>素材看板</strong></td><td>视频素材池、可用/过期、投放关系、素材表现、加热状态、授权风险。</td><td><code>gmv_max/video/get</code>；<code>gmv_max/identity/get</code>；<code>gmv_max/report/get</code>（待验证素材维度）；<code>campaign/gmv_max/session/list</code>。</td><td>GMV Max 视频、视频-SPU、投放身份、Campaign 日报、Session。</td><td><span class="badge p0">P0</span> 视频接口可给可投放素材快照，但并不等于素材级效果事实；授权到期、拒绝原因及真实投放消耗需补主数据/报表维度后才可下结论。</td></tr>
+</tbody></table>
+
+<h2 id="shared">三、跨 Tab 可复用接口</h2>
+<table><thead><tr><th style="width:6%">序号</th><th style="width:25%">TikTok API</th><th style="width:20%">用途与复用 Tab</th><th style="width:18%">现有 ODS</th><th>关键字段 / 注意事项</th></tr></thead><tbody>
+<tr><td>1</td><td><code>GET /open_api/v1.3/oauth2/advertiser/get/</code></td><td>授权广告账户范围；全部 Tab。</td><td><code>ods_marketing_api_tiktok_ads_advertiser_df</code></td><td><code>advertiser_id</code> 是广告数据主键组成部分，需按文本保存。</td></tr>
+<tr><td>2</td><td><code>GET /open_api/v1.3/advertiser/info/</code></td><td>账户币种、时区、国家；全部 Tab。</td><td><code>ods_marketing_api_tiktok_ads_advertiser_df</code></td><td>同时保存 <code>timezone</code> 与 <code>display_timezone</code>；不可混用日期边界。</td></tr>
+<tr><td>3</td><td><code>GET /open_api/v1.3/gmv_max/store/list/</code></td><td>广告账户—TikTok Shop 关联；全部 Tab。</td><td><code>ods_marketing_api_tiktok_gmv_max_store_df</code></td><td><code>store_id</code> 与内部 <code>shop_code</code> 是否同键须单独核对。</td></tr>
+<tr><td>4</td><td><code>GET /open_api/v1.3/gmv_max/campaign/get/</code><br><code>GET /open_api/v1.3/campaign/gmv_max/info/</code></td><td>GMV Max Campaign 当前与详情快照；项目、Campaign、SPU、PID、素材。</td><td><code>ods_marketing_api_tiktok_gmv_max_campaign_df</code></td><td>唯一键使用 <code>advertiser_id + campaign_id</code>；详情字段应以原始 JSON 兜底。</td></tr>
+<tr><td>5</td><td><code>GET /open_api/v1.3/gmv_max/report/get/</code></td><td>GMV Max 成本、归因收入、订单；项目、Campaign 为主。</td><td><code>ods_marketing_api_tiktok_gmv_max_campaign_report_di</code></td><td>当前日级事实为 Campaign 粒度，固定指标为 <code>cost / gross_revenue / orders</code>；额外指标需按真实响应扩展。</td></tr>
+<tr><td>6</td><td><code>GET /open_api/v1.3/gmv_max/video/get/</code></td><td>素材池和素材—SPU 关联；项目、Campaign、SPU、PID、素材。</td><td><code>ods_marketing_api_tiktok_gmv_max_video_df</code><br><code>ods_marketing_api_tiktok_gmv_max_video_spu_df</code></td><td>调用需验证 <code>need_auth_code_video=true</code>；视频 URL/封面有时效性，不能作为永久资产地址。</td></tr>
+<tr><td>7</td><td><code>GET /open_api/v1.3/campaign/gmv_max/session/list/</code><br><code>GET /open_api/v1.3/campaign/gmv_max/session/get/</code></td><td>加热 Session、预算、排期、SPU 关联；项目、Campaign、SPU、PID、素材。</td><td><code>ods_marketing_api_tiktok_gmv_max_session_df</code><br><code>ods_marketing_api_tiktok_gmv_max_session_spu_df</code></td><td>Session 只说明加热关系与设置；不可直接当作素材或商品的消耗归因。</td></tr>
+<tr><td>8</td><td><code>GET /open_api/v1.3/gmv_max/identity/get/</code></td><td>投放身份、可投放能力；Campaign、素材。</td><td><code>ods_marketing_api_tiktok_gmv_max_identity_df</code></td><td>用于身份和素材可用性辅助判断，不包含授权到期主数据。</td></tr>
+<tr><td>9</td><td><code>GET /open_api/v1.3/gmv_max/bid/recommend/</code></td><td>建议预算、建议 ROAS；Campaign。</td><td><code>ods_marketing_api_tiktok_gmv_max_bid_recommend_df</code></td><td>仅为平台建议值，不得覆盖实际 Campaign 预算/目标值。</td></tr>
+</tbody></table>
+
+<h2 id="ods">四、ODS 落表盘点</h2>
+<h3>4.1 已有 GMV Max API ODS</h3>
+<table><thead><tr><th style="width:30%">ODS 表</th><th style="width:23%">来源接口 / 数据性质</th><th style="width:27%">可支撑的看板数据</th><th>不足或验证点</th></tr></thead><tbody>
+<tr><td><code>ods_marketing_api_tiktok_ads_advertiser_df</code></td><td>授权账户 + 账户详情，日全量快照。</td><td>广告账户、币种、时区、账户状态。</td><td>字段已实测可取：<code>timezone=Etc/GMT+8</code>、<code>display_timezone=America/Los_Angeles</code>、<code>currency=USD</code>；需由业务定义选用哪个时区作为业务日。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_store_df</code></td><td>GMV Max 可投放店铺，日全量快照。</td><td>店铺 ID、店铺名、账户—店铺关系。</td><td>需与内部店铺编码建立明确映射。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_campaign_df</code></td><td>GMV Max Campaign 列表/详情，日全量快照。</td><td>状态、预算、ROAS、商品组、创建/修改时间。</td><td>需确保列表分页全量；状态字典和历史快照需保留。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_campaign_report_di</code></td><td>GMV Max Campaign 日报，日增量。</td><td>Campaign 日成本、归因收入、订单、ROI/CPO 计算。</td><td><strong>仅 Campaign 粒度</strong>；实测可取 <code>cost / gross_revenue / orders</code>。追加 <code>impressions / clicks</code> 被 API 拒绝，不能通过 <code>extra_metrics_json</code> 实现。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_video_df</code><br><code>ods_marketing_api_tiktok_gmv_max_video_spu_df</code></td><td>GMV Max 可投放视频及视频—SPU，日快照。</td><td>视频资产、预览、封面、文本、素材—SPU 关系。</td><td>是“可投放/关联”快照，不是素材日表现或授权生命周期事实。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_session_df</code><br><code>ods_marketing_api_tiktok_gmv_max_session_spu_df</code></td><td>GMV Max 加热 Session 及 Session—SPU，日快照。</td><td>加热预算、排期、状态、SPU 关联。</td><td>现有 ODS 已承接 <code>status / start_time / end_time / schedule_start_time / schedule_end_time</code>；本次所测 Campaign 无 Session，尚缺历史结束 Session 的回刷样本验证。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_identity_df</code></td><td>GMV Max 可用投放身份，日快照。</td><td>身份、账号名、投放能力。</td><td>不能代替素材授权 code/到期时间主表。</td></tr>
+<tr><td><code>ods_marketing_api_tiktok_gmv_max_bid_recommend_df</code></td><td>建议出价与预算，日快照。</td><td>建议预算、建议 ROAS。</td><td>必须标记为“建议”，不作为实际配置。</td></tr>
+</tbody></table>
+
+<h3>4.2 待新增 / 改造的 ODS</h3>
+<table><thead><tr><th style="width:10%">优先级</th><th style="width:31%">建议 ODS 表</th><th style="width:24%">上游接口</th><th style="width:35%">原因与最小落表键</th></tr></thead><tbody>
+<tr><td><span class="badge p0">P0</span></td><td><code>ods_marketing_api_tiktok_ads_campaign_df</code><br><span class="muted">建议新增</span></td><td><code>GET /open_api/v1.3/campaign/get/</code></td><td>普通 Campaign 父级范围与状态。最小键：<code>sdt, advertiser_id, campaign_id</code>；保留目标、预算、状态、原始 JSON。</td></tr>
+<tr><td><span class="badge p0">P0</span></td><td><code>ods_marketing_api_tiktok_ads_adgroup_df</code><br><span class="muted">建议新增</span></td><td><code>GET /open_api/v1.3/adgroup/get/</code></td><td>VSA 唯一可靠判定层。最小键：<code>sdt, advertiser_id, adgroup_id</code>；必须保存 <code>campaign_id, promotion_type, shopping_ads_type, product_source</code> 与状态。</td></tr>
+<tr><td><span class="badge p0">P0</span></td><td><code>ods_marketing_api_tiktok_ads_adgroup_report_di</code><br><span class="muted">建议新增</span></td><td><code>GET /open_api/v1.3/report/integrated/get/</code></td><td>VSA 日消耗事实。最小键：<code>sdt, advertiser_id, adgroup_id</code>；至少保存 <code>spend, impressions, clicks</code>，并按需要扩展转化/收入指标。</td></tr>
+<tr><td><span class="badge p1">P1</span></td><td><code>ods_marketing_api_tiktok_gmv_max_campaign_report_di</code><br><span class="muted">维度能力边界已确认</span></td><td><code>GET /open_api/v1.3/gmv_max/report/get/</code></td><td>实测仅支持 Campaign 日级 <code>cost / gross_revenue / orders</code>；请求 <code>impressions / clicks</code> 被拒绝，<code>spu_id</code> 维度请求失败。不得用扩展 JSON 伪造商品/素材曝光点击及 SPU/PID/素材效果归因。</td></tr>
+<tr><td><span class="badge p1">P1</span></td><td>素材授权生命周期 ODS<br><span class="muted">待接入</span></td><td>GMV Max 视频快照 + Identity Video Info</td><td>真实联调已确认授权状态与开始/结束时间。最小键建议：<code>store_id, item_id, video_id, identity_id</code>；落地 <code>ad_auth_status, auth_start_time, auth_end_time</code> 与原始 JSON。</td></tr>
+</tbody></table>
+
+<h3>4.2.1 第三方 API 字段实测核查（2026-10-16）</h3>
+<section class="summary"><strong>结论：</strong>除“Session 历史结束记录的回刷覆盖”因本次选定 Campaign 没有 Session 而尚缺样本外，文档中涉及的第三方字段已完成可用性或能力边界验证。未解决项中，PID 映射、汇率、诊断和行动不是 TikTok API 字段；GMV Max 的商品/素材对象级效果与曝光点击则是当前 API 明确不能提供的能力边界。</section>
+<table><thead><tr><th style="width:23%">原验证点</th><th style="width:25%">账号实测结果</th><th style="width:25%">最终判定</th><th>落地口径</th></tr></thead><tbody>
+<tr><td>账户时区、展示时区、币种</td><td><code>advertiser/info</code> 返回 <code>timezone=Etc/GMT+8</code>、<code>display_timezone=America/Los_Angeles</code>、<code>currency=USD</code>。</td><td><span class="badge yes">字段可用</span></td><td>ODS 已可落；业务日采用哪个时区是内部口径决策。</td></tr>
+<tr><td>GMV Max 店铺与内部店铺关联</td><td><code>gmv_max/store/list</code> 返回 9 个店铺及 <code>store_id / store_code / store_name / store_status / is_gmv_max_available / store_authorized_bc_id</code>。</td><td><span class="badge yes">第三方字段可用</span></td><td><code>store_id</code> 不能自动等同内部 <code>shop_code</code>；须维护内部映射。</td></tr>
+<tr><td>GMV Max Campaign 列表与详情</td><td>列表请求必须传 <code>filtering.gmv_max_promotion_types</code>，合法枚举为 <code>PRODUCT_GMV_MAX</code>、<code>LIVE_GMV_MAX</code>；详情返回 <code>store_id</code>、预算、排期、商品组、状态等字段。</td><td><span class="badge yes">字段可用</span></td><td>采集端固定补齐该过滤条件，并以详情的 <code>store_id</code> 作为报表查询关联键。</td></tr>
+<tr><td>GMV Max 日报的曝光、点击</td><td>以真实账户请求 <code>metrics=[cost,gross_revenue,orders,impressions,clicks]</code>，API 返回 <code>40002 Invalid metric(s): [impressions clicks]</code>。</td><td><span class="badge no">当前不可实现</span></td><td>GMV Max 看板仅展示日成本、归因收入、订单、ROI/CPO；不展示或推算曝光点击。</td></tr>
+<tr><td>GMV Max 的 SPU/PID/素材效果归因</td><td>有效日报返回维度为 <code>campaign_id + stat_time_day</code>；尝试 <code>spu_id</code> 维度返回 <code>40002</code>。</td><td><span class="badge no">当前不可实现</span></td><td>视频-SPU、Session-SPU 只能展示关系/覆盖；不得把 Campaign 指标下摊到 SPU、PID 或素材。</td></tr>
+<tr><td>Session 结束/失效字段</td><td>现有 ODS 已定义上游字段 <code>status / start_time / end_time / schedule_start_time / schedule_end_time</code>；实测指定 Campaign 的 Session 列表为 0 行。</td><td><span class="badge p1">待补样本验证</span></td><td>不是接口不可用；待选取存在进行中、已结束或失效 Session 的 Campaign 验证全量与回刷。</td></tr>
+</tbody></table>
+
+<h3>4.3 素材授权生命周期：待继续接入的 API 明细</h3>
+<p>真实测试后确认：素材生命周期不需要另走 TikTok Accounts API。现有 Marketing API 的 <code>identity/video/info</code> 已直接返回授权状态与授权起止时间；以下两条读接口即可支撑生命周期判断。凭据只在服务端配置使用，绝不出现在请求日志、ODS 明细或页面中。</p>
+<table><thead><tr><th style="width:7%">优先级</th><th style="width:16%">接口</th><th style="width:13%">当前状态</th><th style="width:19%">请求参数</th><th style="width:20%">返回数据</th><th style="width:13%">用途 / 关键键</th><th style="width:12%">落地与验收</th></tr></thead><tbody>
+<tr><td><span class="badge p0">P0</span></td><td><a href="https://business-api.tiktok.com/portal/docs/get-posts-for-a-product-gmv-max-campaign/v1.3" target="_blank" rel="noopener"><code>GET /open_api/v1.3/gmv_max/video/get/</code></a><br><span class="muted">GMV Max 素材列表</span></td><td>已接内部代理；已有视频 ODS。2026-10-16 真实调用成功。</td><td><code>app_id</code>、<code>secret</code>、<code>advertiser_id</code>、<code>store_id</code>、<code>store_authorized_bc_id</code>、<code>need_auth_code_video=true</code>、分页参数；请求头 <code>Access-Token</code>。<br><span class="muted">secret/token 仅服务端配置。</span></td><td><code>item_id</code>；<code>identity_info.identity_id</code>；<code>identity_info.identity_type=AUTH_CODE</code>；<code>video_info.video_id</code>。<br><span class="muted">不返回授权截止时间。</span></td><td>提供步骤②所需的 <strong><code>item_id</code></strong>、<code>identity_id</code>、<code>identity_type</code>。</td><td>ODS 保留以上 4 个键与快照日期；仅用于定位素材，不能判断过期。</td></tr>
+<tr><td><span class="badge p0">P0</span></td><td><a href="https://ads.tiktok.com/marketing_api/docs?id=1738958351620097" target="_blank" rel="noopener"><code>GET /open_api/v1.3/identity/video/info/</code></a><br><span class="muted">Identity Video Info</span></td><td><strong>真实测试成功。</strong><br>2026-10-16 使用步骤①取得的真实素材查询，返回 <code>code=0</code>。</td><td><code>app_id</code>、<code>secret</code>、<code>advertiser_id</code>、<code>identity_type</code>、<code>identity_id</code>、<strong><code>item_id</code></strong>；当身份为 <code>BC_AUTH_TT</code> 时补 <code>identity_authorized_bc_id</code>；请求头 <code>Access-Token</code>。</td><td><code>data.video_detail.auth_info.ad_auth_status</code> = <strong><code>AUTHORIZED</code></strong><br><code>data.video_detail.auth_info.auth_start_time</code> = <code>2026-02-27T09:03:24Z</code><br><code>data.video_detail.auth_info.auth_end_time</code> = <strong><code>2027-02-27T09:03:24Z</code></strong><br><code>data.video_detail.auth_info.invite_start_time</code></td><td>授权生命周期权威来源。回连键：<code>advertiser_id + identity_type + identity_id + item_id</code>。</td><td>新增授权生命周期 ODS；落 <code>ad_auth_status</code>、<code>auth_start_time</code>、<code>auth_end_time</code>、原始 JSON。以 <code>auth_end_time</code> 判过期。</td></tr>
+</tbody></table>
+<div class="note"><strong>真实测试结论：</strong>测试素材返回 <code>ad_auth_status=AUTHORIZED</code>，授权有效期为 2026-02-27 09:03:24 UTC 至 2027-02-27 09:03:24 UTC。该结果证明当前提供的 Marketing API 凭据可直接取得真实生命周期数据；无需将“素材授权生命周期接口可用性”列为卡点，剩余工作仅为接入内部代理、ODS 与调度。</div>
+
+<h3>4.4 素材生命周期判定流程（读链路）</h3>
+<section class="summary"><strong>一句话：</strong><code>item_id</code>、<code>identity_id</code>、<code>identity_type</code> 来自 <code>gmv_max/video/get</code>；再调用 <code>identity/video/info</code>，用返回的 <code>auth_info.ad_auth_status</code> 和 <code>auth_info.auth_end_time</code> 判断生命周期。不能用 <code>identity_type=AUTH_CODE</code> 或视频 URL 的签名到期时间判断素材授权是否过期。</section>
+<div class="flow">① GMV Max 素材列表  →  取 item_id / identity_id / identity_type  →  ② Identity Video Info（入参 ① 的 3 个键）  →  取 auth_info.ad_auth_status + auth_info.auth_end_time  →  ③ 生成 AVAILABLE / EXPIRING / EXPIRED / UNAVAILABLE / PENDING</div>
+<table><thead><tr><th style="width:8%">步骤</th><th style="width:25%">接口</th><th style="width:25%">输入 / 读取字段</th><th style="width:22%">输出给下一步的字段</th><th style="width:20%">能否直接判断生命周期</th></tr></thead><tbody>
+<tr><td>①</td><td><code>GET /open_api/v1.3/gmv_max/video/get/</code></td><td>读取：<code>item_id</code>、<code>video_info.video_id</code>、<code>identity_info.identity_type</code>。调用参数保留 <code>need_auth_code_video=true</code>。</td><td><strong><code>item_id</code></strong>（帖子 ID，生命周期查询主键）；<code>video_id</code>（媒体文件辅助键）。</td><td><span class="badge no">不能</span><br>真实样例中的 <code>identity_type=AUTH_CODE</code> 仅说明素材关联授权码身份，不代表授权仍有效，也没有截止时间。</td></tr>
+<tr><td>②</td><td><code>GET /open_api/v1.3/identity/video/info/</code><br><span class="muted">Identity Video Info</span></td><td>入参：步骤①的 <strong><code>item_id</code></strong>、<strong><code>identity_id</code></strong>、<strong><code>identity_type</code></strong>，以及 <code>advertiser_id</code>。<br>读取：<code>data.video_detail.auth_info</code>。</td><td>标准化映射：<code>authorization_status ← ad_auth_status</code>；<code>authorization_expire_at ← auth_end_time</code>；<code>authorization_start_at ← auth_start_time</code>；<code>source_response_json</code>。</td><td><span class="badge yes">能</span><br>已用真实素材验证，同时返回授权状态和截止时间。</td></tr>
+<tr><td>③</td><td>内部 DWS / ADS 规则<br><span class="muted">非上游接口</span></td><td>输入：<code>authorization_status</code>、<code>authorization_expire_at</code>、<code>status_as_of_date</code>。</td><td>输出素材生命周期：<code>AVAILABLE</code>、<code>EXPIRING</code>、<code>EXPIRED</code>、<code>UNAVAILABLE</code>、<code>PENDING</code>。</td><td><span class="badge yes">能</span><br>规则必须版本化；页面按标准化状态展示，不直接依赖上游枚举文案。</td></tr>
+</tbody></table>
+<h3>4.5 生命周期字段与判定规则</h3>
+<table><thead><tr><th style="width:25%">字段</th><th style="width:24%">来源</th><th style="width:26%">用途</th><th>判定规则</th></tr></thead><tbody>
+<tr><td><code>item_id</code></td><td><code>gmv_max/video/get</code> 已有真实样例。</td><td>帖子级主键；用于调用及回连帖子广告授权状态接口。</td><td>无 <code>item_id</code>：生命周期为 <code>PENDING</code>，不得判断为有效或过期。</td></tr>
+<tr><td><code>video_id</code></td><td><code>gmv_max/video/get → video_info.video_id</code> 已有真实样例。</td><td>媒体文件辅助键、素材展示与去重辅助键。</td><td>不能代替 <code>item_id</code> 查询帖子授权；同一业务过程须以实际联调确认两者映射关系。</td></tr>
+<tr><td><code>authorization_status</code><br><span class="muted">标准化字段</span></td><td><code>identity/video/info → data.video_detail.auth_info.ad_auth_status</code>，已真实验证为 <code>AUTHORIZED</code>。</td><td>判定授权是否开启、已撤销或不可用。</td><td>仅当值为 <code>AUTHORIZED</code> 时进入有效期判断；其他平台枚举统一映射为 <code>UNAVAILABLE</code>；接口失败/缺键映射为 <code>PENDING</code>。</td></tr>
+<tr><td><code>authorization_expire_at</code><br><span class="muted">标准化字段</span></td><td><code>identity/video/info → data.video_detail.auth_info.auth_end_time</code>，已真实验证。</td><td><strong>过期判断的唯一时间字段。</strong></td><td><code>auth_end_time &lt; status_as_of_date</code> → <code>EXPIRED</code>；在预警阈值内（例如 7 日）→ <code>EXPIRING</code>；否则 → <code>AVAILABLE</code>。</td></tr>
+<tr><td><code>authorization_start_at</code><br><span class="muted">标准化字段</span></td><td><code>identity/video/info → data.video_detail.auth_info.auth_start_time</code>，已真实验证。</td><td>记录授权生效时间，用于审计与异常排查。</td><td>仅做追溯，不单独决定有效/过期。</td></tr>
+<tr><td><code>identity_type=AUTH_CODE</code></td><td><code>gmv_max/video/get → identity_info.identity_type</code> 已有真实样例。</td><td>辅助识别素材关联授权码身份。</td><td><span class="badge no">不是生命周期字段</span>；没有截止时间、状态枚举或撤销原因，不能用来计算过期。</td></tr>
+<tr><td>预览/封面 URL 的 <code>x-expires</code></td><td>视频/封面 URL 签名参数。</td><td>仅表示临时访问链接失效时间。</td><td><span class="badge no">不是生命周期字段</span>；URL 过期不等于帖子广告授权过期。</td></tr>
+</tbody></table>
+<div class="danger"><strong>兜底规则：</strong>如果步骤②在首次联调中未返回“授权状态 + 可换算的截止时间”两个信息，素材生命周期只能显示 <code>PENDING</code>；页面不得出现“过期素材数”或“当前可用素材数”的经营结论。此时需继续向 TikTok 确认可用字段或改由授权主数据提供到期时间。</div>
+
+<h2 id="vsa">五、VSA 专项链路</h2>
+<section class="danger"><strong>不能用 GMV Max 识别 VSA。</strong><code>gmv_max/campaign/get</code> 与 Campaign 详情中的 <code>shopping_ads_type=PRODUCT</code> 仅描述 GMV Max 商品投放类型，不是 VSA 标记。VSA 必须在普通 <code>Ad Group</code> 层识别，再回连 Ad Group 日报汇总。</section>
+<div class="flow">普通 Campaign（归属） → 普通 Ad Group（判定 adFormat=VSA） → Ad Group 日报（按日消耗） → 过滤 VSA → Campaign / 项目汇总</div>
+<section class="ok"><strong>真实链路验证（2026-10-16）：</strong>使用授权账户以只读方式依次请求 Campaign、指定 Ad Group 与指定 Ad Group 分日报，三次均返回 <code>code=0</code>。日报在补齐必填 <code>report_type=BASIC</code> 后成功返回 5 个日粒度记录；该广告组在测试期间已停用，因此三项效果指标均为 0。这证明 API 链路可用，不是接口卡点；仍需补内部代理、ODS 和调度。</section>
+<table><thead><tr><th style="width:12%">环节</th><th style="width:19%">接口 / 已知内部代理</th><th style="width:24%">请求参数（真实验证口径）</th><th style="width:23%">返回数据（脱敏真实样例）</th><th>规则、回连键与落地要求</th></tr></thead><tbody>
+<tr><td>父级归属</td><td><code>GET /open_api/v1.3/campaign/get/</code><br><code>POST /api/tiktok/ads/campaign/list</code></td><td>鉴权：请求头 <code>Access-Token</code>；公共参数：<code>app_id</code>、<code>secret</code>、<code>advertiser_id</code>；范围：<code>campaign_ids=["1876771326979745"]</code>；分页：<code>page=1</code>、<code>page_size=1</code>。</td><td><code>code=0</code>；<code>campaign_id=1876771326979745</code>；<code>objective_type=PRODUCT_SALES</code>；<code>operation_status=DISABLE</code>；<code>secondary_status=CAMPAIGN_STATUS_DISABLE</code>；<code>budget_mode=BUDGET_MODE_INFINITE</code>。</td><td><code>advertiser_id + campaign_id</code> 为归属键；仅用于范围和汇总，<strong>不能</strong>仅凭 Campaign 定性 VSA。新增普通 Campaign ODS。</td></tr>
+<tr><td><strong>VSA 判定</strong></td><td><code>GET /open_api/v1.3/adgroup/get/</code><br><code>POST /api/tiktok/ads/adgroup/list</code></td><td>鉴权和公共参数同上；精确范围：<code>adgroup_ids=["1876771300789281"]</code>；分页：<code>page=1</code>、<code>page_size=1</code>。批量采集可改为分页全量拉取。</td><td><code>code=0</code>；<code>campaign_id=1876771326979745</code>；<code>adgroup_id=1876771300789281</code>；<code>promotion_type=VIDEO_SHOPPING</code>；<code>shopping_ads_type=VIDEO</code>；<code>product_source=STORE</code>；<code>operation_status=DISABLE</code>；<code>secondary_status=ADGROUP_STATUS_CAMPAIGN_DISABLE</code>。</td><td>主判定：<code>promotion_type=VIDEO_SHOPPING</code>；交叉核对 <code>shopping_ads_type=VIDEO</code> 与 <code>product_source=STORE</code>。三字段不一致或缺失标记 <code>UNKNOWN</code>，同步保存状态与原始 JSON。</td></tr>
+<tr><td>日级消耗</td><td><code>GET /open_api/v1.3/report/integrated/get/</code><br><code>POST /api/tiktok/ads/report/integrated</code></td><td>鉴权和公共参数同上；<code>report_type=BASIC</code>（必填）；<code>data_level=AUCTION_ADGROUP</code>；<code>dimensions=["adgroup_id","stat_time_day"]</code>；<code>metrics=["spend","impressions","clicks"]</code>；<code>start_date=2026-10-01</code>、<code>end_date=2026-10-05</code>；<code>filtering</code> 内以 <code>adgroup_ids IN</code> 精确过滤；分页 <code>page/page_size</code>。</td><td><code>code=0</code>，5 行；每行：<code>dimensions.adgroup_id=1876771300789281</code>、<code>dimensions.stat_time_day=2026-10-01 00:00:00</code>（至 10-05）；<code>metrics.spend=0.00</code>、<code>impressions=0</code>、<code>clicks=0</code>。全 0 与广告组停用状态一致。</td><td>回连键：<code>dimensions.adgroup_id + dimensions.stat_time_day</code>；先按 Ad Group 过滤 <code>adFormat=VSA</code>，再汇总。不得先在 Campaign 聚合后拆分，避免混投串量。新增 API 日级事实 ODS。</td></tr>
+</tbody></table>
+<div class="note"><strong>实现注意：</strong>集成报表的 <code>filtering</code> 是 JSON 数组，内部的 <code>filter_value</code> 又是 ID 数组的 JSON 字符串；服务端应使用 JSON 序列化构造，不应手工拼接。首次实测未传 <code>report_type</code> 返回 <code>40002: report_type: Missing data for required field.</code>，因此该字段必须纳入内部接口必填校验。</div>
+<div class="note"><strong>现有文件 ODS 的定位：</strong><code>ods_marketing_file_tiktok_vsa_campaign_di</code> 可作为历史导入或人工对账来源，已有成本、VSA ROI、订单、GMV、展示、点击等列；但键是 <code>smt + sdt + store_name + ad_name</code>，且没有 <code>advertiser_id / campaign_id / adgroup_id</code>。因此它不能替代 API 日级事实，也不能完成可靠的 VSA 与 GMV Max 去重或归因关系。</div>
+
+<h2 id="blockers">六、卡点与优先级</h2>
+<table><thead><tr><th style="width:8%">优先级</th><th style="width:20%">卡点</th><th style="width:28%">事实依据</th><th style="width:24%">影响范围</th><th>建议动作 / 验收</th></tr></thead><tbody>
+<tr><td><span class="badge p0">P0</span></td><td>VSA API ODS 与调度链未落地</td><td>普通 Campaign、Ad Group、集成报表接口及内部只读代理均已可用，并已有联调记录；但 <code>ddl/marketing/ods</code> 尚无对应 API ODS，当前只有文件导入表。</td><td>VSA 消耗、格式区分、与 GMV Max 汇总、按广告对象追溯。</td><td>新增 3 张 API ODS 与 T-1 回刷任务；用 <code>adgroup_id + stat_time_day</code> 对账 API 原始返回。</td></tr>
+<tr><td><span class="badge p0">P0</span></td><td>SPU / PID / 素材缺少效果归因事实</td><td>现有 GMV Max 日报落表键为 Campaign；视频-SPU、Session-SPU 是关系快照。</td><td>SPU、PID、素材 Tab 的成本、收入、订单、ROI 及排行。</td><td>先与 TikTok 确认报表可用维度；若无对象级报表，页面应只展示关系/覆盖，不展示伪造的对象级广告效果。</td></tr>
+<tr><td><span class="badge p0">P0</span></td><td>内部商品 PID 与 TikTok <code>spu_id</code> 的语义未确认</td><td>营销 ODS 中关联字段为 <code>spu_id</code>，业务 PID 看板要求 PID 主键；两者不能默认等同。</td><td>PID Tab、SPU/PID 销售库存联动、素材归属。</td><td>建立带 <code>store_id</code>、生效时间的商品映射；未命中时明确标注“待映射”。</td></tr>
+<tr><td><span class="badge p1">P1</span></td><td>素材授权生命周期尚未落内部数据链</td><td>已于 2026-10-16 真实验证 <code>identity/video/info</code>：返回 <code>auth_info.ad_auth_status</code>、<code>auth_start_time</code>、<code>auth_end_time</code>。接口可用性不是卡点；当前缺少内部代理、ODS 和调度回刷。</td><td>素材 Tab 的可用数、过期数、风险动作。</td><td>接入 Identity Video Info 到内部服务与 ODS；以 <code>advertiser_id + identity_type + identity_id + item_id</code> 回连，按 <code>auth_end_time</code> 建立生效/失效状态历史。</td></tr>
+<tr><td><span class="badge p1">P1</span></td><td>时区、数据延迟与完整性门禁</td><td>账户存在 <code>timezone</code> 与 <code>display_timezone</code>；报表与快照回流延迟不同。</td><td>所有日级比较、T-1 展示、经营结论与异常识别。</td><td>统一业务日口径，记录采集批次/水位；区分 0 行、全 0、延迟、失败，未通过时阻断结论。</td></tr>
+<tr><td><span class="badge p1">P1</span></td><td>项目跨币种与异常诊断依赖内部规则</td><td>报告币种、汇率、高花费零单、探索状态、诊断标签、行动点均非 TikTok 单一 API 字段。</td><td>项目总览的跨店汇总、预警与行动闭环。</td><td>单独建设汇率/规则/行动任务数据集，保留规则版本与样本门槛。</td></tr>
+<tr><td><span class="badge p2">P2</span></td><td>接口分页、历史回刷、临时 URL</td><td>Campaign 列表有大量记录；视频预览/封面 URL 有签名时效；日事实需要回刷修正。</td><td>全量覆盖、历史趋势、素材预览稳定性。</td><td>采集任务实现分页、幂等覆盖和近 7 日回刷；素材资产存稳定 ID，不把临时 URL 当永久地址。</td></tr>
+</tbody></table>
+
+<h2 id="roadmap">七、接入顺序与验收</h2>
+<ol>
+  <li><strong>P0：补齐 VSA 三段 API ODS。</strong>普通 Campaign、普通 Ad Group、Ad Group 日报；完成 VSA 判定、日级消耗回连、GMV Max/VSA 分类汇总对账。</li>
+  <li><strong>P0：冻结对象映射与粒度边界。</strong>确认 <code>store_id + spu_id</code> 到业务 PID/SPU 的映射；在对象级效果事实缺失时，禁止将 Campaign 聚合指标下摊。</li>
+  <li><strong>P1：扩展 GMV Max 报表与素材授权数据。</strong>基于真实接口能力补结构化指标/维度，并接入素材可用、过期、拒绝等主数据。</li>
+  <li><strong>P1：建设数据质量与规则层。</strong>统一时区、回刷、水位、完整性状态；将诊断、汇率和行动对象沉淀为可追溯数据集。</li>
+  <li><strong>P2：建设面向看板的 DWS/ADS。</strong>在 ODS 完整、粒度验证后，再按项目、Campaign、SPU、PID、素材分别聚合，避免前端跨多张 ODS 实时拼接。</li>
+</ol>
+<section class="ok"><strong>最小验收集：</strong>（1）任一广告账户的 Campaign 快照条数可与上游分页总数核对；（2）VSA 由 Ad Group 判定，<code>UNKNOWN</code> 不进入 VSA 消耗；（3）VSA 日消耗可按 <code>adgroup_id + stat_time_day</code> 回连上游；（4）Campaign 日成本、收入、订单与 GMV Max 报表一致；（5）SPU/PID/素材无法归因时只输出关联关系与数据限制，不输出分摊指标。</section>
+
+<footer>本文仅分析接口与数仓接入边界，不替代接口鉴权、调度实现或 DWS/ADS 详细设计。表名遵循营销域 ODS 的 Doris 命名口径；新表为建议，需在落地前结合现有调度框架确认唯一键、分区和回刷策略。</footer>
+</main></body></html>
