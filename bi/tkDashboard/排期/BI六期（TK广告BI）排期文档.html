@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BI六期（TK广告BI）排期文档</title>
+  <style>
+    :root {
+      --bg: #f5f6f8;
+      --card: #fff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --accent: #0d9488;
+      --border: #d9dee7;
+      --header: #4472c4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .page { width: 100%; min-width: 1680px; margin: 0 auto; }
+    .header-card {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      padding: 18px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+    }
+    h1 { margin: 0; font-size: 22px; line-height: 1.25; color: #0f172a; }
+    .meta { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(13, 148, 136, .28);
+      border-radius: 999px;
+      color: var(--accent);
+      background: #ecfdf5;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .table-card { border: 1px solid var(--border); border-radius: 8px; background: var(--card); overflow: hidden; }
+    .table-wrap { overflow: auto; max-height: calc(100vh - 150px); }
+    table { width: max-content; min-width: 2030px; border-collapse: collapse; table-layout: fixed; font-size: 13px; }
+    col:nth-child(1) { min-width: 360px; }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      vertical-align: middle;
+      background-clip: padding-box;
+    }
+    th { position: sticky; top: 0; z-index: 5; background: var(--header); color: #fff; font-weight: 700; text-align: center; }
+    tbody tr:hover td { box-shadow: inset 0 0 0 9999px rgba(13, 148, 136, .045); }
+    .requirement { background: #e4eddb; text-align: center; }
+    .module { text-align: center; }
+    .note { margin-top: 10px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="header-card">
+      <div>
+        <h1>BI六期（TK广告BI）排期文档</h1>
+        <div class="meta">项目开始时间：2026-10-21；具体排期内容待补充</div>
+      </div>
+      <span class="pill">排期待补充</span>
+    </section>
+    <section class="table-card">
+      <div class="table-wrap">
+        <table aria-label="BI六期（TK广告BI）排期表">
+          <colgroup>
+            <col style="width:530px"><col style="width:232px"><col style="width:582px">
+            <col style="width:195px"><col style="width:137px"><col style="width:228px">
+            <col style="width:136px"><col style="width:136px"><col style="width:130px"><col style="width:130px"><col style="width:195px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>--</th><th>模块</th><th>子任务</th><th>工时(天)</th><th>负责人</th>
+              <th>开始时间</th><th>计划结束日期</th><th>实际结束日期</th><th>是否已完成</th><th>交付时间</th><th>备注</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="requirement" rowspan="19">BI六期（TK广告BI）</td>
+              <td class="module" rowspan="9">后端开发（10.5天）</td><td>表结构设计、逻辑细节梳理落地</td><td>2</td><td></td><td>2026-10-21</td><td>2026-10-22</td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr><td>第三方广告 API 对接录入、定时任务配置</td><td>1</td><td></td><td>2026-10-23</td><td>2026-10-23</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>数仓逻辑计算（数据入仓、清洗、计算、汇总）</td><td>3</td><td></td><td>2026-10-28</td><td>2026-10-30</td><td></td><td></td><td></td><td></td></tr>
+            <tr><td>接口开发 · 公共弹窗：表现分析（汇总、对比、日趋势、日明细和对象扩展明细）；SPU/PID库存详情；SPU/PID历史Campaign列表。</td><td>1</td><td></td><td>2026-11-02</td><td>2026-11-02</td><td></td><td></td><td></td><td>各Tab复用，工时仅计算一次。</td></tr>
+            <tr><td>接口开发 · 项目总览：总览卡片与广告经营、素材供给、投放概览汇总；风险对象列表；当前筛选范围导出。</td><td>0.5</td><td></td><td>2026-11-03</td><td>2026-11-03</td><td></td><td></td><td></td><td>待开发建议；列表支持筛选及分页。计划占用上午。</td></tr>
+            <tr><td>接口开发 · Campaign看板：汇总卡片；Campaign列表（状态、排期、目标预算、表现、产品及素材关系、库存门禁）；导出。</td><td>1</td><td></td><td>2026-11-03</td><td>2026-11-04</td><td></td><td></td><td></td><td>待开发建议；含筛选及分页。计划从下午开始，至上午结束。</td></tr>
+            <tr><td>接口开发 · SPU看板：汇总卡片；SPU列表（PID结构、历史Campaign、广告表现、素材供给及库存门禁）；导出。</td><td>0.5</td><td></td><td>2026-11-04</td><td>2026-11-04</td><td></td><td></td><td></td><td>待开发建议；含筛选及分页。计划占用下午。</td></tr>
+            <tr><td>接口开发 · PID看板：汇总卡片；PID列表（主推SPU、映射状态、历史Campaign、广告表现、素材供给及库存门禁）；导出。</td><td>0.5</td><td></td><td>2026-11-05</td><td>2026-11-05</td><td></td><td></td><td></td><td>待开发建议；含筛选及分页。计划占用上午。</td></tr>
+            <tr><td>接口开发 · 素材看板：汇总卡片；素材列表（视频、归属、颜色库存、广告及产品关系、授权、平台状态和表现）；素材历史状态；导出。</td><td>1</td><td></td><td>2026-11-05</td><td>2026-11-06</td><td></td><td></td><td></td><td>待开发建议；含筛选及分页，历史状态按日查询。计划从下午开始，至上午结束。</td></tr>
+            <tr><td class="module" rowspan="7">优化迭代（4天）</td><td>热卖码逻辑调整</td><td>0.5</td><td></td><td>2026-10-26</td><td>2026-10-26</td><td></td><td></td><td>2026-10-27</td><td>计划占用上午。</td></tr>
+            <tr><td>英国店播报：区分 UK 本土、US 互通。</td><td>0.5</td><td></td><td>2026-10-26</td><td>2026-10-26</td><td></td><td></td><td>2026-10-27</td><td>计划占用下午。</td></tr>
+            <tr><td>库存模块：导出颜色按销量降序排列。</td><td>0.5</td><td></td><td>2026-10-27</td><td>2026-10-27</td><td></td><td></td><td>2026-10-27</td><td>计划占用上午。</td></tr>
+            <tr><td>增加日常维护播报：披露各模块字段维护情况，包括完全未维护占比、延迟维护时长。</td><td>0.5</td><td></td><td>2026-10-27</td><td>2026-10-27</td><td></td><td></td><td>2026-10-27</td><td>计划占用下午。</td></tr>
+            <tr><td>账号维护：TAP机构号调整为“TAP合作列表”；联盟订单的机构服务单中，针对 ASOTONY 增加归属商务维护功能。</td><td>0.5</td><td></td><td>2026-11-06</td><td>2026-11-06</td><td></td><td></td><td>2026-11-18</td><td>计划占用下午。</td></tr>
+            <tr><td>库存看板：对接积加采购单，区分 SKU 采购明细；采购单草稿不计入采购量。</td><td>1</td><td></td><td>2026-11-09</td><td>2026-11-09</td><td></td><td></td><td>2026-11-18</td><td></td></tr>
+            <tr><td>各模块增加对应的详细产品计算文档。</td><td>0.5</td><td></td><td>2026-11-10</td><td>2026-11-10</td><td></td><td></td><td>2026-11-18</td><td>计划占用上午。</td></tr>
+            <tr><td class="module">前端开发（2天）</td><td>页面接口对接</td><td>2</td><td></td><td>2026-11-10</td><td>2026-11-12</td><td></td><td></td><td></td><td>计划从下午开始，至上午结束。</td></tr>
+            <tr><td class="module">联调测试（1天）</td><td>联调测试</td><td>1</td><td></td><td>2026-11-12</td><td>2026-11-13</td><td></td><td></td><td></td><td>计划从下午开始，至上午结束。</td></tr>
+            <tr><td class="module">上线部署 + 数据验证（1天）</td><td>上线部署 + 数据验证</td><td>1</td><td></td><td>2026-11-13</td><td>2026-11-16</td><td></td><td></td><td>2026-11-19</td><td><strong>计划从下午开始，至上午结束。交付时间在计划完成后推迟3个工作日，交付日期：2026-11-19。</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <div class="note">计划按工作日顺排，跳过周末；上午和下午各按0.5个工作日计算。热卖码、英国店播报、库存导出排序及日常维护播报安排在数仓开发前，其余优化迭代接在后端开发后。实际结束日期及其他待定内容后续补充。接口工时合计4.5个工作日，按指定工期安排，假设数仓数据及关联口径已就绪、导出和弹窗能力可复用，不含数仓开发及联调测试。前端当前使用Demo数据，导出为演示提示；以上为待开发接口能力清单，并非现有接口路径或接口数量，具体拆分和工时待确认。</div>
+  </main>
+</body>
+</html>
