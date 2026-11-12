@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TK 内容维护率说明</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#64748b; --accent:#0d9488; --border:#dfe3e8; --note:#f0fdfa; --warn:#fff7ed; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.65 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    .doc { max-width:1280px; margin:28px auto; background:var(--card); border:1px solid var(--border); border-radius:8px; padding:34px 42px 48px; }
+    h1 { font-size:28px; margin:0 0 8px; padding-bottom:12px; border-bottom:3px solid var(--accent); }
+    h2 { font-size:20px; margin:32px 0 12px; color:#0f766e; }
+    h3 { font-size:16px; margin:24px 0 8px; }
+    p { margin:8px 0 14px; }
+    .meta { color:var(--muted); margin:0 0 18px; }
+    .note, .warning { padding:10px 12px; border-left:3px solid var(--accent); border-radius:2px; margin:12px 0; }
+    .note { background:var(--note); }
+    .warning { background:var(--warn); border-left-color:#f97316; }
+    .toc { background:#f8fafc; border:1px solid var(--border); border-radius:8px; padding:14px 18px; margin:18px 0; }
+    .toc strong { display:block; margin-bottom:4px; color:var(--muted); }
+    .toc a, .back a { color:var(--accent); text-decoration:none; }
+    .toc a:hover, .back a:hover { text-decoration:underline; }
+    .toc ul { columns:2; margin:6px 0 0; padding-left:20px; }
+    .toc li { margin:3px 0; }
+    .table-wrap { overflow:auto; margin:10px 0 18px; }
+    table { border-collapse:collapse; width:100%; min-width:720px; }
+    th, td { border:1px solid var(--border); padding:8px 10px; vertical-align:top; text-align:left; }
+    th { background:#eef2f3; font-weight:600; white-space:nowrap; }
+    tr:hover td { background:#f8fafc; }
+    code { background:#f1f5f9; border-radius:3px; padding:1px 4px; color:#0f766e; font-size:.92em; }
+    pre { margin:10px 0 16px; overflow:auto; padding:12px 14px; background:#f8fafc; border:1px solid var(--border); border-radius:4px; }
+    pre code { background:none; padding:0; color:inherit; }
+    ul { padding-left:22px; }
+    li { margin:4px 0; }
+    .tag { display:inline-block; padding:1px 6px; border-radius:3px; background:#d1fae5; color:#047857; font-size:12px; font-weight:600; }
+    .back { margin-bottom:16px; }
+    @media (max-width:760px) { .doc { margin:0; border-radius:0; padding:24px 16px; } .toc ul { columns:1; } }
+  </style>
+</head>
+<body>
+  <main class="doc">
+    <div class="back"><a href="../index.html">返回 tkDashboard</a></div>
+    <h1>TK 内容维护率说明</h1>
+    <p class="meta">适用对象：内容运营、业务负责人、前后端与数据排障同学。本文以已落地的 Excel 导出实现为准，说明统计范围、字段、延迟判定和文件内容。</p>
+
+    <div class="note"><strong>目的：</strong>按日披露账号维护、寄样、视频、商品档案四个模块的字段维护情况，识别完全未维护记录和超过时效才完成维护的字段。</div>
+
+    <nav class="toc">
+      <strong>目录导航</strong>
+      <ul>
+        <li><a href="#entry">一、导出与定时发送</a></li>
+        <li><a href="#scope">二、统计范围与维护判定</a></li>
+        <li><a href="#fields">三、模块与字段范围</a></li>
+        <li><a href="#sources">四、数据来源与记录粒度</a></li>
+        <li><a href="#workbook">五、Excel 内容</a></li>
+        <li><a href="#examples">六、判定示例</a></li>
+        <li><a href="#boundary">七、边界与安全说明</a></li>
+      </ul>
+    </nav>
+
+    <h2 id="entry">一、导出与定时发送</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>项</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>请求方法</td><td><span class="tag">GET</span></td></tr>
+          <tr><td>Controller 路径</td><td><code>/tk/content/maintenance/report/export</code></td></tr>
+          <tr><td>请求参数</td><td>无。报表日取服务端当天。</td></tr>
+          <tr><td>响应类型</td><td><code>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</code></td></tr>
+          <tr><td>下载文件名</td><td><code>TK内容维护率_yyyyMMdd.xlsx</code></td></tr>
+          <tr><td>实现位置</td><td><code>TkContentMaintenanceReportController</code>、<code>TkContentMaintenanceReportServiceImpl</code></td></tr>
+          <tr><td>定时发送入口</td><td><code>POST /tk/scheduler/trigger/receive</code>；北京时间 16:00（含）至 18:00（不含）触发。</td></tr>
+          <tr><td>发送方式</td><td>复用通用企业微信机器人配置 <code>tk.order.broadcast.wechat.robot.webhook-url</code>，以 Excel 文件消息发送，不使用英国店专用机器人。</td></tr>
+          <tr><td>发送幂等</td><td>按北京时间报表日期，在 <code>ods.ods_oplog_etl_log_df</code> 写入 <code>operation_type=tk_content_maintenance_report_broadcast</code>；已发送或已进入发送流程时跳过重复发送。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="scope">二、统计范围与维护判定</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>口径项</th><th>规则</th></tr></thead>
+        <tbody>
+          <tr><td>报表日</td><td>按北京时间取服务端执行导出时的当天，记为 <code>T</code>。</td></tr>
+          <tr><td>最新完整数据日</td><td>固定为 <code>T-2</code>。</td></tr>
+          <tr><td>维护预留期</td><td><code>T-3</code> 至 <code>T-2</code>，共 2 天；业务可在此期间维护，记录不纳入统计或明细。</td></tr>
+          <tr><td>纳入窗口</td><td>账号、寄样、视频为 <code>T-10</code> 至 <code>T-4</code>，连续 7 天且含首尾；商品档案为全部历史至 <code>T-4</code>，含截止日。例如报表日为 2026-10-26，预留 2026-10-23～2026-10-24，前三个模块统计 2026-10-16～2026-10-22，商品档案统计截至 2026-10-22 的历史记录。</td></tr>
+          <tr><td>业务发生时间</td><td>账号取 <code>created_time</code>；寄样取 <code>sample_time_beijing</code>；视频取 <code>publish_time</code>；商品档案取 <code>created_time</code>。</td></tr>
+          <tr><td>已维护</td><td>字段值非空、非空字符串、非仅空白字符。数值 <code>0</code>、布尔值 <code>false</code> 均视为已维护。</td></tr>
+          <tr><td>未维护</td><td>字段值为 <code>null</code>、空字符串或仅由空白字符组成。</td></tr>
+          <tr><td>完全未维护</td><td>一条记录在其所属模块及子类型的<strong>所有适用统计字段</strong>均未维护。</td></tr>
+          <tr><td>正常维护</td><td>字段已维护，且 <code>更新时间 − 业务发生时间 ≤ 48.00 小时</code>。</td></tr>
+          <tr><td>延迟维护</td><td>字段已维护，且 <code>更新时间 − 业务发生时间 &gt; 48.00 小时</code>。记录级 <code>updated_time</code> 会应用于该记录下的每一个已维护字段。</td></tr>
+          <tr><td>平均延迟小时数</td><td>按可解析业务时间和更新时间的已维护字段计算平均值；以小时展示，保留 2 位小数。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="warning"><strong>注意：</strong>“延迟维护”严格使用大于 2 天，而非大于等于 2 天；恰好 48.00 小时不计入延迟维护。</p>
+
+    <h2 id="fields">三、模块与字段范围</h2>
+    <p>仅统计下表字段。字段范围按业务确认的可维护项固定，不按后端 DTO 或其他页面控件扩展。</p>
+
+    <h3>3.1 账号维护</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>子类型</th><th>统计字段</th></tr></thead>
+        <tbody>
+          <tr><td>达人账号</td><td>归属人员、账号性别、账号状态、达人等级</td></tr>
+          <tr><td>渠道号</td><td>归属人员、达人等级、账号定位性别、TK 密码、邮箱、邮箱登录地址、网络线路、账号状态</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.2 寄样</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>子类型</th><th>统计字段</th></tr></thead>
+        <tbody><tr><td>寄样</td><td>寄样商务、达人佣金</td></tr></tbody>
+      </table>
+    </div>
+
+    <h3>3.3 视频</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>子类型</th><th>统计字段</th></tr></thead>
+        <tbody>
+          <tr><td>联盟视频</td><td>归属商务、寄样商务、授权码</td></tr>
+          <tr><td>自制视频</td><td>视频颜色、上镜模特</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>3.4 商品档案</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>模块</th><th>统计字段</th></tr></thead>
+        <tbody><tr><td>商品档案</td><td>PID 作用、商品运营级别、商品运营状态、商品标签、季节标签、负责运营、负责商务、负责编导、负责剪辑、直播运营、投放负责人、吊牌价、日常折线价、直播间秒杀价、活动报名价、亚马逊定价、独立站价格、公开佣金、定向佣金、广告佣金、IPPC 注册情况、IPPC 情况说明、产品卖点、商品分析说明、独立站商品链接、素材文件夹链接</td></tr></tbody>
+      </table>
+    </div>
+
+    <h2 id="sources">四、数据来源与记录粒度</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>模块</th><th>来源表</th><th>筛选时间</th><th>业务主键展示</th><th>更新时间</th></tr></thead>
+        <tbody>
+          <tr><td>账号维护</td><td><code>dim.dim_platform_tiktok_account_config</code></td><td><code>created_time</code></td><td>TikTok UID｜账号｜昵称</td><td><code>updated_time</code></td></tr>
+          <tr><td>寄样</td><td><code>ads.ads_sales_sample_order_realtime</code> 左关联 <code>dim.dim_sales_sample_order_manual_config</code></td><td><code>sample_time_beijing</code></td><td>订单号｜订单明细 ID｜SKU ID</td><td>人工配置表 <code>m.updated_time</code></td></tr>
+          <tr><td>视频</td><td><code>dim.dim_sales_tiktok_video_config</code></td><td><code>publish_time</code></td><td>店铺｜视频 ID｜PID</td><td><code>updated_time</code></td></tr>
+          <tr><td>商品档案</td><td><code>dim.dim_product_archive_config</code>（指定三个店铺，商品状态为 ACTIVE/ACTIVATE、TK 审核状态为 APPROVED/已通过，且未删除）</td><td><code>created_time</code></td><td>平台｜店铺｜PID｜SKU</td><td><code>updated_time</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>视频子类型优先使用 <code>video_type_name</code>；未提供时，<code>account_type = 2</code> 归为联盟视频，其他归为自制视频。账号子类型统计达人号、TAP 机构号和渠道号，其中达人号与 TAP 机构号统一披露为“达人账号”。</p>
+
+    <h2 id="workbook">五、Excel 内容</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Sheet</th><th>内容</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>统计口径</td><td>报表日期、生成时间、最新完整数据日、维护预留期、各模块统计范围及商品状态、延迟阈值、未维护判定、密码处理规则、各模块字段范围。</td><td>确认当前文件的统计边界与适用字段。</td></tr>
+          <tr><td>字段统计</td><td>模块、账号/视频类型、字段、纳入记录数、已维护数及维护率、未维护数及未维护率、完全未维护记录数及占比、延迟维护数及占比、平均延迟小时数。</td><td>评估各字段维护覆盖与时效。</td></tr>
+          <tr><td>完全未维护明细</td><td>模块、子类型、业务主键、业务时间、更新时间、未维护字段。</td><td>定位整条记录尚未启动维护的对象。</td></tr>
+          <tr><td>延迟维护明细</td><td>模块、子类型、业务主键、字段、业务时间、更新时间、延迟小时数。</td><td>定位已完成但超过 2 天才完成的字段；一条记录可能按字段展开多行。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>统计表中的各类记录数使用数值型整数展示；比例和平均延迟小时数保留 2 位小数，比例以百分号形式展示。</p>
+    <p>当某字段的纳入记录数为 <code>0</code> 时，维护率显示为 <code>100.00%</code>；未维护率、完全未维护占比和延迟维护占比仍显示为 <code>0.00%</code>。</p>
+
+    <h2 id="examples">六、判定示例</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>场景</th><th>结果</th><th>说明</th></tr></thead>
+        <tbody>
+          <tr><td>商品档案的吊牌价为 <code>0</code></td><td>已维护</td><td>数值 0 是有效业务值，不视为空。</td></tr>
+          <tr><td>视频“上镜模特”为 <code>"   "</code></td><td>未维护</td><td>仅空白字符会先去除空白后判空。</td></tr>
+          <tr><td>自制视频两项字段全部为空</td><td>完全未维护</td><td>该记录会在“完全未维护明细”出现一次，并在两项字段统计中各计 1 条完全未维护记录。</td></tr>
+          <tr><td>寄样业务时间 10 月 1 日 10:00，人工配置更新时间 10 月 3 日 10:00</td><td>非延迟维护</td><td>延迟为 48.00 小时，规则是严格大于 48.00 小时。</td></tr>
+          <tr><td>账号业务时间 10 月 1 日 10:00，更新时间 10 月 3 日 10:01</td><td>延迟维护</td><td>延迟为 48.02 小时，已超过阈值；该账号的每个已维护统计字段均会形成延迟维护明细。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 id="boundary">七、边界与安全说明</h2>
+    <ul>
+      <li>报表只读当前生效配置和实时寄样记录，不写入或修正任何业务数据。</li>
+      <li>TK 密码只根据密文字段是否存在判断“已配置”；Excel 不输出明文、密文或任何密码内容。</li>
+      <li>寄样的维护更新时间仅取人工配置表记录的 <code>updated_time</code>，不将实时列表刷新时间误计为人工维护时间。</li>
+      <li>若一条已维护字段无法取得可解析的业务时间或更新时间，仍计入“已维护”，但不纳入延迟维护和平均延迟小时数的计算。</li>
+      <li>导出范围按业务发生日期过滤，不以更新时间过滤；当前日的 <code>T-3</code>～<code>T-2</code> 为维护预留期，不参与统计或明细。</li>
+      <li>商品档案仅统计并分别展示以下三个店铺：美国TK-艾斯特尼-美区跨境1店:US、美国TK-艾斯特尼-美区跨境3店:US、美国TK-艾斯特尼-英国直邮店:GB；其他店铺不纳入字段统计和明细。</li>
+      <li>自动发送生成的文件与手工下载使用同一份报表构建逻辑；机器人只接收 Excel 附件，不传递 TK 密码的明文或密文。</li>
+    </ul>
+  </main>
+</body>
+</html>

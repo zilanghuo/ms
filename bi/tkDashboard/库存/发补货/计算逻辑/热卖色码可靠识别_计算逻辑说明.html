@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>热卖色码业务计算逻辑说明</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#667085; --accent:#0d9488; --border:#d9e2ec; --soft:#eef6f3; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; }
+    .doc { max-width:1120px; margin:28px auto; padding:34px 38px 46px; background:var(--card); border:1px solid var(--border); border-radius:8px; }
+    h1 { margin:0; font-size:28px; line-height:1.3; }
+    h1::after { content:""; display:block; width:52px; height:3px; margin-top:13px; background:var(--accent); }
+    h2 { margin:31px 0 13px; padding-bottom:8px; border-bottom:2px solid var(--border); font-size:20px; }
+    p { margin:8px 0; }
+    .meta { margin-top:12px; color:var(--muted); }
+    .summary { margin:20px 0; padding:14px 16px; border:1px solid #c8e6dc; border-left:5px solid var(--accent); border-radius:8px; background:var(--soft); }
+    .flow { margin:14px 0; padding:12px 14px; overflow-x:auto; border:1px solid var(--border); border-radius:8px; background:#fbfcfe; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; white-space:nowrap; }
+    table { width:100%; margin:12px 0 20px; border-collapse:collapse; font-size:13px; }
+    th, td { padding:9px 10px; border:1px solid var(--border); vertical-align:top; text-align:left; word-break:break-word; }
+    th { background:#eef2f6; font-weight:700; }
+    tbody tr:nth-child(even) { background:#f9fafb; }
+    code { padding:1px 5px; border:1px solid #dbe4ee; border-radius:4px; background:#edf2f7; color:#334155; font-size:.92em; }
+    ul { margin:8px 0; padding-left:21px; }
+    footer { margin-top:34px; padding-top:13px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+    @media (max-width:760px) { .doc { margin:0; padding:24px 16px 36px; border-width:0; border-radius:0; } table { font-size:12px; } }
+  </style>
+</head>
+<body>
+<main class="doc">
+  <h1>热卖色码业务计算逻辑说明</h1>
+  <p class="meta">版本：v1｜更新：2026-10-28｜适用粒度：业务日 × 店铺 × SPU × 标准库存 SKU</p>
+
+  <section class="summary">
+    <strong>业务目的：</strong>用近 30 个自然日内的可售日均销量，选出每个 SPU 的前三颜色及每个入选颜色的前三尺码。结果是独立日快照，不修改旧热卖标签、A/B/C/D 分层或发补货计算。
+  </section>
+
+  <h2>一、计算流程</h2>
+  <div class="flow">近30个自然日库存与销售 → SKU可售天数与日均销量 → SPU内颜色前三 → 入选颜色内尺码前三 → 热卖色码标识</div>
+  <table>
+    <thead><tr><th>步骤</th><th>计算口径</th><th>输出</th></tr></thead>
+    <tbody>
+      <tr><td>1. 时间范围</td><td>业务日自动取库存快照最新日期；库存取该日期向前含当天共 30 日，销售取该日期向前推一天的 30 日。</td><td>避免当天库存尚未落库或美区当天销售未完整时产生空结果。</td></tr>
+      <tr><td>2. SKU 可售</td><td>店铺同步库存大于 0 的日期，记为 1 个可售日；<code>less_sync</code> 等库存同步异常标签仅用于库存检查，不扣减可售天数。</td><td>SKU 可售天数。</td></tr>
+      <tr><td>3. SKU 日均</td><td><code>近30日有效订单销量 ÷ SKU可售天数</code>；可售但无成交的日期计入分母。</td><td>SKU 近30日销量、可售日均销量。</td></tr>
+      <tr><td>4. 颜色前三</td><td>同店铺、站点、SPU 下，按<code>颜色总销量 ÷ 颜色内SKU可售天数之和</code>排序。</td><td>严格前三颜色。</td></tr>
+      <tr><td>5. 尺码前三</td><td>仅在入选颜色内，按<code>尺码总销量 ÷ 尺码内SKU可售天数之和</code>排序。</td><td>每个入选颜色的严格前三尺码。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、热卖色码判定</h2>
+  <table>
+    <thead><tr><th>条件</th><th>判定</th></tr></thead>
+    <tbody>
+      <tr><td>颜色排名</td><td>同店铺、站点、SPU 内 <code>color_rank ≤ 3</code>。</td></tr>
+      <tr><td>尺码排名</td><td>该入选颜色内 <code>size_rank_in_color ≤ 3</code>。</td></tr>
+      <tr><td>可售条件</td><td>SKU 近 30 日可售天数大于 3 天，即至少 4 天。</td></tr>
+      <tr><td>销售条件</td><td>SKU 近 30 日有效订单销量大于 0。</td></tr>
+      <tr><td>映射条件</td><td>SKU 能正常映射至唯一颜色和尺码。</td></tr>
+      <tr><td>最终标识</td><td>同时满足以上条件时，<code>is_hot_color_size = 1</code>；否则为 0。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>三、排序与数据边界</h2>
+  <ul>
+    <li>颜色和尺码均使用可售日均销量降序；数值相同时按颜色名或尺码名升序，保证每层严格只取前三名。</li>
+    <li>颜色或尺码不足三项时，按实际数量入选。</li>
+    <li>可售天数不超过 3 天、映射异常或未进入前三的 SKU 不标记为热卖。</li>
+    <li>有效订单排除已取消、无支付及订单金额不大于 0 的记录。</li>
+  </ul>
+
+  <h2>四、结果字段</h2>
+  <table>
+    <thead><tr><th>字段组</th><th>核心字段</th></tr></thead>
+    <tbody>
+      <tr><td>SKU 证据</td><td><code>sellable_days_30d</code>、<code>sales_qty_30d</code>、<code>sellable_daily_sales_qty_30d</code></td></tr>
+      <tr><td>颜色证据</td><td><code>color_sellable_days_30d</code>、<code>color_sales_qty_30d</code>、<code>color_sellable_daily_sales_qty</code>、<code>color_rank</code></td></tr>
+      <tr><td>尺码证据</td><td><code>size_sellable_days_30d</code>、<code>size_sales_qty_30d</code>、<code>size_sellable_daily_sales_qty</code>、<code>size_rank_in_color</code></td></tr>
+      <tr><td>结论</td><td><code>is_hot_color_size</code></td></tr>
+    </tbody>
+  </table>
+
+  <footer>实现依据：<code>ddl/inventory/dws/dws_inventory_sku_hot_color_evaluation_1d.sql</code> 与 <code>day/inventory/dws/dws_inventory_sku_hot_color_evaluation_1d.sql</code>。</footer>
+</main>
+</body>
+</html>

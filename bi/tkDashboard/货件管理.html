@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>货件管理</title>
+  <style>
+    :root { --accent:#0d9488; --accent-hover:#0f766e; --bg:#f5f6f8; --border:#e2e8f0; --text:#1e293b; --muted:#64748b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-width:960px; color:var(--text); background:var(--bg); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif; }
+    .layout { display:flex; width:100vw; height:100vh; min-height:600px; overflow:hidden; }
+    .sidebar { display:flex; flex:0 0 216px; flex-direction:column; border-right:1px solid var(--border); background:#fff; }
+    .brand { display:flex; align-items:center; height:56px; padding:0 20px; border-bottom:1px solid var(--border); color:#0f172a; font-size:17px; font-weight:600; }
+    .nav { padding:14px 10px; }
+    .nav-label { margin:0 10px 8px; color:#94a3b8; font-size:12px; }
+    .nav-item { display:flex; align-items:center; gap:10px; width:100%; padding:10px 12px; border:0; border-radius:4px; background:var(--accent); color:#fff; cursor:pointer; font:inherit; text-align:left; }
+    .nav-item:hover { background:var(--accent-hover); }
+    .nav-icon { display:inline-flex; width:18px; height:18px; align-items:center; justify-content:center; border:1.5px solid currentColor; border-radius:3px; font-size:11px; }
+    .sidebar-footer { margin-top:auto; padding:14px 20px; border-top:1px solid var(--border); color:var(--muted); font-size:12px; }
+    .content { display:flex; min-width:0; flex:1; flex-direction:column; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; height:56px; padding:0 20px; border-bottom:1px solid var(--border); background:#fff; }
+    .breadcrumb { color:var(--muted); font-size:13px; }
+    .breadcrumb strong { color:var(--text); font-weight:500; }
+    .actions { display:flex; align-items:center; gap:8px; }
+    .open-link { display:inline-flex; align-items:center; height:32px; padding:0 12px; border:1px solid #d1d5db; border-radius:4px; color:var(--text); background:#fff; text-decoration:none; font-size:13px; }
+    .open-link:hover { border-color:var(--accent); color:var(--accent); }
+    .frame-wrap { position:relative; flex:1; min-height:0; background:#fff; }
+    iframe { display:block; width:100%; height:100%; border:0; background:#fff; }
+    .frame-tip { position:absolute; right:16px; bottom:16px; max-width:390px; padding:9px 12px; border:1px solid #fde68a; border-radius:4px; background:#fffbeb; color:#92400e; box-shadow:0 2px 8px rgba(15,23,42,.08); font-size:12px; }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="brand">tkDashboard</div>
+      <nav class="nav" aria-label="功能菜单">
+        <div class="nav-label">业务系统</div>
+        <button class="nav-item" type="button" data-url="http://124.71.66.128/fbt/shipment" aria-current="page">
+          <span class="nav-icon">□</span><span>货件管理</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">货件管理外部系统</div>
+    </aside>
+    <main class="content">
+      <header class="toolbar">
+        <div class="breadcrumb">业务系统 <span> / </span> <strong id="pageTitle">货件管理</strong></div>
+        <div class="actions"><a class="open-link" id="openExternal" href="http://124.71.66.128/fbt/shipment" target="_blank" rel="noopener noreferrer">↗ 新窗口打开</a></div>
+      </header>
+      <section class="frame-wrap">
+        <iframe id="contentFrame" title="货件管理" src="http://124.71.66.128/fbt/shipment"></iframe>
+        <div class="frame-tip">若页面未能正常显示，可能是目标系统限制 iframe 嵌入；请使用右上角“新窗口打开”。</div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const frame = document.getElementById('contentFrame');
+    document.querySelectorAll('.nav-item').forEach(item => item.addEventListener('click', () => {
+      const url = item.dataset.url;
+      frame.src = url;
+      document.getElementById('openExternal').href = url;
+    }));
+  </script>
+</body>
+</html>

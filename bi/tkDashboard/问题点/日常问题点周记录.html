@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>日常问题点周记录</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#333; --muted:#64748b; --accent:#0d9488; --accent-hover:#0f766e; --border:#e0e0e0; --input-border:#d1d5db; --warn-bg:#fff7ed; --warn-border:#fed7aa; --warn-text:#9a3412; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:24px; color:var(--text); background:var(--bg); font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif; }
+    .container { max-width:1440px; margin:0 auto; }
+    .page-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:18px; }
+    h1 { margin:0; font-size:20px; font-weight:600; }
+    .subtitle { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    .query-card,.action-bar,.table-card,.detail-card { background:var(--card); border:1px solid var(--border); border-radius:8px; }
+    .query-card { padding:16px 20px; margin-bottom:12px; }
+    .query-row { display:flex; flex-wrap:wrap; align-items:center; gap:12px 20px; }
+    .query-item { display:flex; align-items:center; gap:8px; }
+    .label { color:#475569; white-space:nowrap; }
+    select { height:34px; min-width:190px; padding:0 10px; border:1px solid var(--input-border); border-radius:4px; background:#fff; color:var(--text); font:inherit; }
+    .query-actions { display:flex; gap:8px; margin-left:auto; }
+    .btn { height:34px; padding:0 14px; border:1px solid transparent; border-radius:4px; background:#fff; color:var(--text); cursor:pointer; font:inherit; }
+    .btn-query { color:#fff; background:var(--accent); border-color:var(--accent); }
+    .btn-query:hover { background:var(--accent-hover); border-color:var(--accent-hover); }
+    .btn-secondary { border-color:var(--input-border); }
+    .action-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 16px; margin-bottom:12px; }
+    .action-tip { color:var(--muted); font-size:13px; }
+    .count { color:var(--accent); font-weight:600; }
+    .table-card { overflow:hidden; }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; min-width:1160px; border-collapse:collapse; font-size:13px; }
+    th,td { padding:12px 14px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; }
+    th { background:#f9fafb; color:#475569; font-weight:500; white-space:nowrap; }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#f8fafc; }
+    .week { color:#0f766e; font-weight:600; white-space:nowrap; }
+    .problem-title { display:block; min-width:240px; font-weight:600; color:#1e293b; }
+    .problem-desc { margin-top:4px; max-width:390px; color:#475569; white-space:normal; }
+    .tag { display:inline-flex; align-items:center; min-height:24px; padding:2px 8px; border:1px solid #99f6e4; border-radius:4px; background:#f0fdfa; color:#0f766e; white-space:nowrap; }
+    .tag.video { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+    .tag.ad { background:#f5f3ff; border-color:#ddd6fe; color:#6d28d9; }
+    .tag.sales { background:#ecfdf5; border-color:#a7f3d0; color:#047857; }
+    .tag.pending { background:var(--warn-bg); border-color:var(--warn-border); color:var(--warn-text); }
+    .detail-card { margin-top:16px; padding:18px 20px; }
+    .detail-card h2 { margin:0 0 12px; font-size:16px; }
+    .detail-grid { display:grid; grid-template-columns:150px minmax(0,1fr); margin:0; border-top:1px solid var(--border); border-left:1px solid var(--border); }
+    .detail-grid dt,.detail-grid dd { margin:0; min-height:44px; padding:10px 12px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); }
+    .detail-grid dt { color:#475569; background:#f9fafb; font-weight:500; }
+    .detail-grid dd { color:#334155; }
+    .notice { margin-top:16px; padding:10px 12px; border:1px solid var(--warn-border); border-radius:4px; background:var(--warn-bg); color:var(--warn-text); font-size:13px; }
+    .back { margin:16px 0 0; font-size:13px; }
+    .back a { color:var(--accent); text-decoration:none; }
+    .back a:hover { text-decoration:underline; }
+    .hidden { display:none; }
+    @media (max-width:700px) { body { padding:14px; } .page-head,.action-bar { align-items:flex-start; flex-direction:column; } .query-actions { margin-left:0; } .detail-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="page-head">
+      <div>
+        <h1>日常问题点周记录</h1>
+        <p class="subtitle">按周沉淀日常发现的问题、核对过程与最终结论；页面记录的是问题线索，不等同于已确认的数据结论。</p>
+      </div>
+    </header>
+
+    <section class="query-card" aria-label="筛选条件">
+      <div class="query-row">
+        <div class="query-item"><span class="label">周次</span><select id="weekFilter"><option value="all">全部周次</option><option value="2026-11-02">2026-11-02 ～ 2026-11-08</option><option value="2026-10-26">2026-10-26 ～ 2026-11-01</option></select></div>
+        <div class="query-item"><span class="label">所属模块</span><select id="moduleFilter"><option value="all">全部模块</option><option value="sales">商品统计</option><option value="video">视频数据</option><option value="ad">广告模块</option></select></div>
+        <div class="query-item"><span class="label">状态</span><select id="statusFilter"><option value="all">全部状态</option><option value="pending">待核对</option><option value="processing">处理中</option><option value="closed">已关闭</option></select></div>
+        <div class="query-actions"><button class="btn btn-secondary" type="button" id="resetBtn">重置</button><button class="btn btn-query" type="button" id="queryBtn">查询</button></div>
+      </div>
+    </section>
+
+    <section class="action-bar">
+      <div class="action-tip">当前展示 <span class="count" id="issueCount">6</span> 条问题记录</div>
+      <div class="action-tip">最近记录：2026-11-06</div>
+    </section>
+
+    <section class="table-card" aria-label="问题列表">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>周次</th><th>所属模块</th><th>问题点</th><th>影响范围</th><th>状态</th><th>记录日期</th><th>详情</th></tr></thead>
+          <tbody id="issueBody">
+            <tr data-week="2026-11-02" data-module="sales" data-status="pending">
+              <td class="week">2026-11-02 ～ 2026-11-08</td>
+              <td><span class="tag sales">商品统计</span></td>
+              <td><span class="problem-title">“是否断货”是否固定展示最新状态</span><div class="problem-desc">当用户筛选历史时间范围时，需确认“是否断货”是否仍展示当前最新状态，而不随统计日期变化。</div></td>
+              <td>商品统计列表、历史数据查询、库存风险识别及断货判断口径</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-11-06</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="sales-stockout-status">查看</button></td>
+            </tr>
+            <tr data-week="2026-11-02" data-module="ad" data-status="pending">
+              <td class="week">2026-11-02 ～ 2026-11-08</td>
+              <td><span class="tag ad">广告模块</span></td>
+              <td><span class="problem-title">素材过期是否包含图片素材</span><div class="problem-desc">当前发现“素材过期”相关数据仅涉及视频素材，需确认图片素材是否同样纳入过期字段或判定规则。</div></td>
+              <td>广告素材状态、素材有效期展示、过期素材筛选及风险提示</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-11-02</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="ad-material-expiration">查看</button></td>
+            </tr>
+            <tr data-week="2026-10-26" data-module="video" data-status="pending">
+              <td class="week">2026-10-26 ～ 2026-11-01</td>
+              <td><span class="tag video">视频数据</span></td>
+              <td><span class="problem-title">自制视频是否缺少寄样订单号</span><div class="problem-desc">当前自制视频列表中，多个视频记录的“样品订单号”展示为 <strong>--</strong>，无法据此关联寄样订单。</div></td>
+              <td>自制视频与寄样订单的关联、后续归因及维护核查</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-10-27</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="video-sample-order">查看</button></td>
+            </tr>
+            <tr data-week="2026-10-26" data-module="ad" data-status="pending">
+              <td class="week">2026-10-26 ～ 2026-11-01</td>
+              <td><span class="tag ad">广告模块</span></td>
+              <td><span class="problem-title">一个素材对应多个 PID 是否属于正常关联</span><div class="problem-desc">发现同一广告素材可能关联多个 PID，需确认一对多关系是否符合投放与归因口径。</div></td>
+              <td>素材、PID 的投放归因、表现汇总及详情展示口径</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-10-29</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="ad-material-pid">查看</button></td>
+            </tr>
+            <tr data-week="2026-10-26" data-module="ad" data-status="pending">
+              <td class="week">2026-10-26 ～ 2026-11-01</td>
+              <td><span class="tag ad">广告模块</span></td>
+              <td><span class="problem-title">广告计划名称无法解析 PID</span><div class="problem-desc">计划名称 <strong>透明双肩包23-1732244898760528332-20260820-RIO3</strong> 未能按当前规则解析出 PID。</div></td>
+              <td>计划与 PID 的归属识别、广告表现汇总及 PID 看板展示</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-10-29</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="ad-plan-pid">查看</button></td>
+            </tr>
+            <tr data-week="2026-10-26" data-module="ad" data-status="pending">
+              <td class="week">2026-10-26 ～ 2026-11-01</td>
+              <td><span class="tag ad">广告模块</span></td>
+              <td><span class="problem-title">创意作品探索状态暂无接口提供</span><div class="problem-desc">广告平台页面展示“开始探索状态”“结束探索状态”，当前确认暂无对应接口可供 BI 获取。</div></td>
+              <td>创意作品热力历史记录、探索状态展示与状态分析</td>
+              <td><span class="tag pending">待核对</span></td>
+              <td>2026-10-30</td>
+              <td><button class="btn btn-secondary detail-btn" type="button" data-target="ad-exploration-status">查看</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="detail-card" id="video-sample-order">
+      <h2>问题详情｜自制视频是否缺少寄样订单号</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-10-27（归入 2026-10-26 ～ 2026-11-01 周）</dd>
+        <dt>观察范围</dt><dd>视频数据页面的“自制视频”Tab；截图筛选日期为 2026-10-13 至 2026-10-27。</dd>
+        <dt>观察到的现象</dt><dd>列表中可见多条自制视频记录的“样品订单号”字段为 <strong>--</strong>；截图仅用于提出问题线索，未统计缺失比例。</dd>
+        <dt>待核对问题</dt><dd>自制视频是否应当关联寄样订单号；若应关联，缺失来源是历史数据、人工未维护，还是视频与寄样订单的关联逻辑未覆盖。</dd>
+        <dt>建议核对方向</dt><dd>抽取缺失样本，分别核对视频数据维护记录、寄样订单数据及关联键；确认业务规则后，再明确补数或维护方案。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 暂不将“无订单号”判定为数据异常或业务规则缺失。</dd>
+      </dl>
+      <div class="notice">记录口径：本页用于收集与追踪问题点。状态为“待核对”时，仅表示页面观察到现象，不表示根因或处理方案已确认。</div>
+    </section>
+    <section class="detail-card" id="sales-stockout-status">
+      <h2>问题详情｜“是否断货”是否固定展示最新状态</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-11-06（归入 2026-11-02 ～ 2026-11-08 周）</dd>
+        <dt>所属模块</dt><dd>商品统计</dd>
+        <dt>待核对问题</dt><dd>用户按历史时间范围查询商品统计时，“是否断货”字段应展示所选统计日期对应的历史断货状态，还是展示查询当日的最新断货状态。</dd>
+        <dt>口径影响</dt><dd>若固定展示最新状态，该字段不受时间筛选影响，适用于当前库存风险判断；若随时间范围变化，则适用于回溯历史经营与断货表现。</dd>
+        <dt>建议核对方向</dt><dd>明确页面字段定位是“当前库存风险标签”还是“历史快照指标”；同时核对接口中该字段的数据来源和日期参数是否参与计算。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 暂不假定字段展示最新值或历史值，待确认产品口径后落地。</dd>
+      </dl>
+    </section>
+    <section class="detail-card" id="ad-material-expiration">
+      <h2>问题详情｜素材过期是否包含图片素材</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-11-02（归入 2026-11-02 ～ 2026-11-08 周）</dd>
+        <dt>所属模块</dt><dd>广告模块</dd>
+        <dt>观察到的现象</dt><dd>当前发现的“素材过期”相关数据和展示仅涉及视频素材，暂未发现图片素材对应的过期信息。</dd>
+        <dt>待核对问题</dt><dd>素材过期字段及其判定规则是否仅适用于视频素材；图片素材是否存在同等字段、不同字段，或不参与过期管理。</dd>
+        <dt>影响范围</dt><dd>素材列表的状态展示、过期素材筛选、风险提示和素材维度的运营判断。</dd>
+        <dt>建议核对方向</dt><dd>分别核对广告平台中视频与图片素材的字段定义、接口返回样例及有效期规则；若图片素材无可用字段，需在 BI 产品口径中明确“素材过期”仅覆盖视频素材。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 目前仅观察到视频素材，不据此推断图片素材不存在过期规则。</dd>
+      </dl>
+    </section>
+    <section class="detail-card" id="ad-material-pid">
+      <h2>问题详情｜一个素材对应多个 PID 是否属于正常关联</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-10-29（归入 2026-10-26 ～ 2026-11-01 周）</dd>
+        <dt>所属模块</dt><dd>广告模块</dd>
+        <dt>观察到的现象</dt><dd>同一个素材可能出现在多个 PID 的关联关系中。当前仅记录关系现象，尚未确认其业务原因及覆盖范围。</dd>
+        <dt>待核对问题</dt><dd>素材复用到不同 PID 是否是正常投放行为；若正常，列表、详情和汇总指标应按素材、PID 还是“素材 × PID”关系粒度统计。</dd>
+        <dt>建议核对方向</dt><dd>抽取一对多样本，核对 Campaign / 广告组投放配置、素材绑定记录和 PID 商品映射；同时确认表现数据是否会在不同 PID 间重复计入。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 在业务规则和统计粒度确认前，不将一对多关系判定为异常或正常。</dd>
+      </dl>
+    </section>
+    <section class="detail-card" id="ad-plan-pid">
+      <h2>问题详情｜广告计划名称无法解析 PID</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-10-29（归入 2026-10-26 ～ 2026-11-01 周）</dd>
+        <dt>所属模块</dt><dd>广告模块</dd>
+        <dt>问题样本</dt><dd><strong>透明双肩包23-1732244898760528332-20260820-RIO3</strong></dd>
+        <dt>观察到的现象</dt><dd>该广告计划名称未能依据当前命名解析规则取得 PID，因此无法自动建立计划与 PID 的归属关系。</dd>
+        <dt>待核对问题</dt><dd>该计划名称是否符合既定命名规范；当前 PID 解析规则是否覆盖“商品名称 - 长数字标识 - 日期 - 编码”这一命名结构。</dd>
+        <dt>建议核对方向</dt><dd>核对该计划在广告平台的原始名称、预期 PID 及建计划时的命名规则；再将样本与解析规则、PID 映射数据逐段比对，确认是命名偏差、映射缺失还是规则未覆盖。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 暂不将该样本判定为数据异常；待确认预期 PID 与命名规范后再处理。</dd>
+      </dl>
+    </section>
+    <section class="detail-card" id="ad-exploration-status">
+      <h2>问题详情｜创意作品探索状态暂无接口提供</h2>
+      <dl class="detail-grid">
+        <dt>发现时间</dt><dd>2026-10-30（归入 2026-10-26 ～ 2026-11-01 周）</dd>
+        <dt>所属模块</dt><dd>广告模块</dd>
+        <dt>页面观察</dt><dd>广告平台“创意作品数据分析”页面的创意作品加热历史记录中，展示“开始探索状态”和“结束探索状态”字段，例如“已探索”“表现出色”。</dd>
+        <dt>接口现状</dt><dd>当前暂无对应接口提供探索状态字段，BI 暂无法通过接口同步该状态。</dd>
+        <dt>影响范围</dt><dd>创意作品热力历史记录无法完整展示探索状态；也无法基于该状态进行筛选、统计或预警。</dd>
+        <dt>待核对问题</dt><dd>确认广告开放平台是否存在未接入的替代接口、报表导出字段或后续开放计划；如均无，则明确该字段不纳入当前 BI 口径。</dd>
+        <dt>当前结论</dt><dd><span class="tag pending">待核对</span> 已确认当前接口暂无提供，等待确认替代数据来源及产品展示策略。</dd>
+      </dl>
+    </section>
+    <p class="back"><a href="../index.html">← 返回 tkDashboard 首页</a></p>
+  </main>
+  <script>
+    const filters = ['weekFilter', 'moduleFilter', 'statusFilter'];
+    function applyFilters() {
+      const values = Object.fromEntries(filters.map(id => [id, document.getElementById(id).value]));
+      let count = 0;
+      document.querySelectorAll('#issueBody tr').forEach(row => {
+        const visible = (values.weekFilter === 'all' || row.dataset.week === values.weekFilter) && (values.moduleFilter === 'all' || row.dataset.module === values.moduleFilter) && (values.statusFilter === 'all' || row.dataset.status === values.statusFilter);
+        row.classList.toggle('hidden', !visible);
+        if (visible) count += 1;
+      });
+      document.getElementById('issueCount').textContent = count;
+    }
+    document.getElementById('queryBtn').addEventListener('click', applyFilters);
+    document.getElementById('resetBtn').addEventListener('click', () => { filters.forEach(id => document.getElementById(id).value = 'all'); applyFilters(); });
+    document.querySelectorAll('.detail-btn').forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.target).scrollIntoView({ behavior: 'smooth', block: 'start' })));
+  </script>
+</body>
+</html>

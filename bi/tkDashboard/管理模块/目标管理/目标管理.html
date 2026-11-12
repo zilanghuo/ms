@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>目标管理</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#263445; --muted:#667085; --accent:#0d9488; --accent-deep:#0f766e; --border:#dfe5ec; --header:#f8fafc; --success:#15803d; --success-bg:#dcfce7; --warn:#b45309; --warn-bg:#fef3c7; --danger:#b42318; --danger-bg:#fee4e2; --blue:#1d4ed8; --blue-bg:#eff6ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:24px; background:var(--bg); color:var(--text); font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+    .container { max-width:100%; margin:0 auto; }
+    h1 { margin:0 0 18px; font-size:20px; font-weight:600; }
+    .query-card,.action-bar,.table-card,.legend { background:var(--card); border:1px solid var(--border); border-radius:8px; }
+    .query-card { padding:16px 20px; margin-bottom:12px; }
+    .query-row,.action-bar,.toolbar,.page-note,.pagination { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .query-item { display:flex; align-items:center; gap:6px; }
+    .label { color:var(--text); white-space:nowrap; font-size:13px; }
+    select,input { height:36px; padding:0 10px; border:1px solid #d1d9e2; border-radius:4px; background:#fff; color:var(--text); outline:none; }
+    select:focus,input:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(13,148,136,.12); }
+    .search-field { width:88px; border-radius:4px 0 0 4px; }
+    .search-input { width:192px; margin-left:-13px; border-radius:0 4px 4px 0; }
+    .query-actions { display:flex; gap:8px; margin-left:auto; }
+    .btn { height:36px; padding:0 13px; border:1px solid transparent; border-radius:4px; background:#fff; color:var(--text); cursor:pointer; font-size:13px; transition:.16s ease; }
+    .btn:hover { filter:brightness(.98); }
+    .btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+    .btn-primary:hover { background:var(--accent-deep); }
+    .btn-default { border-color:#d1d9e2; }
+    .btn-link { height:auto; padding:0; background:transparent; color:var(--accent); border:0; }
+    .action-bar { justify-content:space-between; padding:12px 16px; margin-bottom:12px; }
+    .action-left,.action-right { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .stats { color:var(--muted); font-size:13px; }
+    .tabs { display:inline-flex; overflow:hidden; border:1px solid var(--accent); border-radius:4px; }
+    .tab { height:34px; padding:0 14px; border:0; border-right:1px solid var(--accent); background:#fff; color:var(--accent); cursor:pointer; }
+    .tab:last-child { border-right:0; }
+    .tab.active { background:var(--accent); color:#fff; }
+    .table-card { overflow:hidden; }
+    .table-wrap { overflow:auto; }
+    table { width:100%; min-width:1900px; border-collapse:collapse; font-size:12px; }
+    th,td { padding:10px 9px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; vertical-align:middle; }
+    th { color:#52657a; background:var(--header); font-weight:600; }
+    th.month { text-align:right; min-width:83px; }
+    td.num { text-align:right; font-variant-numeric:tabular-nums; }
+    tbody tr:hover > td { background:#fafcfd; }
+    .spu-row { background:#fff; }
+    .sku-detail-row { display:none; }
+    .sku-detail-row.show { display:table-row; }
+    .sku-detail-row td { padding:12px 16px 16px 46px; background:#f8fafc !important; white-space:normal; }
+    .sku-panel { width:100%; overflow:auto; border:1px solid #cfe2df; border-radius:6px; background:#fff; }
+    .sku-panel-title { padding:9px 12px; border-bottom:1px solid #cfe2df; background:#f0fdfa; color:#0f766e; font-weight:600; }
+    .sku-table { min-width:1540px; }
+    .sku-table th { background:#f7fffd; }
+    .toggle { display:inline-flex; align-items:center; justify-content:center; width:18px; color:var(--accent); font-size:16px; font-weight:700; cursor:pointer; }
+    .source { display:inline-flex; padding:2px 7px; border-radius:3px; font-size:11px; font-weight:600; }
+    .source-system { color:var(--blue); background:var(--blue-bg); }
+    .source-manual { color:#9a3412; background:#ffedd5; }
+    .badge { display:inline-flex; align-items:center; gap:4px; padding:3px 7px; border-radius:4px; font-size:11px; font-weight:600; }
+    .badge::before { content:""; width:5px; height:5px; border-radius:50%; background:currentColor; }
+    .good { color:var(--success); background:var(--success-bg); }.warning { color:var(--warn); background:var(--warn-bg); }.risk { color:var(--danger); background:var(--danger-bg); }
+    .trend-up { color:var(--success); }.trend-down { color:var(--danger); }
+    .help { display:inline-flex; width:14px; height:14px; align-items:center; justify-content:center; border:1px solid #94a3b8; border-radius:50%; color:#64748b; font-size:10px; cursor:help; }
+    .pagination { justify-content:space-between; padding:12px 16px; color:var(--muted); font-size:13px; }
+    .page-buttons { display:flex; gap:6px; }.page { width:30px; height:30px; border:1px solid #d1d9e2; border-radius:4px; background:#fff; cursor:pointer; }.page.active { color:#fff; background:var(--accent); border-color:var(--accent); }
+    .legend { margin-top:12px; padding:13px 16px; color:#52657a; font-size:13px; }
+    .legend strong { color:var(--text); }.legend ul { margin:6px 0 0; padding-left:20px; }.legend li { margin:3px 0; }
+    .drawer-mask { position:fixed; inset:0; display:none; background:rgba(15,23,42,.38); z-index:20; }.drawer-mask.open { display:block; }
+    .drawer { position:fixed; top:0; right:0; z-index:21; display:flex; flex-direction:column; width:540px; max-width:calc(100vw - 30px); height:100vh; background:#fff; box-shadow:-10px 0 30px rgba(15,23,42,.14); transform:translateX(102%); transition:transform .2s ease; }.drawer.open { transform:translateX(0); }
+    .drawer-head,.drawer-foot { display:flex; align-items:center; justify-content:space-between; padding:0 20px; border-bottom:1px solid var(--border); min-height:58px; }.drawer-foot { border-top:1px solid var(--border); border-bottom:0; justify-content:flex-end; gap:8px; }
+    .drawer-title { font-weight:600; font-size:16px; }.close { border:0; background:transparent; color:#64748b; font-size:24px; cursor:pointer; }
+    .drawer-body { flex:1; overflow:auto; padding:18px 20px; }.intro { margin:0 0 16px; padding:10px 12px; border-radius:6px; color:#166534; background:#f0fdf4; font-size:13px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }.field.full { grid-column:1/-1; } label { display:block; margin-bottom:5px; color:var(--muted); font-size:12px; font-weight:600; }.field input,.field select,.field textarea { width:100%; }.field textarea { min-height:74px; padding:8px 10px; border:1px solid #d1d9e2; border-radius:4px; resize:vertical; font:inherit; }
+    .impact-box { margin-top:18px; padding:12px; border:1px solid #cfe2df; border-radius:6px; background:#f8fffd; }.impact-box h3 { margin:0 0 9px; font-size:14px; }.impact-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }.impact-item { padding:8px; border-radius:4px; background:#fff; border:1px solid #e5eeec; }.impact-label { color:var(--muted); font-size:11px; }.impact-value { margin-top:3px; font-size:16px; font-weight:600; color:var(--accent-deep); }
+    .toast { position:fixed; z-index:30; left:50%; bottom:28px; padding:10px 16px; border-radius:20px; background:#172033; color:#fff; transform:translate(-50%,14px); opacity:0; pointer-events:none; transition:.18s ease; }.toast.show { opacity:1; transform:translate(-50%,0); }
+    @media (max-width:760px) { body { padding:12px; }.query-actions { margin-left:0; }.form-grid,.impact-grid { grid-template-columns:1fr; }.search-input { width:150px; } }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>目标管理</h1>
+    <section class="query-card">
+      <div class="query-row">
+        <div class="query-item"><span class="label">统计年度</span><select id="year"><option>2026年</option><option>2027年</option></select></div>
+        <div class="query-item"><span class="label">站点</span><select><option>全部站点</option><option>美国</option><option>英国</option></select></div>
+        <div class="query-item"><span class="label">店铺</span><select><option>全部店铺</option><option>美国TK-艾斯特尼-美区跨境1店</option></select></div>
+        <div class="query-item"><span class="label">目标来源</span><select><option>全部</option><option>系统预测</option><option>人工调整</option></select></div>
+        <div class="query-item"><select class="search-field" id="searchField"><option value="spu">SPU</option><option value="sku">SKU</option></select><input class="search-input" id="keyword" placeholder="模糊搜索 SPU / SKU"></div>
+        <div class="query-actions"><button class="btn btn-primary" id="queryBtn">查询</button><button class="btn btn-default" id="resetBtn">重置</button></div>
+      </div>
+    </section>
+
+    <section class="action-bar">
+      <div class="action-left"><div class="tabs"><button class="tab active" data-view="target">目标管理</button><button class="tab" data-view="impact">备货影响</button></div><span class="stats">共 126 个 SPU｜系统预测 108 个｜已人工调整 18 个</span></div>
+      <div class="action-right"><button class="btn btn-default" id="columnBtn">自定义列</button><button class="btn btn-default" id="exportBtn">导出</button><button class="btn btn-primary" id="bulkBtn">批量调整目标</button></div>
+    </section>
+
+    <section class="table-card">
+      <div class="table-wrap">
+        <table id="targetTable">
+          <thead><tr><th style="width:40px"></th><th>站点</th><th>店铺</th><th>SPU</th><th>SPU名称</th><th>目标来源</th><th class="month">1月</th><th class="month">2月</th><th class="month">3月</th><th class="month">4月</th><th class="month">5月</th><th class="month">6月</th><th class="month">7月</th><th class="month">8月</th><th class="month">9月</th><th class="month">10月</th><th class="month">11月</th><th class="month">12月</th><th class="month">年度日均</th><th>备货影响</th><th>操作</th></tr></thead>
+          <tbody>
+            <tr class="spu-row" data-code="SPU-100238" data-name="女式圆领卫衣"><td><button class="btn-link toggle" data-detail="d1">＋</button></td><td>美国</td><td>美区跨境1店</td><td>SPU-100238</td><td>女式圆领卫衣</td><td><span class="source source-system">系统预测</span></td><td class="num">12.36</td><td class="num">12.18</td><td class="num">12.45</td><td class="num">13.01</td><td class="num">14.52</td><td class="num">15.24</td><td class="num">15.68</td><td class="num">16.02</td><td class="num">15.37</td><td class="num">14.88</td><td class="num target-value">16.20</td><td class="num">16.20</td><td class="num">14.51</td><td><span class="badge warning">需备货</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr>
+            <tr class="sku-detail-row" id="d1"><td colspan="21"><div class="sku-panel"><div class="sku-panel-title">SPU-100238 / 女式圆领卫衣｜SKU 目标分配与备货影响</div><table class="sku-table"><thead><tr><th>SKU</th><th>颜色 / 尺码</th><th>近90天销量占比 <span class="help" title="同 SPU 内 SKU 近 90 天有效销量占比">?</span></th><th>11月目标日均</th><th>11月目标销量</th><th>目标来源</th><th>当前可售库存</th><th>预计入仓可售日</th><th>备货缺口</th><th>同色材料可生产数</th><th>材料状态</th><th>操作</th></tr></thead><tbody><tr><td>SKU-100238-BLK-S</td><td>黑色 / S</td><td class="num">42.30%</td><td class="num">6.85</td><td class="num">205.50</td><td><span class="source source-system">按占比分配</span></td><td class="num">92</td><td>2026-11-18</td><td class="num">113.50</td><td class="num">156</td><td><span class="badge good">充足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr><tr><td>SKU-100238-BLK-M</td><td>黑色 / M</td><td class="num">35.10%</td><td class="num">5.69</td><td class="num">170.70</td><td><span class="source source-system">按占比分配</span></td><td class="num">68</td><td>2026-11-18</td><td class="num">102.70</td><td class="num">124</td><td><span class="badge good">充足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr><tr><td>SKU-100238-IVY-L</td><td>象牙白 / L</td><td class="num">22.60%</td><td class="num">3.66</td><td class="num">109.80</td><td><span class="source source-manual">人工锁定</span></td><td class="num">55</td><td>2026-11-26</td><td class="num">54.80</td><td class="num">—</td><td><span class="badge risk">待维护BOM</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr></tbody></table></div></td></tr>
+            <tr class="spu-row" data-code="SPU-100562" data-name="基础短袖T恤"><td><button class="btn-link toggle" data-detail="d2">＋</button></td><td>美国</td><td>美区跨境1店</td><td>SPU-100562</td><td>基础短袖T恤</td><td><span class="source source-manual">人工调整</span></td><td class="num">20.12</td><td class="num">19.80</td><td class="num">20.26</td><td class="num">21.03</td><td class="num">22.19</td><td class="num">22.76</td><td class="num">23.12</td><td class="num">22.64</td><td class="num">21.28</td><td class="num">20.94</td><td class="num target-value">24.00</td><td class="num">24.00</td><td class="num">21.85</td><td><span class="badge good">材料充足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr>
+            <tr class="sku-detail-row" id="d2"><td colspan="21"><div class="sku-panel"><div class="sku-panel-title">SPU-100562 / 基础短袖T恤｜SKU 目标分配与备货影响</div><table class="sku-table"><thead><tr><th>SKU</th><th>颜色 / 尺码</th><th>近90天销量占比</th><th>11月目标日均</th><th>11月目标销量</th><th>目标来源</th><th>当前可售库存</th><th>预计入仓可售日</th><th>备货缺口</th><th>同色材料可生产数</th><th>材料状态</th><th>操作</th></tr></thead><tbody><tr><td>SKU-100562-WHT-M</td><td>白色 / M</td><td class="num">54.42%</td><td class="num">13.06</td><td class="num">391.80</td><td><span class="source source-manual">SPU目标拆分</span></td><td class="num">320</td><td>2026-11-15</td><td class="num">71.80</td><td class="num">588</td><td><span class="badge good">充足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr><tr><td>SKU-100562-WHT-L</td><td>白色 / L</td><td class="num">45.58%</td><td class="num">10.94</td><td class="num">328.20</td><td><span class="source source-manual">SPU目标拆分</span></td><td class="num">215</td><td>2026-11-15</td><td class="num">113.20</td><td class="num">440</td><td><span class="badge good">充足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr></tbody></table></div></td></tr>
+            <tr class="spu-row" data-code="SPU-101007" data-name="针织开衫"><td><button class="btn-link toggle" data-detail="d3">＋</button></td><td>英国</td><td>英国直邮店</td><td>SPU-101007</td><td>针织开衫</td><td><span class="source source-system">系统预测</span></td><td class="num">8.14</td><td class="num">8.46</td><td class="num">8.72</td><td class="num">9.20</td><td class="num">9.66</td><td class="num">9.87</td><td class="num">10.04</td><td class="num">10.12</td><td class="num">9.91</td><td class="num">9.65</td><td class="num target-value">10.42</td><td class="num">10.42</td><td class="num">9.51</td><td><span class="badge risk">直邮风险</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr>
+            <tr class="sku-detail-row" id="d3"><td colspan="21"><div class="sku-panel"><div class="sku-panel-title">SPU-101007 / 针织开衫｜SKU 目标分配与备货影响</div><table class="sku-table"><thead><tr><th>SKU</th><th>颜色 / 尺码</th><th>近90天销量占比</th><th>11月目标日均</th><th>11月目标销量</th><th>目标来源</th><th>当前可售库存</th><th>预计入仓可售日</th><th>备货缺口</th><th>同色材料可生产数</th><th>材料状态</th><th>操作</th></tr></thead><tbody><tr><td>SKU-101007-GRY-M</td><td>灰色 / M</td><td class="num">61.70%</td><td class="num">6.43</td><td class="num">192.90</td><td><span class="source source-system">按占比分配</span></td><td class="num">48</td><td>2026-11-29</td><td class="num">144.90</td><td class="num">91</td><td><span class="badge risk">材料不足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr><tr><td>SKU-101007-GRY-L</td><td>灰色 / L</td><td class="num">38.30%</td><td class="num">3.99</td><td class="num">119.70</td><td><span class="source source-system">按占比分配</span></td><td class="num">32</td><td>2026-11-29</td><td class="num">87.70</td><td class="num">53</td><td><span class="badge risk">材料不足</span></td><td><button class="btn btn-link edit-btn">调整</button></td></tr></tbody></table></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination"><span>每页 20 条｜显示 1–3 条，共 126 条</span><div class="page-buttons"><button class="page">‹</button><button class="page active">1</button><button class="page">2</button><button class="page">3</button><button class="page">›</button></div></div>
+    </section>
+    <section class="legend"><strong>口径说明</strong><ul><li>未来默认日均：以统计日向前连续 90 个自然日的可售日均为预测基准；首月与末月按实际落入窗口的自然日计算。</li><li>SKU 自动分配：SPU 月度目标按 SKU 近 90 天有效销量占比分摊；SKU 人工锁定值优先于 SPU 自动拆分。</li><li>备货影响：目标变更后，系统按最新目标销量重算备货缺口、预计断货日、积加预计入仓前的直邮承接量。</li><li>材料影响：材料以 <code>SPU × 颜色</code> 归集，按 SKU 单件耗料换算；同一块材料不能在多个 SKU 可生产数中重复计量。</li></ul></section>
+  </main>
+
+  <div class="drawer-mask" id="mask"></div><aside class="drawer" id="drawer"><div class="drawer-head"><span class="drawer-title" id="drawerTitle">调整月度目标</span><button class="close" id="closeBtn">×</button></div><div class="drawer-body"><p class="intro">修改后，系统将保留人工调整记录，并即时重算该对象及其下游备货、材料和直邮承接影响。</p><div class="form-grid"><div class="field"><label>目标对象</label><input id="targetObject" readonly></div><div class="field"><label>生效年月</label><select id="targetMonth"><option>2026年11月</option><option>2026年12月</option></select></div><div class="field"><label>目标日均销量</label><input id="dailyTarget" type="number" min="0" step="0.01"></div><div class="field"><label>目标来源</label><select><option>人工调整</option><option>人工锁定</option></select></div><div class="field full"><label>调整原因</label><textarea placeholder="例如：大促规划、达人排期、季节性备货等"></textarea></div></div><section class="impact-box"><h3>本次调整的预计影响</h3><div class="impact-grid"><div class="impact-item"><div class="impact-label">11月目标销量</div><div class="impact-value" id="impactSales">486.00</div></div><div class="impact-item"><div class="impact-label">备货缺口变化</div><div class="impact-value" id="impactGap">+48.00</div></div><div class="impact-item"><div class="impact-label">材料状态</div><div class="impact-value" id="impactMaterial">需复核</div></div></div></section></div><div class="drawer-foot"><button class="btn btn-default" id="cancelBtn">取消</button><button class="btn btn-primary" id="saveBtn">保存并重算</button></div></aside><div class="toast" id="toast"></div>
+  <script>
+    const mask=document.getElementById('mask'), drawer=document.getElementById('drawer'), targetObject=document.getElementById('targetObject'), dailyTarget=document.getElementById('dailyTarget'), impactSales=document.getElementById('impactSales'), impactGap=document.getElementById('impactGap'), toast=document.getElementById('toast'); let currentRow=null;
+    function showToast(message){toast.textContent=message;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),2200)}
+    function openDrawer(row){currentRow=row;const code=row?.dataset?.code || row?.querySelector('td:first-child')?.textContent?.trim() || 'SKU 目标';const name=row?.dataset?.name || row?.querySelector('td:nth-child(2)')?.textContent?.trim() || '';targetObject.value=name?`${code} / ${name}`:code;const current=row?.querySelector('.target-value')?.textContent?.trim() || '6.85';dailyTarget.value=current;updateImpact();mask.classList.add('open');drawer.classList.add('open')}
+    function closeDrawer(){mask.classList.remove('open');drawer.classList.remove('open')}
+    function updateImpact(){const v=Number(dailyTarget.value||0);impactSales.textContent=(v*30).toFixed(2);impactGap.textContent=`+${Math.max(0,v*30-438).toFixed(2)}`;}
+    document.querySelectorAll('.toggle').forEach(btn=>btn.addEventListener('click',()=>{const row=document.getElementById(btn.dataset.detail);const on=row.classList.toggle('show');btn.textContent=on?'−':'＋'}));
+    document.querySelectorAll('.edit-btn').forEach(btn=>btn.addEventListener('click',()=>openDrawer(btn.closest('.spu-row')||btn.closest('tr'))));
+    document.getElementById('closeBtn').onclick=closeDrawer;document.getElementById('cancelBtn').onclick=closeDrawer;mask.onclick=closeDrawer;dailyTarget.addEventListener('input',updateImpact);
+    document.getElementById('saveBtn').onclick=()=>{if(currentRow&&currentRow.classList.contains('spu-row')){const cell=currentRow.querySelector('.target-value');cell.textContent=Number(dailyTarget.value||0).toFixed(2);const source=currentRow.querySelector('.source');source.textContent='人工调整';source.className='source source-manual';}closeDrawer();showToast('目标已保存，备货影响已重新计算');};
+    document.getElementById('queryBtn').onclick=()=>{const key=document.getElementById('keyword').value.trim().toLowerCase();document.querySelectorAll('.spu-row').forEach(row=>{const hit=!key||(row.dataset.code+row.dataset.name).toLowerCase().includes(key);row.style.display=hit?'':'none';const detail=document.getElementById(row.querySelector('.toggle').dataset.detail);if(!hit)detail.classList.remove('show')})};
+    document.getElementById('resetBtn').onclick=()=>{document.getElementById('keyword').value='';document.querySelectorAll('.spu-row').forEach(row=>row.style.display='');};
+    document.getElementById('bulkBtn').onclick=()=>openDrawer(document.querySelector('.spu-row'));document.getElementById('exportBtn').onclick=()=>showToast('已生成当前筛选条件下的目标管理导出任务');document.getElementById('columnBtn').onclick=()=>showToast('自定义列配置将在个人视图中保存');
+    document.querySelectorAll('.tab').forEach(tab=>tab.onclick=()=>{document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));tab.classList.add('active');showToast(tab.dataset.view==='impact'?'已切换至备货影响视图（当前原型共用列表）':'已切换至目标管理视图')});
+  </script>
+</body>
+</html>

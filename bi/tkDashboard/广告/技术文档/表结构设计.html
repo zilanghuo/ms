@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TK 广告 BI 看板 表结构设计</title>
+  <style>
+    :root{--bg:#f5f6f8;--card:#fff;--text:#333;--muted:#666;--accent:#0d9488;--border:#e0e0e0;--ods:#3b82f6;--dim:#f97316;--dwd:#8b5cf6;--dws:#0891b2;--ads:#059669;}
+    *{box-sizing:border-box} body{margin:0;padding:2rem 3rem 3rem;background:var(--bg);color:var(--text);font:14px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans SC",sans-serif}.doc{max-width:1680px;margin:auto;padding:2.5rem 3rem 3rem;background:var(--card);border:1px solid var(--border);border-radius:8px}h1{margin:0 0 .5rem;padding-bottom:.5rem;border-bottom:2px solid var(--accent);font-size:1.55rem}h2{margin:2rem 0 .75rem;font-size:1.22rem}h3{margin:1.5rem 0 .5rem;color:var(--muted);font-size:1.05rem}p,li{margin:.25rem 0}ul{margin:.5rem 0 1rem 1.25rem}code{padding:.1rem .3rem;border-radius:3px;background:#f1f5f9;font-size:.87em}.note{margin:1rem 0;padding:.8rem 1rem;border:1px solid #fed7aa;border-radius:6px;background:#fff7ed;color:#9a3412}.ok{border-color:#a7f3d0;background:#ecfdf5;color:#065f46}.warn{border-color:#fde68a;background:#fffbeb;color:#92400e}.toc{margin:1rem 0;padding:.8rem 1rem;background:#f8fafc;border:1px solid var(--border);border-radius:6px}.toc a{color:var(--accent);text-decoration:none}.table-wrap{overflow:auto;margin:1rem 0}table{min-width:900px;width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.45rem .65rem;border:1px solid var(--border);text-align:left;vertical-align:top}th{background:#f1f5f9;color:var(--muted);font-weight:600}.badge{display:inline-block;padding:.15rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}.ods{background:#dbeafe;color:var(--ods)}.dim{background:#ffedd5;color:var(--dim)}.dwd{background:#ede9fe;color:var(--dwd)}.dws{background:#cffafe;color:var(--dws)}.ads{background:#d1fae5;color:var(--ads)}pre{overflow:auto;padding:1rem;border-radius:6px;background:#0f172a;color:#e2e8f0;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace}.meta th{width:135px}.muted{color:var(--muted)}
+  </style>
+</head>
+<body><main class="doc">
+  <h1>TK 广告 BI 看板 表结构设计</h1>
+  <p>依据 <code>广告BI看板_接口与ODS接入卡点分析.html</code>、<code>计算逻辑/TK广告BI看板_业务计算逻辑说明.html</code> 及前端 <code>web-fms/.../tkboard/ad-space</code> 设计。底表字段使用小写下划线，接口字段仍应在服务层转换为 camelCase。</p>
+  <div class="note ok"><strong>核心约束：</strong>DWD 按明确业务键进行贴源清洗、规范化及必要的同粒度关联；指标聚合、汇率换算、数据质量和诊断在 DWS 计算，DWS 不直接读取 ODS。ADS 与对应 DWS 使用同一组主键和最终展示字段，装载任务只能逐列透传，禁止在 ADS 做 <code>JOIN</code>、聚合、<code>CASE</code>、算术、窗口函数或任何业务计算。行动点任务暂不实现。</div>
+  <div class="note warn"><strong>归因红线：</strong>当前 TikTok GMV Max 日报已验证的效果事实仅到 Campaign 粒度；VSA 日报到 Ad Group 粒度。SPU、PID、素材表仅保存关系、状态、库存/商品协同与 <code>performance_available_flag=0</code>，不得将 Campaign 成本、收入、订单、曝光、点击下摊或复制到对象粒度。获得对象级正式报表后，才可新建对应对象级 DWD 事实表并启用效果字段。</div>
+  <nav class="toc"><strong>目录：</strong> <a href="#overview">表清单</a> ｜ <a href="#rules">建模规则</a> ｜ <a href="#ods">ODS</a> ｜ <a href="#dim">DIM</a> ｜ <a href="#dwd">DWD</a> ｜ <a href="#dws">DWS</a> ｜ <a href="#ads">ADS</a> ｜ <a href="#lineage">链路与实施顺序</a></nav>
+
+  <h2 id="overview">一、表清单与粒度</h2>
+  <div class="table-wrap"><table><thead><tr><th>层级</th><th>表名</th><th>粒度 / 主键</th><th>用途</th><th>状态</th></tr></thead><tbody>
+    <tr><td><span class="badge ods">ODS</span></td><td><code>ods_marketing_api_tiktok_gmv_max_*</code></td><td>现有账户、店铺、Campaign、日报、视频、Session 快照</td><td>GMV Max 贴源复用</td><td>已有，日报需补齐 impressions/clicks</td></tr>
+    <tr><td><span class="badge ods">ODS</span></td><td><code>ods_marketing_api_tiktok_ads_campaign_df</code> / <code>adgroup_df</code> / <code>adgroup_report_di</code></td><td>VSA Campaign、Ad Group、Ad Group 日</td><td>普通 VSA API 接入</td><td>待新增</td></tr>
+    <tr><td><span class="badge ods">ODS</span></td><td><code>ods_marketing_api_tiktok_creative_auth_df</code></td><td>素材授权日快照</td><td>授权生命周期贴源</td><td>已设计</td></tr>
+    <tr><td><span class="badge dim">DIM</span></td><td><code>dim_marketing_tiktok_ad_project_config</code> / <code>scope_config</code> / <code>rule_config</code></td><td>项目 / 项目范围 / 规则版本</td><td>人工维护的业务范围和规则</td><td>待新增</td></tr>
+    <tr><td><span class="badge dwd">DWD</span></td><td><code>dwd_marketing_tiktok_ad_campaign_performance_1d</code></td><td>业务日 + 广告账户 + Campaign / Ad Group</td><td>统一广告效果事实</td><td>待新增</td></tr>
+    <tr><td><span class="badge dwd">DWD</span></td><td><code>dwd_marketing_tiktok_ad_campaign_report_di</code></td><td>统计日 + 广告账户 + 店铺 + Campaign + 请求起止日</td><td>GMV Max Campaign 日报及同日计划信息</td><td>已设计</td></tr>
+    <tr><td><span class="badge dwd">DWD</span></td><td><code>dwd_marketing_tiktok_ad_session_wide_df</code></td><td>采集日 + 广告账户 + Campaign + Session + PID</td><td>Session 状态、排期及商品关系日快照</td><td>已设计</td></tr>
+    <tr><td><span class="badge dwd">DWD</span></td><td><code>dwd_marketing_tiktok_ad_campaign_object_relation_df</code> / <code>dwd_marketing_tiktok_ad_video_wide_df</code> / <code>dwd_marketing_tiktok_ad_campaign_wide_df</code></td><td>Campaign 关系、视频与 PID 日快照、Campaign 配置</td><td>对象关系、视频宽表及 Campaign 配置</td><td>见第五节</td></tr>
+    <tr><td><span class="badge dws">DWS</span></td><td><code>dws_marketing_tiktok_ad_campaign_1d</code></td><td>Campaign 日</td><td>Campaign 最终结果</td><td>已设计</td></tr>
+    <tr><td><span class="badge dws">DWS</span></td><td><code>dws_marketing_tiktok_ad_spu_1d</code> / <code>dws_marketing_tiktok_ad_pid_1d</code> / <code>dws_marketing_tiktok_ad_material_snapshot_1d</code></td><td>对象日</td><td>对象关系、状态、诊断最终结果</td><td>已设计</td></tr>
+    <tr><td><span class="badge ads">ADS</span></td><td><code>ads_marketing_tiktok_ad_*</code></td><td>与对应 DWS 完全一致</td><td>接口分页、导出、卡片查询</td><td>待新增，仅透传</td></tr>
+  </tbody></table></div>
+
+  <h2 id="rules">二、统一建模规则</h2>
+  <ul>
+    <li><strong>业务日：</strong><code>sdt</code> 为广告账户业务时区下的 <code>yyyyMMdd</code>，<code>smt</code> 为 <code>yyyyMM</code>；账户时区取广告账户 ODS 并冻结到 DWS 结果。</li>
+    <li><strong>金额与展示：</strong>金额、比率原始精度保存在表中；服务/前端展示时数字和百分比统一保留 2 位小数，百分比再追加 <code>%</code>。</li>
+    <li><strong>汇率：</strong>DWS 仅在报告币种、汇率版本和有效日汇率齐全时填充 <code>reporting_*</code> 金额；否则禁止跨币种合计，并以数据健康状态提示。</li>
+    <li><strong>数据健康：</strong><code>data_health_status</code> 取 <code>PASS</code>、<code>PENDING</code>、<code>FAILED</code>、<code>DELAYED</code>；非 <code>PASS</code> 时 DWS 不输出经营结论或自动建议。</li>
+    <li><strong>配置：</strong>项目范围、规则版本等人工维护数据只落 DIM；任何历史诊断均保存使用的 <code>rule_version</code>，不被新规则静默覆盖。</li>
+  </ul>
+
+  <h2 id="ods">三、ODS 贴源表</h2>
+  <p>现有可复用 ODS：<code>ods_marketing_api_tiktok_ads_advertiser_df</code>、<code>ods_marketing_api_tiktok_gmv_max_store_df</code>、<code>ods_marketing_api_tiktok_gmv_max_campaign_df</code>、<code>ods_marketing_api_tiktok_gmv_max_campaign_report_di</code>、<code>ods_marketing_api_tiktok_gmv_max_video_df</code>、<code>ods_marketing_api_tiktok_gmv_max_video_spu_df</code>、<code>ods_marketing_api_tiktok_gmv_max_session_df</code>、<code>ods_marketing_api_tiktok_gmv_max_session_spu_df</code>、<code>ods_marketing_api_tiktok_gmv_max_identity_df</code>。以下为缺失链路的新增 DDL；所有表均可直接在 Doris 执行。</p>
+  <h3>3.1 VSA Campaign、Ad Group 与日效果</h3>
+  <pre>CREATE TABLE IF NOT EXISTS ods.ods_marketing_api_tiktok_ads_campaign_df (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '快照业务日yyyyMMdd',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', campaign_id VARCHAR(200) COMMENT 'VSA Campaign ID',
+  campaign_name VARCHAR(500) COMMENT 'Campaign名称', campaign_type VARCHAR(100) COMMENT 'Campaign类型',
+  operation_status VARCHAR(100) COMMENT '投放状态', objective_type VARCHAR(100) COMMENT '营销目标',
+  budget DECIMAL(20,4) COMMENT '预算', budget_mode VARCHAR(50) COMMENT '预算模式',
+  currency VARCHAR(10) COMMENT '账户币种', api_data_json STRING COMMENT '完整API响应JSON',
+  api_request_id VARCHAR(200) COMMENT '请求追溯ID', insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,advertiser_id,campaign_id)
+COMMENT 'TikTok VSA Campaign日全量快照ODS'
+DISTRIBUTED BY HASH(campaign_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS ods.ods_marketing_api_tiktok_ads_adgroup_df (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '快照业务日yyyyMMdd',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', campaign_id VARCHAR(200) COMMENT '所属Campaign ID', adgroup_id VARCHAR(200) COMMENT 'Ad Group ID',
+  adgroup_name VARCHAR(500) COMMENT 'Ad Group名称', operation_status VARCHAR(100) COMMENT '投放状态',
+  optimization_goal VARCHAR(100) COMMENT '优化目标', billing_event VARCHAR(100) COMMENT '计费事件', budget DECIMAL(20,4) COMMENT '预算',
+  currency VARCHAR(10) COMMENT '账户币种', api_data_json STRING COMMENT '完整API响应JSON', api_request_id VARCHAR(200) COMMENT '请求追溯ID',
+  insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,advertiser_id,adgroup_id)
+COMMENT 'TikTok VSA Ad Group日全量快照ODS'
+DISTRIBUTED BY HASH(adgroup_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS ods.ods_marketing_api_tiktok_ads_adgroup_report_di (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '统计业务日yyyyMMdd',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', campaign_id VARCHAR(200) COMMENT 'Campaign ID', adgroup_id VARCHAR(200) COMMENT 'Ad Group ID',
+  spend DECIMAL(20,4) COMMENT '广告消耗', impressions BIGINT COMMENT '曝光量', clicks BIGINT COMMENT '点击量',
+  conversions DECIMAL(20,4) COMMENT '转化量', conversion_value DECIMAL(20,4) COMMENT '转化价值',
+  report_dimensions_json STRING COMMENT '完整报表维度JSON', extra_metrics_json STRING COMMENT '扩展指标JSON', api_data_json STRING COMMENT '完整API响应JSON',
+  api_request_id VARCHAR(200) COMMENT '请求追溯ID', insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,advertiser_id,adgroup_id)
+COMMENT 'TikTok VSA Ad Group日效果ODS，普通VSA消耗事实'
+DISTRIBUTED BY HASH(adgroup_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");</pre>
+  <h3>3.2 素材授权</h3>
+  <pre>CREATE TABLE IF NOT EXISTS ods.ods_marketing_api_tiktok_creative_auth_df (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '授权快照业务日yyyyMMdd',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', store_id VARCHAR(200) COMMENT 'TikTok店铺ID', item_id VARCHAR(200) COMMENT '素材项ID',
+  video_id VARCHAR(200) COMMENT '视频ID', identity_id VARCHAR(200) COMMENT '身份ID', identity_type VARCHAR(100) COMMENT '身份类型',
+  ad_auth_status VARCHAR(100) COMMENT '授权状态', auth_start_time DATETIME COMMENT '授权开始时间', auth_end_time DATETIME COMMENT '授权结束时间',
+  api_data_json STRING COMMENT '完整API响应JSON', api_request_id VARCHAR(200) COMMENT '请求追溯ID', insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,advertiser_id,store_id,item_id,video_id,identity_id)
+COMMENT 'TikTok素材授权生命周期日快照ODS'
+DISTRIBUTED BY HASH(video_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");</pre>
+
+  <h2 id="dim">四、DIM 配置表</h2>
+  <p>三张配置表均由管理端维护，DWS 以业务日匹配生效记录；ADS 不直接关联 DIM。</p>
+  <pre>CREATE TABLE IF NOT EXISTS dim.dim_marketing_tiktok_ad_project_config (
+  project_id VARCHAR(200) COMMENT '项目唯一ID', project_name VARCHAR(500) COMMENT '项目名称', reporting_currency VARCHAR(10) COMMENT '报告币种',
+  default_timezone VARCHAR(100) COMMENT '默认业务时区', is_enabled TINYINT COMMENT '是否启用', effective_start_date DATE COMMENT '生效开始日', effective_end_date DATE COMMENT '生效结束日',
+  updated_by VARCHAR(200) COMMENT '维护人', updated_at DATETIME COMMENT '维护时间'
+) ENGINE=OLAP UNIQUE KEY(project_id,effective_start_date)
+COMMENT '广告BI项目配置DIM' DISTRIBUTED BY HASH(project_id) BUCKETS 8
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS dim.dim_marketing_tiktok_ad_project_scope_config (
+  project_id VARCHAR(200) COMMENT '项目ID', store_id VARCHAR(200) COMMENT 'TikTok店铺ID', advertiser_id VARCHAR(200) COMMENT '广告账户ID',
+  site_code VARCHAR(20) COMMENT '站点码', store_name VARCHAR(200) COMMENT '内部店铺名', account_timezone VARCHAR(100) COMMENT '账户业务时区',
+  is_enabled TINYINT COMMENT '是否纳入项目', effective_start_date DATE COMMENT '生效开始日', effective_end_date DATE COMMENT '生效结束日', updated_at DATETIME COMMENT '维护时间'
+) ENGINE=OLAP UNIQUE KEY(project_id,store_id,advertiser_id,effective_start_date)
+COMMENT '广告BI项目店铺广告账户范围DIM' DISTRIBUTED BY HASH(project_id) BUCKETS 8
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS dim.dim_marketing_tiktok_ad_rule_config (
+  rule_version VARCHAR(100) COMMENT '规则版本', rule_code VARCHAR(100) COMMENT '规则编码', rule_name VARCHAR(300) COMMENT '规则名称',
+  rule_scope VARCHAR(50) COMMENT '规则对象范围', rule_expression STRING COMMENT '规则表达式或JSON', is_enabled TINYINT COMMENT '是否启用',
+  effective_start_date DATE COMMENT '生效开始日', effective_end_date DATE COMMENT '生效结束日', updated_by VARCHAR(200) COMMENT '维护人', updated_at DATETIME COMMENT '维护时间'
+) ENGINE=OLAP UNIQUE KEY(rule_version,rule_code)
+COMMENT '广告BI数据质量诊断行动规则DIM' DISTRIBUTED BY HASH(rule_code) BUCKETS 8
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");</pre>
+
+  <h2 id="dwd">五、DWD 规范明细表</h2>
+  <p>仅保留当前有下游使用的 DWD；尚无消费者的明细不单独建设，原始记录仍保留在 ODS。每日 SQL 与目标表同名；文件导入 ODS 不进入本次广告 DWD、DWS 加工链路。</p>
+  <div class="table-wrap"><table><thead><tr><th>ODS 来源表</th><th>DWD 目标表</th><th>日粒度 / 唯一键</th></tr></thead><tbody>
+    <tr><td><code>ods_marketing_api_tiktok_ads_adgroup_report_di</code>、<code>ods_marketing_api_tiktok_ads_adgroup_df</code>、<code>ods_marketing_api_tiktok_ads_advertiser_df</code></td><td><code>dwd_marketing_tiktok_ad_campaign_performance_1d</code></td><td>Ad Group 日效果及广告账户信息；GMV Max 来源为日报 DWD</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_campaign_report_di</code></td><td><code>dwd_marketing_tiktok_ad_campaign_report_di</code></td><td>日报原始业务键；同日关联 Campaign 宽表与最新店铺 DIM</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_creative_auth_df</code></td><td><code>dwd_marketing_tiktok_ad_video_wide_df</code></td><td>按同日账户、店铺、素材项、视频和身份关联；授权缺失时保留视频</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_campaign_df</code></td><td><code>dwd_marketing_tiktok_ad_campaign_wide_df</code></td><td><code>smt, sdt, advertiser_id, campaign_id</code>；关联最新店铺 DIM，按计划名末段解析 PID</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_session_spu_df</code>、<code>ods_marketing_api_tiktok_gmv_max_campaign_df</code></td><td><code>dwd_marketing_tiktok_ad_campaign_object_relation_df</code></td><td>Campaign 与对象的日关系</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_session_df</code>、<code>ods_marketing_api_tiktok_gmv_max_session_spu_df</code></td><td><code>dwd_marketing_tiktok_ad_session_wide_df</code></td><td>每个 Session 和 PID 一行，无商品关系时保留空 PID</td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_video_df</code></td><td><code>dwd_marketing_tiktok_ad_video_wide_df</code></td><td><code>smt, sdt, advertiser_id, store_id, identity_id, video_id, pid</code></td></tr>
+    <tr><td><code>ods_marketing_api_tiktok_gmv_max_video_spu_df</code></td><td><code>dwd_marketing_tiktok_ad_video_wide_df</code></td><td>视频与平台商品 PID 关系</td></tr>
+  </tbody></table></div>
+  <p>视频宽表：<code>dwd_marketing_tiktok_ad_video_wide_df</code>，以视频日快照为主体，直接关联同日授权 ODS；缺失授权时保留视频。一个视频对应多个 PID 时授权信息会重复，统计授权数量应按视频及身份等业务键去重。素材效果字段 <code>cost</code>、<code>orders</code>、<code>attributed_revenue</code> 暂为 NULL。</p>
+  <p>Campaign 宽表：<code>dwd_marketing_tiktok_ad_campaign_wide_df</code> 保存采集日的计划配置快照，不是每日效果日报。店铺名称按广告账户和店铺 ID 关联 DIM 最新分区；<code>pid</code> 取计划名最后一个 <code>-</code> 后的纯数字，名称无分隔符或末段非纯数字时为空。</p>
+  <p>Campaign 日报：<code>dwd_marketing_tiktok_ad_campaign_report_di</code> 保留报表来源业务键和指标，同日关联计划名称与 PID，缺失时保留日报并置空；店铺名称取 DIM 最新分区，<code>source_insert_time</code> 保留 ODS 入库时间。</p>
+  <p>Session 宽表：<code>dwd_marketing_tiktok_ad_session_wide_df</code> 将商品关系的 <code>spu_id</code> 映射为平台商品 <code>pid</code>；无商品关系时保留 Session。Session 预算会在多 PID 行重复，按 Session 业务键去重后统计。</p>
+  <p>运行顺序：API ODS 采集完成 → Campaign 配置宽表 → Campaign 日报 DWD → 统一效果事实 DWD → DWS → ADS 透传；视频宽表可在 ODS 完成后独立加工。DWS 只读取 DWD、DIM 或已有 DWS，不直接读取 ODS。</p>
+  <p>VSA 按 <code>promotion_type = VIDEO_SHOPPING</code> 判定；广告账户映射多个店铺且日报缺少店铺键时，不将日报复制到多个店铺，原始日报仍保留在 ODS，待映射明确后再归属。</p>
+  <h3>5.1 广告效果统一事实</h3>
+  <pre>CREATE TABLE IF NOT EXISTS dwd.dwd_marketing_tiktok_ad_campaign_performance_1d (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '统计业务日yyyyMMdd', project_id VARCHAR(200) COMMENT '项目ID',
+  site_code VARCHAR(20) COMMENT '站点码', store_id VARCHAR(200) COMMENT '店铺ID', store_name VARCHAR(200) COMMENT '内部店铺名', advertiser_id VARCHAR(200) COMMENT '广告账户ID',
+  campaign_id VARCHAR(200) COMMENT 'Campaign ID', adgroup_id VARCHAR(200) COMMENT 'Ad Group ID，GMV Max为空', campaign_source VARCHAR(30) COMMENT 'GMV_MAX或VSA',
+  currency VARCHAR(10) COMMENT '原始币种', cost DECIMAL(20,4) COMMENT '广告消耗', attributed_revenue DECIMAL(20,4) COMMENT '广告归因收入', orders DECIMAL(20,4) COMMENT '广告归因订单',
+  impressions BIGINT COMMENT '曝光', clicks BIGINT COMMENT '点击', conversion_count DECIMAL(20,4) COMMENT '转化量', data_health_status VARCHAR(20) COMMENT '数据健康状态',
+  source_batch_id VARCHAR(200) COMMENT '来源抓取批次', source_updated_at DATETIME COMMENT '来源更新时间', insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,project_id,advertiser_id,campaign_id,adgroup_id)
+COMMENT '广告Campaign或Ad Group日效果规范事实DWD'
+DISTRIBUTED BY HASH(campaign_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS dwd.dwd_marketing_tiktok_ad_campaign_object_relation_df (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '关系快照业务日yyyyMMdd', project_id VARCHAR(200) COMMENT '项目ID',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', campaign_id VARCHAR(200) COMMENT 'Campaign ID', store_id VARCHAR(200) COMMENT '店铺ID',
+  relation_type VARCHAR(30) COMMENT 'SPU、PID或CREATIVE', object_id VARCHAR(300) COMMENT '对象ID', object_name VARCHAR(1000) COMMENT '对象名称',
+  relation_status VARCHAR(50) COMMENT '关系状态', relation_source VARCHAR(100) COMMENT '关系来源', source_data_json STRING COMMENT '来源扩展JSON', insert_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '入仓时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,project_id,advertiser_id,campaign_id,relation_type,object_id)
+COMMENT 'Campaign与SPU PID 素材关系DWD；不保存对象级广告表现'
+DISTRIBUTED BY HASH(campaign_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+</pre>
+
+  <h2 id="dws">六、DWS 最终计算层</h2>
+  <p>DWS 读取 DWD、DIM 及既有商品、库存、销售、汇率数据，完成全部逻辑。金额比例均在本层计算：<code>roi = attributed_revenue / NULLIF(cost, 0)</code>、<code>cpo = cost / NULLIF(orders, 0)</code>、<code>ctr = clicks / NULLIF(impressions, 0)</code>。以下对象层表的 <code>performance_available_flag</code> 现阶段必须为 <code>0</code>。</p>
+  <h3>6.1 Campaign</h3>
+  <pre>CREATE TABLE IF NOT EXISTS dws.dws_marketing_tiktok_ad_campaign_1d (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '业务日yyyyMMdd', project_id VARCHAR(200) COMMENT '项目ID', site_code VARCHAR(20) COMMENT '站点码', store_name VARCHAR(200) COMMENT '店铺名',
+  advertiser_id VARCHAR(200) COMMENT '广告账户ID', campaign_id VARCHAR(200) COMMENT 'Campaign ID', adgroup_id VARCHAR(200) COMMENT 'Ad Group ID', campaign_name VARCHAR(500) COMMENT 'Campaign名称', campaign_source VARCHAR(30) COMMENT 'GMV_MAX或VSA', campaign_status VARCHAR(100) COMMENT 'Campaign状态', currency VARCHAR(10) COMMENT '原始币种',
+  cost DECIMAL(20,4) COMMENT '广告消耗', attributed_revenue DECIMAL(20,4) COMMENT '广告归因收入', orders DECIMAL(20,4) COMMENT '广告订单', impressions BIGINT COMMENT '曝光', clicks BIGINT COMMENT '点击', roi DECIMAL(20,6) COMMENT 'ROI', cpo DECIMAL(20,6) COMMENT 'CPO', ctr DECIMAL(20,6) COMMENT 'CTR',
+  related_spu_count BIGINT COMMENT '关联SPU数', related_pid_count BIGINT COMMENT '关联PID数', related_creative_count BIGINT COMMENT '关联素材数', available_creative_count BIGINT COMMENT '可用素材数',
+  data_health_status VARCHAR(20) COMMENT '数据健康状态', sample_maturity VARCHAR(50) COMMENT '样本成熟度', diagnosis_tag VARCHAR(500) COMMENT '经营标签', system_diagnosis STRING COMMENT '系统诊断', recommended_action STRING COMMENT '建议动作', rule_version VARCHAR(100) COMMENT '规则版本', calculated_at DATETIME COMMENT 'DWS计算时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,project_id,advertiser_id,campaign_id,adgroup_id)
+COMMENT '广告Campaign最终计算DWS' DISTRIBUTED BY HASH(campaign_id) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");</pre>
+  <h3>6.2 SPU、PID、素材与行动点</h3>
+  <pre>CREATE TABLE IF NOT EXISTS dws.dws_marketing_tiktok_ad_spu_1d (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '业务日yyyyMMdd', project_id VARCHAR(200) COMMENT '项目ID', site_code VARCHAR(20) COMMENT '站点码', store_id VARCHAR(200) COMMENT '店铺ID', store_name VARCHAR(200) COMMENT '店铺名',
+  spu VARCHAR(300) COMMENT 'SPU', spu_name VARCHAR(1000) COMMENT 'SPU中文名称', related_campaign_count BIGINT COMMENT '历史关联Campaign数', active_campaign_count BIGINT COMMENT '当前关联在投Campaign数', related_pid_count BIGINT COMMENT '关联PID数', related_creative_count BIGINT COMMENT '关联素材数', total_available_qty DECIMAL(20,4) COMMENT '库存可用数', performance_available_flag TINYINT COMMENT '对象级广告效果是否可用，当前固定0', data_health_status VARCHAR(20) COMMENT '数据健康状态', diagnosis_tag VARCHAR(500) COMMENT '经营标签', recommended_action STRING COMMENT '建议动作', rule_version VARCHAR(100) COMMENT '规则版本', calculated_at DATETIME COMMENT 'DWS计算时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,project_id,store_id,spu)
+COMMENT '广告SPU关系状态最终DWS，不含对象级广告效果' DISTRIBUTED BY HASH(spu) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+CREATE TABLE IF NOT EXISTS dws.dws_marketing_tiktok_ad_pid_1d (
+  smt INT COMMENT '月分区值yyyyMM', sdt VARCHAR(8) COMMENT '业务日yyyyMMdd', project_id VARCHAR(200) COMMENT '项目ID', site_code VARCHAR(20) COMMENT '站点码', store_id VARCHAR(200) COMMENT '店铺ID', store_name VARCHAR(200) COMMENT '店铺名',
+  pid VARCHAR(300) COMMENT 'Product ID', main_spu VARCHAR(300) COMMENT '主推SPU', pid_mapping_status VARCHAR(50) COMMENT 'PID映射状态', related_campaign_count BIGINT COMMENT '历史关联Campaign数', active_campaign_count BIGINT COMMENT '当前关联在投Campaign数', related_creative_count BIGINT COMMENT '关联素材数', sellable_stock_qty DECIMAL(20,4) COMMENT '可售库存', performance_available_flag TINYINT COMMENT '对象级广告效果是否可用，当前固定0', data_health_status VARCHAR(20) COMMENT '数据健康状态', diagnosis_tag VARCHAR(500) COMMENT '经营标签', recommended_action STRING COMMENT '建议动作', rule_version VARCHAR(100) COMMENT '规则版本', calculated_at DATETIME COMMENT 'DWS计算时间'
+) ENGINE=OLAP UNIQUE KEY(smt,sdt,project_id,store_id,pid)
+COMMENT '广告PID关系状态最终DWS，不含对象级广告效果' DISTRIBUTED BY HASH(pid) BUCKETS 16
+PROPERTIES("replication_allocation"="tag.location.default: 1","enable_unique_key_merge_on_write"="true");
+
+-- 素材快照及库存 DWS 以第九节对应 DDL 文件为准。</pre>
+
+  <h2 id="ads">七、ADS 透传查询层</h2>
+  <p>ADS 不保存额外衍生字段。每张 ADS 已在 <code>ms-warehouse-batch-data/ddl/marketing/ads/</code> 以独立、完整的 Doris <code>CREATE TABLE</code> 落地；字段、主键和顺序与对应 DWS 严格一致，但不使用 <code>LIKE</code>，以便 DDL 可独立执行和审阅。禁止自行增删计算字段。</p>
+  <pre>-- 实际 DDL 文件：
+ads/ads_marketing_tiktok_ad_campaign_1d.sql
+ads/ads_marketing_tiktok_ad_spu_1d.sql
+ads/ads_marketing_tiktok_ad_pid_1d.sql
+ads/ads_marketing_tiktok_ad_material_snapshot_1d.sql
+ads/ads_marketing_tiktok_ad_material_color_sku_1d.sql</pre>
+  <div class="note"><strong>透传加载约束：</strong>生产任务必须使用显式且同序字段清单，而不是 <code>SELECT *</code>；以下示例只表达数据流。五张 ADS 均遵循同一规则，SQL 中不得出现 <code>JOIN</code>、<code>GROUP BY</code>、<code>CASE</code>、算术表达式或窗口函数。</div>
+  <pre>INSERT INTO ads.ads_marketing_tiktok_ad_campaign_1d
+SELECT smt, sdt, project_id, site_code, store_name, advertiser_id, campaign_id, adgroup_id,
+       campaign_name, campaign_source, campaign_status, currency, cost, attributed_revenue,
+       orders, impressions, clicks, roi, cpo, ctr, related_spu_count, related_pid_count,
+       related_creative_count, available_creative_count, data_health_status, sample_maturity,
+       diagnosis_tag, system_diagnosis, recommended_action, rule_version, calculated_at
+FROM dws.dws_marketing_tiktok_ad_campaign_1d;</pre>
+  <div class="table-wrap"><table><thead><tr><th>ADS 表</th><th>唯一来源 DWS</th><th>页面用途</th><th>是否允许逻辑</th></tr></thead><tbody>
+    <tr><td><code>ads_marketing_tiktok_ad_campaign_1d</code></td><td><code>dws_marketing_tiktok_ad_campaign_1d</code></td><td>Campaign 列表、筛选、导出</td><td>否，仅列透传</td></tr>
+    <tr><td><code>ads_marketing_tiktok_ad_spu_1d</code></td><td><code>dws_marketing_tiktok_ad_spu_1d</code></td><td>SPU 关系/状态看板</td><td>否，仅列透传</td></tr>
+    <tr><td><code>ads_marketing_tiktok_ad_pid_1d</code></td><td><code>dws_marketing_tiktok_ad_pid_1d</code></td><td>PID 关系/库存协同看板</td><td>否，仅列透传</td></tr>
+    <tr><td><code>ads_marketing_tiktok_ad_material_snapshot_1d</code></td><td><code>dws_marketing_tiktok_ad_material_snapshot_1d</code></td><td>素材授权与状态看板</td><td>否，仅列透传</td></tr>
+  </tbody></table></div>
+
+  <h2 id="lineage">八、数据链路、实施顺序与验收</h2>
+  <ol>
+    <li><strong>P0：</strong>扩展 GMV Max 日报的曝光/点击字段，新增 VSA Campaign、Ad Group、Ad Group 日报 ODS，验证 <code>sdt + advertiser_id + adgroup_id</code> 的回刷覆盖。</li>
+    <li><strong>P0：</strong>维护项目、店铺、广告账户映射 DIM；接入素材授权生命周期 ODS。行动点任务暂不实现。</li>
+    <li><strong>P1：</strong>构建 Campaign 日事实 DWD 及对象关系/状态 DWD，先完成项目、Campaign DWS 与 ADS。</li>
+    <li><strong>P1：</strong>构建 SPU、PID、素材 DWS/ADS；仅返回关系、状态和可用性标志，接口必须据此禁用对象级广告效果展示。</li>
+    <li><strong>P2：</strong>取得 TikTok 对象级正式报表及稳定主键后，新建独立对象级日事实 DWD，再在 DWS 开启对象级广告效果字段；严禁回填或猜测历史下摊值。</li>
+  </ol>
+  <p><strong>验收标准：</strong>所有金额、ROI/CPO/CTR、数据健康、诊断和行动点统计均可追溯至 DWS；任一 ADS 的数据可只用一条列透传 SQL 从对应 DWS 重建；SPU、PID、素材对象查询中不存在由 Campaign 指标复制生成的效果数值。</p>
+  <h2>九、素材看板与颜色库存接入</h2>
+  <div class="note"><strong>素材链路：</strong>素材快照使用 <code>dws_marketing_tiktok_ad_material_snapshot_1d</code> → <code>ads_marketing_tiktok_ad_material_snapshot_1d</code>；库存明细使用 <code>dws_marketing_tiktok_ad_material_color_sku_1d</code> → <code>ads_marketing_tiktok_ad_material_color_sku_1d</code>。旧链路本地脚本已移除，数据库旧表的删除需单独执行。</div>
+  <p>素材以最新 ADS 快照按视频发布时间筛选，同一素材的 PID 聚合去重；按同日、账户、店铺与 PID 聚合的 Campaign 仅为同商品关联候选，不代表实际投放或效果归因。页面显示视频配置 <code>video_color_name</code>，库存匹配仍使用标准化颜色；素材链路暂不关联项目，站点按积加店铺站点 DIM 最新分区唯一映射获取，缺失或不唯一时保留素材但不能跨站点推断库存。素材记录数及授权有效数取真实值，断货汇总和素材广告效果暂为 0，广告效果标注暂无数据。</p>
+  <p>素材快照以广告侧 <code>item_id</code> 匹配同一内部店铺的视频配置 <code>dim_sales_tiktok_video_config.video_id</code>，保留广告侧原始 <code>video_id</code>。同店同视频多条配置按更新时间、来源日期和发布时间降序选一条，未匹配的配置字段为空。项目字段暂为空，站点来自 <code>dim_jijia_store_site_df</code>。</p>
+  <div class="table-wrap"><table><thead><tr><th>表</th><th>粒度与作用</th></tr></thead><tbody>
+    <tr><td><code>dws_marketing_tiktok_ad_material_color_sku_1d</code></td><td>业务日、项目、店铺、素材及库存 SKU；匹配同日同站点店铺 SPU 颜色的热卖色码和库存。</td></tr>
+    <tr><td><code>ads_marketing_tiktok_ad_material_color_sku_1d</code></td><td>逐列透传库存 DWS，供颜色库存弹窗使用。</td></tr>
+    <tr><td><code>dws_marketing_tiktok_ad_material_snapshot_1d</code></td><td>素材日快照及配置、授权、去重 PID 和同商品关联计划；素材级广告效果尚无可信来源。</td></tr>
+    <tr><td><code>ads_marketing_tiktok_ad_material_snapshot_1d</code></td><td>逐列透传素材 DWS，供素材汇总、列表和导出使用。</td></tr>
+  </tbody></table></div>
+  <p>库存来源为 <code>dws_inventory_stock_check_spu_sku_1d</code> 和 <code>dws_inventory_sku_hot_color_evaluation_1d</code>。现货为国内在库加海外在库，在途取总在途，可售取总可用库存；可售不大于零为断货，库存或映射缺失为未知，不补零。素材级消耗、订单、收入及 ROI 不使用 Campaign 或自然流量数据替代。</p>
+  <p>执行顺序：库存 DWS、视频 DWD 与 Campaign DWD 完成后，先执行广告素材颜色库存 DWS，再执行素材 DWS，最后分别执行两张 ADS。Java 只查询对应 ADS；上游映射配置、建表和历史日期回刷需先部署后再进行真实联调。</p>
+</main></body></html>

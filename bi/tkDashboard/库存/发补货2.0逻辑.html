@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>发补货 2.0 逻辑 — 需求文档</title>
+  <style>
+    :root { --bg:#f5f6f8; --card:#fff; --text:#1f2937; --muted:#667085; --accent:#0d9488; --border:#d9e2ec; --soft:#eef6f3; --warn:#fff7e6; --warn-border:#f6c453; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:14px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif; }
+    .doc { max-width:1280px; margin:28px auto; padding:34px 38px 46px; background:var(--card); border:1px solid var(--border); border-radius:8px; }
+    h1 { margin:0; font-size:28px; line-height:1.3; }
+    h1::after { content:""; display:block; width:52px; height:3px; margin-top:13px; background:var(--accent); }
+    h2 { margin:31px 0 13px; padding-bottom:8px; border-bottom:2px solid var(--border); font-size:20px; }
+    h3 { margin:22px 0 8px; font-size:16px; }
+    p { margin:8px 0; }
+    .meta { margin-top:12px; color:var(--muted); }
+    .summary, .note { margin:20px 0; padding:14px 16px; border-radius:8px; }
+    .summary { border:1px solid #c8e6dc; border-left:5px solid var(--accent); background:var(--soft); }
+    .note { border:1px solid var(--warn-border); background:var(--warn); }
+    .flow { margin:14px 0; padding:12px 14px; overflow-x:auto; border:1px solid var(--border); border-radius:8px; background:#fbfcfe; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; white-space:nowrap; }
+    .table-wrap { overflow-x:auto; margin:12px 0 20px; }
+    table { width:100%; border-collapse:collapse; font-size:13px; }
+    th, td { padding:9px 10px; border:1px solid var(--border); vertical-align:top; text-align:left; word-break:break-word; }
+    th { background:#eef2f6; font-weight:700; white-space:nowrap; }
+    tbody tr:nth-child(even) { background:#f9fafb; }
+    code { padding:1px 5px; border:1px solid #dbe4ee; border-radius:4px; background:#edf2f7; color:#334155; font-size:.92em; }
+    ul, ol { margin:8px 0; padding-left:21px; }
+    li { margin:5px 0; }
+    .rule { font-weight:700; color:#0f766e; }
+    footer { margin-top:34px; padding-top:13px; border-top:1px solid var(--border); color:var(--muted); font-size:13px; }
+    a { color:var(--accent); text-decoration:none; }
+    a:hover { text-decoration:underline; }
+    @media (max-width:760px) { .doc { margin:0; padding:24px 16px 36px; border-width:0; border-radius:0; } table { font-size:12px; } }
+  </style>
+</head>
+<body>
+<main class="doc">
+  <h1>发补货 2.0 逻辑 — 需求文档</h1>
+  <p class="meta">版本：v2.0｜更新：2026-10-27｜适用范围：TikTok 库存 / 发补货｜统计粒度：站点 × 店铺 × SPU × SKU × 月份</p>
+
+  <section class="summary">
+    <strong>建设目标：</strong>以 SPU 为目标管理主体，形成“年度月度目标 → SKU 配比拆分 → 库存与在途覆盖判断 → 发货建议”的闭环。未来销量默认以近 90 天可售日均预测，并保留 SPU 与 SKU 两级人工调整能力；预计入仓时间以积加数据为准，当前头程库存偏低时由直邮优先承接需求。
+  </section>
+
+  <h2>一、需求范围</h2>
+  <table>
+    <thead><tr><th>模块</th><th>需求说明</th><th>输出结果</th></tr></thead>
+    <tbody>
+      <tr><td>SPU 目标管理</td><td>按年度、自然月展示每个 SPU 的日均销量；已发生月份展示实际值，当前及未来月份展示预测值或人工目标。</td><td>SPU 月度日均销量目标。</td></tr>
+      <tr><td>SKU 目标拆分</td><td>SPU 下展开 SKU 目录，按 SKU 在 SPU 内的历史销量占比拆分对应月份目标，并支持逐 SKU 调整。</td><td>SKU 月度日均销量目标与目标销量。</td></tr>
+      <tr><td>备货与发货</td><td>按目标销量、可售库存、在途库存及积加预计入仓时间评估缺口和供给风险。</td><td>建议备货量、建议发货量、直邮承接提示。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>二、目标管理页面</h2>
+  <div class="flow">选择年度、站点、店铺 → SPU 月度目标（日均） → 展开 SKU 分配 → 人工调整与留痕 → 计算目标销量与发补货建议</div>
+  <ul>
+    <li>默认按年度展示 1–12 月；每一行是一个 SPU，可展开查看其 SKU 目录。</li>
+    <li>月度单元格展示 <strong>日均销量</strong>，统一保留 2 位小数；目标销量按“日均销量 × 当月纳入天数”计算，数量展示保留 2 位小数。</li>
+    <li>已结束月份展示实际可售日均；当前月展示“已发生实际 + 剩余日期预测”的月度汇总口径；未来月展示预测日均或人工目标日均。</li>
+    <li>支持站点、店铺、SPU、SKU 查询；SPU/SKU 输入查询同时支持模糊搜索与精确搜索。</li>
+    <li>提供导出入口，导出当前筛选结果、月度目标、人工调整值、调整人、调整时间及计算来源。</li>
+  </ul>
+
+  <h2>三、日均销量与未来预测口径</h2>
+  <h3>3.1 可售日均销量</h3>
+  <table>
+    <thead><tr><th>字段</th><th>计算口径</th></tr></thead>
+    <tbody>
+      <tr><td>可售日</td><td>该 SKU 在对应业务日存在可售库存，且未标记为库存异常的日期。可售但无成交的日期必须计入分母。</td></tr>
+      <tr><td>SKU 可售日均</td><td><code>观察期内有效订单销量 ÷ 观察期内 SKU 可售天数</code>。</td></tr>
+      <tr><td>SPU 可售日均</td><td><code>SPU 下全部 SKU 有效订单销量之和 ÷ SPU 下全部 SKU 可售天数之和</code>；不得使用各 SKU 日均的简单平均。</td></tr>
+      <tr><td>有效订单</td><td>按现有发补货订单口径，排除取消、未支付及金额不大于 0 的记录；订单日期按对应站点时区归属业务日。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 90 天滚动预测</h3>
+  <table>
+    <thead><tr><th>规则</th><th>明确口径</th></tr></thead>
+    <tbody>
+      <tr><td>观察窗口</td><td>以统计日为截止日，向前连续取 90 个自然日；统计日当天数据未完整时，截止至前一完整业务日。</td></tr>
+      <tr><td>默认预测值</td><td>取近 90 天 SPU / SKU 的可售日均销量，作为当前月剩余日期及未来月份的默认预测日均。</td></tr>
+      <tr><td>月份拆分</td><td>从统计日开始，将未来连续 90 个自然日按自然月拆分展示。首月或末月不足整月时，仅按该月实际落入窗口的天数展示和计算；例如统计日位于月末，首月可能仅含数天。</td></tr>
+      <tr><td>年度展示</td><td>年度视图仍固定展示自然年 1–12 月；超过 90 天窗口的未来月份沿用最近一次有效的 90 天预测值，直到被新的日快照或人工目标覆盖。</td></tr>
+      <tr><td>无可售历史</td><td>若近 90 天无可售天数或无有效历史销量，系统不虚构预测值，默认展示 <code>待设置</code>，由运营手动填写 SPU 或 SKU 日均目标。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>当前月说明：</strong>当前月已发生天数使用实际可售日均，未发生天数使用 90 天预测日均。月度目标销量 = 已发生有效销量 + 预测日均 × 剩余纳入天数；当前月最终月度日均 = 月度目标销量 ÷ 当月纳入天数。</div>
+
+  <h2>四、人工调整与优先级</h2>
+  <table>
+    <thead><tr><th>调整层级</th><th>支持内容</th><th>优先级</th><th>生效范围</th></tr></thead>
+    <tbody>
+      <tr><td>SPU 月度目标</td><td>可调整某 SPU 指定自然月的日均销量目标。</td><td>高于系统默认预测。</td><td>作为该 SPU 当月总目标，并驱动未单独调整 SKU 的分配。</td></tr>
+      <tr><td>SKU 月度目标</td><td>可调整某 SKU 指定自然月的日均销量目标或月度目标销量。</td><td>高于 SPU 月度目标的自动拆分结果。</td><td>仅影响该 SKU；其余未锁定 SKU 按剩余目标和占比分配。</td></tr>
+      <tr><td>人工目标留痕</td><td>保存调整前值、调整后值、调整原因、调整人、调整时间及生效年月。</td><td>仅由有权限用户修改。</td><td>后续重算不覆盖人工锁定值，用户取消锁定后恢复系统计算。</td></tr>
+    </tbody>
+  </table>
+  <p><span class="rule">优先级：</span>SKU 人工锁定值 ＞ SPU 人工目标拆分值 ＞ 系统 90 天预测值 ＞ 无历史待设置。若 SKU 有历史数据，仍允许人工调整；若无历史数据，也允许直接在 SPU 或 SKU 层级维护。</p>
+
+  <h2>五、SPU 内 SKU 占比与目标分配</h2>
+  <table>
+    <thead><tr><th>项目</th><th>计算规则</th><th>边界处理</th></tr></thead>
+    <tbody>
+      <tr><td>SKU 历史销量占比</td><td><code>SKU 近90天有效销量 ÷ 同 SPU 全部 SKU 近90天有效销量</code>。按站点、店铺、SPU 分别计算。</td><td>仅使用同一 SPU 内 SKU；不得跨 SPU 或跨店铺混合。</td></tr>
+      <tr><td>自动拆分</td><td><code>SKU 月度目标销量 = SPU 月度目标销量 × SKU 历史销量占比</code>；SKU 月度日均 = SKU 月度目标销量 ÷ 当月纳入天数。</td><td>展示值保留 2 位小数；数量分摊产生的尾差归入占比最高、且未锁定的 SKU。</td></tr>
+      <tr><td>人工锁定 SKU</td><td>先扣除已锁定 SKU 的月度目标销量，剩余 SPU 目标再按未锁定 SKU 的历史销量占比重新分配。</td><td>若锁定 SKU 合计已超过 SPU 月度总目标，保留锁定值并提示“SKU 目标超过 SPU 目标”，由运营确认或调整。</td></tr>
+      <tr><td>无历史 SKU</td><td>默认占比为 0，不参与自动分摊；可由运营录入 SKU 人工目标。</td><td>录入后计入 SPU 总目标，且不被日快照自动覆盖。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>六、备货与发货联动</h2>
+  <div class="flow">SKU 月度目标 → 目标销量 / 日均 → 当前可售库存与在途 → 积加预计入仓时间 → 到仓前需求覆盖 → 发货或直邮承接建议</div>
+  <table>
+    <thead><tr><th>字段 / 判断</th><th>计算或取数口径</th><th>业务结果</th></tr></thead>
+    <tbody>
+      <tr><td>积加预计入仓时间</td><td>从积加头程 / 调拨单据读取每个 SKU 的预计入仓时间；有多个在途批次时按批次保留，并按预计入仓日期顺序累计。</td><td>作为在途库存可开始覆盖需求的日期，不将未到仓库存当作即时可售库存。</td></tr>
+      <tr><td>到仓前需求</td><td><code>预测日均销量 × max(0, 预计入仓可售日 − 统计日)</code>；跨月时取对应月份的目标日均和实际纳入天数累计。</td><td>判断当前可售库存能否覆盖下一批货到仓前的销售需求。</td></tr>
+      <tr><td>预计断货日</td><td><code>统计日 + 当前可售库存 ÷ 当前生效日均销量</code>；日均为 0 或待设置时不输出自动断货日。</td><td>与预计入仓可售日比较，识别供应空窗。</td></tr>
+      <tr><td>库存空窗期</td><td><code>max(0, 预计入仓可售日 − 预计断货日)</code>。</td><td>空窗期大于 0 时，提示需要直邮承接或调整运输方式。</td></tr>
+      <tr><td>建议发货量</td><td>基于目标库存缺口计算；在途库存仅从其预计入仓可售日开始参与覆盖，避免提前冲减缺口。</td><td>输出待发数量和推荐发货批次。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.1 当前头程偏低时的直邮规则</h3>
+  <ul>
+    <li>当前头程库存偏低、且在途货未能在预计断货日前入仓可售时，系统默认输出 <strong>直邮承接</strong>，直至最近可用在途批次入仓。</li>
+    <li>直邮承接数量 = 空窗期内按日均目标计算的需求量；该数量从国内可用库存中预留，不得同时计入可发往海外仓数量。</li>
+    <li>如国内可用库存不足以覆盖直邮承接量，标记为 <strong>直邮库存风险</strong>，并按缺口量提示加急采购或调整运输方案。</li>
+    <li>积加预计入仓时间变更后，系统按最新时间重算空窗期、直邮承接量和建议发货量；人工目标不因重算而被覆盖。</li>
+  </ul>
+
+  <h2>七、材料可生产件数逻辑</h2>
+  <section class="summary">
+    <strong>目标：</strong>将一块（或一批）面料的可用数量，按 <code>SPU × 颜色</code> 归集后换算为可生产件数，判断该同色材料是否能够覆盖该 SPU 下各 SKU 的备货需求。材料只在同一 SPU、同一颜色内参与计算，不跨 SPU 或跨颜色挪用。
+  </section>
+  <div class="flow">面料批次 / 颜色库存 → SPU × 颜色归集 → 扣除不可用与已占用量 → 按 SKU 单件耗料换算 → 可生产件数 → 对比备货缺口与月度目标</div>
+  <table>
+    <thead><tr><th>字段</th><th>计算 / 取数口径</th><th>用途</th></tr></thead>
+    <tbody>
+      <tr><td>材料归属</td><td>每批材料须维护对应 <code>SPU</code>、颜色、材料编码、计量单位及批次；同一 SPU、同一颜色的多批材料可汇总。</td><td>限定材料可用于哪些 SKU，避免不同款式或不同颜色混用。</td></tr>
+      <tr><td>材料可用量</td><td><code>材料实物库存 − 已锁定用量 − 不可用 / 质检损耗量</code>；统一换算为材料基础单位（如米、千克或码）。</td><td>作为可生产件数的可支配材料分子。</td></tr>
+      <tr><td>SKU 单件耗料</td><td>从 BOM / 工艺资料获取该 <code>SPU × 颜色 × SKU</code> 每生产 1 件所需的材料基础单位；尺码不同可维护不同耗料。</td><td>确定每个 SKU 的换算系数。</td></tr>
+      <tr><td>SKU 可生产件数</td><td><code>floor(材料可用量 ÷ SKU 单件耗料)</code>。</td><td>表示现有同色材料若全部用于该 SKU，最多可生产的完整件数。</td></tr>
+      <tr><td>SPU 同色总可生产件数</td><td>不直接累加各 SKU 的“可生产件数”（避免重复使用同一块布）；以材料可用量为总约束，在 SKU 分配后计算实际总产出。</td><td>作为该 SPU 同色材料供给上限。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.1 同色材料在 SKU 间的分配</h3>
+  <table>
+    <thead><tr><th>步骤</th><th>规则</th><th>结果</th></tr></thead>
+    <tbody>
+      <tr><td>1. 计算需求</td><td>取该颜色下各 SKU 的未满足备货缺口；若没有备货缺口，则取对应月份的 SKU 目标销量作为计划需求。</td><td>同色 SKU 的材料需求件数。</td></tr>
+      <tr><td>2. 计算优先级</td><td>默认按 SKU 在该 SPU 内近 90 天历史销量占比由高到低分配；销量占比相同时，按可售天数由低到高分配。人工锁定的 SKU 目标优先满足。</td><td>确定同一颜色、有限材料下的生产顺序。</td></tr>
+      <tr><td>3. 换算与扣减</td><td>每次分配数量不得超过 SKU 需求件数，且消耗材料 = 分配件数 × SKU 单件耗料；剩余材料继续分配给下一 SKU。</td><td>每个 SKU 的“材料可支持生产数”和材料余额。</td></tr>
+      <tr><td>4. 余料处理</td><td>不足 1 件单件耗料的余料保留为材料余额，不计入可生产件数；不同 SKU 的余料不得相互抵扣为成品件。</td><td>防止材料能力被高估。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 材料风险判断与展示</h3>
+  <table>
+    <thead><tr><th>状态</th><th>判断条件</th><th>页面提示</th></tr></thead>
+    <tbody>
+      <tr><td>材料充足</td><td>同色材料可支持生产数 ≥ 同色 SKU 的备货需求件数。</td><td>展示可生产件数、预计材料余额及可覆盖需求比例。</td></tr>
+      <tr><td>材料不足</td><td>同色材料可支持生产数 ＜ 同色 SKU 的备货需求件数。</td><td>展示材料缺口、受影响 SKU、按优先级未满足的件数，并提示采购 / 追加同色材料。</td></tr>
+      <tr><td>资料缺失</td><td>缺少材料归属、材料可用量或 SKU 单件耗料。</td><td>显示“待维护材料 / BOM”，不输出自动可生产件数，避免以 0 误判为材料不足。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>八、展示字段与状态</h2>
+  <table>
+    <thead><tr><th>字段</th><th>展示要求</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>月度日均销量</td><td>数字保留 2 位小数。</td><td>标识实际、系统预测、SPU 人工或 SKU 人工来源。</td></tr>
+      <tr><td>SKU 销量占比</td><td>百分比保留 2 位小数并追加 <code>%</code>。</td><td>展示近 90 天历史销量占比及其计算期间。</td></tr>
+      <tr><td>月度目标销量 / 建议发货量 / 直邮承接量</td><td>数字保留 2 位小数。</td><td>数量同时展示计算来源和更新时间。</td></tr>
+      <tr><td>预计入仓可售日</td><td>展示日期、在途批次和积加单据标识。</td><td>无数据时显示“待积加回传”，不作零库存或已入仓处理。</td></tr>
+      <tr><td>风险状态</td><td>正常、需直邮承接、直邮库存风险、SKU 目标超过 SPU 目标、待设置。</td><td>风险状态支持筛选与导出。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>九、待接入与待确认事项</h2>
+  <table>
+    <thead><tr><th>事项</th><th>当前要求</th><th>影响</th></tr></thead>
+    <tbody>
+      <tr><td>积加预计入仓时间</td><td>需确认头程 / 调拨单接口可提供 SKU、批次、在途数量、预计入仓时间及状态。</td><td>决定在途库存何时参与需求覆盖和直邮承接判断。</td></tr>
+      <tr><td>可售库存日快照</td><td>需按站点、店铺、SKU 保留每日可售状态与可售库存。</td><td>决定近 90 天可售日均的分母是否准确。</td></tr>
+      <tr><td>SKU 与 SPU 映射</td><td>同一统计日应有唯一有效的店铺、站点、SPU、SKU 映射。</td><td>保障 SKU 占比和目标拆分不串货。</td></tr>
+      <tr><td>权限与审计</td><td>确认 SPU / SKU 月度目标的调整角色、审批需求及调整原因枚举。</td><td>保障人工目标可追溯、可恢复。</td></tr>
+      <tr><td>材料与 BOM 数据</td><td>需提供材料批次库存、材料基础单位、SPU / 颜色归属、已占用量、质检损耗量及 SKU 单件耗料；确认是否存在可跨 SKU 共用的同色材料。</td><td>决定材料可生产件数和材料不足风险是否能够自动计算。</td></tr>
+    </tbody>
+  </table>
+
+  <footer>关联现有资料：<a href="发补货/需求文档.html">发补货需求文档</a>、<a href="发补货/计算逻辑/发补货看板_业务计算逻辑说明.html">发补货看板业务计算逻辑说明</a>。本文件为发补货 2.0 的新增逻辑说明，不替换历史文档。</footer>
+</main>
+</body>
+</html>
